@@ -1,0 +1,357 @@
+[00:00:01.168] Server  LOG     ✓ Ready in 937ms
+[00:06:22.702] Server  LOG     ✓ Compiled in 663ms
+[00:20:15.631] Server  LOG     ✓ Compiled in 1067ms
+[00:20:16.000] Browser ERROR   ./Pictures/dgsoft-website-v2/app/globals.css
+Error evaluating Node.js code
+Error: Cannot find module 'tailwindcss-animate'
+Require stack:
+- /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts
+    [at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)]
+    [at require.resolve (node:internal/modules/helpers:163:19)]
+    [at _resolve (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:246378)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249092)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts:138:13]
+    [at evalModule (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:251913)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249841)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:53:30]
+    [at loadConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:55:6)]
+    [at getTailwindConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/setupTrackingContext.js:74:116)]
+
+Import trace:
+  Client Component Browser:
+    ./Pictures/dgsoft-website-v2/app/globals.css [Client Component Browser]
+    ./Pictures/dgsoft-website-v2/app/layout.tsx [Server Component]
+[00:20:29.992] Browser ERROR   ./Pictures/dgsoft-website-v2/app/globals.css
+Error evaluating Node.js code
+Error: Cannot find module 'tailwindcss-animate'
+Require stack:
+- /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts
+    [at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)]
+    [at require.resolve (node:internal/modules/helpers:163:19)]
+    [at _resolve (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:246378)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249092)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts:138:13]
+    [at evalModule (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:251913)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249841)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:53:30]
+    [at loadConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:55:6)]
+    [at getTailwindConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/setupTrackingContext.js:74:116)]
+
+Import trace:
+  Client Component Browser:
+    ./Pictures/dgsoft-website-v2/app/globals.css [Client Component Browser]
+    ./Pictures/dgsoft-website-v2/app/layout.tsx [Server Component]
+[00:20:31.994] Browser ERROR   ./Pictures/dgsoft-website-v2/app/globals.css
+Error evaluating Node.js code
+Error: Cannot find module 'tailwindcss-animate'
+Require stack:
+- /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts
+    [at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)]
+    [at require.resolve (node:internal/modules/helpers:163:19)]
+    [at _resolve (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:246378)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249092)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts:138:13]
+    [at evalModule (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:251913)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249841)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:53:30]
+    [at loadConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:55:6)]
+    [at getTailwindConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/setupTrackingContext.js:74:116)]
+
+Import trace:
+  Client Component Browser:
+    ./Pictures/dgsoft-website-v2/app/globals.css [Client Component Browser]
+    ./Pictures/dgsoft-website-v2/app/layout.tsx [Server Component]
+[00:20:31.994] Browser ERROR   ./Pictures/dgsoft-website-v2/app/globals.css
+Error evaluating Node.js code
+Error: Cannot find module 'tailwindcss-animate'
+Require stack:
+- /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts
+    [at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)]
+    [at require.resolve (node:internal/modules/helpers:163:19)]
+    [at _resolve (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:246378)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249092)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts:138:13]
+    [at evalModule (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:251913)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249841)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:53:30]
+    [at loadConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:55:6)]
+    [at getTailwindConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/setupTrackingContext.js:74:116)]
+
+Import trace:
+  Client Component Browser:
+    ./Pictures/dgsoft-website-v2/app/globals.css [Client Component Browser]
+    ./Pictures/dgsoft-website-v2/app/layout.tsx [Server Component]
+[00:20:31.994] Browser ERROR   ./Pictures/dgsoft-website-v2/app/globals.css
+Error evaluating Node.js code
+Error: Cannot find module 'tailwindcss-animate'
+Require stack:
+- /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts
+    [at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)]
+    [at require.resolve (node:internal/modules/helpers:163:19)]
+    [at _resolve (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:246378)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249092)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/tailwind.config.ts:138:13]
+    [at evalModule (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:251913)]
+    [at jiti (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/jiti/dist/jiti.js:1:249841)]
+    [at /Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:53:30]
+    [at loadConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/load-config.js:55:6)]
+    [at getTailwindConfig (/Users/kozyris/Pictures/dgsoft-website-v2/node_modules/tailwindcss/lib/lib/setupTrackingContext.js:74:116)]
+
+Import trace:
+  Client Component Browser:
+    ./Pictures/dgsoft-website-v2/app/globals.css [Client Component Browser]
+    ./Pictures/dgsoft-website-v2/app/layout.tsx [Server Component]
+[00:20:32.502] Server  LOG     ✓ Compiled in 973ms
+[00:20:48.877] Server  LOG     ✓ Compiled in 48ms
+[00:20:48.972] Server  LOG     ✓ Compiled in 80ms
+[00:20:49.024] Server  LOG     ✓ Compiled in 38ms
+[00:21:25.440] Server  WARN    ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[00:21:25.442] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:25.500] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:25.558] Server  LOG     ✓ Compiled in 87ms
+[00:21:36.804] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:36.898] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:46.878] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:46.953] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:56.372] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:56.475] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:21:56.640] Server  LOG     ✓ Compiled in 152ms
+[00:28:25.860] Server  ERROR   ⨯ ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:28:25.877] Server  LOG     ✓ Compiled in 29ms
+[00:28:27.004] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:27.004] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:27.991] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:27.991] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:28.339] Server  LOG     ✓ Compiled in 705ms
+[00:28:28.994] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:30.410] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:30.411] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:30.411] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:30.411] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:28:30.411] Browser ERROR   ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js:33:5
+Module not found: Can't resolve '@prisma/client/runtime/wasm-compiler-edge.js'
+  31 |   getRuntime,
+  32 |   createParam,
+> 33 | } = require('@prisma/client/runtime/wasm-compiler-edge.js')
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  34 |
+  35 |
+  36 | const Prisma = {}
+
+Import trace:
+  Edge Middleware:
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/edge.js
+    ./Pictures/dgsoft-website-v2/node_modules/.prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/node_modules/@prisma/client/default.js
+    ./Pictures/dgsoft-website-v2/lib/prisma.ts
+    ./Pictures/dgsoft-website-v2/auth.ts
+    ./Pictures/dgsoft-website-v2/middleware.ts
+
+https://nextjs.org/docs/messages/module-not-found
+[00:30:12.686] Server  LOG     ✓ Compiled in 897ms
+[00:34:22.987] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:34:22.994] Server  LOG       Reload env: .env
+[00:34:25.619] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:34:25.623] Server  LOG       Reload env: .env
+[00:34:47.333] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:34:47.360] Server  LOG       Reload env: .env
+[00:34:58.104] Server  LOG     ✓ Compiled in 140ms
+[00:35:05.119] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:35:05.187] Server  LOG     ✓ Compiled in 57ms
+[00:36:06.873] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export
+[00:36:06.887] Server  LOG       Reload env: .env
+[00:36:15.952] Server  ERROR   ⨯ Middleware cannot be used with "output: export". See more info here: https://nextjs.org/docs/advanced-features/static-html-export

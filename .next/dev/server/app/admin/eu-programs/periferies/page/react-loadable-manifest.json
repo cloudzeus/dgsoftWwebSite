@@ -1,0 +1,17 @@
+{
+  "[project]/components/nav-user.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/nav-user.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_22812429._.js",
+      "static/chunks/components_nav-user_tsx_7a1a8d56._.js"
+    ]
+  },
+  "[project]/components/admin/eu-programs/data-table-periferies.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/admin/eu-programs/data-table-periferies.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_72aa8f7b._.js",
+      "static/chunks/node_modules_d7457a48._.js",
+      "static/chunks/components_admin_eu-programs_data-table-periferies_tsx_7a1a8d56._.js"
+    ]
+  }
+}

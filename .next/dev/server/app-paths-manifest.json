@@ -1,0 +1,7 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/eu-programs/kads/page": "app/admin/eu-programs/kads/page.js",
+  "/admin/eu-programs/page": "app/admin/eu-programs/page.js",
+  "/admin/eu-programs/periferies/page": "app/admin/eu-programs/periferies/page.js",
+  "/api/admin/eu-programs/upload-kads/route": "app/api/admin/eu-programs/upload-kads/route.js"
+}

@@ -1,0 +1,592 @@
+{
+    "works": [
+        {
+            "slug": "soft1-cloud-erp-series-6",
+            "year": "2024",
+            "color": "from-[#111318] to-monks-black",
+            "el": {
+                "title": "Soft1 Cloud ERP Series 6",
+                "client": "Επιχειρηματικός Μετασχηματισμός",
+                "category": "Ολοκληρωμένες Λύσεις Λογισμικού",
+                "solutions": "Soft1 ERP, Cloud, Στατιστική Ανάλυση",
+                "tech": [
+                    "Soft1 ERP",
+                    "Cloud Computing",
+                    "Στατιστική Ανάλυση"
+                ],
+                "metric": "+40% Παραγωγικότητα",
+                "challenge": "Η επιχείρηση αντιμετώπιζε δυσκολίες στην παρακολούθηση αποθεμάτων, καθυστερήσεις στην τιμολόγηση και έλλειψη ενοποιημένης εικόνας μεταξύ πωλήσεων και παραγωγής. Απαιτούταν ένας ριζικός ανασχεδιασμός της μηχανογράφησης.",
+                "steps": [
+                    "Παραμετροποίηση εγκατάστασης Soft1 ERP",
+                    "Υλοποίηση κυκλώματος Παραγωγής",
+                    "Διασύνδεση με Λογιστικά Συστήματα",
+                    "Ανάπτυξη custom reporting με Power BI"
+                ],
+                "metrics": [
+                    {
+                        "title": "+65%",
+                        "desc": "Ταχύτητα Επιβεβαίωσης Παραγγελιών"
+                    },
+                    {
+                        "title": "100%",
+                        "desc": "Ασφάλεια & Δεδομένα στο Cloud"
+                    }
+                ]
+            },
+            "en": {
+                "title": "Soft1 Cloud ERP Series 6",
+                "client": "Business Transformation",
+                "category": "Integrated Software Solutions",
+                "solutions": "Soft1 ERP, Cloud, Statistical Analysis",
+                "tech": [
+                    "Soft1 ERP",
+                    "Cloud Computing",
+                    "Statistical Analysis"
+                ],
+                "metric": "+40% Productivity",
+                "challenge": "The business faced stock tracking difficulties, invoicing delays, and a lack of a unified picture between sales and production. A radical redesign of the computerization was required.",
+                "steps": [
+                    "Soft1 ERP installation parameterization",
+                    "Implementation of the Production circuit",
+                    "Interconnection with Accounting Systems",
+                    "Custom reporting development with Power BI"
+                ],
+                "metrics": [
+                    {
+                        "title": "+65%",
+                        "desc": "Order Confirmation Speed"
+                    },
+                    {
+                        "title": "100%",
+                        "desc": "Security & Data in Cloud"
+                    }
+                ]
+            }
+        },
+        {
+            "slug": "soft1-cloud-crm-series-6",
+            "year": "2024",
+            "color": "from-[#0a0f18] to-monks-dark",
+            "el": {
+                "title": "Soft1 Cloud CRM Series 6",
+                "client": "Αυτοματοποίηση Πωλήσεων",
+                "category": "Διαχείριση Πελατών",
+                "solutions": "Soft1 CRM, Cloud Τηλεφωνία, CTI",
+                "tech": [
+                    "Soft1 CRM",
+                    "CTI Γέφυρες",
+                    "Cloud Τηλεφωνία"
+                ],
+                "metric": "-60% Χρόνος Διαχείρισης",
+                "challenge": "Ανάγκη για άμεση οργάνωση του πελατολογίου, παρακολούθηση πορείας πωλήσεων σε πραγματικό χρόνο, και ενσωμάτωση κλήσεων (CTI) εντός της καρτέλας πελάτη.",
+                "steps": [
+                    "Ανάλυση Sales Funnel & Παραμετροποίηση CRM",
+                    "Διασύνδεση VoIP Κέντρου (CTI)",
+                    "Υλοποίηση διαδικασιών After-Sales Support",
+                    "Εκπαίδευση ομάδας Πωλήσεων"
+                ],
+                "metrics": [
+                    {
+                        "title": "-60%",
+                        "desc": "Μείωση Χρόνου Διαχείρισης"
+                    },
+                    {
+                        "title": "360°",
+                        "desc": "Πλήρης Εικόνα Πελάτη"
+                    }
+                ]
+            },
+            "en": {
+                "title": "Soft1 Cloud CRM Series 6",
+                "client": "Sales Automation",
+                "category": "Customer Management",
+                "solutions": "Soft1 CRM, Cloud Telephony, CTI",
+                "tech": [
+                    "Soft1 CRM",
+                    "CTI Bridges",
+                    "Cloud Telephony"
+                ],
+                "metric": "-60% Management Time",
+                "challenge": "Need for immediate organization of the clientele, real-time monitoring of sales progress, and integration of calls (CTI) within the customer card.",
+                "steps": [
+                    "Sales Funnel Analysis & CRM Parameterization",
+                    "VoIP Center Interconnection (CTI)",
+                    "Implementation of After-Sales Support procedures",
+                    "Sales team training"
+                ],
+                "metrics": [
+                    {
+                        "title": "-60%",
+                        "desc": "Management Time Reduction"
+                    },
+                    {
+                        "title": "360°",
+                        "desc": "Full Customer Picture"
+                    }
+                ]
+            }
+        },
+        {
+            "slug": "ariadne-service-hub",
+            "year": "2023",
+            "color": "from-monks-dark to-monks-black",
+            "el": {
+                "title": "Ariadne Service Hub",
+                "client": "Ενοποίηση Διαδικασιών",
+                "category": "Custom Β2Β & B2C Portal",
+                "solutions": "B2B Portal, Soft1 API, React",
+                "tech": [
+                    "Soft1 API",
+                    "React",
+                    "Node.js"
+                ],
+                "metric": "2M+ Συναλλαγές",
+                "challenge": "Ψηφιοποίηση της διαδικασίας εξυπηρέτησης χρηστών (Helpdesk/Ticketing) και B2B παραγγελιών μέσω σύγχρονου custom Portal άμεσα συνδεδεμένου με το ERP.",
+                "steps": [
+                    "Σχεδιασμός UI/UX Custom Εφαρμογής",
+                    "Ανάπτυξη Portal μέσω React & Web APIs",
+                    "Live Web Service διασύνδεση με Soft1",
+                    "Ενσωμάτωση Module Αιτημάτων"
+                ],
+                "metrics": [
+                    {
+                        "title": "2M+",
+                        "desc": "Συναλλαγές Ετησίως"
+                    },
+                    {
+                        "title": "24/7",
+                        "desc": "Διαθεσιμότητα Υπηρεσιών B2B"
+                    }
+                ]
+            },
+            "en": {
+                "title": "Ariadne Service Hub",
+                "client": "Processes Consolidation",
+                "category": "Custom B2B & B2C Portal",
+                "solutions": "B2B Portal, Soft1 API, React",
+                "tech": [
+                    "Soft1 API",
+                    "React",
+                    "Node.js"
+                ],
+                "metric": "2M+ Transactions",
+                "challenge": "Digitization of user service process (Helpdesk/Ticketing) and B2B orders via modern custom Portal directly connected to the ERP.",
+                "steps": [
+                    "UI/UX Design of Custom Application",
+                    "Portal Development via React & Web APIs",
+                    "Live Web Service interconnection with Soft1",
+                    "Requests Module Integration"
+                ],
+                "metrics": [
+                    {
+                        "title": "2M+",
+                        "desc": "Transactions Annually"
+                    },
+                    {
+                        "title": "24/7",
+                        "desc": "B2B Services Availability"
+                    }
+                ]
+            }
+        },
+        {
+            "slug": "digital-tools-exodologia",
+            "year": "2023",
+            "color": "from-[#160a0c] to-monks-black",
+            "el": {
+                "title": "Εξοδολογία & DocuSign",
+                "client": "Ψηφιακά Εργαλεία",
+                "category": "Automations",
+                "solutions": "DocuSign, Email Tool, Soft1 Connectors",
+                "tech": [
+                    "Soft1 Connectors",
+                    "DocuSign",
+                    "Email Tools"
+                ],
+                "metric": "100% Paperless",
+                "challenge": "Αυτοματοποίηση υπογραφής εγγράφων εξ αποστάσεως και μαζική αποστολή προσωποποιημένων email με δυναμική καταχώρηση δαπανών εξοδολογίου.",
+                "steps": [
+                    "Ενσωμάτωση DocuSign API στο ERP",
+                    "Παραμετροποίηση DGSOFT Email Tool",
+                    "Αυτοματισμοί Εγκρίσεων Εξοδολογίων",
+                    "Secure & Authenticated Workflows"
+                ],
+                "metrics": [
+                    {
+                        "title": "100%",
+                        "desc": "Paperless Λειτουργία"
+                    },
+                    {
+                        "title": "GDPR",
+                        "desc": "Νόμιμη Ψηφιακή Υπογραφή"
+                    }
+                ]
+            },
+            "en": {
+                "title": "Expenses & DocuSign",
+                "client": "Digital Tools",
+                "category": "Automations",
+                "solutions": "DocuSign, Email Tool, Soft1 Connectors",
+                "tech": [
+                    "Soft1 Connectors",
+                    "DocuSign",
+                    "Email Tools"
+                ],
+                "metric": "100% Paperless",
+                "challenge": "Remote document signature automation and mass personalized email dispatch with dynamic entry of expense line items.",
+                "steps": [
+                    "DocuSign API Integration in ERP",
+                    "DGSOFT Email Tool Configuration",
+                    "Expense Approvals Automation",
+                    "Secure & Authenticated Workflows"
+                ],
+                "metrics": [
+                    {
+                        "title": "100%",
+                        "desc": "Paperless Operation"
+                    },
+                    {
+                        "title": "GDPR",
+                        "desc": "Legal Digital Signature"
+                    }
+                ]
+            }
+        }
+    ],
+    "services": [
+        {
+            "slug": "soft1-cloud-erp",
+            "icon": "Cloud",
+            "el": {
+                "title": "Soft1 Cloud ERP",
+                "category": "Λογισμικό Πυρήνα",
+                "desc": "Μια σύγχρονη λύση επιχειρηματικού λογισμικού κατασκευασμένη σε υψηλά τεχνικά πρότυπα."
+            },
+            "en": {
+                "title": "Soft1 Cloud ERP",
+                "category": "Enterprise",
+                "desc": "A modern business software solution built on high technical standards."
+            }
+        },
+        {
+            "slug": "soft1-cloud-crm",
+            "icon": "Globe",
+            "el": {
+                "title": "Soft1 Cloud CRM",
+                "category": "Σχέσεις Πελατών",
+                "desc": "Χαρτογραφήστε και παρακολουθήστε όλο το ταξίδι των πελατών σας σε μία κεντρική πλατφόρμα."
+            },
+            "en": {
+                "title": "Soft1 Cloud CRM",
+                "category": "Customer Relations",
+                "desc": "Map and track your entire customer journey in one central platform."
+            }
+        },
+        {
+            "slug": "custom-software",
+            "icon": "Cpu",
+            "el": {
+                "title": "Custom Λογισμικό",
+                "category": "Ανάπτυξη",
+                "desc": "Προσαρμοσμένες εφαρμογές κατασκευασμένες για να καλύψουν τις δικές σας λειτουργικές ανάγκες."
+            },
+            "en": {
+                "title": "Custom Software",
+                "category": "Development",
+                "desc": "Tailored applications built to meet your specific operational needs."
+            }
+        },
+        {
+            "slug": "cybersecurity",
+            "icon": "Shield",
+            "el": {
+                "title": "Υπηρεσίες Κυβερνοασφάλειας",
+                "category": "Ασφάλεια",
+                "desc": "Ισχυρή προστασία για τα εταιρικά δεδομένα σας και την cloud υποδομή σας."
+            },
+            "en": {
+                "title": "Cybersecurity Services",
+                "category": "Security",
+                "desc": "Robust protection for your enterprise data and cloud infrastructure."
+            }
+        },
+        {
+            "slug": "mobile-apps",
+            "icon": "Smartphone",
+            "el": {
+                "title": "Ανάπτυξη Mobile Apps",
+                "category": "Mobile",
+                "desc": "Native και cross-platform mobile λύσεις για υποσυστήματα iOS και Android."
+            },
+            "en": {
+                "title": "Mobile App Development",
+                "category": "Mobile",
+                "desc": "Native and cross-platform mobile solutions for iOS and Android."
+            }
+        },
+        {
+            "slug": "data-analytics",
+            "icon": "Database",
+            "el": {
+                "title": "Δεδομένα & Αναλύσεις",
+                "category": "Επιχειρηματική Ευφυΐα",
+                "desc": "Μετατρέψτε ανεπεξέργαστα δεδομένα σε αξιοποιήσιμες επιχειρηματικές ιδέες μέσω προηγμένου BI."
+            },
+            "en": {
+                "title": "Data & Analytics",
+                "category": "Business Intelligence",
+                "desc": "Transform raw data into actionable business insights with advanced BI."
+            }
+        }
+    ],
+    "euPrograms": [
+        {
+            "slug": "digital-tools",
+            "icon": "Smartphone",
+            "fileUrl": "/assets/digital-tools.pdf",
+            "fileSize": "2.1 MB",
+            "fileType": "PDF",
+            "el": {
+                "title": "Ψηφιακά Εργαλεία ΜΜΕ",
+                "category": "Επιδοτήσεις ΕΣΠΑ",
+                "amount": "έως 18.000€",
+                "desc": "Αναβάθμιση του ψηφιακού εξοπλισμού και της υποδομής των μικρομεσαίων επιχειρήσεων."
+            },
+            "en": {
+                "title": "Digital Tools for SMEs",
+                "category": "ESPA Subsidies",
+                "amount": "up to €18,000",
+                "desc": "Upgrade of digital equipment and infrastructure of small and medium enterprises."
+            }
+        },
+        {
+            "slug": "digital-transactions",
+            "icon": "HandCoins",
+            "fileUrl": "/assets/digital-transactions.pdf",
+            "fileSize": "1.8 MB",
+            "fileType": "PDF",
+            "el": {
+                "title": "Ψηφιακές Συναλλαγές",
+                "category": "Ταμείο Ανάκαμψης",
+                "amount": "έως 30.000€",
+                "desc": "Εκσυγχρονισμός και ψηφιοποίηση των μεθόδων τιμολόγησης, είσπραξης και διαχείρισης αποθεμάτων."
+            },
+            "en": {
+                "title": "Digital Transactions",
+                "category": "Recovery Fund",
+                "amount": "up to €30,000",
+                "desc": "Modernization and digitization of invoicing, collection, and inventory management methods."
+            }
+        },
+        {
+            "slug": "innovation-grants",
+            "icon": "TrendingUp",
+            "fileUrl": "/assets/innovation-grants.pdf",
+            "fileSize": "3.2 MB",
+            "fileType": "PDF",
+            "el": {
+                "title": "Ενίσχυση Καινοτομίας",
+                "category": "Νέες Τεχνολογίες",
+                "amount": "Ανοιχτό",
+                "desc": "Χρηματοδότηση για την ενσωμάτωση AI, Cloud computing, και προηγμένων ψηφιακών τεχνολογιών παραγωγής."
+            },
+            "en": {
+                "title": "Innovation Grants",
+                "category": "New Technologies",
+                "amount": "Open",
+                "desc": "Funding for the integration of AI, Cloud computing, and advanced digital production technologies."
+            }
+        },
+        {
+            "slug": "smart-manufacturing",
+            "icon": "Building2",
+            "fileUrl": "/assets/smart-manufacturing.pdf",
+            "fileSize": "4.5 MB",
+            "fileType": "PDF",
+            "el": {
+                "title": "Έξυπνη Μεταποίηση",
+                "category": "Βιομηχανία 4.0",
+                "amount": "έως 5.000.000€",
+                "desc": "Στρατηγικές επιδοτήσεις για βιομηχανίες με σκοπό την πλήρη αυτοματοποίηση ροών."
+            },
+            "en": {
+                "title": "Smart Manufacturing",
+                "category": "Industry 4.0",
+                "amount": "up to €5,000,000",
+                "desc": "Strategic subsidies for industries aiming at full flow automation."
+            }
+        }
+    ],
+    "careers": [
+        {
+            "slug": "senior-erp-consultant",
+            "icon": "Handshake",
+            "el": {
+                "title": "Senior Soft1 ERP Consultant",
+                "department": "Υλοποίηση",
+                "location": "Αθήνα / Remote",
+                "type": "Full-time"
+            },
+            "en": {
+                "title": "Senior Soft1 ERP Consultant",
+                "department": "Implementation",
+                "location": "Athens / Remote",
+                "type": "Full-time"
+            }
+        },
+        {
+            "slug": "full-stack-developer",
+            "icon": "Code",
+            "el": {
+                "title": "Full-Stack Developer (Next.js/Node)",
+                "department": "Engineering",
+                "location": "Θεσσαλονίκη / Remote",
+                "type": "Full-time"
+            },
+            "en": {
+                "title": "Full-Stack Developer (Next.js/Node)",
+                "department": "Engineering",
+                "location": "Thessaloniki / Remote",
+                "type": "Full-time"
+            }
+        },
+        {
+            "slug": "data-analyst",
+            "icon": "Database",
+            "el": {
+                "title": "Data Analytics Engineer",
+                "department": "Business Intelligence",
+                "location": "Αθήνα",
+                "type": "Full-time"
+            },
+            "en": {
+                "title": "Data Analytics Engineer",
+                "department": "Business Intelligence",
+                "location": "Athens",
+                "type": "Full-time"
+            }
+        },
+        {
+            "slug": "it-support-specialist",
+            "icon": "PhoneCall",
+            "el": {
+                "title": "IT Support & Helpdesk",
+                "department": "Customer Success",
+                "location": "Κύπρος",
+                "type": "Full-time"
+            },
+            "en": {
+                "title": "IT Support & Helpdesk",
+                "department": "Customer Success",
+                "location": "Cyprus",
+                "type": "Full-time"
+            }
+        }
+    ],
+    "blog": [
+        {
+            "slug": "supply-chain-transformation",
+            "author": "DGSOFT Team",
+            "published": "2024-10-20",
+            "imageUrl": "/blog/supply-chain.jpg",
+            "el": {
+                "title": "Ο Μετασχηματισμός της Εφοδιαστικής μέσα από το ERP",
+                "category": "Digital Strategy",
+                "excerpt": "Μάθετε πώς ένα σύγχρονο ERP σύστημα μπορεί να αναδιαμορφώσει την εφοδιαστική αλυσίδα και να μειώσει τα κόστη. Αναλύουμε περιπτώσεις πελατών μας.",
+                "content": "<p>Η εφοδιαστική αλυσίδα αντιμετωπίζει πρωτοφανείς πιέσεις...</p>"
+            },
+            "en": {
+                "title": "Supply Chain Transformation through ERP",
+                "category": "Digital Strategy",
+                "excerpt": "Learn how a modern ERP system can reshape the supply chain and reduce costs. Analyzing customer cases.",
+                "content": "<p>The supply chain faces unprecedented pressures...</p>"
+            }
+        },
+        {
+            "slug": "crm-sales-growth",
+            "author": "Sales Team",
+            "published": "2024-12-05",
+            "imageUrl": "/blog/crm-growth.jpg",
+            "el": {
+                "title": "Πώς το CRM αυξάνει τις πωλήσεις κατά 40%",
+                "category": "Sales Automation",
+                "excerpt": "Η αυτοματοποίηση των διαδικασιών πωλήσεων μέσω Soft1 CRM Series 6, προσφέρει μια πανοραμική εικόνα 360° του πελατολογίου, διευκολύνοντας την παραγωγικότητα.",
+                "content": "<p>Οι δυναμικές επιχειρήσεις χρησιμοποιούν το CRM όχι μόνο για...</p>"
+            },
+            "en": {
+                "title": "How CRM increases sales by 40%",
+                "category": "Sales Automation",
+                "excerpt": "Automation of sales processes via Soft1 CRM Series 6 provides a 360 ° panoramic view of the customer base, facilitating productivity.",
+                "content": "<p>Dynamic businesses use CRM not only for...</p>"
+            }
+        },
+        {
+            "slug": "ai-in-business-2025",
+            "author": "Tech Staff",
+            "published": "2025-01-10",
+            "imageUrl": "/blog/ai-future.jpg",
+            "el": {
+                "title": "Ο ρόλος του AI στις ελληνικές επιχειρήσεις το 2025",
+                "category": "Τεχνητή Νοημοσύνη",
+                "excerpt": "Μια ματιά στο μέλλον: Πώς οι υπηρεσίες τεχνητής νοημοσύνης μπαίνουν ραγδαία στο οργανόγραμμα των επιχειρήσεων μέσω εργαλείων αυτοματισμού.",
+                "content": "<p>Η τεχνητή νοημοσύνη εξελίσσεται από πειραματικό στάδιο σε...</p>"
+            },
+            "en": {
+                "title": "The role of AI in Greek businesses in 2025",
+                "category": "Artificial Intelligence",
+                "excerpt": "A glimpse into the future: How AI services are rapidly entering the business organizational chart through automation tools.",
+                "content": "<p>Artificial intelligence is evolving from an experimental stage to...</p>"
+            }
+        }
+    ],
+    "downloads": [
+        {
+            "slug": "cloud-security-guide-2024",
+            "fileUrl": "/assets/cloud-security-guide.pdf",
+            "fileSize": "2.4 MB",
+            "fileType": "PDF",
+            "el": {
+                "title": "Ασφάλεια Δεδομένων στο Cloud: Οδηγός 2024",
+                "category": "Οδηγός PDF",
+                "desc": "Στις επιχειρηματικές λειτουργίες της νέας εποχής, η ασφάλεια των δεδομένων σας πρέπει να είναι προτεραιότητα. Κατεβάστε τον πλήρη οδηγό."
+            },
+            "en": {
+                "title": "Cloud Data Security: 2024 Guide",
+                "category": "PDF Guide",
+                "desc": "In modern business operations, your data security must be a priority. Download the complete guide."
+            }
+        },
+        {
+            "slug": "erp-implementation-checklist",
+            "fileUrl": "/assets/erp-checklist.pdf",
+            "fileSize": "1.1 MB",
+            "fileType": "PDF",
+            "el": {
+                "title": "Checklist Υλοποίησης ERP 2024",
+                "category": "Checklist",
+                "desc": "Τα βήματα-κλειδιά για την ομαλή μετάβαση ή αναβάθμιση του ERP της εταιρείας σας."
+            },
+            "en": {
+                "title": "ERP Implementation Checklist 2024",
+                "category": "Checklist",
+                "desc": "The key steps for a smooth transition or upgrade of your company's ERP."
+            }
+        },
+        {
+            "slug": "eu-grants-whitepaper",
+            "fileUrl": "/assets/eu-grants-25.pdf",
+            "fileSize": "3.8 MB",
+            "fileType": "Whitepaper",
+            "el": {
+                "title": "Επιδοτήσεις & Μετασχηματισμός (Whitepaper)",
+                "category": "Whitepaper",
+                "desc": "Έκθεση μελέτης σχετικά με τη βελτιστοποίηση απορρόφησης κονδυλίων."
+            },
+            "en": {
+                "title": "Subsidies & Transformation (Whitepaper)",
+                "category": "Whitepaper",
+                "desc": "Study report regarding the optimization of fund absorption."
+            }
+        }
+    ]
+}

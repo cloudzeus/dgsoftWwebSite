@@ -1,0 +1,357 @@
+generator client {
+  provider      = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  firstName     String?
+  lastName      String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("USER")
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  articles      Article[]
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model TRDR {
+  id             String    @id @default(cuid())
+  SODTYPE        Int       @default(13)
+  TRDR           Int       @unique
+  CODE           String    @unique @db.VarChar(25)
+  NAME           String    @db.VarChar(128)
+  AFM            String?   @db.VarChar(20)
+  COUNTRY        Int?
+  SOCURRENCY     Int?
+  ADDRESS        String?   @db.VarChar(100)
+  ZIP            String?   @db.VarChar(10)
+  DISTRICT       String?   @db.VarChar(30)
+  CITY           String?   @db.VarChar(30)
+  AREAS          Int?
+  PHONE01        String?   @db.VarChar(20)
+  JOBTYPE        Int?
+  JOBTYPETRD     String?   @db.VarChar(128)
+  EMAIL          String?   @db.VarChar(128)
+  TRDBUSINESS    Int?
+  SHIPMENT       Int?
+  PAYMENT        Int?
+  SOCARRIER      Int?
+  IRSDATA        String?   @db.VarChar(128)
+  REMARKS        String?   @db.Text
+  INSDATE        DateTime?
+  UPDDATE        DateTime?
+  SOTITLE        String?   @db.VarChar(64)
+
+  logo           String?
+  website        String?
+  displayAtCarousel Boolean @default(false)
+  
+  registDate     String?   @db.VarChar(50)
+  legalStatus    String?   @db.VarChar(128)
+  numEmployees   Int?      @db.SmallInt
+
+  kads           trdrKad[]
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model trdrKad {
+  id             String    @id @default(cuid())
+  afm            String?   @db.VarChar(20)
+  customerId     String
+  customer       TRDR      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  firm_act_code  String    @db.VarChar(50)
+  firm_act_descr String    @db.VarChar(255)
+  firm_act_kind  Boolean   @default(false)
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model ArticleCategory {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  nameEL        String    @db.VarChar(255)
+  nameEN        String?   @db.VarChar(255)
+  descriptionEL String?   @db.Text
+  descriptionEN String?   @db.Text
+  order         Int       @default(0)
+
+  articles      Article[] @relation("ArticleToCategory")
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Article {
+  id                 String    @id @default(cuid())
+  slug               String    @unique
+  authorId           String
+  author             User      @relation(fields: [authorId], references: [id])
+  
+  titleEL            String    @db.VarChar(255)
+  titleEN            String?   @db.VarChar(255)
+  shortDescriptionEL String?   @db.Text
+  shortDescriptionEN String?   @db.Text
+  descriptionEL      String?   @db.LongText
+  descriptionEN      String?   @db.LongText
+  
+  metaTitleEL        String?   @db.VarChar(255)
+  metaTitleEN        String?   @db.VarChar(255)
+  metaDescriptionEL  String?   @db.Text
+  metaDescriptionEN  String?   @db.Text
+  keywordsEL         String?   @db.Text
+  keywordsEN         String?   @db.Text
+  
+  featureImage       String?   @db.Text
+  order              Int       @default(0)
+  published          Boolean   @default(false)
+  
+  categories         ArticleCategory[] @relation("ArticleToCategory")
+  media              ArticleMedia[]
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model ArticleMedia {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  type      String   @default("IMAGE") // IMAGE, VIDEO
+  url       String   @db.Text
+  order     Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Download {
+  id              String   @id @default(cuid())
+  nameEL          String   @db.VarChar(255)
+  nameEN          String?  @db.VarChar(255)
+  descriptionEL   String?  @db.Text
+  descriptionEN   String?  @db.Text
+  fileUrl         String   @db.Text
+  fileSize        String?  @db.VarChar(50)
+  fileType        String?  @db.VarChar(50)
+  category        String?  @db.VarChar(100)
+  published       Boolean  @default(true)
+  order           Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Position {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+
+  titleEL         String   @db.VarChar(255)
+  titleEN         String?  @db.VarChar(255)
+
+  descriptionEL   String?  @db.LongText
+  descriptionEN   String?  @db.LongText
+
+  departmentEL    String?  @db.VarChar(255)
+  departmentEN    String?  @db.VarChar(255)
+
+  cityEL          String?  @db.VarChar(255)
+  cityEN          String?  @db.VarChar(255)
+
+  typeEL          String?  @db.VarChar(100)
+  typeEN          String?  @db.VarChar(100)
+
+  dutiesEL        Json?
+  dutiesEN        Json?
+
+  skillsEL        Json?
+  skillsEN        Json?
+
+  published       Boolean  @default(true)
+  order           Int      @default(0)
+
+  applications    CvApplication[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CvApplication {
+  id              String   @id @default(cuid())
+  positionId      String?
+  position        Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+
+  firstName       String   @db.VarChar(100)
+  lastName        String   @db.VarChar(100)
+  phone           String?  @db.VarChar(30)
+  email           String   @db.VarChar(255)
+  cvUrl           String   @db.Text
+  coverLetter     String?  @db.Text
+
+  status          String   @default("NEW")  // NEW, REVIEWED, SHORTLISTED, REJECTED
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Presence {
+  id              String   @id @default(cuid())
+  nameEL          String   @db.VarChar(255)
+  nameEN          String?  @db.VarChar(255)
+  addressEL       String?  @db.VarChar(255)
+  addressEN       String?  @db.VarChar(255)
+  zip             String?  @db.VarChar(20)
+  cityEL          String?  @db.VarChar(255)
+  cityEN          String?  @db.VarChar(255)
+  countryEL       String?  @db.VarChar(255)
+  countryEN       String?  @db.VarChar(255)
+  email           String?  @db.VarChar(255)
+  phone           String?  @db.VarChar(50)
+  website         String?  @db.Text
+  logo            String?  @db.Text
+  latitude        Float?
+  longitude       Float?
+
+  order           Int      @default(0)
+  published       Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model EuProgram {
+  id                 String   @id @default(cuid())
+  nameEL             String   @db.VarChar(255)
+  nameEN             String?  @db.VarChar(255)
+  shortDescriptionEL String?  @db.Text
+  shortDescriptionEN String?  @db.Text
+  descriptionEL      String?  @db.LongText
+  descriptionEN      String?  @db.LongText
+  
+  announcedDate      DateTime?
+  submissionDate     DateTime?
+  endDate            DateTime?
+  
+  active             Boolean  @default(true)
+  publicationFile    String?  @db.Text
+  image              String?  @db.Text
+
+  technologiesEL     Json?    
+  technologiesEN     Json?
+  companyTypes       Json?    
+  
+  minimumCompanyYears Int?
+  minimumEmployees    Int?
+  
+  percentageOfFinance String?  @db.VarChar(50)
+  maxBudget           Float?
+  
+  kads               KadEuProgram[]
+  periferies         EuProgramPeriferia[]
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Kad {
+  id        String   @id @default(cuid())
+  code      String   @unique @db.VarChar(50)
+  dotcode   String?  @db.VarChar(50)
+  nameEL    String?  @db.Text
+  nameEN    String?  @db.Text
+
+  programs  KadEuProgram[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model KadEuProgram {
+  id           String @id @default(cuid())
+  kadId        String
+  euProgramId  String
+
+  kad          Kad        @relation(fields: [kadId], references: [id], onDelete: Cascade)
+  euProgram    EuProgram  @relation(fields: [euProgramId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+  
+  @@unique([kadId, euProgramId])
+}
+
+model Periferia {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  nameEL    String   @db.VarChar(255)
+  nameEN    String?  @db.VarChar(255)
+  level     Int      @default(3) // 3=Περιφέρεια, 4=Περιφερειακή ενότητα, 5=Δήμος
+  parentCode String?
+
+  parent    Periferia?   @relation("Hierarchy", fields: [parentCode], references: [code], onDelete: Restrict, onUpdate: Cascade)
+  children  Periferia[]  @relation("Hierarchy")
+
+  programs  EuProgramPeriferia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EuProgramPeriferia {
+  id           String @id @default(cuid())
+  periferiaId  String
+  euProgramId  String
+
+  periferia    Periferia  @relation(fields: [periferiaId], references: [id], onDelete: Cascade)
+  euProgram    EuProgram  @relation(fields: [euProgramId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+  
+  @@unique([periferiaId, euProgramId])
+}

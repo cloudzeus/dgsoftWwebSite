@@ -1,0 +1,13 @@
+__turbopack_load_page_chunks__("/_error", [
+  "static/chunks/9c41f_next_dist_compiled_d4988bcf._.js",
+  "static/chunks/9c41f_next_dist_shared_lib_a13a056d._.js",
+  "static/chunks/9c41f_next_dist_client_b58d6397._.js",
+  "static/chunks/9c41f_next_dist_67f9e207._.js",
+  "static/chunks/9c41f_next_error_25e64798.js",
+  "static/chunks/[next]_entry_page-loader_ts_50df9ef0._.js",
+  "static/chunks/9c41f_react-dom_df82b68b._.js",
+  "static/chunks/9c41f_9e2664b2._.js",
+  "static/chunks/[root-of-the-server]__49673402._.js",
+  "static/chunks/Pictures_dgsoft-website-v2_pages__error_2da965e7._.js",
+  "static/chunks/turbopack-Pictures_dgsoft-website-v2_pages__error_8e0a9efa._.js"
+])
