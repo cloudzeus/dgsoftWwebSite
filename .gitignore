@@ -12,7 +12,7 @@ out/
 
 # Production build artifacts
 build
-dist
+dist/
 
 # Environment variables
 .env
