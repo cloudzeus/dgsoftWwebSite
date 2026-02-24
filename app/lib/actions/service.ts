@@ -1,7 +1,6 @@
-"use server"
-
 import db from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { ServiceFormValues } from "../types/service"
 
 // CATEGORIES
 export async function getServiceCategories() {
@@ -63,7 +62,7 @@ export async function getServices() {
     })
 }
 
-export async function createService(data: any) {
+export async function createService(data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null }) {
     const service = await db.service.create({
         data: {
             nameEL: data.nameEL,
@@ -84,7 +83,7 @@ export async function createService(data: any) {
     return service
 }
 
-export async function updateService(id: string, data: any) {
+export async function updateService(id: string, data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null }) {
     const service = await db.service.update({
         where: { id },
         data: {

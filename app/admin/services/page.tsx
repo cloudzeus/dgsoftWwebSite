@@ -31,8 +31,8 @@ export default async function ServicesPage() {
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">Services Management</h1>
                     </div>
                     <ServicesTableClient
-                        initialServices={services as any}
-                        categories={categories as any}
+                        initialServices={services}
+                        categories={categories}
                     />
                 </div>
             </SidebarInset>

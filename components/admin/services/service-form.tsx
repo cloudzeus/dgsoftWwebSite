@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Control } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import {
@@ -58,18 +58,7 @@ const serviceSchema = z.object({
     order: z.number().default(0),
 })
 
-type ServiceFormValues = {
-    nameEL: string
-    nameEN: string
-    shortDescriptionEL: string
-    shortDescriptionEN: string
-    descriptionEL: string
-    descriptionEN: string
-    slug: string
-    categoryId: string
-    brandName: string
-    order: number
-}
+type ServiceFormValues = z.infer<typeof serviceSchema>
 
 interface ServiceFormProps {
     service?: ServiceType
@@ -306,7 +295,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 )}
                                             />
                                             <FormField
-                                                control={form.control}
+                                                control={form.control as any}
                                                 name="nameEN"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -341,7 +330,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         </div>
                                         <div className="space-y-4">
                                             <FormField
-                                                control={form.control}
+                                                control={form.control as any}
                                                 name="slug"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -358,7 +347,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 )}
                                             />
                                             <FormField
-                                                control={form.control}
+                                                control={form.control as any}
                                                 name="categoryId"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -395,7 +384,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-400">Primary Content (Greek)</h4>
                                         </div>
                                         <FormField
-                                            control={form.control}
+                                            control={form.control as any}
                                             name="shortDescriptionEL"
                                             render={({ field }) => (
                                                 <FormItem>
@@ -406,7 +395,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             )}
                                         />
                                         <FormField
-                                            control={form.control}
+                                            control={form.control as any}
                                             name="descriptionEL"
                                             render={({ field }) => (
                                                 <FormItem>
@@ -430,7 +419,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Internationalization (English)</h4>
                                         </div>
                                         <FormField
-                                            control={form.control}
+                                            control={form.control as any}
                                             name="shortDescriptionEN"
                                             render={({ field }) => (
                                                 <FormItem>
@@ -454,7 +443,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             )}
                                         />
                                         <FormField
-                                            control={form.control}
+                                            control={form.control as any}
                                             name="descriptionEN"
                                             render={({ field }) => (
                                                 <FormItem>
@@ -536,7 +525,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Partner Details</h4>
                                     </div>
                                     <FormField
-                                        control={form.control}
+                                        control={form.control as any}
                                         name="brandName"
                                         render={({ field }) => (
                                             <FormItem>
@@ -548,7 +537,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         )}
                                     />
                                     <FormField
-                                        control={form.control}
+                                        control={form.control as any}
                                         name="order"
                                         render={({ field }) => (
                                             <FormItem>

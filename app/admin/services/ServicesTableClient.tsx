@@ -1,7 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { ServiceType, ServiceCategoryType } from "@/components/admin/services/services-table"
+import { ServiceWithRelations, ServiceCategoryWithCount } from "@/app/lib/types/service"
 
 const ServicesTable = dynamic(
     () => import("@/components/admin/services/services-table").then(m => m.ServicesTable),
@@ -12,8 +12,8 @@ export function ServicesTableClient({
     initialServices,
     categories
 }: {
-    initialServices: ServiceType[],
-    categories: ServiceCategoryType[]
+    initialServices: ServiceWithRelations[],
+    categories: ServiceCategoryWithCount[]
 }) {
     return (
         <ServicesTable
