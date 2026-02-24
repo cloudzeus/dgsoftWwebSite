@@ -37,3 +37,4 @@ yarn-error.log*
 
 # Prisma
 /app/generated/prisma
+*.tsbuildinfo
