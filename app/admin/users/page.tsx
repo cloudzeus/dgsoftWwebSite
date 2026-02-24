@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+export const dynamic = "force-dynamic";
 import { getUsers } from "@/app/lib/actions/user"
 import { DataTableUsers } from "@/components/admin/users/data-table-users"
 import { auth } from '@/auth';

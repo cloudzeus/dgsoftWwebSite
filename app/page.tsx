@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Navigation from "./components/Navigation";
 import Hero from "./sections/Hero";
 import Solutions from "./sections/Solutions";

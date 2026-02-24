@@ -25,7 +25,7 @@ export async function getPublicLocations() {
         })
     } catch (error: any) {
         console.error("GET PUBLIC LOCATIONS Error:", error)
-        throw new Error(error.message)
+        return []
     }
 }
 

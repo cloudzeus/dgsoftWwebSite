@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { Metadata } from 'next';
 import { getLocations } from "@/app/lib/actions/location"
 import { DataTableLocations } from "@/components/admin/locations/data-table-locations"
