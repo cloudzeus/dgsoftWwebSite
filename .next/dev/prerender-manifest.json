@@ -1,11 +1,1 @@
-{
-  "version": 4,
-  "routes": {},
-  "dynamicRoutes": {},
-  "notFoundRoutes": [],
-  "preview": {
-    "previewModeId": "7765b206568a5666044f82d49fc70ef7",
-    "previewModeSigningKey": "c001801ed8603944362f21cb286bdfc83dde413b175aebb783c66e218fa94396",
-    "previewModeEncryptionKey": "f2f09ca83f2632b4dd54beeb8106291e50744e750f2dddb13d07d90ea4988df5"
-  }
-}
+{"version":4,"routes":{"/services/soft1-cloud-erp":{},"/services/soft1-cloud-crm":{},"/services/custom-software":{},"/services/cybersecurity":{},"/services/mobile-apps":{},"/services/data-analytics":{}},"dynamicRoutes":{"/services/[slug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/services/[slug]","routeRegex":"^\\/services\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"de6d3316845f30d243b86c4f00ba9836","previewModeSigningKey":"d52d8828e7338845218c7a62a204cc3bd9202eced285e800fd62a26875e6654e","previewModeEncryptionKey":"36ea6d536b50ec62b96845578d3c1a53e61450b0d395e90799a4c6d96755d9df"}}

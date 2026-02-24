@@ -1,0 +1,215 @@
+{
+  "node": {
+    "000d281e9d842c89c6394975c162414d293fdc1d71": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getServiceCategories",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "getServiceCategories",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "000e4ed396d61f13e39cfb72fd6d2f603dc169d2f8": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getServices",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "getServices",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "4017821dc0f96d9dfcc71e7dc8ca2263162e98e33b": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createServiceCategory",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "createServiceCategory",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "402cce84c6d2ca9b47710e38d30891039b03e5eaec": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteService",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "deleteService",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "403be0f5da56fa15e4c0c646e5b012be1ee4db5ec1": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteServiceMedia",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "deleteServiceMedia",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "405c3e6bd0782b34f0b2e3d10d79c29d854108f30f": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createServiceMedia",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "createServiceMedia",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "4064165c1e863fc4e6453aeac82f6cf0eb34fe0092": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteServiceCategory",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "deleteServiceCategory",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "407ab099bc409f53835a2ef6650f0e4bee5b1464db": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateServicesOrder",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "updateServicesOrder",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "4083388c85d6ba2523a97ed4ee7fc0502a69c94b42": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createServiceFeature",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "createServiceFeature",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "40faea0cbf714b5bd152990a000dce5c8deed19ebf": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteServiceFeature",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "deleteServiceFeature",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "40fb7c3f267e66030374798416898ccf9468c21f05": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createService",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "createService",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "600c9a43c80455332e2f2ffa12ffbc024adf918b05": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateServiceCategory",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "updateServiceCategory",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "6076406ad834aa1eb65b8631ebb997f2402ed681a0": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateService",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "updateService",
+      "filename": "app/lib/actions/service.ts"
+    },
+    "60d44d4ca59fd8e4fff7ce64d77b52460de80802ac": {
+      "workers": {
+        "app/admin/services/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/services/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/service.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateServiceFeature",
+          "filename": "app/lib/actions/service.ts"
+        }
+      },
+      "layer": {
+        "app/admin/services/page": "action-browser"
+      },
+      "exportedName": "updateServiceFeature",
+      "filename": "app/lib/actions/service.ts"
+    }
+  },
+  "edge": {}
+}

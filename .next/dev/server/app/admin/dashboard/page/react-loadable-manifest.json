@@ -1,0 +1,9 @@
+{
+  "[project]/components/nav-user.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/nav-user.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/_bb9bf87e._.js",
+      "static/chunks/components_nav-user_tsx_0f85985d._.js"
+    ]
+  }
+}

@@ -173,6 +173,13 @@ const navData = {
       icon: FileCodeIcon,
     }
   ],
+  navServices: [
+    {
+      title: "Services",
+      url: "/admin/services",
+      icon: LayoutDashboardIcon,
+    }
+  ],
   navSecondary: [
     {
       title: "Settings",
@@ -241,6 +248,24 @@ export function AppSidebar({
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
               {navData.navFunding.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.title}>
+                    <Link href={item.url}>
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Entity Management</SidebarGroupLabel>
+          <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarMenu>
+              {navData.navServices.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <Link href={item.url}>

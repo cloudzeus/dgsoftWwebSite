@@ -55,7 +55,7 @@ function PeriferiaNode({
     onAddChild: (n: PeriferiaType) => void
     onTranslated: (id: string, nameEN: string) => void
 }) {
-    const [expanded, setExpanded] = React.useState(depth === 0)
+    const [expanded, setExpanded] = React.useState(false)
     const [translating, setTranslating] = React.useState(false)
     const hasChildren = node.children && node.children.length > 0
     const meta = LEVEL_META[node.level] ?? LEVEL_META[6]
@@ -82,7 +82,7 @@ function PeriferiaNode({
     return (
         <div>
             <div
-                className={`flex items-center gap-2 px-3 py-2 hover:bg-muted/40 transition-colors border-b border-border/30 ${meta.bg}`}
+                className={`flex items-center gap-2 px-3 py-2 hover:bg-muted/40 transition-colors border-b border-border/30 ${meta.bg} min-w-full w-max relative`}
                 style={{ paddingLeft: `${12 + indentPx}px` }}
             >
                 {/* Expand toggle */}
@@ -105,12 +105,12 @@ function PeriferiaNode({
                 <span className="font-mono text-xs text-muted-foreground flex-shrink-0">{node.code}</span>
 
                 {/* Name */}
-                <span className="flex-1 text-sm font-medium text-foreground truncate">{node.nameEL}</span>
+                <span className="text-sm font-medium text-foreground truncate max-w-sm md:max-w-md" title={node.nameEL}>{node.nameEL}</span>
 
                 {/* EN translation */}
                 {node.nameEN
-                    ? <span className="text-xs text-muted-foreground italic hidden md:block truncate max-w-[200px]">{node.nameEN}</span>
-                    : <span className="text-xs text-muted-foreground/40 italic hidden md:block">no translation</span>
+                    ? <span className="text-xs text-muted-foreground italic hidden lg:block truncate max-w-[200px] opacity-70" title={node.nameEN}>({node.nameEN})</span>
+                    : <span className="text-xs text-muted-foreground/40 italic hidden lg:block">no translation</span>
                 }
 
                 {/* Children count */}
@@ -118,38 +118,40 @@ function PeriferiaNode({
                     <Badge variant="secondary" className="text-[10px] flex-shrink-0">{node.children!.length}</Badge>
                 )}
 
-                {/* Actions */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 flex-shrink-0">
-                            <MoreHorizontal className="h-3.5 w-3.5" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                        {meta.childLabel && (
-                            <>
-                                <DropdownMenuItem className="cursor-pointer text-xs" onClick={() => onAddChild(node)}>
-                                    <Plus className="w-3.5 h-3.5 mr-2" />Add {meta.childLabel}
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                            </>
-                        )}
-                        <DropdownMenuItem className="cursor-pointer text-xs" onClick={() => onEdit(node)}>
-                            <Edit className="w-3.5 h-3.5 mr-2" />Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-xs" onClick={handleTranslate} disabled={translating}>
-                            {translating
-                                ? <RefreshCcw className="w-3.5 h-3.5 mr-2 animate-spin" />
-                                : <Languages className="w-3.5 h-3.5 mr-2" />
-                            }
-                            Translate to EN
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer text-xs text-red-500" onClick={() => onDelete(node)}>
-                            <Trash2 className="w-3.5 h-3.5 mr-2" />Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Actions - Sticky on the right */}
+                <div className="sticky right-0 ml-auto pl-4 py-1 flex items-center bg-inherit/95 backdrop-blur-sm z-30">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="secondary" size="sm" className="h-8 w-8 p-0 flex-shrink-0 bg-zinc-900 text-white hover:bg-black hover:text-white border-none shadow-lg">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 z-[100] bg-popover border-border shadow-2xl">
+                            {meta.childLabel && (
+                                <>
+                                    <DropdownMenuItem className="cursor-pointer font-medium" onClick={() => onAddChild(node)}>
+                                        <Plus className="w-4 h-4 mr-2 text-primary" />Add {meta.childLabel}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                </>
+                            )}
+                            <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit(node)}>
+                                <Edit className="w-4 h-4 mr-2" />Edit Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer" onClick={handleTranslate} disabled={translating}>
+                                {translating
+                                    ? <RefreshCcw className="w-4 h-4 mr-2 animate-spin" />
+                                    : <Languages className="w-4 h-4 mr-2" />
+                                }
+                                Translate to English
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50" onClick={() => onDelete(node)}>
+                                <Trash2 className="w-4 h-4 mr-2" />Delete Region
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
 
             {/* Children */}
@@ -181,6 +183,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
     const [isSaving, setIsSaving] = React.useState(false)
     const [isTranslating, setIsTranslating] = React.useState(false)
     const [isImporting, setIsImporting] = React.useState(false)
+
 
     const [formData, setFormData] = React.useState({
         code: "", nameEL: "", nameEN: "", level: 3, parentCode: ""
@@ -311,10 +314,35 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
     // Legend
     const levelEntries = Object.entries(LEVEL_META).filter(([, v]) => v.label)
 
+    // Dynamic Height Calculation: find available space on screen, cap at 70vh
+    const [maxHeightPx, setMaxHeightPx] = React.useState<number>(600)
+    const containerRef = React.useRef<HTMLDivElement>(null)
+
+    React.useEffect(() => {
+        const updateHeight = () => {
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect()
+                const viewportHeight = window.innerHeight
+                // 40px buffer for bottom padding
+                const available = viewportHeight - rect.top - 40
+                const capped = Math.min(available, viewportHeight * 0.7)
+                setMaxHeightPx(capped > 200 ? capped : 500)
+            }
+        }
+        updateHeight()
+        // Wait for potential layout shifts (dynamic data loading)
+        const timer = setTimeout(updateHeight, 500)
+        window.addEventListener('resize', updateHeight)
+        return () => {
+            window.removeEventListener('resize', updateHeight)
+            clearTimeout(timer)
+        }
+    }, [filteredData.length]) // Re-calculate when data expands
+
     return (
-        <div className="space-y-4">
+        <div ref={containerRef} className="flex flex-col space-y-4 w-full h-full min-h-0">
             {/* Toolbar */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shrink-0">
                 <div className="flex items-center gap-2 w-full md:w-auto">
                     <Input
                         placeholder="Search region, code..."
@@ -326,7 +354,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                         <Plus className="w-4 h-4 mr-1" /> Add Root
                     </Button>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap shrink-0">
                     <Button
                         variant="outline"
                         size="sm"
@@ -350,7 +378,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
             </div>
 
             {/* Level legend */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 shrink-0">
                 {levelEntries.map(([lvl, meta]) => (
                     <span key={lvl} className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded border ${meta.color} border-current/30 ${meta.bg}`}>
                         Επίπεδο {lvl}: {meta.label}
@@ -358,31 +386,39 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                 ))}
             </div>
 
-            {/* Tree */}
-            <div className="rounded-lg border bg-card shadow overflow-hidden">
-                <div className="bg-muted px-4 py-2.5 border-b flex items-center gap-3">
-                    <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Ιεραρχική Δομή Περιφερειών</span>
-                    <Badge variant="outline" className="text-xs">{filteredData.length} ρίζες</Badge>
+            {/* Tree Container */}
+            <div className="rounded-xl border bg-card shadow-lg flex flex-col border-border/60 overflow-hidden divide-y divide-border/40">
+                <div className="bg-muted/90 backdrop-blur-md px-5 py-3 flex items-center justify-between shrink-0 z-40 sticky top-0 border-b">
+                    <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Regional Hierarchy</span>
+                        <Badge variant="secondary" className="bg-zinc-800 text-white font-bold">{filteredData.length}</Badge>
+                    </div>
                 </div>
 
-                <div className="max-h-[72vh] overflow-y-auto bg-background">
-                    {filteredData.length > 0 ? (
-                        filteredData.map(node => (
-                            <PeriferiaNode
-                                key={node.id}
-                                node={node}
-                                depth={0}
-                                onEdit={openEdit}
-                                onDelete={handleDelete}
-                                onAddChild={openAddChild}
-                                onTranslated={handleTranslated}
-                            />
-                        ))
-                    ) : (
-                        <div className="p-12 text-center text-muted-foreground text-sm">
-                            {search ? "No regions match your search." : "No regions found. Click \"Sync Kallikratis\" to import the full Greek administrative directory."}
-                        </div>
-                    )}
+                <div
+                    className="overflow-auto bg-background/20 relative overscroll-contain"
+                    data-lenis-prevent
+                    style={{ maxHeight: `${maxHeightPx}px`, overflowY: 'auto', overflowX: 'auto', scrollbarWidth: 'thin' }}
+                >
+                    <div className="min-w-fit w-full flex flex-col p-1 relative">
+                        {filteredData.length > 0 ? (
+                            filteredData.map(node => (
+                                <PeriferiaNode
+                                    key={node.id}
+                                    node={node}
+                                    depth={0}
+                                    onEdit={openEdit}
+                                    onDelete={handleDelete}
+                                    onAddChild={openAddChild}
+                                    onTranslated={handleTranslated}
+                                />
+                            ))
+                        ) : (
+                            <div className="p-12 text-center text-muted-foreground text-sm">
+                                {search ? "No regions match your search." : "No regions found. Click \"Sync Kallikratis\" to import the full Greek administrative directory."}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -394,7 +430,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                             {editingItem
                                 ? `Edit: ${editingItem.nameEL}`
                                 : addingToParent
-                                    ? `Add ${LEVEL_META[addingToParent.level + 1]?.label ?? "Sub-region"} under ${addingToParent.nameEL}`
+                                    ? `Add ${LEVEL_META[addingToParent?.level + 1]?.label ?? "Sub-region"} under ${addingToParent?.nameEL}`
                                     : "Add Root Περιφέρεια"
                             }
                         </DialogTitle>

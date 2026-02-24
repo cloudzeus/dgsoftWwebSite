@@ -145,7 +145,7 @@ const { handlers, signIn, signOut, auth } = (0, __TURBOPACK__imported__module__$
 "[project]/app/lib/actions/eu-program.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-/* __next_internal_action_entry_do_not_use__ [{"00116c22092b0c530ad64fb4a07d25af5fc66ef7af":"getAllPeriferies","0063a62f9ea8b8375c5b04a6f0c599f0d5d78d5667":"getEuPrograms","008bc656ad4e5dd4de1365153fbb37679aff7c0212":"importKallikratis","00bdd672b18ec7bc2ae05573cdf9f9bc623c3af3c4":"getAllKadsList","00c1935136d03117487018c1f21e3f4576fe5bd57b":"translateAllPeriferies","401d646556b39791242085901bf87d4f043cba09d1":"createKad","405316f9c36befdec8ce4b78a28374eaf44c95649d":"bulkCreateKads","40741f0c5dc01796159a2356eadd2b80f5ada28124":"deleteEuProgram","407d7e3fde0ace304e8947b21af5134a958fc73015":"createPeriferia","40c416403db5b6ce81cc33dda66e220f2ae1d84da8":"createEuProgram","40ef297a087d802c46220fde701544ca62f770c99a":"deleteKad","40f9ec73bb28f0dc7702468fb83561de9d426c8075":"deletePeriferia","6008a34e21e7f36ce288397005600e52a938e7a9bf":"updateEuProgram","6061249de8e3727f4af61f2be056e1516530582528":"updatePeriferia","606183dab3653add98ab4a84dec49add0ea87871f3":"linkKadToProgram","60701c9ee39caaa0471c98fc8813c268e9237b1e4b":"unlinkKadFromProgram","6082e80850b424f230348130a37cc5f34d2d5fb5e6":"unlinkPeriferiaFromProgram","6084ada550f7bab9065ced9ea4ae817ebf555d430e":"processOcrAndCreateKads","60b0520c25e1fb26d2b85dd17b5d4e8fc908680fe7":"updateKad","60f64cbc01bca536008caa41e303125922fb8f35b7":"linkPeriferiaToProgram"},"",""] */ __turbopack_context__.s([
+/* __next_internal_action_entry_do_not_use__ [{"0020b5110f21ada6345bb3a1ede0f05964c6f1590d":"getAllPeriferies","003f6f720ba678bdf5d8620eb16a50e0826d3eec79":"getEuPrograms","0051c052b951daca64ebf17b5a0fcb8965f50f8a6f":"getAllKadsList","00662591a9c573a0f05a71963167c54217c323d289":"importKallikratis","00c1c33a475dc70db503c3d0f140b9563edfa1b372":"translateAllPeriferies","400ccd4b7e5ad5e1c077a04bf30a017fbb05e68ead":"deletePeriferia","40287ec8c367e60111e0efbbfa402cb2aecce118c1":"bulkCreateKads","40476ef778a5ff3bf6f14cc22c4048413d33a7d6d3":"deleteKad","409b77f58d8fdce5115f277fc75bb84e70bb0f2b0f":"createKad","40cb635ce2aa0350c5f3d04e8aff950aa1ddcca828":"deleteEuProgram","40cedcbb0ee674ec7dbd4bf1eea8f0d02f4238774d":"createPeriferia","40dab119364d763bd43e3f24911e476103008e6637":"createEuProgram","600cd4dc1e8c968aef658f52a2265578a81aa07769":"updatePeriferia","6017aeced133cabc9e120f90ca4f3357b3cc1cb693":"processOcrAndCreateKads","6021223d20a016ecc6a62e3aeaf737fcddc9132b7d":"updateEuProgram","60391bfa9d218b5a00ffa395e72f94fc2e34b4a1a3":"updateKad","60ae3202d1de7978af9774e277a9d9e65b59430ea7":"linkKadToProgram","60b3c788c3a7fc15a57030b698331d458ef72f0836":"linkPeriferiaToProgram","60cd11671405cd7f02a0a30bd31870548699afd772":"unlinkPeriferiaFromProgram","60f62a06bcdc2ee99557413fed78074cce14f0e3a9":"unlinkKadFromProgram"},"",""] */ __turbopack_context__.s([
     "bulkCreateKads",
     ()=>bulkCreateKads,
     "createEuProgram",
@@ -779,26 +779,26 @@ async function bulkCreateKads(data) {
     deleteKad,
     bulkCreateKads
 ]);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getEuPrograms, "0063a62f9ea8b8375c5b04a6f0c599f0d5d78d5667", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createEuProgram, "40c416403db5b6ce81cc33dda66e220f2ae1d84da8", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updateEuProgram, "6008a34e21e7f36ce288397005600e52a938e7a9bf", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(deleteEuProgram, "40741f0c5dc01796159a2356eadd2b80f5ada28124", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getAllKadsList, "00bdd672b18ec7bc2ae05573cdf9f9bc623c3af3c4", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(linkKadToProgram, "606183dab3653add98ab4a84dec49add0ea87871f3", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(unlinkKadFromProgram, "60701c9ee39caaa0471c98fc8813c268e9237b1e4b", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getAllPeriferies, "00116c22092b0c530ad64fb4a07d25af5fc66ef7af", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(linkPeriferiaToProgram, "60f64cbc01bca536008caa41e303125922fb8f35b7", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(unlinkPeriferiaFromProgram, "6082e80850b424f230348130a37cc5f34d2d5fb5e6", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(processOcrAndCreateKads, "6084ada550f7bab9065ced9ea4ae817ebf555d430e", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createPeriferia, "407d7e3fde0ace304e8947b21af5134a958fc73015", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updatePeriferia, "6061249de8e3727f4af61f2be056e1516530582528", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(deletePeriferia, "40f9ec73bb28f0dc7702468fb83561de9d426c8075", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(importKallikratis, "008bc656ad4e5dd4de1365153fbb37679aff7c0212", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(translateAllPeriferies, "00c1935136d03117487018c1f21e3f4576fe5bd57b", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createKad, "401d646556b39791242085901bf87d4f043cba09d1", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updateKad, "60b0520c25e1fb26d2b85dd17b5d4e8fc908680fe7", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(deleteKad, "40ef297a087d802c46220fde701544ca62f770c99a", null);
-(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(bulkCreateKads, "405316f9c36befdec8ce4b78a28374eaf44c95649d", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getEuPrograms, "003f6f720ba678bdf5d8620eb16a50e0826d3eec79", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createEuProgram, "40dab119364d763bd43e3f24911e476103008e6637", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updateEuProgram, "6021223d20a016ecc6a62e3aeaf737fcddc9132b7d", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(deleteEuProgram, "40cb635ce2aa0350c5f3d04e8aff950aa1ddcca828", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getAllKadsList, "0051c052b951daca64ebf17b5a0fcb8965f50f8a6f", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(linkKadToProgram, "60ae3202d1de7978af9774e277a9d9e65b59430ea7", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(unlinkKadFromProgram, "60f62a06bcdc2ee99557413fed78074cce14f0e3a9", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(getAllPeriferies, "0020b5110f21ada6345bb3a1ede0f05964c6f1590d", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(linkPeriferiaToProgram, "60b3c788c3a7fc15a57030b698331d458ef72f0836", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(unlinkPeriferiaFromProgram, "60cd11671405cd7f02a0a30bd31870548699afd772", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(processOcrAndCreateKads, "6017aeced133cabc9e120f90ca4f3357b3cc1cb693", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createPeriferia, "40cedcbb0ee674ec7dbd4bf1eea8f0d02f4238774d", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updatePeriferia, "600cd4dc1e8c968aef658f52a2265578a81aa07769", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(deletePeriferia, "400ccd4b7e5ad5e1c077a04bf30a017fbb05e68ead", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(importKallikratis, "00662591a9c573a0f05a71963167c54217c323d289", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(translateAllPeriferies, "00c1c33a475dc70db503c3d0f140b9563edfa1b372", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createKad, "409b77f58d8fdce5115f277fc75bb84e70bb0f2b0f", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updateKad, "60391bfa9d218b5a00ffa395e72f94fc2e34b4a1a3", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(deleteKad, "40476ef778a5ff3bf6f14cc22c4048413d33a7d6d3", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(bulkCreateKads, "40287ec8c367e60111e0efbbfa402cb2aecce118c1", null);
 }),
 "[project]/.next-internal/server/app/admin/eu-programs/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/lib/actions/eu-program.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript) <locals>", ((__turbopack_context__) => {
 "use strict";
@@ -840,46 +840,46 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$
 "use strict";
 
 __turbopack_context__.s([
-    "00116c22092b0c530ad64fb4a07d25af5fc66ef7af",
+    "0020b5110f21ada6345bb3a1ede0f05964c6f1590d",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getAllPeriferies"],
-    "0063a62f9ea8b8375c5b04a6f0c599f0d5d78d5667",
+    "003f6f720ba678bdf5d8620eb16a50e0826d3eec79",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getEuPrograms"],
-    "008bc656ad4e5dd4de1365153fbb37679aff7c0212",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["importKallikratis"],
-    "00bdd672b18ec7bc2ae05573cdf9f9bc623c3af3c4",
+    "0051c052b951daca64ebf17b5a0fcb8965f50f8a6f",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getAllKadsList"],
-    "00c1935136d03117487018c1f21e3f4576fe5bd57b",
+    "00662591a9c573a0f05a71963167c54217c323d289",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["importKallikratis"],
+    "00c1c33a475dc70db503c3d0f140b9563edfa1b372",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["translateAllPeriferies"],
-    "401d646556b39791242085901bf87d4f043cba09d1",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createKad"],
-    "405316f9c36befdec8ce4b78a28374eaf44c95649d",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["bulkCreateKads"],
-    "40741f0c5dc01796159a2356eadd2b80f5ada28124",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deleteEuProgram"],
-    "407d7e3fde0ace304e8947b21af5134a958fc73015",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createPeriferia"],
-    "40c416403db5b6ce81cc33dda66e220f2ae1d84da8",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createEuProgram"],
-    "40ef297a087d802c46220fde701544ca62f770c99a",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deleteKad"],
-    "40f9ec73bb28f0dc7702468fb83561de9d426c8075",
+    "400ccd4b7e5ad5e1c077a04bf30a017fbb05e68ead",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deletePeriferia"],
-    "6008a34e21e7f36ce288397005600e52a938e7a9bf",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateEuProgram"],
-    "6061249de8e3727f4af61f2be056e1516530582528",
+    "40287ec8c367e60111e0efbbfa402cb2aecce118c1",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["bulkCreateKads"],
+    "40476ef778a5ff3bf6f14cc22c4048413d33a7d6d3",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deleteKad"],
+    "409b77f58d8fdce5115f277fc75bb84e70bb0f2b0f",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createKad"],
+    "40cb635ce2aa0350c5f3d04e8aff950aa1ddcca828",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["deleteEuProgram"],
+    "40cedcbb0ee674ec7dbd4bf1eea8f0d02f4238774d",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createPeriferia"],
+    "40dab119364d763bd43e3f24911e476103008e6637",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createEuProgram"],
+    "600cd4dc1e8c968aef658f52a2265578a81aa07769",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updatePeriferia"],
-    "606183dab3653add98ab4a84dec49add0ea87871f3",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["linkKadToProgram"],
-    "60701c9ee39caaa0471c98fc8813c268e9237b1e4b",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unlinkKadFromProgram"],
-    "6082e80850b424f230348130a37cc5f34d2d5fb5e6",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unlinkPeriferiaFromProgram"],
-    "6084ada550f7bab9065ced9ea4ae817ebf555d430e",
+    "6017aeced133cabc9e120f90ca4f3357b3cc1cb693",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["processOcrAndCreateKads"],
-    "60b0520c25e1fb26d2b85dd17b5d4e8fc908680fe7",
+    "6021223d20a016ecc6a62e3aeaf737fcddc9132b7d",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateEuProgram"],
+    "60391bfa9d218b5a00ffa395e72f94fc2e34b4a1a3",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateKad"],
-    "60f64cbc01bca536008caa41e303125922fb8f35b7",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["linkPeriferiaToProgram"]
+    "60ae3202d1de7978af9774e277a9d9e65b59430ea7",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["linkKadToProgram"],
+    "60b3c788c3a7fc15a57030b698331d458ef72f0836",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["linkPeriferiaToProgram"],
+    "60cd11671405cd7f02a0a30bd31870548699afd772",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unlinkPeriferiaFromProgram"],
+    "60f62a06bcdc2ee99557413fed78074cce14f0e3a9",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unlinkKadFromProgram"]
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f2e$next$2d$internal$2f$server$2f$app$2f$admin$2f$eu$2d$programs$2f$page$2f$actions$2e$js__$7b$__ACTIONS_MODULE0__$3d3e$__$225b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$2922$__$7d$__$5b$app$2d$rsc$5d$__$28$server__actions__loader$2c$__ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i('[project]/.next-internal/server/app/admin/eu-programs/page/actions.js { ACTIONS_MODULE0 => "[project]/app/lib/actions/eu-program.ts [app-rsc] (ecmascript)" } [app-rsc] (server actions loader, ecmascript) <locals>');
 var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$actions$2f$eu$2d$program$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/app/lib/actions/eu-program.ts [app-rsc] (ecmascript)");
