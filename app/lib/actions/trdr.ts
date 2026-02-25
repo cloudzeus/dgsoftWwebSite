@@ -8,10 +8,11 @@ export async function getCustomers() {
     if (!session) throw new Error("Unauthorized")
 
     try {
-        return await prisma.tRDR.findMany({
+        const data = await prisma.tRDR.findMany({
             orderBy: { createdAt: "desc" },
             include: { kads: true }
         })
+        return JSON.parse(JSON.stringify(data))
     } catch (error: any) {
         console.error("GET CUSTOMERS Error:", error)
         throw new Error(error.message)
@@ -40,13 +41,14 @@ export async function createCustomer(data: any) {
             sanitized.CODE = `CMD-${sanitized.TRDR}`;
         }
 
-        return await prisma.tRDR.create({
+        const res = await prisma.tRDR.create({
             data: {
                 ...sanitized,
                 ...(kads && kads.length > 0 ? { kads: { create: kads } } : {})
             },
             include: { kads: true }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("CREATE CUSTOMER Error:", error)
         throw new Error(error.message)
@@ -66,7 +68,7 @@ export async function updateCustomer(id: string, data: any) {
             }
         }
 
-        return await prisma.tRDR.update({
+        const res = await prisma.tRDR.update({
             where: { id },
             data: {
                 ...sanitized,
@@ -77,6 +79,7 @@ export async function updateCustomer(id: string, data: any) {
             },
             include: { kads: true }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("UPDATE CUSTOMER Error:", error)
         throw new Error(error.message)
@@ -88,7 +91,8 @@ export async function deleteCustomer(id: string) {
     if (!session) throw new Error("Unauthorized")
 
     try {
-        return await prisma.tRDR.delete({ where: { id } })
+        const res = await prisma.tRDR.delete({ where: { id } })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("DELETE CUSTOMER Error:", error)
         throw new Error(error.message)
@@ -120,7 +124,7 @@ export async function getKAD(customerId: string, afm: string) {
             firm_act_kind: k.firm_act_kind === "1"
         })) || [];
 
-        return await prisma.tRDR.update({
+        const dbRes = await prisma.tRDR.update({
             where: { id: customerId },
             data: {
                 kads: {
@@ -130,6 +134,7 @@ export async function getKAD(customerId: string, afm: string) {
             },
             include: { kads: true }
         });
+        return JSON.parse(JSON.stringify(dbRes))
 
     } catch (error: any) {
         console.error("GET KAD Error:", error)

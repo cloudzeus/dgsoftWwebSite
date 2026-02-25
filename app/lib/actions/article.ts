@@ -8,7 +8,7 @@ export async function getArticles() {
     if (!session) throw new Error("Unauthorized")
 
     try {
-        return await prisma.article.findMany({
+        const res = await prisma.article.findMany({
             orderBy: { order: "asc" },
             include: {
                 author: true,
@@ -18,6 +18,7 @@ export async function getArticles() {
                 }
             }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("GET ARTICLES Error:", error)
         throw new Error(error.message)
@@ -26,9 +27,10 @@ export async function getArticles() {
 
 export async function getArticleCategories() {
     try {
-        return await prisma.articleCategory.findMany({
+        const res = await prisma.articleCategory.findMany({
             orderBy: { order: "asc" }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         throw new Error(error.message)
     }
@@ -38,7 +40,8 @@ export async function createArticleCategory(data: any) {
     const session = await auth()
     if (!session) throw new Error("Unauthorized")
     try {
-        return await prisma.articleCategory.create({ data })
+        const res = await prisma.articleCategory.create({ data })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         throw new Error(error.message)
     }
@@ -51,7 +54,7 @@ export async function createArticle(data: any) {
     try {
         const { categories, media, id, author, authorId, createdAt, updatedAt, ...articleData } = data;
 
-        return await prisma.article.create({
+        const res = await prisma.article.create({
             data: {
                 ...articleData,
                 authorId: session.user.id,
@@ -64,6 +67,7 @@ export async function createArticle(data: any) {
             },
             include: { author: true, categories: true, media: true }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("CREATE ARTICLE Error:", error)
         throw new Error(error.message)
@@ -77,7 +81,7 @@ export async function updateArticle(articleId: string, data: any) {
     try {
         const { categories, media, id, author, authorId, createdAt, updatedAt, ...articleData } = data;
 
-        return await prisma.article.update({
+        const res = await prisma.article.update({
             where: { id: articleId },
             data: {
                 ...articleData,
@@ -95,6 +99,7 @@ export async function updateArticle(articleId: string, data: any) {
             },
             include: { author: true, categories: true, media: { orderBy: { order: "asc" } } }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("UPDATE ARTICLE Error:", error)
         throw new Error(error.message)
@@ -125,7 +130,8 @@ export async function deleteArticle(id: string) {
     if (!session) throw new Error("Unauthorized")
 
     try {
-        return await prisma.article.delete({ where: { id } })
+        const res = await prisma.article.delete({ where: { id } })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("DELETE ARTICLE Error:", error)
         throw new Error(error.message)

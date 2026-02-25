@@ -9,7 +9,7 @@ export async function getUsers() {
     if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
 
     try {
-        return await prisma.user.findMany({
+        const res = await prisma.user.findMany({
             orderBy: { createdAt: "desc" },
             select: {
                 id: true,
@@ -21,6 +21,7 @@ export async function getUsers() {
                 createdAt: true,
             }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("GET USERS Error:", error)
         throw new Error(error.message)
@@ -39,7 +40,7 @@ export async function createUser(data: any) {
             passwordHash = await bcrypt.hash(password, 10);
         }
 
-        return await prisma.user.create({
+        const res = await prisma.user.create({
             data: {
                 ...rest,
                 password: passwordHash,
@@ -54,6 +55,7 @@ export async function createUser(data: any) {
                 createdAt: true,
             }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         if (error.code === 'P2002') return { error: "Email already exists" }
         console.error("CREATE USER Error:", error)
@@ -73,7 +75,7 @@ export async function updateUser(id: string, data: any) {
             updateData.password = await bcrypt.hash(password, 10);
         }
 
-        return await prisma.user.update({
+        const res = await prisma.user.update({
             where: { id },
             data: updateData,
             select: {
@@ -86,6 +88,7 @@ export async function updateUser(id: string, data: any) {
                 createdAt: true,
             }
         })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         if (error.code === 'P2002') return { error: "Email already exists" }
         console.error("UPDATE USER Error:", error)
@@ -98,7 +101,8 @@ export async function deleteUser(id: string) {
     if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
 
     try {
-        return await prisma.user.delete({ where: { id } })
+        const res = await prisma.user.delete({ where: { id } })
+        return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
         console.error("DELETE USER Error:", error)
         throw new Error(error.message)
