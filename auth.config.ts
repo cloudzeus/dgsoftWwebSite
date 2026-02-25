@@ -15,6 +15,7 @@ export const authConfig = {
     },
     providers: [],
     session: { strategy: "jwt" },
+    trustHost: true,
     callbacks: {
         jwt({ token, user }) {
             if (user) {
