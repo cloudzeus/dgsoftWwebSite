@@ -28,6 +28,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { createWork, updateWork, deleteWork, updateWorkOrder } from "@/app/lib/actions/work"
+import { MultiSelectCombobox } from "./multi-select-combobox"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -96,14 +97,9 @@ const emptyForm = () => ({
     completionDate: "",
     customerId: "",
     servicesUsed: [] as string[],
-    stepsEL: ["", "", "", "", ""] as string[],
-    stepsEN: ["", "", "", "", ""] as string[],
-    stats: [
-        { icon: "TrendingUp", value: "", textEL: "", textEN: "" },
-        { icon: "Clock", value: "", textEL: "", textEN: "" },
-        { icon: "Users", value: "", textEL: "", textEN: "" },
-        { icon: "CheckCircle", value: "", textEL: "", textEN: "" },
-    ] as WorkStat[],
+    stepsEL: [] as string[],
+    stepsEN: [] as string[],
+    stats: [] as WorkStat[],
     published: false,
     media: [] as WorkMedia[],
 })
@@ -294,8 +290,8 @@ export function DataTableWorks({
                 completionDate: work.completionDate || "",
                 customerId: work.customerId || "",
                 servicesUsed: (work.servicesUsed as string[]) || [],
-                stepsEL: (work.stepsEL as string[])?.length === 5 ? work.stepsEL as string[] : ["", "", "", "", ""],
-                stepsEN: (work.stepsEN as string[])?.length === 5 ? work.stepsEN as string[] : ["", "", "", "", ""],
+                stepsEL: (work.stepsEL as string[]) || [],
+                stepsEN: (work.stepsEN as string[]) || [],
                 stats: (work.stats as WorkStat[])?.length === 4 ? work.stats as WorkStat[] : [
                     { icon: "TrendingUp", value: "", textEL: "", textEN: "" },
                     { icon: "Clock", value: "", textEL: "", textEN: "" },
@@ -310,6 +306,39 @@ export function DataTableWorks({
             setFormData(emptyForm())
         }
         setIsDialogOpen(true)
+    }
+
+    const addStep = (lang: "EL" | "EN") => {
+        const field = lang === "EL" ? "stepsEL" : "stepsEN"
+        setFormData(prev => ({ ...prev, [field]: [...(prev[field] as string[]), ""] }))
+    }
+
+    const removeStep = (lang: "EL" | "EN", index: number) => {
+        const field = lang === "EL" ? "stepsEL" : "stepsEN"
+        setFormData(prev => ({ ...prev, [field]: (prev[field] as string[]).filter((_, i) => i !== index) }))
+    }
+    const addStat = () => {
+        setFormData(prev => ({
+            ...prev,
+            stats: [...prev.stats, { icon: "TrendingUp", value: "", textEL: "", textEN: "" }]
+        }))
+    }
+
+    const removeStat = (index: number) => {
+        setFormData(prev => ({ ...prev, stats: prev.stats.filter((_, i) => i !== index) }))
+    }
+
+    const updateStat = (index: number, field: keyof WorkStat, value: string) => {
+        const arr = [...formData.stats]
+        arr[index] = { ...arr[index], [field]: value }
+        setFormData(prev => ({ ...prev, stats: arr }))
+    }
+
+    const updateStep = (lang: "EL" | "EN", index: number, value: string) => {
+        const field = lang === "EL" ? "stepsEL" : "stepsEN"
+        const arr = [...(formData[field] as string[])]
+        arr[index] = value
+        setFormData(prev => ({ ...prev, [field]: arr }))
     }
 
     // ── Save ─────────────────────────────────────────────────────────────────
@@ -715,19 +744,28 @@ export function DataTableWorks({
                             </div>
 
                             <div>
-                                <Label className="font-bold">Implementation Steps (Greek) — 5 bullet points</Label>
-                                <div className="space-y-2 mt-1">
+                                <div className="flex justify-between items-center mb-1">
+                                    <Label className="font-bold">Implementation Steps (Greek)</Label>
+                                    <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => addStep("EL")}>
+                                        <Plus className="w-3 h-3 mr-1" /> Add Step
+                                    </Button>
+                                </div>
+                                <div className="space-y-2 mt-2 p-4 border rounded-lg bg-muted/5">
                                     {formData.stepsEL.map((step, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-muted-foreground w-5 shrink-0">{i + 1}.</span>
-                                            <Input className="bg-background text-sm" placeholder={`Step ${i + 1}...`}
-                                                value={step} onChange={e => {
-                                                    const arr = [...formData.stepsEL]
-                                                    arr[i] = e.target.value
-                                                    setFormData(prev => ({ ...prev, stepsEL: arr }))
-                                                }} />
+                                        <div key={i} className="flex items-center gap-2 group">
+                                            <span className="text-xs font-bold text-muted-foreground w-6 h-6 flex items-center justify-center bg-muted rounded-full shrink-0">{i + 1}</span>
+                                            <Input className="bg-background text-sm" placeholder="Describe implementation step..."
+                                                value={step} onChange={e => updateStep("EL", i, e.target.value)} />
+                                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeStep("EL", i)}>
+                                                <X className="w-4 h-4" />
+                                            </Button>
                                         </div>
                                     ))}
+                                    {formData.stepsEL.length === 0 && (
+                                        <div className="text-center py-4 text-xs text-muted-foreground italic border-2 border-dashed rounded-md bg-background">
+                                            No steps added yet.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </TabsContent>
@@ -755,19 +793,46 @@ export function DataTableWorks({
                             <div>
                                 <div className="flex justify-between items-center mb-1">
                                     <Label className="font-bold">Implementation Steps (English)</Label>
+                                    <div className="flex items-center gap-2">
+                                        <Wand2 className="h-4 w-4 cursor-pointer text-muted-foreground hover:text-primary mr-1" onClick={async () => {
+                                            toast.loading("Translating steps...", { id: "steps-en" })
+                                            try {
+                                                const translated = await Promise.all(formData.stepsEL.map(async (s) => {
+                                                    const r = await fetch("/api/admin/translate", {
+                                                        method: "POST",
+                                                        headers: { "Content-Type": "application/json" },
+                                                        body: JSON.stringify({ text: s, targetLang: "en" })
+                                                    })
+                                                    const d = await r.json()
+                                                    return d.text || s
+                                                }))
+                                                setFormData(prev => ({ ...prev, stepsEN: translated }))
+                                                toast.success("Steps translated", { id: "steps-en" })
+                                            } catch {
+                                                toast.error("Translation failed", { id: "steps-en" })
+                                            }
+                                        }} />
+                                        <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => addStep("EN")}>
+                                            <Plus className="w-3 h-3 mr-1" /> Add Step
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-2 mt-2 p-4 border rounded-lg bg-muted/5">
                                     {formData.stepsEN.map((step, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-muted-foreground w-5 shrink-0">{i + 1}.</span>
-                                            <Input className="bg-background text-sm" placeholder={`Step ${i + 1}...`}
-                                                value={step} onChange={e => {
-                                                    const arr = [...formData.stepsEN]
-                                                    arr[i] = e.target.value
-                                                    setFormData(prev => ({ ...prev, stepsEN: arr }))
-                                                }} />
+                                        <div key={i} className="flex items-center gap-2 group">
+                                            <span className="text-xs font-bold text-muted-foreground w-6 h-6 flex items-center justify-center bg-muted rounded-full shrink-0">{i + 1}</span>
+                                            <Input className="bg-background text-sm" placeholder="Describe implementation step..."
+                                                value={step} onChange={e => updateStep("EN", i, e.target.value)} />
+                                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeStep("EN", i)}>
+                                                <X className="w-4 h-4" />
+                                            </Button>
                                         </div>
                                     ))}
+                                    {formData.stepsEN.length === 0 && (
+                                        <div className="text-center py-4 text-xs text-muted-foreground italic border-2 border-dashed rounded-md bg-background">
+                                            No steps added yet.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </TabsContent>
@@ -800,39 +865,34 @@ export function DataTableWorks({
                             {/* Services Used */}
                             <div>
                                 <Label className="font-bold">Services Used</Label>
-                                <div className="flex flex-wrap gap-2 mt-2 p-3 border rounded-md bg-muted/20 min-h-[50px]">
-                                    {allServices.map(svc => {
-                                        const active = formData.servicesUsed.includes(svc.id)
-                                        return (
-                                            <Badge key={svc.id} variant={active ? "default" : "outline"}
-                                                className="cursor-pointer transition-colors"
-                                                onClick={() => toggleService(svc.id)}>
-                                                {svc.nameEL}
-                                            </Badge>
-                                        )
-                                    })}
-                                    {allServices.length === 0 && <span className="text-xs text-muted-foreground">No services available.</span>}
-                                </div>
+                                <MultiSelectCombobox
+                                    className="mt-1"
+                                    options={allServices.map(s => ({ value: s.id, label: s.nameEL }))}
+                                    selectedValues={formData.servicesUsed}
+                                    onSelect={(vals) => setFormData(prev => ({ ...prev, servicesUsed: vals }))}
+                                    placeholder="Click to select solutions & services..."
+                                />
                             </div>
 
                             {/* Stats */}
                             <div>
-                                <Label className="font-bold">Stats Cards (4 items)</Label>
-                                <div className="space-y-3 mt-2">
+                                <div className="flex justify-between items-center mb-1">
+                                    <Label className="font-bold">Project Stats & KPIs</Label>
+                                    <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={addStat}>
+                                        <Plus className="w-3 h-3 mr-1" /> Add Stat
+                                    </Button>
+                                </div>
+                                <div className="space-y-3 mt-2 p-4 border rounded-lg bg-muted/5">
                                     {formData.stats.map((stat, i) => {
                                         const Icon = ICON_MAP[stat.icon] || TrendingUp
                                         return (
-                                            <div key={i} className="grid grid-cols-5 gap-2 items-center p-3 border rounded-md bg-muted/10">
-                                                <div className="col-span-1">
-                                                    <Label className="text-xs text-muted-foreground">Icon</Label>
-                                                    <Select value={stat.icon} onValueChange={v => {
-                                                        const arr = [...formData.stats]
-                                                        arr[i] = { ...arr[i], icon: v }
-                                                        setFormData(prev => ({ ...prev, stats: arr }))
-                                                    }}>
-                                                        <SelectTrigger className="bg-background mt-1 h-8 text-xs">
-                                                            <div className="flex items-center gap-1.5">
-                                                                <Icon className="h-3 w-3" />
+                                            <div key={i} className="grid grid-cols-12 gap-3 items-start p-4 border rounded-xl bg-background shadow-sm hover:shadow-md transition-all group relative">
+                                                <div className="col-span-2">
+                                                    <Label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Icon</Label>
+                                                    <Select value={stat.icon} onValueChange={v => updateStat(i, "icon", v)}>
+                                                        <SelectTrigger className="mt-1 h-9 text-xs">
+                                                            <div className="flex items-center gap-2">
+                                                                <Icon className="h-3.5 w-3.5 text-primary" />
                                                                 <span>{stat.icon}</span>
                                                             </div>
                                                         </SelectTrigger>
@@ -841,49 +901,60 @@ export function DataTableWorks({
                                                                 const Ico = ICON_MAP[ico]
                                                                 return (
                                                                     <SelectItem key={ico} value={ico}>
-                                                                        <div className="flex items-center gap-2"><Ico className="h-3 w-3" />{ico}</div>
+                                                                        <div className="flex items-center gap-2 transition-colors">
+                                                                            <Ico className="h-4 w-4" />
+                                                                            <span className="text-sm">{ico}</span>
+                                                                        </div>
                                                                     </SelectItem>
                                                                 )
                                                             })}
                                                         </SelectContent>
                                                     </Select>
                                                 </div>
-                                                <div className="col-span-1">
-                                                    <Label className="text-xs text-muted-foreground">Value</Label>
-                                                    <Input className="bg-background mt-1 h-8 text-sm font-bold" placeholder="40%" value={stat.value}
-                                                        onChange={e => {
-                                                            const arr = [...formData.stats]
-                                                            arr[i] = { ...arr[i], value: e.target.value }
-                                                            setFormData(prev => ({ ...prev, stats: arr }))
-                                                        }} />
+                                                <div className="col-span-2">
+                                                    <Label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Value</Label>
+                                                    <Input className="mt-1 h-9 text-sm font-bold placeholder:font-normal" placeholder="e.g. 40%" value={stat.value}
+                                                        onChange={e => updateStat(i, "value", e.target.value)} />
                                                 </div>
-                                                <div className="col-span-1">
-                                                    <Label className="text-xs text-muted-foreground">Label (GR)</Label>
-                                                    <Input className="bg-background mt-1 h-8 text-xs" placeholder="Αύξηση..." value={stat.textEL}
-                                                        onChange={e => {
-                                                            const arr = [...formData.stats]
-                                                            arr[i] = { ...arr[i], textEL: e.target.value }
-                                                            setFormData(prev => ({ ...prev, stats: arr }))
-                                                        }} />
+                                                <div className="col-span-3">
+                                                    <Label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Label (GR)</Label>
+                                                    <Input className="mt-1 h-9 text-sm" placeholder="e.g. Αύξηση..." value={stat.textEL}
+                                                        onChange={e => updateStat(i, "textEL", e.target.value)} />
                                                 </div>
-                                                <div className="col-span-1">
-                                                    <Label className="text-xs text-muted-foreground">Label (EN)</Label>
-                                                    <Input className="bg-background mt-1 h-8 text-xs" placeholder="Increase..." value={stat.textEN}
-                                                        onChange={e => {
-                                                            const arr = [...formData.stats]
-                                                            arr[i] = { ...arr[i], textEN: e.target.value }
-                                                            setFormData(prev => ({ ...prev, stats: arr }))
-                                                        }} />
-                                                </div>
-                                                <div className="col-span-1 flex items-end justify-center pb-0.5">
-                                                    <div className="flex items-center gap-2 px-2 py-1 bg-muted rounded text-xs">
-                                                        <Icon className="h-3.5 w-3.5 text-primary" />
-                                                        <strong>{stat.value || "—"}</strong>
+                                                <div className="col-span-3">
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <Label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block">Label (EN)</Label>
+                                                        <Wand2 className="h-3 w-3 cursor-pointer text-muted-foreground hover:text-primary transition-colors"
+                                                            onClick={() => translate(stat.textEL, `stat_label_en_${i}` as any).then(() => {
+                                                                // Manual update since translate helper is hardcoded for specific field names
+                                                                // Actually let's just do it here instead of relying on the helper for nested items
+                                                                toast.loading("Translating...", { id: `stat-${i}` })
+                                                                fetch("/api/admin/translate", {
+                                                                    method: "POST",
+                                                                    headers: { "Content-Type": "application/json" },
+                                                                    body: JSON.stringify({ text: stat.textEL, targetLang: "en" })
+                                                                }).then(r => r.json()).then(d => {
+                                                                    updateStat(i, "textEN", d.text)
+                                                                    toast.success("Done", { id: `stat-${i}` })
+                                                                }).catch(() => toast.error("Error", { id: `stat-${i}` }))
+                                                            })} />
                                                     </div>
+                                                    <Input className="mt-1 h-9 text-sm" placeholder="e.g. Increase..." value={stat.textEN}
+                                                        onChange={e => updateStat(i, "textEN", e.target.value)} />
+                                                </div>
+                                                <div className="col-span-2 flex items-center justify-end h-full pt-4 pr-1">
+                                                    <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" onClick={() => removeStat(i)}>
+                                                        <Trash2 className="h-4.5 w-4.5" />
+                                                    </Button>
                                                 </div>
                                             </div>
                                         )
                                     })}
+                                    {formData.stats.length === 0 && (
+                                        <div className="text-center py-8 text-sm text-muted-foreground italic border-2 border-dashed rounded-xl bg-background">
+                                            No statistics added. Click "Add Stat" to showcase project impact.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
