@@ -23,4 +23,6 @@ export type ServiceFormValues = {
     categoryId: string
     brandName: string
     order: number
+    featuresEL: string[]
+    featuresEN: string[]
 }

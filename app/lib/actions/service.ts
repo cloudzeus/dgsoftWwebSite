@@ -1,10 +1,24 @@
+"use server";
+
 import db from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { ServiceFormValues } from "../types/service"
+import { auth } from "@/auth"
+
+async function checkAuth() {
+    const session = await auth()
+    if (!session) throw new Error("Unauthorized")
+    return session
+}
+
+function serialize(obj: any) {
+    return JSON.parse(JSON.stringify(obj))
+}
 
 // CATEGORIES
 export async function getServiceCategories() {
-    return await db.serviceCategory.findMany({
+    await checkAuth()
+    const categories = await db.serviceCategory.findMany({
         orderBy: { order: 'asc' },
         include: {
             _count: {
@@ -12,9 +26,11 @@ export async function getServiceCategories() {
             }
         }
     })
+    return serialize(categories)
 }
 
 export async function createServiceCategory(data: any) {
+    await checkAuth()
     const category = await db.serviceCategory.create({
         data: {
             nameEL: data.nameEL,
@@ -26,10 +42,11 @@ export async function createServiceCategory(data: any) {
         }
     })
     revalidatePath("/admin/services")
-    return category
+    return serialize(category)
 }
 
 export async function updateServiceCategory(id: string, data: any) {
+    await checkAuth()
     const category = await db.serviceCategory.update({
         where: { id },
         data: {
@@ -42,17 +59,19 @@ export async function updateServiceCategory(id: string, data: any) {
         }
     })
     revalidatePath("/admin/services")
-    return category
+    return serialize(category)
 }
 
 export async function deleteServiceCategory(id: string) {
+    await checkAuth()
     await db.serviceCategory.delete({ where: { id } })
     revalidatePath("/admin/services")
 }
 
 // SERVICES
 export async function getServices() {
-    return await db.service.findMany({
+    await checkAuth()
+    const services = await db.service.findMany({
         orderBy: { order: 'asc' },
         include: {
             category: true,
@@ -60,9 +79,11 @@ export async function getServices() {
             media: { orderBy: { order: 'asc' } }
         }
     })
+    return serialize(services)
 }
 
 export async function createService(data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null }) {
+    await checkAuth()
     const service = await db.service.create({
         data: {
             nameEL: data.nameEL,
@@ -76,14 +97,17 @@ export async function createService(data: ServiceFormValues & { featureImage?: s
             brandName: data.brandName,
             brandLogo: data.brandLogo,
             order: data.order || 0,
-            categoryId: data.categoryId
+            categoryId: data.categoryId,
+            featuresEL: data.featuresEL,
+            featuresEN: data.featuresEN
         }
     })
     revalidatePath("/admin/services")
-    return service
+    return serialize(service)
 }
 
 export async function updateService(id: string, data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null }) {
+    await checkAuth()
     const service = await db.service.update({
         where: { id },
         data: {
@@ -98,19 +122,23 @@ export async function updateService(id: string, data: ServiceFormValues & { feat
             brandName: data.brandName,
             brandLogo: data.brandLogo,
             order: data.order,
-            categoryId: data.categoryId
+            categoryId: data.categoryId,
+            featuresEL: data.featuresEL,
+            featuresEN: data.featuresEN
         }
     })
     revalidatePath("/admin/services")
-    return service
+    return serialize(service)
 }
 
 export async function deleteService(id: string) {
+    await checkAuth()
     await db.service.delete({ where: { id } })
     revalidatePath("/admin/services")
 }
 
 export async function updateServicesOrder(items: { id: string, order: number }[]) {
+    await checkAuth()
     await db.$transaction(
         items.map(item => db.service.update({
             where: { id: item.id },
@@ -122,6 +150,7 @@ export async function updateServicesOrder(items: { id: string, order: number }[]
 
 // FEATURES
 export async function createServiceFeature(data: any) {
+    await checkAuth()
     const feature = await db.serviceFeature.create({
         data: {
             serviceId: data.serviceId,
@@ -133,10 +162,11 @@ export async function createServiceFeature(data: any) {
         }
     })
     revalidatePath("/admin/services")
-    return feature
+    return serialize(feature)
 }
 
 export async function updateServiceFeature(id: string, data: any) {
+    await checkAuth()
     const feature = await db.serviceFeature.update({
         where: { id },
         data: {
@@ -148,16 +178,18 @@ export async function updateServiceFeature(id: string, data: any) {
         }
     })
     revalidatePath("/admin/services")
-    return feature
+    return serialize(feature)
 }
 
 export async function deleteServiceFeature(id: string) {
+    await checkAuth()
     await db.serviceFeature.delete({ where: { id } })
     revalidatePath("/admin/services")
 }
 
 // MEDIA
 export async function createServiceMedia(data: any) {
+    await checkAuth()
     const media = await db.serviceMedia.create({
         data: {
             serviceId: data.serviceId,
@@ -167,10 +199,11 @@ export async function createServiceMedia(data: any) {
         }
     })
     revalidatePath("/admin/services")
-    return media
+    return serialize(media)
 }
 
 export async function deleteServiceMedia(id: string) {
+    await checkAuth()
     await db.serviceMedia.delete({ where: { id } })
     revalidatePath("/admin/services")
 }

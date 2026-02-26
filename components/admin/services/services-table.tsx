@@ -64,7 +64,8 @@ import {
     createServiceFeature,
     deleteServiceFeature,
     createServiceMedia,
-    deleteServiceMedia
+    deleteServiceMedia,
+    getServices
 } from "@/app/lib/actions/service"
 import { ServiceForm } from "./service-form"
 import { CategoryDialog } from "./category-dialog"
@@ -114,6 +115,8 @@ export type ServiceType = {
     brandLogo: string | null
     order: number
     categoryId: string
+    featuresEL: any
+    featuresEN: any
     category: ServiceCategoryType
     features: ServiceFeatureType[]
     media: ServiceMediaType[]
@@ -141,7 +144,6 @@ export function ServicesTable({
     )
 
     const refreshData = async () => {
-        const { getServices } = await import("@/app/lib/actions/service")
         const s = await getServices()
         setServices(s as any)
     }
@@ -395,9 +397,11 @@ function ServiceRow({ service, isExpanded, onToggle, onEdit, onDelete, onRefresh
                         <p className="text-sm text-zinc-500 truncate max-w-sm">{service.shortDescriptionEL || service.nameEN || "No short description"}</p>
                         <div className="flex items-center gap-1.5 border-l pl-4 border-zinc-200">
                             <Layers className="w-3 h-3 text-zinc-400" />
-                            <span className="text-[11px] font-bold text-zinc-400">{service.features.length}</span>
+                            <span className="text-[11px] font-bold text-zinc-400">
+                                {(service.features?.length || 0) + (service.featuresEL?.length || 0)}
+                            </span>
                             <ImageIcon className="w-3 h-3 text-zinc-400 ml-2" />
-                            <span className="text-[11px] font-bold text-zinc-400">{service.media.length}</span>
+                            <span className="text-[11px] font-bold text-zinc-400">{service.media?.length || 0}</span>
                         </div>
                     </div>
                 </div>

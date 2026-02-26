@@ -15,7 +15,8 @@ import {
     Search,
     Link as LinkIcon,
     Languages,
-    Sparkles
+    Sparkles,
+    Plus
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -56,6 +57,8 @@ const serviceSchema = z.object({
     categoryId: z.string().min(1, "Category is required"),
     brandName: z.string().min(0).default(""),
     order: z.number().default(0),
+    featuresEL: z.array(z.string()).default([]),
+    featuresEN: z.array(z.string()).default([]),
 })
 
 type ServiceFormValues = z.infer<typeof serviceSchema>
@@ -89,6 +92,8 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
             categoryId: service?.categoryId || "",
             brandName: service?.brandName || "",
             order: service?.order || 0,
+            featuresEL: service?.featuresEL || [],
+            featuresEN: service?.featuresEN || [],
         }
     })
 
@@ -269,6 +274,9 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                             </TabsTrigger>
                             <TabsTrigger value="branding" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
                                 <Layout className="w-4 h-4" /> Branding
+                            </TabsTrigger>
+                            <TabsTrigger value="features" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
+                                <Sparkles className="w-4 h-4" /> Key Features
                             </TabsTrigger>
                         </TabsList>
                     </div>
@@ -590,6 +598,116 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-zinc-300" /> Max size: 512x512px</li>
                                                 <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-zinc-300" /> Horizontal aspect ratios work best</li>
                                             </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="features" className="mt-0 space-y-6">
+                            <div className="grid grid-cols-2 gap-8">
+                                <div className="space-y-6">
+                                    <div className="p-6 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-2 bg-zinc-900 text-white rounded-lg"><Sparkles className="w-4 h-4" /></div>
+                                                <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Service Features (Greek)</h4>
+                                            </div>
+                                            <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase" onClick={() => {
+                                                const current = form.getValues("featuresEL")
+                                                form.setValue("featuresEL", [...current, ""])
+                                            }}>
+                                                <Plus className="w-3 h-3 mr-1" /> Add Feature
+                                            </Button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {form.watch("featuresEL").map((_, i) => (
+                                                <div key={i} className="flex items-center gap-3 group">
+                                                    <span className="text-[10px] font-bold text-zinc-400 w-5 text-right">{i + 1}.</span>
+                                                    <Input
+                                                        className="h-10 text-sm"
+                                                        placeholder="e.g. Αυτοματοποίηση ροών..."
+                                                        value={form.watch(`featuresEL.${i}`)}
+                                                        onChange={e => {
+                                                            const arr = [...form.getValues("featuresEL")]
+                                                            arr[i] = e.target.value
+                                                            form.setValue("featuresEL", arr)
+                                                        }}
+                                                    />
+                                                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {
+                                                        const arr = form.getValues("featuresEL").filter((_, idx) => idx !== i)
+                                                        form.setValue("featuresEL", arr)
+                                                    }}>
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            {form.watch("featuresEL").length === 0 && (
+                                                <p className="text-center py-8 text-xs text-zinc-400 italic border-2 border-dashed rounded-xl">No features added yet.</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="p-6 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg"><Languages className="w-4 h-4 text-zinc-900 dark:text-white" /></div>
+                                                <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Service Features (English)</h4>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[9px] font-black text-blue-600 uppercase" onClick={async () => {
+                                                    const featuresEL = form.getValues("featuresEL")
+                                                    if (featuresEL.length === 0) return
+                                                    const tid = toast.loading("Translating features...")
+                                                    try {
+                                                        const translated = await Promise.all(featuresEL.map(async (text) => {
+                                                            if (!text) return ""
+                                                            const r = await fetch("/api/admin/translate", {
+                                                                method: "POST",
+                                                                body: JSON.stringify({ text, targetLang: "en" })
+                                                            })
+                                                            const d = await r.json()
+                                                            return d.translated || text
+                                                        }))
+                                                        form.setValue("featuresEN", translated)
+                                                        toast.success("All features translated", { id: tid })
+                                                    } catch {
+                                                        toast.error("Bulk translation failed", { id: tid })
+                                                    }
+                                                }}>
+                                                    <Sparkles className="w-3 h-3 mr-1" /> AI Bulk Translate
+                                                </Button>
+                                                <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase" onClick={() => {
+                                                    const current = form.getValues("featuresEN")
+                                                    form.setValue("featuresEN", [...current, ""])
+                                                }}>
+                                                    <Plus className="w-3 h-3 mr-1" /> Add Feature
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {form.watch("featuresEN").map((_, i) => (
+                                                <div key={i} className="flex items-center gap-3 group">
+                                                    <span className="text-[10px] font-bold text-zinc-400 w-5 text-right">{i + 1}.</span>
+                                                    <Input
+                                                        className="h-10 text-sm italic"
+                                                        placeholder="e.g. Automation workflow..."
+                                                        value={form.watch(`featuresEN.${i}`)}
+                                                        onChange={e => {
+                                                            const arr = [...form.getValues("featuresEN")]
+                                                            arr[i] = e.target.value
+                                                            form.setValue("featuresEN", arr)
+                                                        }}
+                                                    />
+                                                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {
+                                                        const arr = form.getValues("featuresEN").filter((_, idx) => idx !== i)
+                                                        form.setValue("featuresEN", arr)
+                                                    }}>
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>

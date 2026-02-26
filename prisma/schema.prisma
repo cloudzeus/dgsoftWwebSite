@@ -389,6 +389,8 @@ model Service {
   categoryId         String
   category           ServiceCategory @relation(fields: [categoryId], references: [id])
   
+  featuresEL         Json?
+  featuresEN         Json?
   features           ServiceFeature[]
   media              ServiceMedia[]
 
