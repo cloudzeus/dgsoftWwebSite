@@ -96,6 +96,7 @@ model TRDR {
   numEmployees   Int?      @db.SmallInt
 
   kads           trdrKad[]
+  works          Work[]
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -415,6 +416,50 @@ model ServiceMedia {
   service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   url       String   @db.Text
   mediaType String   @default("IMAGE") // IMAGE, VIDEO
+  order     Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Work {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+
+  titleEL          String    @db.VarChar(255)
+  titleEN          String?   @db.VarChar(255)
+
+  challengeEL      String?   @db.Text
+  challengeEN      String?   @db.Text
+
+  completionDate   String?   @db.VarChar(10)
+
+  servicesUsed     Json?
+
+  stepsEL          Json?
+  stepsEN          Json?
+
+  stats            Json?
+
+  customerId       String?
+  customer         TRDR?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  order            Int       @default(0)
+  published        Boolean   @default(false)
+
+  media            WorkMedia[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model WorkMedia {
+  id        String   @id @default(cuid())
+  workId    String
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  type      String   @default("IMAGE")
+  url       String   @db.Text
+  featured  Boolean  @default(false)
   order     Int      @default(0)
 
   createdAt DateTime @default(now())

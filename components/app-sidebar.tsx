@@ -98,8 +98,8 @@ const navData = {
       icon: MapPinIcon,
     },
     {
-      title: "Projects",
-      url: "#",
+      title: "Works",
+      url: "/admin/works",
       icon: FolderIcon,
     },
     {
@@ -178,6 +178,11 @@ const navData = {
       title: "Services",
       url: "/admin/services",
       icon: LayoutDashboardIcon,
+    },
+    {
+      title: "Works & Cases",
+      url: "/admin/works",
+      icon: FolderIcon,
     }
   ],
   navSecondary: [

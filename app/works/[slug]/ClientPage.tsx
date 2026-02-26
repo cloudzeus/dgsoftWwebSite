@@ -78,8 +78,26 @@ const worksData: Record<string, any> = {
     }
 };
 
-export default function ClientPage({ slug }: { slug: string }) {
-    const data = worksData[slug] || worksData["soft1-cloud-erp-series-6"];
+export default function ClientPage({ slug, initialWork }: { slug: string; initialWork?: any }) {
+    const staticData = worksData[slug] || worksData["soft1-cloud-erp-series-6"];
+
+    // Map dynamic data if available
+    const data = initialWork ? {
+        title: initialWork.titleEL,
+        client: initialWork.customer?.NAME || "Επιχειρηματικός Μετασχηματισμός",
+        solutions: initialWork.serviceNames?.map((s: any) => s.nameEL).join(", ") || "Business Solutions",
+        year: initialWork.completionDate || "2024",
+        challenge: initialWork.challengeEL || "—",
+        metrics: initialWork.stats?.map((s: any) => {
+            // Icon mapping if possible, otherwise default Activity
+            return {
+                icon: Activity,
+                title: s.value,
+                desc: s.textEL
+            };
+        }) || [],
+        steps: (initialWork.stepsEL as string[]) || []
+    } : staticData;
 
     const container = useRef(null);
     const { scrollYProgress } = useScroll({

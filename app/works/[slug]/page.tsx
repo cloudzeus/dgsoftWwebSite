@@ -1,15 +1,14 @@
 import ClientPage from "./ClientPage";
+import { getPublicWorkBySlug } from "@/app/lib/queries/work";
+import { notFound } from "next/navigation";
 
-export function generateStaticParams() {
-    return [
-        { slug: "soft1-cloud-erp-series-6" },
-        { slug: "soft1-cloud-crm-series-6" },
-        { slug: "ariadne-service-hub" },
-        { slug: "digital-tools-exodologia" }
-    ];
-}
+export const dynamic = "force-dynamic";
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-    const resolvedParams = await params;
-    return <ClientPage slug={resolvedParams.slug} />;
+    const { slug } = await params;
+    const work = await getPublicWorkBySlug(slug);
+
+    // If not found in DB, ClientPage might still have static fallback logic 
+    // but better to handle it here if we want pure dynamic
+    return <ClientPage slug={slug} initialWork={work} />;
 }

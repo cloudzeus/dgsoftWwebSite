@@ -10,9 +10,13 @@ import Contact from "./sections/Contact";
 import LatestInsights from "./sections/LatestInsights";
 import Footer from "./components/Footer";
 import { getPublicLocations } from "./lib/actions/location";
+import { getPublicWorks } from "./lib/queries/work";
 
 export default async function Home() {
-  const locations = await getPublicLocations();
+  const [locations, works] = await Promise.all([
+    getPublicLocations(),
+    getPublicWorks()
+  ]);
 
   return (
     <main className="min-h-screen bg-monks-black">
@@ -20,7 +24,7 @@ export default async function Home() {
       <Hero />
       <Customers />
       <Solutions />
-      <Work />
+      <Work initialWorks={works} />
       <Locations data={locations} />
       <About />
       <LatestInsights />

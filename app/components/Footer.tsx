@@ -6,22 +6,22 @@ import { ArrowUpRight, Linkedin, Twitter, Instagram, Github } from "lucide-react
 
 const footerLinks = {
   solutions: [
-    { name: "Real-Time Platforms", href: "#" },
-    { name: "Digital Orchestration", href: "#" },
-    { name: "Immersive Experiences", href: "#" },
-    { name: "AI Integration", href: "#" },
+    { name: "SaaS Platforms", href: "/services" },
+    { name: "Digital Transformation", href: "/services" },
+    { name: "Enterprise ERP", href: "/services" },
+    { name: "AI Integration", href: "/services" },
   ],
   company: [
-    { name: "About Us", href: "#about" },
-    { name: "Our Work", href: "#work" },
-    { name: "Careers", href: "#" },
-    { name: "Contact", href: "#contact" },
+    { name: "About Us", href: "/#about" },
+    { name: "Our Work", href: "/works" },
+    { name: "Careers", href: "/careers" },
+    { name: "Contact", href: "/#contact" },
   ],
   resources: [
-    { name: "Blog / Νέα", href: "/blog" },
+    { name: "Blog / News", href: "/blog" },
     { name: "Downloads", href: "/downloads" },
-    { name: "Documentation", href: "/services" },
-    { name: "Privacy Policy", href: "#" },
+    { name: "Services Catalog", href: "/services" },
+    { name: "Privacy Policy", href: "/privacy" },
   ]
 };
 

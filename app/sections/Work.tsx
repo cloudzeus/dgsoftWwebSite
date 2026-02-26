@@ -40,8 +40,19 @@ const projects = [
   }
 ];
 
-export default function Work() {
+export default function Work({ initialWorks }: { initialWorks?: any[] }) {
   const { ref, isVisible } = useScrollAnimation(0.1);
+
+  const displayProjects = initialWorks && initialWorks.length > 0
+    ? initialWorks.slice(0, 4).map(w => ({
+      client: w.customer?.NAME || "Client",
+      title: w.titleEL,
+      description: w.challengeEL ? (w.challengeEL.length > 100 ? w.challengeEL.substring(0, 97) + "..." : w.challengeEL) : "Case study for " + w.titleEL,
+      category: "Case Study",
+      year: w.completionDate || "2024",
+      slug: w.slug
+    }))
+    : projects;
 
   return (
     <section id="work" className="py-32 bg-monks-dark relative overflow-hidden">
@@ -72,7 +83,7 @@ export default function Work() {
 
         {/* Projects List */}
         <div className="space-y-0">
-          {projects.map((project, index) => (
+          {displayProjects.map((project: any, index: number) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -50 }}
@@ -81,35 +92,37 @@ export default function Work() {
               transition={{ duration: 0.6, delay: index * 0.1, ease: "backOut" }}
               className="group border-t border-white/10 last:border-b hover:border-monks-accent/50 transition-colors duration-500"
             >
-              <div className="py-8 md:py-12 grid md:grid-cols-12 gap-6 md:gap-8 items-center cursor-pointer">
-                {/* Year & Category */}
-                <div className="md:col-span-2 flex md:flex-col gap-4 md:gap-2 text-sm text-monks-light">
-                  <span>{project.year}</span>
-                  <span className="text-monks-accent">{project.category}</span>
-                </div>
+              <Link href={`/works/${project.slug}`}>
+                <div className="py-8 md:py-12 grid md:grid-cols-12 gap-6 md:gap-8 items-center cursor-pointer">
+                  {/* Year & Category */}
+                  <div className="md:col-span-2 flex md:flex-col gap-4 md:gap-2 text-sm text-monks-light">
+                    <span>{project.year}</span>
+                    <span className="text-monks-accent">{project.category}</span>
+                  </div>
 
-                {/* Title & Client */}
-                <div className="md:col-span-5">
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-monks-accent transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-monks-light">{project.client}</p>
-                </div>
+                  {/* Title & Client */}
+                  <div className="md:col-span-5">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-monks-accent transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="text-monks-light">{project.client}</p>
+                  </div>
 
-                {/* Description */}
-                <div className="md:col-span-4">
-                  <p className="text-monks-light leading-relaxed">
-                    {project.description}
-                  </p>
-                </div>
+                  {/* Description */}
+                  <div className="md:col-span-4">
+                    <p className="text-monks-light leading-relaxed line-clamp-2">
+                      {project.description}
+                    </p>
+                  </div>
 
-                {/* Arrow */}
-                <div className="md:col-span-1 flex justify-end">
-                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-monks-accent group-hover:border-monks-accent transition-all duration-300">
-                    <ArrowUpRight className="w-5 h-5 text-white" />
+                  {/* Arrow */}
+                  <div className="md:col-span-1 flex justify-end">
+                    <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-monks-accent group-hover:border-monks-accent transition-all duration-300">
+                      <ArrowUpRight className="w-5 h-5 text-white" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>
