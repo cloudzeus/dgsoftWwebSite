@@ -98,7 +98,7 @@ const navData = {
       icon: MapPinIcon,
     },
     {
-      title: "Works",
+      title: "Projects",
       url: "/admin/works",
       icon: FolderIcon,
     },
@@ -180,7 +180,7 @@ const navData = {
       icon: LayoutDashboardIcon,
     },
     {
-      title: "Works & Cases",
+      title: "Project",
       url: "/admin/works",
       icon: FolderIcon,
     }
