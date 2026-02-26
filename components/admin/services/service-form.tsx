@@ -288,7 +288,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                     <div className="p-6 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="p-2 bg-zinc-900 text-white rounded-lg"><Info className="w-4 h-4" /></div>
-                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Service Identity</h4>
+                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Service Identity</h4>
                                         </div>
                                         <div className="space-y-4">
                                             <FormField
@@ -296,7 +296,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 name="nameEL"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">Name (Greek) *</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Name (Greek) *</FormLabel>
                                                         <FormControl><Input id="nameEL" {...field} placeholder="π.χ. ERP Cloud" className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 font-bold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 shadow-inner focus:ring-1 focus:ring-blue-500" /></FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -308,7 +308,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <div className="flex items-center justify-between">
-                                                            <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">Name (English)</FormLabel>
+                                                            <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Name (English)</FormLabel>
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"
@@ -334,7 +334,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                     <div className="p-6 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="p-2 bg-zinc-900 text-white rounded-lg"><Settings className="w-4 h-4" /></div>
-                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Classification & URL</h4>
+                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Classification & URL</h4>
                                         </div>
                                         <div className="space-y-4">
                                             <FormField
@@ -342,7 +342,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 name="slug"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">URL Slug *</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">URL Slug *</FormLabel>
                                                         <FormControl>
                                                             <div className="relative">
                                                                 <Input id="slug" {...field} className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 pl-10 font-mono text-[11px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 shadow-inner" />
@@ -359,7 +359,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 name="categoryId"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">Industry Category *</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Industry Category *</FormLabel>
                                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                             <FormControl>
                                                                 <SelectTrigger className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-inner">
@@ -424,7 +424,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                     <div className="p-6 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="w-2 h-2 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Internationalization (English)</h4>
+                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Internationalization (English)</h4>
                                         </div>
                                         <FormField
                                             control={form.control as any}
@@ -432,7 +432,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <div className="flex items-center justify-between">
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">Catchphrase</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Catchphrase</FormLabel>
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
@@ -456,7 +456,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <div className="flex items-center justify-between">
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">Full Description</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Full Description</FormLabel>
                                                         <div className="flex gap-2">
                                                             <RichToolbar fieldName="descriptionEN" />
                                                             <Button
@@ -530,14 +530,14 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                 <div className="p-8 bg-white dark:bg-zinc-950 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-6">
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg"><Layout className="w-4 h-4 text-zinc-900 dark:text-white" /></div>
-                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Partner Details</h4>
+                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Partner Details</h4>
                                     </div>
                                     <FormField
                                         control={form.control as any}
                                         name="brandName"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">Associated Brand Name</FormLabel>
+                                                <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Associated Brand Name</FormLabel>
                                                 <FormControl><Input {...field} className="h-11 bg-zinc-50/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800" placeholder="e.g. Soft1 ERP, CTI" /></FormControl>
                                                 <FormDescription className="text-[10px]">Displayed as the vendor or technology partner.</FormDescription>
                                                 <FormMessage />
@@ -549,7 +549,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         name="order"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-[10px] font-bold uppercase text-zinc-400">Catalog Order Ranking</FormLabel>
+                                                <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Catalog Order Ranking</FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="number"
@@ -568,7 +568,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="p-2 bg-yellow-50 text-yellow-600 rounded-lg"><Sparkles className="w-4 h-4" /></div>
-                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Logo & Visual ID</h4>
+                                            <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Logo & Visual ID</h4>
                                         </div>
                                         <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900 rounded-full border border-zinc-100 dark:border-zinc-800">
                                             <Switch checked={removeLogoBg} onCheckedChange={setRemoveLogoBg} className="scale-75" />
@@ -610,7 +610,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="p-2 bg-zinc-900 text-white rounded-lg"><Sparkles className="w-4 h-4" /></div>
-                                                <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Service Features (Greek)</h4>
+                                                <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Service Features (Greek)</h4>
                                             </div>
                                             <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase" onClick={() => {
                                                 const current = form.getValues("featuresEL")
@@ -622,9 +622,9 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         <div className="space-y-3">
                                             {form.watch("featuresEL").map((_, i) => (
                                                 <div key={i} className="flex items-center gap-3 group">
-                                                    <span className="text-[10px] font-bold text-zinc-400 w-5 text-right">{i + 1}.</span>
+                                                    <span className="text-[10px] font-bold text-zinc-500 w-5 text-right">{i + 1}.</span>
                                                     <Input
-                                                        className="h-10 text-sm"
+                                                        className="h-10 text-sm bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:ring-1 focus:ring-blue-500"
                                                         placeholder="e.g. Αυτοματοποίηση ροών..."
                                                         value={form.watch(`featuresEL.${i}`)}
                                                         onChange={e => {
@@ -653,7 +653,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg"><Languages className="w-4 h-4 text-zinc-900 dark:text-white" /></div>
-                                                <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-500">Service Features (English)</h4>
+                                                <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Service Features (English)</h4>
                                             </div>
                                             <div className="flex gap-2">
                                                 <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[9px] font-black text-blue-600 uppercase" onClick={async () => {
@@ -689,9 +689,9 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         <div className="space-y-3">
                                             {form.watch("featuresEN").map((_, i) => (
                                                 <div key={i} className="flex items-center gap-3 group">
-                                                    <span className="text-[10px] font-bold text-zinc-400 w-5 text-right">{i + 1}.</span>
+                                                    <span className="text-[10px] font-bold text-zinc-500 w-5 text-right">{i + 1}.</span>
                                                     <Input
-                                                        className="h-10 text-sm italic"
+                                                        className="h-10 text-sm italic bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:ring-1 focus:ring-blue-500"
                                                         placeholder="e.g. Automation workflow..."
                                                         value={form.watch(`featuresEN.${i}`)}
                                                         onChange={e => {
