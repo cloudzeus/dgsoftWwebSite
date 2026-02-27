@@ -50,6 +50,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { createWork, updateWork, deleteWork, updateWorkOrder } from "@/app/lib/actions/work"
 import { GenericDataTable } from "../shared/generic-data-table"
+import { MultiSelectCombobox } from "./multi-select-combobox"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -453,6 +454,16 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                         </Select>
                                     </div>
                                 </div>
+                                <div className="space-y-4">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Services used (from Service model)</Label>
+                                    <MultiSelectCombobox
+                                        options={allServices.map(s => ({ value: s.id, label: s.nameEL }))}
+                                        selectedValues={formData.servicesUsed}
+                                        onSelect={(values) => setFormData(prev => ({ ...prev, servicesUsed: values }))}
+                                        placeholder="Select one or more services..."
+                                        searchPlaceholder="Search services..."
+                                        className="rounded-xl border border-border"
+                                    />
                                 <div className="space-y-4">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Strategic Challenge Protocol</Label>
                                     <Textarea className="min-h-[160px] rounded-[32px] border-zinc-200 shadow-sm p-8 text-sm leading-relaxed" placeholder="Outline the complex problems solved..." value={formData.challengeEL} onChange={e => setFormData({ ...formData, challengeEL: e.target.value })} />

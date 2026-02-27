@@ -20,7 +20,8 @@ import {
   UsersIcon,
   MapPinIcon,
   BriefcaseIcon,
-  GlobeIcon
+  GlobeIcon,
+  WrenchIcon
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -61,6 +62,11 @@ const navData = {
       title: "Articles",
       url: "/admin/articles",
       icon: FileTextIcon,
+    },
+    {
+      title: "Services",
+      url: "/admin/services",
+      icon: WrenchIcon,
     },
     {
       title: "Downloads",
