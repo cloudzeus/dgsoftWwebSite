@@ -1,10 +1,23 @@
 "use client"
 
 import * as React from "react"
+import { ColumnDef } from "@tanstack/react-table"
 import {
-    ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable, ExpandedState,
-} from "@tanstack/react-table"
-import { ChevronDown, ChevronRight, Plus, GripVertical, Settings2, Trash2, Wand2, RefreshCcw, Sparkles, Image as ImageIcon, Bold, Italic, Link as LinkIcon, List } from "lucide-react"
+    ChevronDown,
+    ChevronRight,
+    GripVertical,
+    Trash2,
+    ImageIcon,
+    RefreshCcw,
+    Plus,
+    Sparkles,
+    Wand2,
+    Layout,
+    FileText,
+    Search,
+    Globe,
+    ExternalLink
+} from "lucide-react"
 
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable"
@@ -13,16 +26,16 @@ import { CSS } from "@dnd-kit/utilities"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 import { createArticle, updateArticle, deleteArticle, updateArticleOrder, createArticleCategory } from "@/app/lib/actions/article"
+import { GenericDataTable } from "../shared/generic-data-table"
 
 export type ArticleMedia = { id: string, type: string, url: string, order: number }
 export type ArticleCategory = { id: string, nameEL: string, nameEN: string }
@@ -48,51 +61,33 @@ export type Article = {
     media: ArticleMedia[]
 }
 
-const SortableRow = ({ row, flexRender }: any) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.original.id })
-    const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 2 : 1 }
-    return (
-        <TableRow ref={setNodeRef} style={style} className={isDragging ? "bg-muted shadow-md relative" : ""}>
-            {row.getVisibleCells().map((cell: any) => {
-                if (cell.column.id === "drag") {
-                    return (
-                        <TableCell key={cell.id} {...attributes} {...listeners} className="cursor-grab w-10 active:cursor-grabbing">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                    )
-                }
-                return (
-                    <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                )
-            })}
-        </TableRow>
-    )
-}
-
 const MediaSortableItem = ({ item, isCover, onSetCover, onDelete }: { item: ArticleMedia, isCover: boolean, onSetCover: () => void, onDelete: (id: string) => void }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id || item.url })
     const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }
     return (
-        <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-2 border rounded-md bg-white mb-2">
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1">
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <div ref={setNodeRef} style={style} className="flex items-center gap-4 p-3 border rounded-2xl bg-white dark:bg-zinc-900 mb-2 group hover:shadow-md transition-all">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg">
+                <GripVertical className="h-4 w-4 text-zinc-400" />
             </div>
-            {item.type === "IMAGE" ? (
-                <img src={item.url} alt="media" className="w-16 h-16 object-cover rounded-sm border" />
-            ) : (
-                <video src={item.url} className="w-16 h-16 object-cover rounded-sm border" muted />
-            )}
-            <div className="flex-1 text-sm truncate font-mono text-xs text-muted-foreground">{item.url.split('/').pop()}</div>
-            <div className="flex items-center gap-2">
-                <Badge variant="outline">{item.type}</Badge>
-                {isCover ? (
-                    <Badge className="bg-emerald-600 hover:bg-emerald-700 font-semibold gap-1"><ImageIcon className="h-3 w-3" /> Cover</Badge>
+            <div className="relative w-20 h-20 rounded-xl overflow-hidden shadow-inner bg-zinc-100 border">
+                {item.type === "IMAGE" ? (
+                    <img src={item.url} alt="media" className="w-full h-full object-cover" />
                 ) : (
-                    <Button size="sm" variant="secondary" onClick={onSetCover} className="h-7 text-xs font-semibold hover:bg-emerald-100 hover:text-emerald-700">Set Cover</Button>
+                    <video src={item.url} className="w-full h-full object-cover" muted />
                 )}
-                <Button size="icon" variant="ghost" onClick={() => onDelete(item.id || item.url)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-7 w-7">
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-xs font-mono text-zinc-500 truncate">{item.url.split('/').pop()}</p>
+                <div className="mt-2 flex items-center gap-2">
+                    <Badge variant="outline" className="text-[10px] uppercase font-bold text-zinc-400">{item.type}</Badge>
+                    {isCover && <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] font-black uppercase">Cover Image</Badge>}
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                {!isCover && (
+                    <Button size="sm" variant="ghost" onClick={onSetCover} className="h-8 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-emerald-600">Set Cover</Button>
+                )}
+                <Button size="icon" variant="ghost" onClick={() => onDelete(item.id || item.url)} className="text-zinc-400 hover:text-red-500 h-8 w-8 hover:bg-red-50 dark:hover:bg-red-900/20">
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
@@ -103,7 +98,6 @@ const MediaSortableItem = ({ item, isCover, onSetCover, onDelete }: { item: Arti
 export function DataTableArticles({ data: initialData, allCategories: initialCategories }: { data: Article[], allCategories: ArticleCategory[] }) {
     const [data, setData] = React.useState<Article[]>(initialData || [])
     const [allCategories, setAllCategories] = React.useState<ArticleCategory[]>(initialCategories || [])
-    const [expanded, setExpanded] = React.useState<ExpandedState>({})
     const [isMounted, setIsMounted] = React.useState(false)
 
     React.useEffect(() => {
@@ -114,27 +108,12 @@ export function DataTableArticles({ data: initialData, allCategories: initialCat
     const [editingArticle, setEditingArticle] = React.useState<Article | null>(null)
     const [isSaving, setIsSaving] = React.useState(false)
     const [isGenerating, setIsGenerating] = React.useState(false)
-    const [newTagInput, setNewTagInput] = React.useState("")
 
-    // Form states
     const [formData, setFormData] = React.useState({
-        titleEL: "",
-        titleEN: "",
-        slug: "",
-        shortDescriptionEL: "",
-        shortDescriptionEN: "",
-        descriptionEL: "",
-        descriptionEN: "",
-        metaTitleEL: "",
-        metaTitleEN: "",
-        metaDescriptionEL: "",
-        metaDescriptionEN: "",
-        keywordsEL: "",
-        keywordsEN: "",
-        featureImage: "",
-        published: true,
-        categories: [] as ArticleCategory[],
-        media: [] as ArticleMedia[]
+        titleEL: "", titleEN: "", slug: "", shortDescriptionEL: "", shortDescriptionEN: "",
+        descriptionEL: "", descriptionEN: "", featureImage: "", published: true,
+        metaTitleEL: "", metaTitleEN: "", metaDescriptionEL: "", metaDescriptionEN: "", keywordsEL: "", keywordsEN: "",
+        categories: [] as ArticleCategory[], media: [] as ArticleMedia[]
     })
 
     const sensors = useSensors(
@@ -142,20 +121,14 @@ export function DataTableArticles({ data: initialData, allCategories: initialCat
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     )
 
-    const handleDragEnd = async (event: DragEndEvent) => {
-        const { active, over } = event
-        if (active.id !== over?.id) {
-            const oldIndex = data.findIndex(i => i.id === active.id)
-            const newIndex = data.findIndex(i => i.id === over?.id)
-            const newData = arrayMove(data, oldIndex, newIndex)
-            setData(newData)
-            try {
-                await updateArticleOrder(newData.map(d => d.id))
-                toast.success("Order updated successfully", { id: "order" })
-            } catch (err) {
-                toast.error("Failed to update order", { id: "order" })
-                setData(data)
-            }
+    const handleReorder = async (newData: Article[]) => {
+        setData(newData)
+        try {
+            await updateArticleOrder(newData.map(d => d.id))
+            toast.success("Order synchronized")
+        } catch (err) {
+            toast.error("Order sync failed")
+            setData(initialData)
         }
     }
 
@@ -163,23 +136,14 @@ export function DataTableArticles({ data: initialData, allCategories: initialCat
         if (article) {
             setEditingArticle(article)
             setFormData({
-                titleEL: article.titleEL,
-                titleEN: article.titleEN || "",
-                slug: article.slug,
-                shortDescriptionEL: article.shortDescriptionEL || "",
-                shortDescriptionEN: article.shortDescriptionEN || "",
-                descriptionEL: article.descriptionEL || "",
-                descriptionEN: article.descriptionEN || "",
-                metaTitleEL: article.metaTitleEL || "",
-                metaTitleEN: article.metaTitleEN || "",
-                metaDescriptionEL: article.metaDescriptionEL || "",
-                metaDescriptionEN: article.metaDescriptionEN || "",
-                keywordsEL: article.keywordsEL || "",
-                keywordsEN: article.keywordsEN || "",
-                featureImage: article.featureImage || "",
-                published: article.published,
-                categories: article.categories || [],
-                media: article.media || []
+                titleEL: article.titleEL, titleEN: article.titleEN || "", slug: article.slug,
+                shortDescriptionEL: article.shortDescriptionEL || "", shortDescriptionEN: article.shortDescriptionEN || "",
+                descriptionEL: article.descriptionEL || "", descriptionEN: article.descriptionEN || "",
+                metaTitleEL: article.metaTitleEL || "", metaTitleEN: article.metaTitleEN || "",
+                metaDescriptionEL: article.metaDescriptionEL || "", metaDescriptionEN: article.metaDescriptionEN || "",
+                keywordsEL: article.keywordsEL || "", keywordsEN: article.keywordsEN || "",
+                featureImage: article.featureImage || "", published: article.published,
+                categories: article.categories || [], media: article.media || []
             })
         } else {
             setEditingArticle(null)
@@ -225,19 +189,16 @@ export function DataTableArticles({ data: initialData, allCategories: initialCat
             const d = await res.json()
             if (!res.ok) throw new Error(d.error)
             setFormData(prev => ({ ...prev, [targetField]: d.text }))
-            toast.success("Translated successfully", { id: targetField })
+            toast.success("Translation applied", { id: targetField })
         } catch (err: any) {
             toast.error(err.message, { id: targetField })
         }
     }
 
     const handleGenerateArticle = async () => {
-        if (!formData.titleEL) {
-            toast.error("Please enter a Title (Greek) first!");
-            return;
-        }
+        if (!formData.titleEL) return toast.error("Enter a Greek Title first!")
         setIsGenerating(true)
-        toast.loading("DeepSeek is generating your SEO Post...", { id: "gen" })
+        const tid = toast.loading("DeepSeek is crafting your SEO post...")
         try {
             const res = await fetch("/api/admin/articles/generate", {
                 method: "POST",
@@ -248,33 +209,24 @@ export function DataTableArticles({ data: initialData, allCategories: initialCat
             if (!res.ok) throw new Error(d.error)
 
             const mappedCategories: ArticleCategory[] = [];
-            let categoriesList = [...allCategories];
+            let currentCats = [...allCategories];
 
             if (d.categories && Array.isArray(d.categories)) {
                 for (const cat of d.categories) {
-                    const existing = categoriesList.find(c => c.nameEL.toLowerCase() === cat.nameEL.toLowerCase());
-                    if (existing) {
-                        mappedCategories.push(existing);
-                    } else {
-                        // Create immediately to save state accurately
-                        const catSlug = cat.nameEL.toLowerCase().replace(/[^a-z0-9α-ωάέήίόύώ]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                    const existing = currentCats.find(c => c.nameEL.toLowerCase() === cat.nameEL.toLowerCase());
+                    if (existing) mappedCategories.push(existing);
+                    else {
                         try {
                             const newCat = await createArticleCategory({
-                                nameEL: cat.nameEL,
-                                nameEN: cat.nameEN || "",
-                                slug: catSlug || `cat-${Date.now()}`
+                                nameEL: cat.nameEL, nameEN: cat.nameEN || "", slug: cat.nameEL.toLowerCase().replace(/ /g, '-')
                             }) as any;
-                            categoriesList.push(newCat);
+                            currentCats.push(newCat);
                             mappedCategories.push(newCat);
-                        } catch (e) {
-                            console.error("Failed auto creating category", e);
-                        }
+                        } catch (e) { console.error(e) }
                     }
                 }
             }
-
-            setAllCategories(categoriesList);
-
+            setAllCategories(currentCats);
             setFormData(prev => ({
                 ...prev,
                 titleEN: d.titleEN || prev.titleEN,
@@ -289,523 +241,289 @@ export function DataTableArticles({ data: initialData, allCategories: initialCat
                 keywordsEL: d.keywordsEL || prev.keywordsEL,
                 keywordsEN: d.keywordsEN || prev.keywordsEN,
                 categories: mappedCategories,
-                slug: prev.slug || formData.titleEL.toLowerCase().replace(/[^a-z0-9α-ωάέήίόύώ]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+                slug: d.slug || prev.slug || formData.titleEL.toLowerCase().replace(/[^a-z0-9α-ωάέήίόύώ]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
             }))
-
-            toast.success("Article & SEO successfully generated and mapped!", { id: "gen" })
-
-        } catch (error: any) {
-            toast.error(error.message, { id: "gen" })
-        } finally {
-            setIsGenerating(false)
-        }
+            toast.success("Article Draft Generated", { id: tid })
+        } catch (error: any) { toast.error(error.message, { id: tid }); } finally { setIsGenerating(false); }
     }
 
-    const toggleCategory = (cat: ArticleCategory) => {
-        setFormData(prev => {
-            const exists = prev.categories.some(c => c.id === cat.id)
-            if (exists) return { ...prev, categories: prev.categories.filter(c => c.id !== cat.id) }
-            return { ...prev, categories: [...prev.categories, cat] }
-        })
+    const handleMediaUpload = async (files: FileList | null, article: Article) => {
+        if (!files || files.length === 0) return
+        const tid = toast.loading(`Uploading resources...`)
+        try {
+            let currentMedia = [...article.media];
+            for (let i = 0; i < files.length; i++) {
+                const fData = new FormData(); fData.append("file", files[i]);
+                const res = await fetch("/api/admin/articles/upload", { method: "POST", body: fData });
+                const d = await res.json();
+                if (!res.ok) throw new Error(d.error);
+                currentMedia.push({ id: `new_${Date.now()}_${i}`, url: d.url, type: d.type, order: currentMedia.length });
+            }
+            const updated = await updateArticle(article.id, { ...article, media: currentMedia });
+            setData(data.map(item => item.id === updated.id ? updated as any : item));
+            toast.success("Library updated", { id: tid });
+        } catch (error: any) { toast.error(error.message, { id: tid }); }
     }
 
     const columns: ColumnDef<Article>[] = [
-        {
-            id: "drag",
-            header: "",
-            cell: () => <GripVertical className="h-4 w-4 text-muted-foreground" />,
-            enableSorting: false,
-        },
-        {
-            id: "expander",
-            header: () => null,
-            cell: ({ row }) => (
-                <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); row.toggleExpanded() }}>
-                    <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${row.getIsExpanded() ? 'rotate-90' : ''}`} />
-                </Button>
-            ),
-        },
+        { id: "drag", header: "", cell: () => <GripVertical className="h-4 w-4 text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity" />, size: 40 },
         {
             accessorKey: "featureImage",
-            header: "Image",
-            cell: ({ row }) => {
-                const img = row.original.featureImage
-                if (!img) return <div className="h-8 w-12 bg-muted rounded-sm flex justify-center items-center text-xs text-muted-foreground">N/A</div>
-                return <img src={img} alt="cover" className="h-8 w-12 object-cover rounded-sm" />
-            }
+            header: "Preview",
+            cell: ({ row }) => (
+                <div className="w-16 h-10 rounded-lg overflow-hidden border bg-zinc-100 shadow-sm">
+                    {row.original.featureImage ? <img src={row.original.featureImage} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[8px] text-zinc-400 font-bold uppercase">No Img</div>}
+                </div>
+            )
         },
         {
             accessorKey: "titleEL",
-            header: "Title (GR)",
-            cell: ({ row }) => <div className="font-medium text-foreground truncate max-w-[200px]">{row.original.titleEL}</div>,
-        },
-        {
-            accessorKey: "slug",
-            header: "Slug",
-            cell: ({ row }) => <div className="text-xs text-muted-foreground truncate max-w-[150px]">{row.original.slug}</div>,
+            header: "Post Title",
+            cell: ({ row }) => (
+                <div className="flex flex-col">
+                    <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{row.original.titleEL}</span>
+                    <span className="text-[10px] font-mono text-zinc-400 truncate max-w-[150px]">/{row.original.slug}</span>
+                </div>
+            )
         },
         {
             accessorKey: "published",
             header: "Status",
-            cell: ({ row }) => (
-                <Badge variant={row.original.published ? "default" : "secondary"}>
-                    {row.original.published ? "Published" : "Draft"}
-                </Badge>
+            cell: ({ row }) => row.original.published ? (
+                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] font-black uppercase px-2 py-0.5">Published</Badge>
+            ) : (
+                <Badge variant="outline" className="text-zinc-400 border-zinc-200 text-[10px] font-black uppercase px-2 py-0.5">Draft Mode</Badge>
             )
         },
         {
             id: "actions",
-            cell: ({ row }) => {
-                return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">Actions <ChevronDown className="h-4 w-4 ml-1" /></Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-background text-foreground border border-input">
-                            <DropdownMenuItem className="cursor-pointer" onClick={() => openEdit(row.original)}>Edit Article</DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer text-red-500" onClick={async () => {
-                                if (confirm("Delete article?")) {
-                                    await deleteArticle(row.original.id)
-                                    setData(data.filter(d => d.id !== row.original.id))
-                                }
-                            }}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )
-            }
+            cell: ({ row }) => (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                        <Button variant="outline" size="sm" className="h-8 bg-zinc-800 text-white border-none font-bold hover:bg-zinc-700">
+                            Actions <ChevronDown className="h-4 w-4 ml-1" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Layout className="w-4 h-4 mr-2" /> Modify Article</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => window.open(`/blog/${row.original.slug}`, '_blank')}><ExternalLink className="w-4 h-4 mr-2" /> View Post</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-red-500" onClick={async () => {
+                            if (confirm("Permanently delete this article?")) {
+                                await deleteArticle(row.original.id);
+                                setData(data.filter(d => d.id !== row.original.id));
+                                toast.success("Article removed");
+                            }
+                        }}><Trash2 className="w-4 h-4 mr-2" /> Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )
         }
     ]
 
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getExpandedRowModel: getExpandedRowModel(),
-        onExpandedChange: setExpanded,
-        state: { expanded }
-    })
+    const renderExpandedRow = (article: Article) => (
+        <div className="py-8 px-6 bg-[#f8fafc] dark:bg-zinc-950/50 rounded-[32px] border border-zinc-200 dark:border-zinc-800 shadow-inner">
+            <Tabs defaultValue="overview">
+                <TabsList className="mb-8 bg-white dark:bg-zinc-900 p-1.5 h-12 rounded-2xl border shadow-sm flex items-center gap-2">
+                    <TabsTrigger value="overview" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white font-black text-[10px] uppercase tracking-widest px-8 rounded-xl h-9 transition-all">Overview</TabsTrigger>
+                    <TabsTrigger value="media" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-black text-[10px] uppercase tracking-widest px-8 rounded-xl h-9 transition-all">Digital Asset Library</TabsTrigger>
+                </TabsList>
 
-    const handleMediaUpload = async (files: FileList | null) => {
-        if (!files || files.length === 0 || !editingArticle) return
-        toast.loading(`Uploading ${files.length} file(s)...`, { id: "upload" })
-        try {
-            let currentMediaArray = [...editingArticle.media];
+                <TabsContent value="overview">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-4">
+                            <h5 className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4"><FileText className="w-3 h-3" /> Short Snippet (Greek)</h5>
+                            <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-900 p-6 rounded-[24px] border shadow-sm italic">
+                                "{article.shortDescriptionEL || "No meta description available yet."}"
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-white dark:bg-zinc-900 p-6 rounded-[24px] border shadow-sm">
+                                <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Categories</h5>
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {article.categories.map(c => <Badge key={c.id} variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-100 rounded-md py-0 px-2 text-[10px] font-bold">{c.nameEL}</Badge>)}
+                                    {article.categories.length === 0 && <span className="text-xs text-zinc-300">Uncategorized</span>}
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-zinc-900 p-6 rounded-[24px] border shadow-sm">
+                                <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">SEO Health</h5>
+                                <div className="mt-3 flex items-center gap-2">
+                                    <div className={`w-3 h-3 rounded-full ${article.metaTitleEL && article.metaDescriptionEL ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                    <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">{article.metaTitleEL && article.metaDescriptionEL ? 'Optimized' : 'Needs attention'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </TabsContent>
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const formData = new FormData()
-                formData.append("file", file)
-                const res = await fetch("/api/admin/articles/upload", { method: "POST", body: formData })
-                const d = await res.json()
-                if (!res.ok) throw new Error(d.error)
+                <TabsContent value="media" className="animate-in fade-in duration-500">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="flex flex-col">
+                            <h3 className="text-xl font-black text-zinc-800 dark:text-zinc-200">Media Library</h3>
+                            <p className="text-xs text-zinc-400 font-medium tracking-tight">Manage images and videos associated with this post. Drag to reorder.</p>
+                        </div>
+                        <Label className="cursor-pointer bg-emerald-600 shadow-xl shadow-emerald-600/20 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all active:scale-95 flex items-center gap-2">
+                            <Plus className="w-4 h-4" /> Add Assets
+                            <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={(e) => handleMediaUpload(e.target.files, article)} />
+                        </Label>
+                    </div>
 
-                const newMedia = { id: `new_${Date.now()}_${i}`, url: d.url, type: d.type, order: currentMediaArray.length }
-                currentMediaArray.push(newMedia);
-            }
+                    <div className="grid grid-cols-1 gap-2 max-w-3xl">
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => {
+                            const { active, over } = e;
+                            if (active.id !== over?.id) {
+                                const oldIndex = article.media.findIndex(i => (i.id || i.url) === active.id)
+                                const newIndex = article.media.findIndex(i => (i.id || i.url) === over?.id)
+                                const newMediaList = arrayMove(article.media, oldIndex, newIndex)
+                                updateArticle(article.id, { ...article, media: newMediaList }).then(updated => {
+                                    setData(data.map(item => item.id === updated.id ? updated as any : item));
+                                });
+                            }
+                        }}>
+                            <SortableContext items={article.media.map(m => m.id || m.url)} strategy={verticalListSortingStrategy}>
+                                {article.media.map(m => (
+                                    <MediaSortableItem
+                                        key={m.id || m.url} item={m} isCover={article.featureImage === m.url}
+                                        onDelete={async (id) => {
+                                            if (confirm("Remove this asset?")) {
+                                                const updated = await updateArticle(article.id, { ...article, media: article.media.filter(x => (x.id || x.url) !== id) });
+                                                setData(data.map(item => item.id === updated.id ? updated as any : item));
+                                            }
+                                        }}
+                                        onSetCover={async () => {
+                                            const updated = await updateArticle(article.id, { ...article, featureImage: m.url });
+                                            setData(data.map(item => item.id === updated.id ? updated as any : item));
+                                            toast.success("Main cover image updated");
+                                        }}
+                                    />
+                                ))}
+                                {article.media.length === 0 && (
+                                    <div className="p-12 border-2 border-dashed rounded-[32px] flex flex-col items-center justify-center text-zinc-400 gap-3">
+                                        <ImageIcon className="w-12 h-12 opacity-10" />
+                                        <p className="text-sm font-bold opacity-50">No media assets found in library.</p>
+                                    </div>
+                                )}
+                            </SortableContext>
+                        </DndContext>
+                    </div>
+                </TabsContent>
+            </Tabs>
+        </div>
+    )
 
-            const payload = {
-                ...editingArticle,
-                categories: editingArticle.categories,
-                media: currentMediaArray
-            }
-
-            const updated = await updateArticle(editingArticle.id, payload)
-            setData(data.map(item => item.id === updated.id ? updated as any : item))
-            setEditingArticle(updated as any)
-            toast.success("Media uploaded successfully!", { id: "upload" })
-        } catch (error: any) {
-            toast.error(error.message, { id: "upload" })
-        }
-    }
-
-    const handleMediaDragEnd = async (event: DragEndEvent, parentArticleId: string) => {
-        const { active, over } = event
-        if (active.id !== over?.id) {
-            const article = data.find(d => d.id === parentArticleId)
-            if (!article) return
-            const oldIndex = article.media.findIndex(i => (i.id || i.url) === active.id)
-            const newIndex = article.media.findIndex(i => (i.id || i.url) === over?.id)
-            const newMediaList = arrayMove(article.media, oldIndex, newIndex)
-
-            // Immediately save order to backend
-            const payload = { ...article, media: newMediaList }
-            try {
-                const updated = await updateArticle(article.id, payload)
-                setData(data.map(item => item.id === updated.id ? updated as any : item))
-            } catch (error) {
-                toast.error("Failed to reorder media")
-            }
-        }
-    }
-
-    const handleFormMediaUpload = async (files: FileList | null) => {
-        if (!files || files.length === 0) return
-        toast.loading(`Uploading ${files.length} file(s) directly to form...`, { id: "upload-form" })
-        try {
-            let currentMediaArray = [...formData.media];
-
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const uploadForm = new FormData()
-                uploadForm.append("file", file)
-                const res = await fetch("/api/admin/articles/upload", { method: "POST", body: uploadForm })
-                const d = await res.json()
-                if (!res.ok) throw new Error(d.error)
-
-                const newMedia = { id: `new_${Date.now()}_${i}`, url: d.url, type: d.type, order: currentMediaArray.length }
-                currentMediaArray.push(newMedia);
-            }
-
-            setFormData(prev => ({ ...prev, media: currentMediaArray }))
-            toast.success("Media attached successfully!", { id: "upload-form" })
-        } catch (error: any) {
-            toast.error(error.message, { id: "upload-form" })
-        }
-    }
-
-    const handleFormMediaDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event
-        if (active.id !== over?.id) {
-            const oldIndex = formData.media.findIndex(i => (i.id || i.url) === active.id)
-            const newIndex = formData.media.findIndex(i => (i.id || i.url) === over?.id)
-            const newMediaList = arrayMove(formData.media, oldIndex, newIndex)
-            setFormData(prev => ({ ...prev, media: newMediaList }))
-        }
-    }
-
-    if (!isMounted) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse">Loading articles interface...</div>
-    }
+    if (!isMounted) return null
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <Button onClick={() => openEdit()} className="bg-primary shadow-md hover:shadow-lg transition-all">
-                    <Plus className="mr-2 h-4 w-4" /> Add Article
-                </Button>
-            </div>
-
-            <div className="rounded-md border bg-card text-card-foreground shadow overflow-hidden">
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <Table>
-                        <TableHeader className="bg-muted">
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                        </TableHead>
-                                    ))}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            <SortableContext items={data.map(d => d.id)} strategy={verticalListSortingStrategy}>
-                                {table.getRowModel().rows.map(row => (
-                                    <React.Fragment key={row.id}>
-                                        <SortableRow row={row} flexRender={flexRender} />
-                                        {row.getIsExpanded() && (
-                                            <TableRow className="bg-muted/10 h-full">
-                                                <TableCell colSpan={columns.length} className="p-4 border-b">
-                                                    <Tabs defaultValue="media">
-                                                        <TabsList className="mb-4">
-                                                            <TabsTrigger value="info">Fast Info</TabsTrigger>
-                                                            <TabsTrigger value="media">Library & Media</TabsTrigger>
-                                                        </TabsList>
-                                                        <TabsContent value="info" className="space-y-2 p-4 bg-white rounded-md border text-sm">
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <div><strong>Title:</strong> {row.original.titleEL}</div>
-                                                                <div><strong>Title (EN):</strong> {row.original.titleEN || "N/A"}</div>
-                                                            </div>
-                                                            <div className="text-muted-foreground mt-2 border-t pt-2">
-                                                                {row.original.shortDescriptionEL}
-                                                            </div>
-                                                        </TabsContent>
-                                                        <TabsContent value="media" className="p-4 bg-white rounded-md border min-h-[200px]">
-                                                            <div className="flex justify-between items-center mb-4">
-                                                                <h4 className="font-semibold text-sm">Attached Media</h4>
-                                                                <Label className="cursor-pointer bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs font-semibold hover:bg-primary/90 transition-colors">
-                                                                    Upload New
-                                                                    <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={(e) => {
-                                                                        setEditingArticle(row.original)
-                                                                        handleMediaUpload(e.target.files)
-                                                                    }} />
-                                                                </Label>
-                                                            </div>
-                                                            {row.original.media.length === 0 ? (
-                                                                <div className="text-center text-sm text-muted-foreground py-8">No media uploaded yet. drag here?</div>
-                                                            ) : (
-                                                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => handleMediaDragEnd(e, row.original.id)}>
-                                                                    <SortableContext items={row.original.media.map(m => m.id || m.url)} strategy={verticalListSortingStrategy}>
-                                                                        {row.original.media.map((m) => (
-                                                                            <MediaSortableItem
-                                                                                key={m.id || m.url}
-                                                                                item={m}
-                                                                                isCover={row.original.featureImage === m.url}
-                                                                                onSetCover={async () => {
-                                                                                    toast.loading("Setting cover...", { id: "cover" });
-                                                                                    try {
-                                                                                        const updated = await updateArticle(row.original.id, { ...row.original, featureImage: m.url });
-                                                                                        setData(data.map(item => item.id === updated.id ? updated as any : item))
-                                                                                        toast.success("Cover image set!", { id: "cover" });
-                                                                                    } catch (e) {
-                                                                                        toast.error("Failed to set cover", { id: "cover" })
-                                                                                    }
-                                                                                }}
-                                                                                onDelete={async (mediaId) => {
-                                                                                    if (!confirm("Remove media?")) return
-                                                                                    const payload = { ...row.original, media: row.original.media.filter(x => (x.id || x.url) !== mediaId) }
-                                                                                    const updated = await updateArticle(row.original.id, payload)
-                                                                                    setData(data.map(item => item.id === updated.id ? updated as any : item))
-                                                                                }}
-                                                                            />
-                                                                        ))}
-                                                                    </SortableContext>
-                                                                </DndContext>
-                                                            )}
-                                                        </TabsContent>
-                                                    </Tabs>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </React.Fragment>
-                                ))}
-                            </SortableContext>
-                        </TableBody>
-                    </Table>
-                </DndContext>
-            </div>
+            <GenericDataTable
+                columns={columns} data={data}
+                searchPlaceholder="Search by title..." searchColumn="titleEL"
+                onAddClick={() => openEdit()} addButtonLabel="New Article"
+                isSortable={true} rowIdKey="id" onReorder={handleReorder}
+                renderExpandedRow={renderExpandedRow}
+            />
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[95vw] md:max-w-[70vw] max-h-[90vh] overflow-y-auto bg-background text-foreground md:p-8">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl text-foreground">{editingArticle ? "Edit Article" : "Create Article"}</DialogTitle>
+                <DialogContent className="max-w-6xl p-0 overflow-hidden rounded-xl">
+                    <DialogHeader className="bg-zinc-800 p-10">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <DialogTitle className="text-3xl font-black text-white tracking-tighter mb-2">{editingArticle ? 'Edit Article' : 'Create New Article'}</DialogTitle>
+                                <DialogDescription className="text-zinc-400 font-medium">Draft and optimize high-conversion blog posts with AI assistance.</DialogDescription>
+                            </div>
+                            <Button size="lg" onClick={handleGenerateArticle} disabled={isGenerating} className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] px-8 rounded-2xl h-14 shadow-xl shadow-indigo-600/20">
+                                {isGenerating ? <RefreshCcw className="w-5 h-5 animate-spin mr-3" /> : <Sparkles className="w-5 h-5 mr-3" />} Smart Autocomplete
+                            </Button>
+                        </div>
                     </DialogHeader>
 
-                    <Tabs defaultValue="greek" className="w-full py-4">
-                        <TabsList className="grid w-full grid-cols-3 mb-4 max-w-[600px]">
-                            <TabsTrigger value="greek">Greek Content</TabsTrigger>
-                            <TabsTrigger value="english">English Content</TabsTrigger>
-                            <TabsTrigger value="media" className="bg-emerald-50 text-emerald-700 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Media Library</TabsTrigger>
-                        </TabsList>
+                    <div className="p-10 bg-[#f8fafc] dark:bg-zinc-950">
+                        <Tabs defaultValue="basic">
+                            <TabsList className="bg-zinc-200/50 dark:bg-zinc-800/50 p-1.5 h-12 rounded-[20px] mb-8 w-fit border shadow-sm">
+                                <TabsTrigger value="basic" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-xl h-9 transition-all">Basic Configuration</TabsTrigger>
+                                <TabsTrigger value="content" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-xl h-9 transition-all">Full Story Content</TabsTrigger>
+                                <TabsTrigger value="seo" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-xl h-9 transition-all">SEO & Performance</TabsTrigger>
+                            </TabsList>
 
-                        <TabsContent value="greek" className="space-y-4">
-                            <div>
-                                <div className="flex justify-between items-end mb-2">
-                                    <Label className="text-foreground font-bold">Title (Ηλεκτρονικά Άρθρα)</Label>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-7 text-xs bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-300 transition-all font-semibold"
-                                        onClick={handleGenerateArticle}
-                                        disabled={isGenerating}
-                                    >
-                                        <Sparkles className={`w-3 h-3 mr-1 ${isGenerating ? 'animate-spin' : ''}`} />
-                                        {isGenerating ? 'AI Generating...' : 'Auto-Generate via AI'}
-                                    </Button>
-                                </div>
-                                <Input className="bg-background mt-1" value={formData.titleEL} onChange={e => {
-                                    const val = e.target.value;
-                                    const autoSlug = val.trim().toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9α-ωάέήίόύώ-]/g, '');
-                                    setFormData({ ...formData, titleEL: val, slug: !editingArticle ? autoSlug : formData.slug })
-                                }} />
-                            </div>
-                            <div>
-                                <Label className="text-foreground font-bold">Slug (Url)</Label>
-                                <Input className="bg-background mt-1" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} />
-                            </div>
-                            <div>
-                                <Label className="text-foreground font-bold">Short Description</Label>
-                                <Textarea className="bg-background mt-1" value={formData.shortDescriptionEL} rows={3} onChange={e => setFormData({ ...formData, shortDescriptionEL: e.target.value })} />
-                            </div>
-
-                            {/* SEO SECTION (GREEK) */}
-                            <div className="p-4 rounded-md border bg-muted/20 space-y-4 my-4">
-                                <Label className="font-bold text-foreground block border-b pb-2">Greek SEO Metadata</Label>
-                                <div>
-                                    <Label className="text-foreground text-xs font-bold">Meta Title (Max 60 chars)</Label>
-                                    <Input className="bg-background mt-1 text-xs" value={formData.metaTitleEL} onChange={e => setFormData({ ...formData, metaTitleEL: e.target.value })} />
-                                </div>
-                                <div>
-                                    <Label className="text-foreground text-xs font-bold">Meta Description (Max 160 chars)</Label>
-                                    <Textarea className="bg-background mt-1 text-xs" rows={2} value={formData.metaDescriptionEL} onChange={e => setFormData({ ...formData, metaDescriptionEL: e.target.value })} />
-                                </div>
-                                <div>
-                                    <Label className="text-foreground text-xs font-bold">Keywords (Comma separated)</Label>
-                                    <Input className="bg-background mt-1 text-xs" value={formData.keywordsEL} onChange={e => setFormData({ ...formData, keywordsEL: e.target.value })} />
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between items-end mb-1">
-                                    <Label className="text-foreground font-bold flex gap-2">
-                                        Description (Rich HTML)
-                                        <div className="flex gap-1 ml-4 border rounded bg-muted/50 p-0.5">
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><Bold className="w-3 h-3" /></Button>
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><Italic className="w-3 h-3" /></Button>
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><LinkIcon className="w-3 h-3" /></Button>
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><List className="w-3 h-3" /></Button>
+                            <TabsContent value="basic" className="space-y-8 animate-in fade-in duration-500">
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Headline (Greek)</Label>
+                                        <Input className="h-14 rounded-2xl text-lg font-bold border-zinc-200 shadow-sm" placeholder="Πως να αναβαθμίσετε την ιστοσελίδα σας..." value={formData.titleEL} onChange={e => setFormData({ ...formData, titleEL: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex justify-between">
+                                            Headline (English)
+                                            <button onClick={() => translateField(formData.titleEL, "titleEN")} className="text-indigo-600 hover:text-indigo-800 font-bold transition-colors">Auto-translate</button>
+                                        </Label>
+                                        <div className="relative">
+                                            <Input className="h-14 rounded-2xl border-zinc-200 shadow-sm" placeholder="How to upgrade your website..." value={formData.titleEN} onChange={e => setFormData({ ...formData, titleEN: e.target.value })} />
+                                            <Wand2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300 pointer-events-none" />
                                         </div>
-                                    </Label>
+                                    </div>
                                 </div>
-                                <Textarea value={formData.descriptionEL} rows={6} className="bg-background font-mono text-sm" onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })} />
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="english" className="space-y-4">
-                            <div>
-                                <div className="flex justify-between"><Label className="text-foreground font-bold">Title</Label> <Wand2 className="h-4 w-4 cursor-pointer text-muted-foreground hover:text-primary" onClick={() => translateField(formData.titleEL, 'titleEN')} /></div>
-                                <Input className="bg-background mt-1" value={formData.titleEN} onChange={e => setFormData({ ...formData, titleEN: e.target.value })} />
-                            </div>
-                            <div>
-                                <div className="flex justify-between"><Label className="text-foreground font-bold">Short Description</Label> <Wand2 className="h-4 w-4 cursor-pointer text-muted-foreground hover:text-primary" onClick={() => translateField(formData.shortDescriptionEL, 'shortDescriptionEN')} /></div>
-                                <Textarea className="bg-background mt-1" value={formData.shortDescriptionEN} rows={3} onChange={e => setFormData({ ...formData, shortDescriptionEN: e.target.value })} />
-                            </div>
-
-                            {/* SEO SECTION (ENGLISH) */}
-                            <div className="p-4 rounded-md border bg-muted/20 space-y-4 my-4">
-                                <Label className="font-bold text-foreground block border-b pb-2">English SEO Metadata</Label>
-                                <div>
-                                    <Label className="text-foreground text-xs font-bold">Meta Title (Max 60 chars)</Label>
-                                    <Input className="bg-background mt-1 text-xs" value={formData.metaTitleEN} onChange={e => setFormData({ ...formData, metaTitleEN: e.target.value })} />
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Static URL Slug</Label>
+                                    <div className="relative">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 font-mono text-xs">/blog/</span>
+                                        <Input className="h-12 rounded-2xl pl-[54px] font-mono border-zinc-200 shadow-sm text-indigo-600" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} />
+                                    </div>
                                 </div>
-                                <div>
-                                    <Label className="text-foreground text-xs font-bold">Meta Description (Max 160 chars)</Label>
-                                    <Textarea className="bg-background mt-1 text-xs" rows={2} value={formData.metaDescriptionEN} onChange={e => setFormData({ ...formData, metaDescriptionEN: e.target.value })} />
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Introduction Snippet (Greek)</Label>
+                                    <Textarea className="min-h-[120px] rounded-[24px] border-zinc-200 shadow-sm p-6 text-sm leading-relaxed" placeholder="Μια σύντομη περίληψη για τα social media και την αρχική σελίδα..." value={formData.shortDescriptionEL} onChange={e => setFormData({ ...formData, shortDescriptionEL: e.target.value })} />
                                 </div>
-                                <div>
-                                    <Label className="text-foreground text-xs font-bold">Keywords (Comma separated)</Label>
-                                    <Input className="bg-background mt-1 text-xs" value={formData.keywordsEN} onChange={e => setFormData({ ...formData, keywordsEN: e.target.value })} />
+                            </TabsContent>
+
+                            <TabsContent value="content" className="space-y-8 animate-in fade-in duration-500">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Full Post (Greek)</Label>
+                                        <Textarea className="min-h-[400px] rounded-[32px] border-zinc-200 shadow-sm p-8 text-sm leading-relaxed scrollbar-hide" placeholder="Γράψτε το περιεχόμενο σας εδώ..." value={formData.descriptionEL} onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex justify-between">
+                                            Full Post (English)
+                                            <button onClick={() => translateField(formData.descriptionEL, "descriptionEN")} className="text-indigo-600 hover:text-indigo-800 font-bold transition-colors">Apply AI Translation</button>
+                                        </Label>
+                                        <Textarea className="min-h-[400px] rounded-[32px] border-zinc-200 shadow-sm p-8 text-sm leading-relaxed" placeholder="Write your content here..." value={formData.descriptionEN} onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })} />
+                                    </div>
                                 </div>
-                            </div>
+                            </TabsContent>
 
-                            <div>
-                                <div className="flex justify-between items-end mb-1">
-                                    <Label className="text-foreground font-bold flex items-center gap-2">
-                                        Description (Rich HTML)
-                                        <div className="flex gap-1 ml-4 border rounded bg-muted/50 p-0.5">
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><Bold className="w-3 h-3" /></Button>
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><Italic className="w-3 h-3" /></Button>
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><LinkIcon className="w-3 h-3" /></Button>
-                                            <Button type="button" variant="ghost" size="icon" className="h-5 w-5"><List className="w-3 h-3" /></Button>
-                                        </div>
-                                    </Label>
-                                    <Wand2 className="h-4 w-4 cursor-pointer text-muted-foreground hover:text-primary" onClick={() => translateField(formData.descriptionEL, 'descriptionEN')} />
+                            <TabsContent value="seo" className="space-y-8 animate-in fade-in duration-500">
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">SEO Meta Title (EL)</Label>
+                                        <Input className="h-12 rounded-xl border-zinc-200" value={formData.metaTitleEL} onChange={e => setFormData({ ...formData, metaTitleEL: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">SEO Meta Title (EN)</Label>
+                                        <Input className="h-12 rounded-xl border-zinc-200" value={formData.metaTitleEN} onChange={e => setFormData({ ...formData, metaTitleEN: e.target.value })} />
+                                    </div>
                                 </div>
-                                <Textarea value={formData.descriptionEN} rows={6} className="bg-background font-mono text-sm" onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })} />
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="media" className="p-4 bg-muted/20 border rounded-md min-h-[300px]">
-                            <div className="flex justify-between items-center mb-6 border-b pb-4">
-                                <div>
-                                    <h3 className="font-bold text-lg text-foreground">Media Library</h3>
-                                    <p className="text-xs text-muted-foreground">Upload and manage images/videos for this article.</p>
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">SEO Meta Description (EL)</Label>
+                                    <Textarea className="min-h-[100px] rounded-2xl border-zinc-200" value={formData.metaDescriptionEL} onChange={e => setFormData({ ...formData, metaDescriptionEL: e.target.value })} />
                                 </div>
-                                <Label className="cursor-pointer bg-primary text-primary-foreground px-4 py-2 rounded-md font-bold shadow-md hover:bg-primary/90 transition-all flex items-center gap-2">
-                                    <Plus className="w-4 h-4" /> Upload Files
-                                    <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={(e) => handleFormMediaUpload(e.target.files)} />
-                                </Label>
-                            </div>
-
-                            {formData.media.length === 0 ? (
-                                <div className="text-center text-sm text-muted-foreground py-16 border-2 border-dashed rounded-md bg-background">No media attached to this article. Click "Upload Files" to begin.</div>
-                            ) : (
-                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleFormMediaDragEnd}>
-                                    <SortableContext items={formData.media.map(m => m.id || m.url)} strategy={verticalListSortingStrategy}>
-                                        <div className="grid gap-2">
-                                            {formData.media.map((m) => (
-                                                <MediaSortableItem
-                                                    key={m.id || m.url}
-                                                    item={m}
-                                                    isCover={formData.featureImage === m.url}
-                                                    onSetCover={() => setFormData(prev => ({ ...prev, featureImage: m.url }))}
-                                                    onDelete={(mediaId) => {
-                                                        if (!confirm("Remove this media file?")) return;
-                                                        setFormData(prev => ({
-                                                            ...prev,
-                                                            media: prev.media.filter(x => (x.id || x.url) !== mediaId),
-                                                            featureImage: prev.featureImage === mediaId ? "" : prev.featureImage
-                                                        }));
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
-                                    </SortableContext>
-                                </DndContext>
-                            )}
-                        </TabsContent>
-                    </Tabs>
-
-                    <div className="space-y-4 border-t pt-4">
-                        <Label className="text-foreground font-bold">Categories (Tags)</Label>
-                        <div className="flex flex-col gap-2">
-                            <Input
-                                className="bg-background max-w-sm"
-                                placeholder="Type a new tag and press Enter..."
-                                value={newTagInput}
-                                onChange={e => setNewTagInput(e.target.value)}
-                                onKeyDown={async (e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        const val = newTagInput.trim();
-                                        if (!val) return;
-
-                                        const exists = allCategories.find(c => c.nameEL.toLowerCase() === val.toLowerCase());
-                                        if (exists) {
-                                            if (!formData.categories.some(c => c.id === exists.id)) {
-                                                setFormData(prev => ({ ...prev, categories: [...prev.categories, exists] }));
-                                            }
-                                            setNewTagInput("");
-                                            return;
-                                        }
-
-                                        toast.loading("Saving tag...", { id: "add-tag" });
-                                        try {
-                                            const autoSlug = val.toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9α-ωάέήίόύώ-]/g, '');
-                                            const newCat = await createArticleCategory({
-                                                nameEL: val,
-                                                nameEN: "",
-                                                slug: autoSlug || `tag-${Date.now()}`
-                                            }) as any;
-                                            setAllCategories(prev => [...prev, newCat]);
-                                            setFormData(prev => ({ ...prev, categories: [...prev.categories, newCat] }));
-                                            setNewTagInput("");
-                                            toast.success("Tag added", { id: "add-tag" });
-                                        } catch (err: any) {
-                                            toast.error(err.message, { id: "add-tag" });
-                                        }
-                                    }
-                                }}
-                            />
-                            <div className="flex flex-wrap gap-2 p-3 border rounded-md bg-muted/20 min-h-[50px]">
-                                {allCategories.map(cat => {
-                                    const active = formData.categories.some(c => c.id === cat.id)
-                                    return (
-                                        <Badge key={cat.id}
-                                            variant={active ? "default" : "outline"}
-                                            className="cursor-pointer transition-colors"
-                                            onClick={() => toggleCategory(cat)}
-                                        >
-                                            {cat.nameEL}
-                                        </Badge>
-                                    )
-                                })}
-                                {allCategories.length === 0 && <span className="text-xs text-muted-foreground">No tags saved yet.</span>}
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-2 pt-2">
-                            <Switch checked={formData.published} onCheckedChange={c => setFormData({ ...formData, published: c })} />
-                            <Label className="text-foreground font-bold">Published Visibility</Label>
-                        </div>
-
+                                <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm flex items-center justify-between">
+                                    <div className="flex flex-col gap-1">
+                                        <h4 className="font-black text-sm text-zinc-800 dark:text-zinc-200 uppercase tracking-widest">Visibility Status</h4>
+                                        <p className="text-xs text-zinc-400 font-medium">Control if this article is visible to public visitors.</p>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <Label className={`text-xs font-black uppercase tracking-tighter transition-colors ${formData.published ? 'text-emerald-500' : 'text-zinc-400'}`}>{formData.published ? 'Public' : 'Hidden'}</Label>
+                                        <Switch checked={formData.published} onCheckedChange={v => setFormData({ ...formData, published: v })} className="data-[state=checked]:bg-emerald-500" />
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </div>
 
-                    <div className="flex justify-end pt-4 mt-4 border-t">
-                        <Button disabled={isSaving} onClick={handleSave}>
-                            {isSaving ? <RefreshCcw className="h-4 w-4 animate-spin mr-2" /> : "Save Article"}
+                    <div className="p-10 border-t bg-white dark:bg-zinc-950 flex justify-end gap-4 rounded-b-[40px]">
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-black text-xs uppercase tracking-[0.2em] text-zinc-400">Cancel</Button>
+                        <Button onClick={handleSave} disabled={isSaving} className="bg-zinc-800 text-white font-black text-xs uppercase tracking-[0.2em] h-14 px-12 rounded-[20px] shadow-2xl hover:bg-zinc-900 transition-all active:scale-95">
+                            {isSaving ? <RefreshCcw className="w-5 h-5 animate-spin" /> : "Publish Post"}
                         </Button>
                     </div>
                 </DialogContent>

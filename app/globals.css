@@ -231,4 +231,46 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* Admin section: TWISTY-style dashboard theme (light blue-grey bg, white cards, charcoal text) */
+  .admin-theme {
+    --background: 214 25% 92%;
+    --foreground: 0 0% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 211 36% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 25% 94%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 214 20% 95%;
+    --muted-foreground: 218 12% 54%;
+    --accent: 209 72% 59%;
+    --accent-foreground: 0 0% 100%;
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 211 36% 38%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 211 36% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 25% 96%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 214 20% 90%;
+    --sidebar-ring: 211 36% 38%;
+  }
+
+  /* Admin scrollbar (light theme) */
+  .admin-theme ::-webkit-scrollbar-track {
+    background: hsl(214 20% 95%);
+  }
+  .admin-theme ::-webkit-scrollbar-thumb {
+    background: hsl(218 12% 75%);
+    border-radius: 4px;
+  }
+  .admin-theme ::-webkit-scrollbar-thumb:hover {
+    background: hsl(211 36% 38%);
+  }
 }

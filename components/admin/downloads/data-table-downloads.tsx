@@ -2,91 +2,56 @@
 
 import * as React from "react";
 import { toast } from "sonner";
+import { ColumnDef } from "@tanstack/react-table";
 import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
-import {
-    DndContext, closestCenter, PointerSensor, KeyboardSensor,
-    useSensor, useSensors, DragEndEvent
-} from "@dnd-kit/core";
-import {
-    SortableContext, sortableKeyboardCoordinates,
-    useSortable, verticalListSortingStrategy, arrayMove
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Plus, ChevronDown, RefreshCcw, Wand2, Upload, FileDown, Trash2, ExternalLink } from "lucide-react";
-
+    GripVertical,
+    Plus,
+    ChevronDown,
+    RefreshCcw,
+    Wand2,
+    Upload,
+    FileDown,
+    Trash2,
+    Edit,
+    ExternalLink,
+    Search,
+    FileText,
+    Shield,
+    Globe,
+    Zap,
+    Rocket,
+    CheckCircle2,
+    Target,
+    Database,
+    CloudDownload,
+    FileArchive,
+    FileCode,
+    FileType,
+    Loader2
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-    createDownload, updateDownload, deleteDownload, updateDownloadOrder
-} from "@/app/lib/actions/download";
+import { createDownload, updateDownload, deleteDownload, updateDownloadOrder } from "@/app/lib/actions/download";
+import { GenericDataTable } from "../shared/generic-data-table";
 
 type Download = {
-    id: string;
-    nameEL: string;
-    nameEN?: string | null;
-    descriptionEL?: string | null;
-    descriptionEN?: string | null;
-    fileUrl: string;
-    fileSize?: string | null;
-    fileType?: string | null;
-    category?: string | null;
-    published: boolean;
-    order: number;
-    createdAt: Date;
+    id: string; nameEL: string; nameEN?: string | null;
+    descriptionEL?: string | null; descriptionEN?: string | null;
+    fileUrl: string; fileSize?: string | null; fileType?: string | null;
+    category?: string | null; published: boolean; order: number; createdAt: Date;
 };
 
-const DEEPSEEK_URL = process.env.NEXT_PUBLIC_DEEPSEEK_API_URL || "https://api.deepseek.com/v1";
-
-async function translateText(text: string): Promise<string> {
-    const res = await fetch("/api/admin/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, targetLang: "English" }),
-    });
-    if (!res.ok) throw new Error("Translation failed");
-    const d = await res.json();
-    return d.translated || text;
-}
-
-function SortableRow({ row, flexRender }: { row: any; flexRender: any }) {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: row.original.id });
-    const style = { transform: CSS.Transform.toString(transform), transition };
-    return (
-        <TableRow ref={setNodeRef} style={style} className="border-b transition-colors hover:bg-muted/50">
-            {row.getVisibleCells().map((cell: any) => (
-                <TableCell key={cell.id} {...(cell.column.id === "drag" ? { ...attributes, ...listeners } : {})}
-                    className="p-2 align-middle cursor-default">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-            ))}
-        </TableRow>
-    );
-}
-
 const EMPTY_FORM = {
-    nameEL: "",
-    nameEN: "",
-    descriptionEL: "",
-    descriptionEN: "",
-    fileUrl: "",
-    fileSize: "",
-    fileType: "",
-    category: "",
-    published: true,
-    order: 0,
+    nameEL: "", nameEN: "", descriptionEL: "", descriptionEN: "",
+    fileUrl: "", fileSize: "", fileType: "", category: "",
+    published: true, order: 0,
 };
 
 export function DataTableDownloads({ data: initialData }: { data: Download[] }) {
@@ -96,29 +61,20 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
     const [editingItem, setEditingItem] = React.useState<Download | null>(null);
     const [isSaving, setIsSaving] = React.useState(false);
     const [isUploading, setIsUploading] = React.useState(false);
+    const [translating, setTranslating] = React.useState(false);
     const [formData, setFormData] = React.useState({ ...EMPTY_FORM });
 
     React.useEffect(() => { setIsMounted(true); }, []);
-
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-    );
 
     const openEdit = (item?: Download) => {
         if (item) {
             setEditingItem(item);
             setFormData({
-                nameEL: item.nameEL || "",
-                nameEN: item.nameEN || "",
-                descriptionEL: item.descriptionEL || "",
-                descriptionEN: item.descriptionEN || "",
-                fileUrl: item.fileUrl || "",
-                fileSize: item.fileSize || "",
-                fileType: item.fileType || "",
-                category: item.category || "",
-                published: item.published,
-                order: item.order,
+                nameEL: item.nameEL || "", nameEN: item.nameEN || "",
+                descriptionEL: item.descriptionEL || "", descriptionEN: item.descriptionEN || "",
+                fileUrl: item.fileUrl || "", fileSize: item.fileSize || "",
+                fileType: item.fileType || "", category: item.category || "",
+                published: item.published, order: item.order,
             });
         } else {
             setEditingItem(null);
@@ -129,335 +85,267 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
 
     const handleFileUpload = async (file: File) => {
         setIsUploading(true);
-        toast.loading("Uploading file...", { id: "dl-upload" });
+        const tid = toast.loading("Syndicating file to global edge nodes...");
         try {
-            const fd = new FormData();
-            fd.append("file", file);
+            const fd = new FormData(); fd.append("file", file);
             const res = await fetch("/api/admin/downloads/upload", { method: "POST", body: fd });
             const d = await res.json();
             if (!res.ok) throw new Error(d.error);
-            setFormData(prev => ({
-                ...prev,
-                fileUrl: d.url,
-                fileSize: d.fileSize || prev.fileSize,
-                fileType: d.fileType || prev.fileType,
-            }));
-            toast.success("File uploaded to CDN!", { id: "dl-upload" });
-        } catch (err: any) {
-            toast.error(err.message, { id: "dl-upload" });
-        } finally {
-            setIsUploading(false);
-        }
+            setFormData(prev => ({ ...prev, fileUrl: d.url, fileSize: d.fileSize || prev.fileSize, fileType: d.fileType || prev.fileType }));
+            toast.success("Binary Asset Deployed", { id: tid });
+        } catch (err: any) { toast.error(err.message, { id: tid }); }
+        finally { setIsUploading(false); }
     };
 
-    const translateField = async (text: string, field: keyof typeof formData) => {
-        if (!text.trim()) return;
-        toast.loading("Translating...", { id: `tr-${field}` });
+    const runAiTranslation = async () => {
+        setTranslating(true);
+        const tid = toast.loading("AI is localizing asset metadata...");
         try {
-            const translated = await translateText(text);
-            setFormData(prev => ({ ...prev, [field]: translated }));
-            toast.success("Translated!", { id: `tr-${field}` });
-        } catch (err: any) {
-            toast.error(err.message, { id: `tr-${field}` });
-        }
+            const res = await fetch("/api/admin/translate", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: JSON.stringify({ name: formData.nameEL, desc: formData.descriptionEL }), targetLang: "English" }),
+            });
+            const d = await res.json();
+            if (!res.ok) throw new Error(d.error);
+            const parsed = JSON.parse(d.translated);
+            setFormData(prev => ({ ...prev, nameEN: parsed.name, descriptionEN: parsed.desc }));
+            toast.success("Metadata Localized", { id: tid });
+        } catch (e: any) { toast.error(e.message, { id: tid }); }
+        finally { setTranslating(false); }
     };
 
     const handleSave = async () => {
-        if (!formData.nameEL.trim()) { toast.error("Greek name is required"); return; }
-        if (!formData.fileUrl.trim()) { toast.error("File URL is required — please upload a file first"); return; }
+        if (!formData.nameEL.trim()) return toast.error("Asset name is required");
+        if (!formData.fileUrl.trim()) return toast.error("Binary link is required");
         setIsSaving(true);
-        toast.loading("Saving...", { id: "dl-save" });
         try {
-            const payload = {
-                nameEL: formData.nameEL,
-                nameEN: formData.nameEN || undefined,
-                descriptionEL: formData.descriptionEL || undefined,
-                descriptionEN: formData.descriptionEN || undefined,
-                fileUrl: formData.fileUrl,
-                fileSize: formData.fileSize || undefined,
-                fileType: formData.fileType || undefined,
-                category: formData.category || undefined,
-                published: formData.published,
-                order: Number(formData.order) || 0,
-            };
+            const payload = { ...formData, order: Number(formData.order) || 0 };
             if (editingItem) {
-                const updated = await updateDownload(editingItem.id, payload);
+                const updated = await updateDownload(editingItem.id, payload as any);
                 setData(prev => prev.map(d => d.id === updated.id ? updated as any : d));
+                toast.success("Asset parameters updated");
             } else {
                 const created = await createDownload(payload as any);
                 setData(prev => [...prev, created as any]);
+                toast.success("New binary asset cataloged");
             }
-            toast.success("Saved!", { id: "dl-save" });
             setIsDialogOpen(false);
-        } catch (err: any) {
-            toast.error(err.message, { id: "dl-save" });
-        } finally {
-            setIsSaving(false);
-        }
+        } catch (err: any) { toast.error(err.message); }
+        finally { setIsSaving(false); }
     };
 
-    const handleDragEnd = async (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (active.id !== over?.id) {
-            const oldIndex = data.findIndex(i => i.id === active.id);
-            const newIndex = data.findIndex(i => i.id === over?.id);
-            const newData = arrayMove(data, oldIndex, newIndex);
-            setData(newData);
-            try {
-                await updateDownloadOrder(newData.map(d => d.id));
-                toast.success("Order updated", { id: "dl-order" });
-            } catch {
-                toast.error("Failed to update order", { id: "dl-order" });
-                setData(data);
-            }
-        }
+    const handleReorder = async (newData: Download[]) => {
+        setData(newData);
+        try { await updateDownloadOrder(newData.map(d => d.id)); toast.success("Repository hierarchy updated"); }
+        catch { toast.error("Reorder synchronization failed"); }
     };
 
     const columns: ColumnDef<Download>[] = [
-        {
-            id: "drag",
-            header: "",
-            cell: () => <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />,
-        },
-        {
-            accessorKey: "order",
-            header: "#",
-            cell: ({ row }) => <span className="text-xs text-muted-foreground font-mono">{row.original.order}</span>,
-        },
+        { id: "drag", header: "", cell: () => <GripVertical className="h-4 w-4 text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity" />, size: 40 },
         {
             accessorKey: "nameEL",
-            header: "Name (GR)",
+            header: "Binary Repository",
             cell: ({ row }) => (
-                <div>
-                    <div className="font-medium text-foreground truncate max-w-[180px]">{row.original.nameEL}</div>
-                    {row.original.nameEN && <div className="text-xs text-muted-foreground truncate max-w-[180px]">{row.original.nameEN}</div>}
+                <div className="flex items-center gap-4 py-1">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center shadow-sm">
+                        <FileText className="w-5 h-5 text-zinc-400" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{row.original.nameEL}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="secondary" className="bg-zinc-800 text-white rounded-xl text-[8px] font-black uppercase tracking-widest px-2 py-0.5">{row.original.category || 'General'}</Badge>
+                            <span className="text-[9px] font-black text-zinc-300 uppercase italic">/ {row.original.fileType}</span>
+                        </div>
+                    </div>
                 </div>
-            ),
+            )
         },
         {
-            accessorKey: "category",
-            header: "Category",
-            cell: ({ row }) => row.original.category
-                ? <Badge variant="outline" className="text-xs">{row.original.category}</Badge>
-                : <span className="text-muted-foreground text-xs">—</span>,
-        },
-        {
-            accessorKey: "fileType",
-            header: "Type",
+            id: "volumetric",
+            header: "Data Magnitude",
             cell: ({ row }) => (
-                <div className="text-xs font-mono text-muted-foreground">
-                    <div>{row.original.fileType || "—"}</div>
-                    <div>{row.original.fileSize || ""}</div>
+                <div className="flex items-center gap-2">
+                    <Database className="w-3.5 h-3.5 text-zinc-300" />
+                    <span className="text-xs font-mono font-bold text-zinc-500">{row.original.fileSize || 'N/A'}</span>
                 </div>
-            ),
+            )
         },
         {
             accessorKey: "published",
-            header: "Status",
-            cell: ({ row }) => (
-                <Badge variant={row.original.published ? "default" : "secondary"}>
-                    {row.original.published ? "Published" : "Draft"}
-                </Badge>
-            ),
+            header: "Cloud Status",
+            cell: ({ row }) => row.original.published ? (
+                <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[9px] font-black uppercase tracking-widest px-3 py-1">Edge Active</Badge>
+            ) : (
+                <Badge variant="outline" className="text-zinc-300 border-zinc-100 text-[9px] font-black uppercase tracking-widest px-3 py-1 uppercase">Local Cache</Badge>
+            )
         },
         {
             id: "actions",
             cell: ({ row }) => (
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-8 text-foreground">
+                    <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
+                        <Button variant="outline" size="sm" className="h-9 bg-zinc-800 text-white border-none font-bold hover:bg-zinc-700 rounded-xl px-4">
                             Actions <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-background text-foreground border border-input">
-                        <DropdownMenuItem className="cursor-pointer" onClick={() => openEdit(row.original)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer" onClick={() => window.open(row.original.fileUrl, "_blank")}>
-                            <ExternalLink className="w-3 h-3 mr-1" /> Open File
+                    <DropdownMenuContent align="end" className="w-[200px] rounded-2xl shadow-2xl p-2 border-zinc-100">
+                        <DropdownMenuItem className="h-12 rounded-xl flex items-center gap-3 cursor-pointer" onClick={() => openEdit(row.original)}>
+                            <Edit className="w-4 h-4 mr-2" /> Modify Scope
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-red-500" onClick={async () => {
-                            if (!confirm("Delete this download?")) return;
-                            await deleteDownload(row.original.id);
-                            setData(prev => prev.filter(d => d.id !== row.original.id));
-                            toast.success("Deleted");
-                        }}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem className="h-12 rounded-xl flex items-center gap-3 cursor-pointer" onClick={() => window.open(row.original.fileUrl, "_blank")}>
+                            <CloudDownload className="w-4 h-4 mr-2" /> Retrieve Binary
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => { if (confirm("Decommission this asset?")) deleteDownload(row.original.id).then(() => setData(d => d.filter(x => x.id !== row.original.id))) }} className="h-12 rounded-xl text-red-500 focus:bg-red-50 focus:text-red-600 flex items-center gap-3 cursor-pointer">
+                            <Trash2 className="w-4 h-4 mr-2" /> Purge Asset
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-            ),
+            )
         }
     ];
 
-    const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
-
-    if (!isMounted) return <div className="p-8 text-center text-muted-foreground animate-pulse">Loading downloads...</div>;
+    if (!isMounted) return null;
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <Button onClick={() => openEdit()} className="bg-primary shadow-md">
-                    <Plus className="mr-2 h-4 w-4" /> Add Download
-                </Button>
-            </div>
+            <GenericDataTable
+                columns={columns} data={data} searchPlaceholder="Locate binary asset..." searchColumn="nameEL"
+                onAddClick={() => openEdit()} addButtonLabel="Catalog Asset"
+                isSortable={true} onReorder={handleReorder}
+                renderExpandedRow={(item) => (
+                    <div className="py-10 px-10 bg-[#f8fafc] dark:bg-zinc-950/50 rounded-[40px] border border-zinc-200 dark:border-zinc-800 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-3"><Database className="w-4 h-4" /> Repository Analytics</h4>
+                            <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm space-y-6">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-20 h-20 rounded-3xl bg-zinc-800 flex items-center justify-center text-white shadow-xl">
+                                        <FileArchive className="w-10 h-10" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h5 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 tracking-tighter">{item.nameEL}</h5>
+                                        <div className="flex items-center gap-2">
+                                            <Badge className="bg-indigo-500 text-white border-none rounded-xl px-4 py-1 text-[8px] font-black uppercase tracking-widest">{item.category || 'Global Binary'}</Badge>
+                                            <span className="text-xs font-mono font-bold text-zinc-400 tracking-tighter">{item.fileSize} / {item.fileType}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p className="text-sm font-medium leading-[1.8] text-zinc-500 italic pb-2 border-b border-zinc-50">"{item.descriptionEL || "No strategic narrative provided for this repository."}"</p>
+                                <Button variant="outline" className="w-full h-14 rounded-2xl border-zinc-200 text-zinc-600 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-50 transition-all flex items-center justify-center gap-3 shadow-sm" onClick={() => window.open(item.fileUrl, "_blank")}>
+                                    <CloudDownload className="w-5 h-5 text-indigo-500" /> Execute Retrieval Protocol
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-3"><Globe className="w-4 h-4" /> Global Localization</h4>
+                            <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm min-h-[220px] flex flex-col justify-between">
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h5 className="text-xl font-black text-zinc-800 dark:text-zinc-100 tracking-tighter">{item.nameEN || "Sync Draft Meta"}</h5>
+                                        <Badge variant="outline" className="border-zinc-100 rounded-full px-3 py-1 text-[8px] font-black uppercase">EN_LOC</Badge>
+                                    </div>
+                                    <p className="text-sm font-medium leading-[1.8] text-zinc-400">{item.descriptionEN || "Global narrative mapping draft pending edge synchronization and localization check."}</p>
+                                </div>
+                                <div className="pt-6 border-t border-zinc-50 flex items-center justify-between text-[10px] font-black text-zinc-300 uppercase tracking-widest italic">
+                                    <span>Last verified: {new Date(item.createdAt).toLocaleDateString()}</span>
+                                    <span className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> CDN Synchronized</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            />
 
-            <div className="rounded-md border bg-card text-card-foreground shadow overflow-hidden">
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <Table>
-                        <TableHeader className="bg-muted">
-                            {table.getHeaderGroups().map(hg => (
-                                <TableRow key={hg.id}>
-                                    {hg.headers.map(h => (
-                                        <TableHead key={h.id}>
-                                            {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
-                                        </TableHead>
-                                    ))}
-                                </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            <SortableContext items={data.map(d => d.id)} strategy={verticalListSortingStrategy}>
-                                {table.getRowModel().rows.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={columns.length} className="text-center py-12 text-muted-foreground">
-                                            No downloads yet. Click "Add Download" to create one.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    table.getRowModel().rows.map(row => (
-                                        <SortableRow key={row.id} row={row} flexRender={flexRender} />
-                                    ))
-                                )}
-                            </SortableContext>
-                        </TableBody>
-                    </Table>
-                </DndContext>
-            </div>
-
-            {/* Edit / Create Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[95vw] md:max-w-[65vw] max-h-[90vh] overflow-y-auto bg-background text-foreground md:p-8">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl text-foreground">
-                            {editingItem ? "Edit Download" : "Add Download"}
-                        </DialogTitle>
+                <DialogContent className="max-w-5xl p-0 overflow-hidden rounded-xl">
+                    <DialogHeader className="bg-zinc-800 p-10">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <DialogTitle className="text-3xl font-black text-white tracking-tighter mb-2">{editingItem ? "Refine Binary Metadata" : "Initialize Asset Repository"}</DialogTitle>
+                                <DialogDescription className="text-zinc-400 font-medium">Configure cloud distribution parameters and localization mapping.</DialogDescription>
+                            </div>
+                            <Button size="lg" onClick={runAiTranslation} disabled={translating} className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] px-10 rounded-2xl h-14 shadow-xl shadow-indigo-600/20 transition-all active:scale-95">
+                                {translating ? <RefreshCcw className="w-5 h-5 animate-spin mr-3" /> : <Zap className="w-5 h-5 mr-3" />} Metadata Sync
+                            </Button>
+                        </div>
                     </DialogHeader>
 
-                    <Tabs defaultValue="greek" className="w-full py-4">
-                        <TabsList className="grid w-full grid-cols-2 mb-4 max-w-[400px]">
-                            <TabsTrigger value="greek">Greek Content</TabsTrigger>
-                            <TabsTrigger value="english">English Content</TabsTrigger>
-                        </TabsList>
+                    <div className="p-10 bg-[#f8fafc] dark:bg-zinc-950 max-h-[70vh] overflow-y-auto scrollbar-hide">
+                        <Tabs defaultValue="greek">
+                            <TabsList className="bg-zinc-200/50 dark:bg-zinc-800/50 p-1.5 h-12 rounded-[24px] mb-10 w-fit gap-2 border">
+                                <TabsTrigger value="greek" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl">🇬🇷 Repository (GR)</TabsTrigger>
+                                <TabsTrigger value="english" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl">🇬🇧 Localization (EN)</TabsTrigger>
+                                <TabsTrigger value="infrastructure" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl">⚡ Deployment</TabsTrigger>
+                            </TabsList>
 
-                        {/* GREEK TAB */}
-                        <TabsContent value="greek" className="space-y-4">
-                            <div>
-                                <Label className="text-foreground font-bold">Name (Greek) *</Label>
-                                <Input className="bg-background mt-1" value={formData.nameEL}
-                                    onChange={e => setFormData({ ...formData, nameEL: e.target.value })} />
-                            </div>
-                            <div>
-                                <Label className="text-foreground font-bold">Description (Greek)</Label>
-                                <Textarea className="bg-background mt-1" rows={4} value={formData.descriptionEL}
-                                    onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })} />
-                            </div>
-                        </TabsContent>
-
-                        {/* ENGLISH TAB */}
-                        <TabsContent value="english" className="space-y-4">
-                            <div>
-                                <div className="flex justify-between items-center mb-1">
-                                    <Label className="text-foreground font-bold">Name (English)</Label>
-                                    <Button type="button" variant="ghost" size="sm" className="h-6 text-xs gap-1 text-indigo-600 hover:text-indigo-700"
-                                        onClick={() => translateField(formData.nameEL, "nameEN")}>
-                                        <Wand2 className="w-3 h-3" /> Auto-translate
-                                    </Button>
+                            <TabsContent value="greek" className="space-y-8 animate-in fade-in duration-300">
+                                <div className="space-y-4">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Binary Namespace (GR)</Label>
+                                    <Input className="h-14 rounded-2xl text-lg font-bold border-zinc-200 shadow-sm" placeholder="Financial Report 2024..." value={formData.nameEL} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} />
                                 </div>
-                                <Input className="bg-background mt-1" value={formData.nameEN}
-                                    onChange={e => setFormData({ ...formData, nameEN: e.target.value })} />
-                            </div>
-                            <div>
-                                <div className="flex justify-between items-center mb-1">
-                                    <Label className="text-foreground font-bold">Description (English)</Label>
-                                    <Button type="button" variant="ghost" size="sm" className="h-6 text-xs gap-1 text-indigo-600 hover:text-indigo-700"
-                                        onClick={() => translateField(formData.descriptionEL, "descriptionEN")}>
-                                        <Wand2 className="w-3 h-3" /> Auto-translate
-                                    </Button>
+                                <div className="space-y-4">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Strategic Narrative (GR)</Label>
+                                    <Textarea rows={6} className="rounded-[32px] border-zinc-200 shadow-sm p-8 text-sm leading-relaxed" placeholder="Explain the significance of this binary asset..." value={formData.descriptionEL} onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })} />
                                 </div>
-                                <Textarea className="bg-background mt-1" rows={4} value={formData.descriptionEN}
-                                    onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })} />
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                            </TabsContent>
 
-                    {/* FILE UPLOAD SECTION */}
-                    <div className="space-y-4 border-t pt-4">
-                        <Label className="text-foreground font-bold block">File Upload</Label>
-
-                        <div className="border-2 border-dashed border-input rounded-xl p-6 text-center bg-muted/20 relative">
-                            <FileDown className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                            <p className="text-sm text-muted-foreground mb-3">Upload any file (PDF, DOCX, XLSX, ZIP...)</p>
-                            <Label className="cursor-pointer bg-primary text-primary-foreground px-4 py-2 rounded-md font-bold hover:bg-primary/90 transition flex items-center gap-2 w-fit mx-auto">
-                                <Upload className="w-4 h-4" />
-                                {isUploading ? "Uploading..." : "Choose File"}
-                                <input type="file" className="hidden"
-                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.csv,.txt,.png,.jpg,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,*"
-                                    disabled={isUploading}
-                                    onChange={e => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0]); }} />
-                            </Label>
-                            {formData.fileUrl && (
-                                <div className="mt-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-left">
-                                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">✓ File uploaded to CDN</p>
-                                    <a href={formData.fileUrl} target="_blank" rel="noopener noreferrer"
-                                        className="text-xs text-blue-600 hover:underline break-all flex items-center gap-1">
-                                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                                        {formData.fileUrl}
-                                    </a>
-                                    {formData.fileSize && <p className="text-xs text-muted-foreground mt-1">Size: {formData.fileSize} · {formData.fileType}</p>}
+                            <TabsContent value="english" className="space-y-8 animate-in fade-in duration-300">
+                                <div className="space-y-4">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Global Namespace (EN)</Label>
+                                    <Input className="h-14 rounded-2xl text-lg font-bold border-zinc-200 shadow-sm text-indigo-600 italic" value={formData.nameEN || ''} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} />
                                 </div>
-                            )}
-                        </div>
+                                <div className="space-y-4">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Global Narrative (EN)</Label>
+                                    <Textarea rows={6} className="rounded-[32px] border-zinc-200 shadow-sm p-8 text-sm leading-relaxed" value={formData.descriptionEN || ''} onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })} />
+                                </div>
+                            </TabsContent>
 
-                        {/* Manual URL input */}
-                        <div>
-                            <Label className="text-foreground text-xs font-bold">Or paste file URL manually</Label>
-                            <Input className="bg-background mt-1 text-xs font-mono" value={formData.fileUrl}
-                                onChange={e => setFormData({ ...formData, fileUrl: e.target.value })}
-                                placeholder="https://cdn.example.com/file.pdf" />
-                        </div>
+                            <TabsContent value="infrastructure" className="space-y-8 animate-in fade-in duration-300">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div className="space-y-6">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Binary Integration</Label>
+                                        <div className="border-2 border-dashed rounded-[32px] p-12 text-center bg-white shadow-sm border-zinc-100 hover:border-indigo-400 transition-colors group">
+                                            <CloudDownload className="w-12 h-12 mx-auto mb-6 text-zinc-200 group-hover:text-indigo-400 transition-colors" />
+                                            <Label className="cursor-pointer bg-zinc-800 text-white px-10 h-14 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-zinc-900 transition-all flex items-center justify-center shadow-xl shadow-zinc-800/20 active:scale-95">
+                                                {isUploading ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : <Plus className="w-5 h-5 mr-3" />}
+                                                Deploy To CDN
+                                                <input type="file" className="hidden" disabled={isUploading} onChange={e => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0]); }} />
+                                            </Label>
+                                            {formData.fileUrl && <div className="mt-8 p-4 bg-emerald-50 text-[10px] font-mono font-bold text-emerald-600 rounded-2xl border border-emerald-100 truncate shadow-inner">{formData.fileUrl}</div>}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-6">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Manual Interface URI</Label>
+                                            <Input className="h-14 rounded-2xl border-zinc-200 font-mono text-xs text-indigo-500 shadow-sm" placeholder="https://cdn.dgsoft.gr/..." value={formData.fileUrl} onChange={e => setFormData({ ...formData, fileUrl: e.target.value })} />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase text-zinc-400">Asset Domain</Label>
+                                                <Input className="h-12 rounded-xl border-zinc-200" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase text-zinc-400">Hierarchy</Label>
+                                                <Input type="number" className="h-12 rounded-xl border-zinc-200" value={formData.order} onChange={e => setFormData({ ...formData, order: Number(e.target.value) })} />
+                                            </div>
+                                        </div>
+                                        <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <h4 className="text-[10px] font-black uppercase text-zinc-800 dark:text-zinc-200 tracking-tighter">Public Visibility</h4>
+                                                <p className="text-[9px] text-zinc-400 font-medium tracking-tight">Broadcast binary metadata to global repository.</p>
+                                            </div>
+                                            <Switch checked={formData.published} onCheckedChange={v => setFormData({ ...formData, published: v })} className="data-[state=checked]:bg-emerald-500" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </div>
 
-                    {/* META FIELDS */}
-                    <div className="grid grid-cols-2 gap-4 border-t pt-4">
-                        <div>
-                            <Label className="text-foreground font-bold text-xs">Category</Label>
-                            <Input className="bg-background mt-1 text-xs" value={formData.category}
-                                placeholder="e.g. ERP, Guides, Whitepapers"
-                                onChange={e => setFormData({ ...formData, category: e.target.value })} />
-                        </div>
-                        <div>
-                            <Label className="text-foreground font-bold text-xs">Order</Label>
-                            <Input type="number" className="bg-background mt-1 text-xs" value={formData.order}
-                                onChange={e => setFormData({ ...formData, order: Number(e.target.value) })} />
-                        </div>
-                        <div>
-                            <Label className="text-foreground font-bold text-xs">File Size (auto-filled)</Label>
-                            <Input className="bg-background mt-1 text-xs" value={formData.fileSize}
-                                onChange={e => setFormData({ ...formData, fileSize: e.target.value })} />
-                        </div>
-                        <div>
-                            <Label className="text-foreground font-bold text-xs">File Type (auto-filled)</Label>
-                            <Input className="bg-background mt-1 text-xs" value={formData.fileType}
-                                onChange={e => setFormData({ ...formData, fileType: e.target.value })} />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 pt-2">
-                        <Switch checked={formData.published} onCheckedChange={c => setFormData({ ...formData, published: c })} />
-                        <Label className="text-foreground font-bold">Published</Label>
-                    </div>
-
-                    <div className="flex justify-end pt-4 mt-2 border-t">
-                        <Button disabled={isSaving} onClick={handleSave}>
-                            {isSaving ? <RefreshCcw className="h-4 w-4 animate-spin mr-2" /> : null}
-                            Save Download
+                    <div className="p-10 border-t bg-white dark:bg-zinc-950 flex justify-end gap-4 rounded-b-[40px]">
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-black text-xs uppercase tracking-[0.2em] text-zinc-400">Abort Protocol</Button>
+                        <Button disabled={isSaving} onClick={handleSave} className="bg-zinc-800 text-white font-black text-xs uppercase tracking-[0.2em] h-14 px-12 rounded-[20px] shadow-2xl hover:bg-zinc-900 transition-all active:scale-95">
+                            {isSaving ? <RefreshCcw className="w-5 h-5 animate-spin" /> : "Execute Cataloging"}
                         </Button>
                     </div>
                 </DialogContent>

@@ -19,6 +19,17 @@ const config: Config = {
   				'red-dark': '#8a0000',
   				'red-light': '#ff4d4d'
   			},
+  			/* Admin dashboard accent colors (TWISTY-style) */
+  			admin: {
+  				'surface': '#E8EDF2',
+  				'card': '#FFFFFF',
+  				'text': '#333333',
+  				'text-muted': '#7F8A9B',
+  				'accent-teal': '#3F6386',
+  				'accent-blue': '#4A90E2',
+  				'accent-orange': '#FC6027',
+  				'accent-red': '#DD5447',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

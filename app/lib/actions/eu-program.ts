@@ -366,8 +366,7 @@ export async function translateAllPeriferies() {
                     { nameEN: null },
                     { nameEN: "" }
                 ]
-            },
-            take: 50 // Limit batch size to avoid timeouts
+            }
         });
 
         if (untranslated.length === 0) return { success: true, count: 0, message: "No untranslated regions found." };
@@ -382,37 +381,42 @@ export async function translateAllPeriferies() {
         if (!apiKey) throw new Error("No Translation API Key Available");
 
         let translatedCount = 0;
-        for (const region of untranslated) {
-            const prompt = `Translate the following Greek region/municipality name to English. Reply ONLY with the English translation. No quotes, no intro.\n\nText: ${region.nameEL}`;
+        const batchSize = 10; // Process 10 in parallel at a time
 
-            try {
-                const res = await fetch(apiUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model,
-                        messages: [{ role: "user", content: prompt }],
-                        temperature: 0.1
-                    })
-                });
+        for (let i = 0; i < untranslated.length; i += batchSize) {
+            const batch = untranslated.slice(i, i + batchSize);
+            await Promise.all(batch.map(async (region) => {
+                const prompt = `Translate the following Greek region/municipality name to English. Reply ONLY with the English translation. No quotes, no intro.\n\nText: ${region.nameEL}`;
 
-                if (res.ok) {
-                    const data = await res.json();
-                    const translatedText = data.choices[0]?.message?.content?.trim();
-                    if (translatedText) {
-                        await prisma.periferia.update({
-                            where: { id: region.id },
-                            data: { nameEN: translatedText }
-                        });
-                        translatedCount++;
+                try {
+                    const res = await fetch(apiUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model,
+                            messages: [{ role: "user", content: prompt }],
+                            temperature: 0.1
+                        })
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        const translatedText = data.choices[0]?.message?.content?.trim();
+                        if (translatedText) {
+                            await prisma.periferia.update({
+                                where: { id: region.id },
+                                data: { nameEN: translatedText }
+                            });
+                            translatedCount++;
+                        }
                     }
+                } catch (err) {
+                    console.error("Translation fail for", region.nameEL, err);
                 }
-            } catch (err) {
-                console.error("Translation fail for", region.nameEL, err);
-            }
+            }));
         }
 
         return { success: true, count: translatedCount, remaining: untranslated.length - translatedCount };

@@ -313,7 +313,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="sm"
-                                                                className="h-6 px-2 text-[9px] font-black text-blue-600 uppercase"
+                                                                className="h-6 px-2 text-[9px] font-black bg-zinc-700 text-white hover:bg-zinc-800 hover:text-white uppercase"
                                                                 onClick={() => handleTranslate("nameEL", "nameEN")}
                                                                 disabled={!!isTranslating}
                                                             >
@@ -437,7 +437,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="h-6 px-2 text-[9px] font-black text-blue-600 uppercase"
+                                                            className="h-6 px-2 text-[9px] font-black bg-zinc-700 text-white hover:bg-zinc-800 hover:text-white uppercase"
                                                             onClick={() => handleTranslate("shortDescriptionEL", "shortDescriptionEN")}
                                                             disabled={!!isTranslating}
                                                         >
@@ -463,7 +463,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="sm"
-                                                                className="h-6 px-2 text-[9px] font-black text-blue-600 uppercase mb-2"
+                                                                className="h-6 px-2 text-[9px] font-black bg-zinc-700 text-white hover:bg-zinc-800 hover:text-white uppercase mb-2"
                                                                 onClick={() => handleTranslate("descriptionEL", "descriptionEN")}
                                                                 disabled={!!isTranslating}
                                                             >
@@ -538,7 +538,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Associated Brand Name</FormLabel>
-                                                <FormControl><Input {...field} className="h-11 bg-zinc-50/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800" placeholder="e.g. Soft1 ERP, CTI" /></FormControl>
+                                                <FormControl><Input {...field} className="h-11 bg-zinc-50/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100" placeholder="e.g. Soft1 ERP, CTI" /></FormControl>
                                                 <FormDescription className="text-[10px]">Displayed as the vendor or technology partner.</FormDescription>
                                                 <FormMessage />
                                             </FormItem>
@@ -555,7 +555,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                         type="number"
                                                         {...field}
                                                         onChange={e => field.onChange(parseInt(e.target.value))}
-                                                        className="h-11 bg-zinc-50/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800"
+                                                        className="h-11 bg-zinc-50/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100"
                                                     />
                                                 </FormControl>
                                                 <FormDescription className="text-[10px]">Lower numbers appear first in the service grid.</FormDescription>
@@ -612,7 +612,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 <div className="p-2 bg-zinc-900 text-white rounded-lg"><Sparkles className="w-4 h-4" /></div>
                                                 <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Service Features (Greek)</h4>
                                             </div>
-                                            <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase" onClick={() => {
+                                            <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase bg-zinc-800 text-white border-none hover:bg-zinc-700 hover:text-white" onClick={() => {
                                                 const current = form.getValues("featuresEL")
                                                 form.setValue("featuresEL", [...current, ""])
                                             }}>
@@ -656,7 +656,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Service Features (English)</h4>
                                             </div>
                                             <div className="flex gap-2">
-                                                <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[9px] font-black text-blue-600 uppercase" onClick={async () => {
+                                                <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[9px] font-black bg-zinc-700 text-white hover:bg-zinc-800 hover:text-white uppercase" onClick={async () => {
                                                     const featuresEL = form.getValues("featuresEL")
                                                     if (featuresEL.length === 0) return
                                                     const tid = toast.loading("Translating features...")
@@ -678,7 +678,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 }}>
                                                     <Sparkles className="w-3 h-3 mr-1" /> AI Bulk Translate
                                                 </Button>
-                                                <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase" onClick={() => {
+                                                <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-bold uppercase bg-zinc-800 text-white border-none hover:bg-zinc-700 hover:text-white" onClick={() => {
                                                     const current = form.getValues("featuresEN")
                                                     form.setValue("featuresEN", [...current, ""])
                                                 }}>
@@ -721,10 +721,10 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                             <span className="text-sm font-bold text-zinc-900 dark:text-white">{service ? "Committing Updates" : "Initializing New Entry"}</span>
                         </div>
                         <div className="flex gap-4">
-                            <Button type="button" onClick={onCancel} variant="outline" className="h-12 px-8 rounded-xl font-bold text-zinc-500 hover:bg-zinc-50 border-zinc-200 dark:border-zinc-800">
+                            <Button type="button" onClick={onCancel} variant="outline" className="h-12 px-8 rounded-xl font-bold bg-zinc-600 text-white hover:bg-zinc-700 hover:text-white border-none">
                                 Discard Changes
                             </Button>
-                            <Button type="submit" disabled={isSaving} className="h-12 px-10 rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 dark:hover:bg-zinc-700 font-bold transition-all shadow-xl shadow-zinc-900/10">
+                            <Button type="submit" disabled={isSaving} className="h-12 px-10 rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 dark:hover:bg-zinc-700 hover:text-white font-bold transition-all shadow-xl shadow-zinc-900/10">
                                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-3" /> : <Check className="w-4 h-4 mr-3" />}
                                 {service ? "Publish Updates" : "Save & Create Service"}
                             </Button>

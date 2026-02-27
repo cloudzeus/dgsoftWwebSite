@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
   ArrowUpCircleIcon,
   BarChartIcon,
@@ -22,7 +23,6 @@ import {
   GlobeIcon
 } from "lucide-react"
 
-import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import dynamic from "next/dynamic"
@@ -43,7 +43,6 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent
 } from "@/components/ui/sidebar"
-import Link from "next/link"
 
 const navData = {
   navMain: [
@@ -52,16 +51,7 @@ const navData = {
       url: "/admin/dashboard",
       icon: LayoutDashboardIcon,
     },
-    {
-      title: "Lifecycle",
-      url: "#",
-      icon: ListIcon,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: BarChartIcon,
-    },
+
     {
       title: "Customers",
       url: "/admin/customers",
@@ -102,59 +92,7 @@ const navData = {
       url: "/admin/works",
       icon: FolderIcon,
     },
-    {
-      title: "Team",
-      url: "#",
-      icon: UsersIcon,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
+
   ],
   navFunding: [
     {
@@ -171,18 +109,6 @@ const navData = {
       title: "KAD Management",
       url: "/admin/eu-programs/kads",
       icon: FileCodeIcon,
-    }
-  ],
-  navServices: [
-    {
-      title: "Services",
-      url: "/admin/services",
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: "Project",
-      url: "/admin/works",
-      icon: FolderIcon,
     }
   ],
   navSecondary: [
@@ -202,23 +128,7 @@ const navData = {
       icon: SearchIcon,
     },
   ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: ClipboardListIcon,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: FileIcon,
-    },
-  ],
+
 }
 
 export function AppSidebar({
@@ -228,6 +138,7 @@ export function AppSidebar({
   user?: { name: string; email: string; avatar: string }
 }) {
   const resolvedUser = user ?? { name: "Admin", email: "", avatar: "" }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -254,7 +165,7 @@ export function AppSidebar({
             <SidebarMenu>
               {navData.navFunding.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                  <SidebarMenuButton asChild>
                     <Link href={item.url}>
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
@@ -266,25 +177,9 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Entity Management</SidebarGroupLabel>
-          <SidebarGroupContent className="flex flex-col gap-2">
-            <SidebarMenu>
-              {navData.navServices.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <Link href={item.url}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
-        <NavDocuments items={navData.documents} />
+
+
         <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
