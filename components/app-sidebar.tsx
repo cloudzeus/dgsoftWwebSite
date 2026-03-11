@@ -21,7 +21,8 @@ import {
   MapPinIcon,
   BriefcaseIcon,
   GlobeIcon,
-  WrenchIcon
+  WrenchIcon,
+  PlugIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -117,6 +118,13 @@ const navData = {
       icon: FileCodeIcon,
     }
   ],
+  navSoftone: [
+    {
+      title: "Connection & Status",
+      url: "/admin/softone",
+      icon: PlugIcon,
+    },
+  ],
   navSecondary: [
     {
       title: "Settings",
@@ -183,8 +191,23 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-
-
+        <SidebarGroup>
+          <SidebarGroupLabel>SOFTONE</SidebarGroupLabel>
+          <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarMenu>
+              {navData.navSoftone.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarContent>
