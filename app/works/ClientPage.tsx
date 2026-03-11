@@ -8,52 +8,10 @@ import Link from "next/link";
 import { useRef } from "react";
 import { useLocale } from "../context/LocaleContext";
 
-const works = [
-    {
-        slug: "soft1-cloud-erp-series-6",
-        title: "Soft1 Cloud ERP Series 6",
-        client: "Επιχειρηματικός Μετασχηματισμός",
-        category: "Ολοκληρωμένες Λύσεις Λογισμικού",
-        year: "2024",
-        metric: "+40% Παραγωγικότητα",
-        icon: Database,
-        tech: ["Soft1 ERP", "Cloud Computing", "Στατιστική Ανάλυση"],
-        color: "from-[#111318] to-monks-black",
-    },
-    {
-        slug: "soft1-cloud-crm-series-6",
-        title: "Soft1 Cloud CRM Series 6",
-        client: "Αυτοματοποίηση Πωλήσεων",
-        category: "Διαχείριση Πελατών",
-        year: "2024",
-        metric: "-60% Χρόνος Διαχείρισης",
-        icon: BarChart,
-        tech: ["Soft1 CRM", "CTI Γέφυρες", "Cloud Τηλεφωνία"],
-        color: "from-[#0a0f18] to-monks-dark",
-    },
-    {
-        slug: "ariadne-service-hub",
-        title: "Ariadne Service Hub",
-        client: "Ενοποίηση Διαδικασιών",
-        category: "Custom Β2Β & B2C Portal",
-        year: "2023",
-        metric: "2M+ Συναλλαγές",
-        icon: Code2,
-        tech: ["Soft1 API", "React", "Node.js"],
-        color: "from-monks-dark to-monks-black",
-    },
-    {
-        slug: "digital-tools-exodologia",
-        title: "Εξοδολογία & DocuSign",
-        client: "Ψηφιακά Εργαλεία",
-        category: "Automations",
-        year: "2023",
-        metric: "100% Paperless",
-        icon: Cloud,
-        tech: ["Soft1 Connectors", "DocuSign", "Email Tools"],
-        color: "from-[#160a0c] to-monks-black",
-    },
-];
+const CARD_COLORS = ["from-[#111318] to-monks-black", "from-[#0a0f18] to-monks-dark", "from-monks-dark to-monks-black", "from-[#160a0c] to-monks-black"];
+const MAX_CARD_CHARS = 200;
+const truncate = (s: string, max: number = MAX_CARD_CHARS) =>
+  typeof s !== "string" ? "" : s.length <= max ? s : s.slice(0, max - 3) + "...";
 
 const Card = ({ work, i, progress, range, targetScale }: any) => {
     const container = useRef(null);
@@ -132,27 +90,28 @@ export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
         offset: ['start start', 'end end']
     });
 
-    const displayWorks = initialWorks && initialWorks.length > 0
+    const displayWorks = (initialWorks && initialWorks.length > 0)
         ? initialWorks.map((w, idx) => {
             const title = (locale === "en" && w.titleEN) ? w.titleEN : w.titleEL;
             const metricText = (locale === "en" && w.stats?.[0]?.textEN) ? w.stats[0].textEN : (w.stats?.[0]?.textEL || (locale === "el" ? "+40% Παραγωγικότητα" : "+40% Productivity"));
             const serviceNames = Array.isArray(w.serviceNames)
                 ? w.serviceNames.map((s: any) => (locale === "en" && s.nameEN) ? s.nameEN : s.nameEL)
                 : [];
+            const metric = w.stats?.[0]?.value ? `${w.stats[0].value} ${(locale === "en" && w.stats[0].textEN) ? w.stats[0].textEN : (w.stats[0].textEL || "")}` : metricText;
             return {
                 slug: w.slug,
-                title,
-                client: w.customer?.NAME || (locale === "el" ? "Επιχειρηματικός Μετασχηματισμός" : "Business Transformation"),
+                title: truncate(title),
+                client: truncate(w.customer?.NAME || (locale === "el" ? "Επιχειρηματικός Μετασχηματισμός" : "Business Transformation")),
                 category: locale === "el" ? "Μελέτη Περίπτωσης" : "Case Study",
                 year: w.completionDate || "2024",
-                metric: w.stats?.[0]?.value ? `${w.stats[0].value} ${(locale === "en" && w.stats[0].textEN) ? w.stats[0].textEN : (w.stats[0].textEL || "")}` : metricText,
+                metric: truncate(metric),
                 icon: Database,
                 tech: serviceNames.length ? serviceNames.slice(0, 3) : (locale === "el" ? ["Soft1 ERP", "Cloud Computing", "Στατιστική Ανάλυση"] : ["Soft1 ERP", "Cloud Computing", "Analytics"]),
-                color: idx % 2 === 0 ? "from-[#111318] to-monks-black" : "from-[#0a0f18] to-monks-dark",
+                color: CARD_COLORS[idx % CARD_COLORS.length],
                 image: w.media?.find((m: any) => m.featured)?.url || w.media?.[0]?.url
             };
         })
-        : works;
+        : [];
 
     return (
         <main ref={container} className="relative bg-monks-black flex flex-col">
@@ -179,11 +138,20 @@ export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
 
             {/* Stacked Parallax Scroll Effect Layout */}
             <section className="relative mt-8 pb-0 px-6 md:px-12">
-                {displayWorks.map((work: any, i: number) => {
+                {displayWorks.length === 0 ? (
+                    <div className="min-h-[60vh] flex flex-col items-center justify-center py-24 text-center">
+                        <p className="text-monks-light text-lg mb-4">{locale === "el" ? "Δεν υπάρχουν δημοσιευμένα έργα." : "No published projects yet."}</p>
+                        <Link href="/" className="inline-flex items-center gap-2 text-monks-accent hover:text-white transition-colors font-semibold">
+                            <ArrowUpRight className="w-5 h-5" />
+                            {locale === "el" ? "Επιστροφή στην αρχική" : "Back to home"}
+                        </Link>
+                    </div>
+                ) : (
+                displayWorks.map((work: any, i: number) => {
                     const targetScale = 1 - ((displayWorks.length - i) * 0.05);
                     return (
                         <Card
-                            key={i}
+                            key={work.slug || i}
                             i={i}
                             work={work}
                             progress={scrollYProgress}
@@ -191,7 +159,8 @@ export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
                             targetScale={targetScale}
                         />
                     )
-                })}
+                })
+                )}
             </section>
 
             <div className="relative z-50 bg-monks-black">

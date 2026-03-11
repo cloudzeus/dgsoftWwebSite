@@ -1,104 +1,79 @@
 "use client";
 
+import { useRef } from "react";
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowLeft, Server, Activity, Lock, Cpu, CheckCircle } from "lucide-react";
+import { ArrowLeft, Server, Activity, Lock, Cpu, CheckCircle, TrendingUp, Clock, Users, BarChart2, Database, Zap, Shield, Globe, Award } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
 import { useLocale } from "../../context/LocaleContext";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-const worksData: Record<string, any> = {
-    "soft1-cloud-erp-series-6": {
-        title: "Soft1 Cloud ERP Series 6",
-        client: "Επιχειρηματικός Μετασχηματισμός",
-        solutions: "Soft1 ERP, Cloud, Στατιστική Ανάλυση",
-        year: "2024",
-        challenge: "Η επιχείρηση αντιμετώπιζε δυσκολίες στην παρακολούθηση αποθεμάτων, καθυστερήσεις στην τιμολόγηση και έλλειψη ενοποιημένης εικόνας μεταξύ πωλήσεων και παραγωγής. Απαιτούταν ένας ριζικός ανασχεδιασμός της μηχανογράφησης.",
-        metrics: [
-            { icon: Activity, title: "+65%", desc: "Ταχύτητα Επιβεβαίωσης Παραγγελιών" },
-            { icon: Lock, title: "100%", desc: "Ασφάλεια & Δεδομένα στο Cloud" }
-        ],
-        steps: [
-            "Παραμετροποίηση εγκατάστασης Soft1 ERP",
-            "Υλοποίηση κυκλώματος Παραγωγής",
-            "Διασύνδεση με Λογιστικά Συστήματα",
-            "Ανάπτυξη custom reporting με Power BI"
-        ]
-    },
-    "soft1-cloud-crm-series-6": {
-        title: "Soft1 Cloud CRM Series 6",
-        client: "Αυτοματοποίηση Πωλήσεων",
-        solutions: "Soft1 CRM, Cloud Τηλεφωνία, CTI",
-        year: "2024",
-        challenge: "Ανάγκη για άμεση οργάνωση του πελατολογίου, παρακολούθηση πορείας πωλήσεων σε πραγματικό χρόνο, και ενσωμάτωση κλήσεων (CTI) εντός της καρτέλας πελάτη.",
-        metrics: [
-            { icon: Activity, title: "-60%", desc: "Μείωση Χρόνου Διαχείρισης" },
-            { icon: Lock, title: "360°", desc: "Πλήρης Εικόνα Πελάτη" }
-        ],
-        steps: [
-            "Ανάλυση Sales Funnel & Παραμετροποίηση CRM",
-            "Διασύνδεση VoIP Κέντρου (CTI)",
-            "Υλοποίηση διαδικασιών After-Sales Support",
-            "Εκπαίδευση ομάδας Πωλήσεων"
-        ]
-    },
-    "ariadne-service-hub": {
-        title: "Ariadne Service Hub",
-        client: "Ενοποίηση Διαδικασιών",
-        solutions: "B2B Portal, Soft1 API, React",
-        year: "2023",
-        challenge: "Ψηφιοποίηση της διαδικασίας εξυπηρέτησης χρηστών (Helpdesk/Ticketing) και B2B παραγγελιών μέσω σύγχρονου custom Portal άμεσα συνδεδεμένου με το ERP.",
-        metrics: [
-            { icon: Activity, title: "2M+", desc: "Συναλλαγές Ετησίως" },
-            { icon: Lock, title: "24/7", desc: "Διαθεσιμότητα Υπηρεσιών B2B" }
-        ],
-        steps: [
-            "Σχεδιασμός UI/UX Custom Εφαρμογής",
-            "Ανάπτυξη Portal μέσω React & Web APIs",
-            "Live Web Service διασύνδεση με Soft1",
-            "Ενσωμάτωση Module Αιτημάτων"
-        ]
-    },
-    "digital-tools-exodologia": {
-        title: "Εξοδολογία & DocuSign",
-        client: "Ψηφιακά Εργαλεία",
-        solutions: "DocuSign, Email Tool, Soft1 Connectors",
-        year: "2023",
-        challenge: "Αυτοματοποίηση υπογραφής εγγράφων εξ αποστάσεως και μαζική αποστολή προσωποποιημένων email με δυναμική καταχώρηση δαπανών εξοδολογίου.",
-        metrics: [
-            { icon: Activity, title: "100%", desc: "Paperless Λειτουργία" },
-            { icon: Lock, title: "GDPR", desc: "Νόμιμη Ψηφιακή Υπογραφή" }
-        ],
-        steps: [
-            "Ενσωμάτωση DocuSign API στο ERP",
-            "Παραμετροποίηση DGSOFT Email Tool",
-            "Αυτοματισμοί Εγκρίσεων Εξοδολογίων",
-            "Secure & Authenticated Workflows"
-        ]
-    }
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+const ICON_MAP: Record<string, React.ElementType> = {
+    Activity, Lock, Server, Cpu, TrendingUp, Clock, Users, CheckCircle, BarChart2, Database, Zap, Shield, Globe, Award
 };
 
-export default function ClientPage({ slug, initialWork }: { slug: string; initialWork?: any }) {
+export default function ClientPage({ initialWork }: { initialWork: any }) {
     const locale = useLocale();
-    const staticData = worksData[slug] || worksData["soft1-cloud-erp-series-6"];
 
-    // Map dynamic data if available
-    const data = initialWork ? {
+    const data = {
         title: (locale === "en" && initialWork.titleEN) ? initialWork.titleEN : initialWork.titleEL,
-        client: initialWork.customer?.NAME || (locale === "el" ? "Επιχειρηματικός Μετασχηματισμός" : "Business Transformation"),
-        solutions: initialWork.serviceNames?.map((s: any) => (locale === "en" && s.nameEN) ? s.nameEN : s.nameEL).join(", ") || (locale === "el" ? "Λύσεις Επιχειρήσεων" : "Business Solutions"),
-        year: initialWork.completionDate || "2024",
+        client: initialWork.customer?.NAME || (locale === "el" ? "Πελάτης" : "Client"),
+        serviceNames: (initialWork.serviceNames || []).map((s: any) => (locale === "en" && s.nameEN) ? s.nameEN : s.nameEL),
+        year: initialWork.completionDate || "—",
         challenge: (locale === "en" && initialWork.challengeEN) ? initialWork.challengeEN : (initialWork.challengeEL || initialWork.challengeEN || "—"),
-        metrics: initialWork.stats?.map((s: any) => ({
-            icon: Activity,
+        metrics: (initialWork.stats || []).map((s: any) => ({
+            icon: ICON_MAP[s.icon] || Activity,
             title: s.value,
             desc: (locale === "en" && s.textEN) ? s.textEN : (s.textEL || s.textEN || "")
-        })) || [],
-        steps: (locale === "en" && initialWork.stepsEN?.length) ? initialWork.stepsEN : (initialWork.stepsEL || initialWork.stepsEN || [])
-    } : staticData;
+        })),
+        steps: (locale === "en" && initialWork.stepsEN?.length) ? initialWork.stepsEN : (initialWork.stepsEL || initialWork.stepsEN || []),
+        media: initialWork.media || []
+    };
 
-    const container = useRef(null);
+    const SERVICE_BADGE_COLORS = [
+        "bg-monks-accent/20 text-monks-accent border-monks-accent/50",
+        "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
+        "bg-blue-500/20 text-blue-400 border-blue-500/50",
+        "bg-amber-500/20 text-amber-400 border-amber-500/50",
+        "bg-violet-500/20 text-violet-400 border-violet-500/50",
+        "bg-cyan-500/20 text-cyan-400 border-cyan-500/50",
+    ];
+
+    const container = useRef<HTMLElement>(null);
+    const milestonesRef = useRef<HTMLDivElement>(null);
+    const milestoneItemsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+    useGSAP(() => {
+        const items = milestoneItemsRef.current.filter(Boolean) as HTMLDivElement[];
+        if (items.length === 0) return;
+        const triggerEl = milestonesRef.current;
+        gsap.fromTo(
+            items,
+            { opacity: 0, x: -48 },
+            {
+                opacity: 1,
+                x: 0,
+                duration: 0.6,
+                stagger: 0.12,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: triggerEl,
+                    start: "top 75%",
+                    end: "top 40%",
+                    toggleActions: "play none none none",
+                },
+            }
+        );
+        return () => {
+            ScrollTrigger.getAll().filter(t => t.trigger === triggerEl).forEach(t => t.kill());
+        };
+    }, { dependencies: [data.steps.length], scope: container });
+
     const { scrollYProgress } = useScroll({
         target: container,
         offset: ["start start", "end start"]
@@ -149,8 +124,14 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
                                 <p className="font-medium text-white text-lg">{data.client}</p>
                             </motion.div>
                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-                                <h4 className="text-xs text-monks-light tracking-widest mb-1">{locale === "el" ? "Λύσεις" : "Solutions"}</h4>
-                                <p className="font-medium text-white text-lg">{data.solutions}</p>
+                                <h4 className="text-xs text-monks-light tracking-widest mb-2">{locale === "el" ? "Λύσεις" : "Solutions"}</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {data.serviceNames.length > 0 ? data.serviceNames.map((name: string, i: number) => (
+                                        <span key={i} className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold border ${SERVICE_BADGE_COLORS[i % SERVICE_BADGE_COLORS.length]}`}>
+                                            {name}
+                                        </span>
+                                    )) : <p className="font-medium text-white text-lg">—</p>}
+                                </div>
                             </motion.div>
                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
                                 <h4 className="text-xs text-monks-light tracking-widest mb-1">{locale === "el" ? "Έτος Ολοκλήρωσης" : "Completion Year"}</h4>
@@ -161,25 +142,38 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
                 </div>
             </section>
 
-            {/* Intro Metrics Grid */}
+            {/* Stats first, then full-width challenge */}
             <section className="py-24 relative bg-[#0a0b0d]">
-                <div className="max-w-[1500px] mx-auto px-6 md:px-12 grid lg:grid-cols-12 gap-16 items-center">
-                    <div className="lg:col-span-6 lg:col-start-1 text-2xl md:text-3xl text-monks-light font-light leading-relaxed text-justify">
+                <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+                    {data.metrics.length > 0 && (
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                            {data.metrics.map((metric: any, i: number) => {
+                                const MetricIcon = metric.icon;
+                                return (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: i * 0.1 }}
+                                        className="border border-white/5 rounded-[2rem] p-8 bg-monks-black hover:border-monks-accent/30 transition-colors"
+                                    >
+                                        <MetricIcon className="w-8 h-8 text-monks-accent mb-6" />
+                                        <span className="block text-4xl text-white font-black mb-2">{metric.title}</span>
+                                        <span className="text-xs text-monks-light tracking-widest leading-tight block">{metric.desc}</span>
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    )}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        className="w-full text-2xl md:text-3xl text-monks-light font-light leading-relaxed text-justify"
+                    >
                         <span className="text-white font-bold">{locale === "el" ? "Η Πρόκληση:" : "The Challenge:"}</span> {data.challenge}
-                    </div>
-
-                    <div className="lg:col-span-5 lg:col-start-8 grid grid-cols-2 gap-6">
-                        {data.metrics.map((metric: any, i: number) => {
-                            const MetricIcon = metric.icon;
-                            return (
-                                <div key={i} className="border border-white/5 rounded-[2rem] p-8 bg-monks-black hover:border-monks-accent/30 transition-colors">
-                                    <MetricIcon className="w-8 h-8 text-monks-accent mb-6" />
-                                    <span className="block text-4xl text-white font-black mb-2">{metric.title}</span>
-                                    <span className="text-xs text-monks-light tracking-widest leading-tight block">{metric.desc}</span>
-                                </div>
-                            )
-                        })}
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
@@ -189,9 +183,13 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
                     <h2 className="text-3xl font-bold text-white mb-12">{locale === "el" ? "Η Αρχιτεκτονική Λύση" : "The Solution Architecture"}</h2>
 
                     <div className="rounded-[3rem] overflow-hidden bg-monks-gray relative p-8 md:p-16 border border-white/5 flex flex-col lg:flex-row gap-12 items-center justify-between">
-                        <div className="flex-1 space-y-6 z-10">
+                        <div ref={milestonesRef} className="flex-1 space-y-6 z-10">
                             {data.steps.map((feat: string, i: number) => (
-                                <div key={i} className="flex items-center gap-4 text-lg text-white font-medium bg-monks-black/50 p-4 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl">
+                                <div
+                                    key={i}
+                                    ref={el => { if (el) milestoneItemsRef.current[i] = el as HTMLDivElement; }}
+                                    className="flex items-center gap-4 text-lg text-white font-medium bg-monks-black/50 p-4 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl"
+                                >
                                     <CheckCircle className="w-6 h-6 text-monks-accent flex-shrink-0" />
                                     <span>{feat}</span>
                                 </div>
@@ -213,6 +211,36 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
                     </div>
                 </div>
             </section>
+
+            {/* Media gallery */}
+            {data.media.length > 0 && (
+                <section className="py-24 px-6 md:px-12 bg-monks-black border-t border-white/10">
+                    <div className="max-w-[1500px] mx-auto">
+                        <h2 className="text-3xl font-bold text-white mb-12">{locale === "el" ? "Μέσα & Επισκόπηση" : "Media & Overview"}</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {data.media.map((m: any, i: number) => {
+                                const isVideo = (m.type || "IMAGE").toUpperCase() === "VIDEO";
+                                return (
+                                    <motion.div
+                                        key={m.id || m.url || i}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: i * 0.05 }}
+                                        className="relative aspect-video rounded-2xl overflow-hidden bg-monks-gray border border-white/5"
+                                    >
+                                        {isVideo ? (
+                                            <video src={m.url} className="w-full h-full object-cover" controls muted playsInline />
+                                        ) : (
+                                            <img src={m.url} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                        )}
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             <Footer />
         </main>

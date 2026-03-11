@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
+import { normalizeWorkSlug } from "@/app/lib/slug"
 
 export async function getWorks() {
     const session = await auth()
@@ -31,9 +32,19 @@ export async function createWork(data: any) {
     try {
         const { media, customer, id, createdAt, updatedAt, ...workData } = data
 
+        let slug = normalizeWorkSlug(workData.slug, workData.titleEL, workData.titleEN)
+        const existing = await prisma.work.findUnique({ where: { slug } })
+        if (existing) {
+            const base = slug.replace(/-?\d+$/, "")
+            let n = 1
+            while (await prisma.work.findUnique({ where: { slug: `${base}-${n}` } })) n++
+            slug = `${base}-${n}`
+        }
+
         const res = await prisma.work.create({
             data: {
                 ...workData,
+                slug,
                 media: media?.length ? {
                     create: media.map((m: any, idx: number) => ({
                         type: m.type,
@@ -62,10 +73,24 @@ export async function updateWork(workId: string, data: any) {
     try {
         const { media, customer, id, createdAt, updatedAt, ...workData } = data
 
+        let slug = normalizeWorkSlug(workData.slug, workData.titleEL, workData.titleEN)
+        const existing = await prisma.work.findUnique({ where: { slug } })
+        if (existing && existing.id !== workId) {
+            const base = slug.replace(/-?\d+$/, "")
+            let n = 1
+            let candidate = `${base}-${n}`
+            while (await prisma.work.findUnique({ where: { slug: candidate } })) {
+                n++
+                candidate = `${base}-${n}`
+            }
+            slug = candidate
+        }
+
         const res = await prisma.work.update({
             where: { id: workId },
             data: {
                 ...workData,
+                slug,
                 media: {
                     deleteMany: {},
                     create: media?.map((m: any, idx: number) => ({

@@ -6,60 +6,29 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useLocale } from "../context/LocaleContext";
 
-const projects = [
-  {
-    client: "Retail Chain S.A.",
-    title: "Μετάβαση στο Soft1 Cloud ERP",
-    description: "Πλήρης μηχανογράφηση 15 καταστημάτων και ενοποίηση αποθήκης.",
-    category: "ERP & Εμπόριο",
-    year: "2024",
-    color: "from-monks-red-dark to-monks-accent"
-  },
-  {
-    client: "Telecom Partner",
-    title: "Αυτοματοποίηση με 3K Billing",
-    description: "Διαχείριση σύνθετων τηλεπικοινωνιακών χρεώσεων και έκδοση 50.000 λογαριασμών/μήνα.",
-    category: "Τιμολόγηση",
-    year: "2024",
-    color: "from-monks-accent to-monks-red-light"
-  },
-  {
-    client: "Υπηρεσίες Υγείας",
-    title: "Ενοποίηση CRM & CTI",
-    description: "Call center integration με άμεση αναγνώριση κλήσης ασθενών.",
-    category: "CRM & CTI",
-    year: "2023",
-    color: "from-monks-red-dark to-monks-red-light"
-  },
-  {
-    client: "B2B Διανομέας",
-    title: "Mobile Πωλήσεις μέσω Soft1 SFA",
-    description: "Πλήρης εικόνα αποθέματος και άμεση παραγγελιοληψία στο tablet του πωλητή.",
-    category: "Field Sales",
-    year: "2023",
-    color: "from-monks-red-light to-monks-accent"
-  }
-];
-
 export default function Work({ initialWorks }: { initialWorks?: any[] }) {
   const { ref, isVisible } = useScrollAnimation(0.1);
   const locale = useLocale();
 
-  const displayProjects = initialWorks && initialWorks.length > 0
+  const MAX_CARD_CHARS = 200;
+  const truncate = (s: string, max: number = MAX_CARD_CHARS) =>
+    typeof s !== "string" ? "" : s.length <= max ? s : s.slice(0, max - 3) + "...";
+
+  const displayProjects = (initialWorks && initialWorks.length > 0)
     ? initialWorks.slice(0, 4).map(w => {
         const title = (locale === "en" && w.titleEN) ? w.titleEN : w.titleEL;
         const challenge = (locale === "en" && w.challengeEN) ? w.challengeEN : (w.challengeEL || w.challengeEN);
-        const description = challenge ? (challenge.length > 100 ? challenge.substring(0, 97) + "..." : challenge) : (locale === "el" ? "Μελέτη περίπτωσης για " : "Case study for ") + title;
+        const description = challenge ? truncate(challenge) : truncate((locale === "el" ? "Μελέτη περίπτωσης για " : "Case study for ") + title);
         return {
           client: w.customer?.NAME || (locale === "el" ? "Πελάτης" : "Client"),
-          title,
+          title: truncate(title),
           description,
           category: locale === "el" ? "Μελέτη Περίπτωσης" : "Case Study",
           year: w.completionDate || "2024",
           slug: w.slug
         };
       })
-    : projects;
+    : [];
 
   return (
     <section id="work" className="py-32 bg-monks-dark relative overflow-hidden">
@@ -99,7 +68,16 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
 
         {/* Projects List */}
         <div className="space-y-0">
-          {displayProjects.map((project: any, index: number) => (
+          {displayProjects.length === 0 ? (
+            <div className="py-12 md:py-16 border-t border-white/10 text-center">
+              <p className="text-monks-light">{locale === "el" ? "Δεν υπάρχουν δημοσιευμένα έργα προς εμφάνιση." : "No published projects to show."}</p>
+              <Link href="/works" className="inline-flex items-center gap-2 mt-4 text-monks-accent hover:text-white transition-colors text-sm font-semibold">
+                <span>{locale === "el" ? "Όλα τα Έργα" : "View All Projects"}</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
+            </div>
+          ) : (
+          displayProjects.map((project: any, index: number) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -50 }}
@@ -140,7 +118,8 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
                 </div>
               </Link>
             </motion.div>
-          ))}
+          ))
+          )}
         </div>
 
         {/* Featured Project Card */}

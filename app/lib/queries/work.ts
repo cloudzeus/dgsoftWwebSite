@@ -41,8 +41,9 @@ export async function getPublicWorks() {
 
 export async function getPublicWorkBySlug(slug: string) {
     try {
+        const decodedSlug = decodeURIComponent(slug).trim();
         const work = await prisma.work.findUnique({
-            where: { slug, published: true },
+            where: { slug: decodedSlug },
             include: {
                 media: {
                     orderBy: { order: "asc" }
@@ -56,7 +57,7 @@ export async function getPublicWorkBySlug(slug: string) {
             }
         });
 
-        if (!work) return null;
+        if (!work || !work.published) return null;
 
         // Fetch service names for servicesUsed
         const serviceIds = (work.servicesUsed as string[]) || [];

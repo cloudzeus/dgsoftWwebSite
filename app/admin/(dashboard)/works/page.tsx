@@ -16,8 +16,8 @@ export default async function WorksPage() {
     <div className="flex flex-1 flex-col p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Project Management</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage portfolio projects, case studies, and client success stories.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Διαχείριση Έργων / Project Management</h1>
+          <p className="text-sm text-muted-foreground mt-1">Διαχείριση έργων χαρτοφυλακίου, μελετών περίπτωσης και ιστοριών επιτυχίας. / Manage portfolio projects, case studies, and client success stories.</p>
         </div>
       </div>
       <DataTableWorks
