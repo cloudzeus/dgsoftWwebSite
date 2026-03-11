@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, BarChart, Database, Cloud, Code2 } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
+import { useLocale } from "../context/LocaleContext";
 
 const works = [
     {
@@ -56,6 +57,7 @@ const works = [
 
 const Card = ({ work, i, progress, range, targetScale }: any) => {
     const container = useRef(null);
+    const locale = useLocale();
     const { scrollYProgress } = useScroll({
         target: container,
         offset: ['start end', 'start start']
@@ -81,7 +83,7 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
                             <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
                         </div>
                         <Link href={`/works/${work.slug}`} className="flex items-center gap-2 group cursor-pointer bg-white/5 px-6 py-3 rounded-full hover:bg-monks-accent transition-all duration-500 border border-white/10 hover:border-transparent">
-                            <span className="text-white font-bold tracking-widest text-sm">Προβολή</span>
+                            <span className="text-white font-bold tracking-widest text-sm">{locale === "el" ? "Προβολή" : "View"}</span>
                             <ArrowUpRight className="w-5 h-5 text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </Link>
                     </div>
@@ -96,12 +98,12 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
                     </h2>
 
                     <p className="text-xl md:text-2xl text-monks-light mb-12 flex-grow">
-                        Πελάτης: <span className="text-white font-medium">{work.client}</span>
+                        {locale === "el" ? "Πελάτης" : "Client"}: <span className="text-white font-medium">{work.client}</span>
                     </p>
 
                     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mt-auto pt-8 border-t border-white/10">
                         <div className="flex-1">
-                            <span className="text-xs text-monks-light tracking-widest mb-4 block">Τεχνολογικό Stack</span>
+                            <span className="text-xs text-monks-light tracking-widest mb-4 block">{locale === "el" ? "Τεχνολογικό Stack" : "Tech Stack"}</span>
                             <div className="flex flex-wrap gap-2">
                                 {work.tech.map((t: string, idx: number) => (
                                     <span key={idx} className="text-sm text-white bg-white/10 px-4 py-2 rounded-full border border-white/5 backdrop-blur-md">{t}</span>
@@ -110,7 +112,7 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
                         </div>
 
                         <div className="lg:text-right">
-                            <span className="text-xs text-monks-light tracking-widest mb-2 block">Κύριο Αποτέλεσμα</span>
+                            <span className="text-xs text-monks-light tracking-widest mb-2 block">{locale === "el" ? "Κύριο Αποτέλεσμα" : "Key Result"}</span>
                             <span className="text-3xl lg:text-5xl font-black text-white block">
                                 {work.metric}
                             </span>
@@ -124,25 +126,33 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
 
 export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
     const container = useRef(null);
+    const locale = useLocale();
     const { scrollYProgress } = useScroll({
         target: container,
         offset: ['start start', 'end end']
     });
 
     const displayWorks = initialWorks && initialWorks.length > 0
-        ? initialWorks.map((w, idx) => ({
-            slug: w.slug,
-            title: w.titleEL,
-            client: w.customer?.NAME || "Επιχειρηματικός Μετασχηματισμός",
-            category: "Case Study",
-            year: w.completionDate || "2024",
-            metric: w.stats?.[0]?.value ? `${w.stats[0].value} ${w.stats[0].textEL}` : "+40% Παραγωγικότητα",
-            icon: Database, // Fallback icon
-            tech: w.servicesUsed?.slice(0, 3) || ["Soft1 ERP", "Cloud Computing"],
-            color: idx % 2 === 0 ? "from-[#111318] to-monks-black" : "from-[#0a0f18] to-monks-dark",
-            image: w.media?.find((m: any) => m.featured)?.url || w.media?.[0]?.url
-        }))
-        : works; // fallback to static if no dynamic data
+        ? initialWorks.map((w, idx) => {
+            const title = (locale === "en" && w.titleEN) ? w.titleEN : w.titleEL;
+            const metricText = (locale === "en" && w.stats?.[0]?.textEN) ? w.stats[0].textEN : (w.stats?.[0]?.textEL || (locale === "el" ? "+40% Παραγωγικότητα" : "+40% Productivity"));
+            const serviceNames = Array.isArray(w.serviceNames)
+                ? w.serviceNames.map((s: any) => (locale === "en" && s.nameEN) ? s.nameEN : s.nameEL)
+                : [];
+            return {
+                slug: w.slug,
+                title,
+                client: w.customer?.NAME || (locale === "el" ? "Επιχειρηματικός Μετασχηματισμός" : "Business Transformation"),
+                category: locale === "el" ? "Μελέτη Περίπτωσης" : "Case Study",
+                year: w.completionDate || "2024",
+                metric: w.stats?.[0]?.value ? `${w.stats[0].value} ${(locale === "en" && w.stats[0].textEN) ? w.stats[0].textEN : (w.stats[0].textEL || "")}` : metricText,
+                icon: Database,
+                tech: serviceNames.length ? serviceNames.slice(0, 3) : (locale === "el" ? ["Soft1 ERP", "Cloud Computing", "Στατιστική Ανάλυση"] : ["Soft1 ERP", "Cloud Computing", "Analytics"]),
+                color: idx % 2 === 0 ? "from-[#111318] to-monks-black" : "from-[#0a0f18] to-monks-dark",
+                image: w.media?.find((m: any) => m.featured)?.url || w.media?.[0]?.url
+            };
+        })
+        : works;
 
     return (
         <main ref={container} className="relative bg-monks-black flex flex-col">
@@ -155,12 +165,14 @@ export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    <span className="text-monks-accent font-medium tracking-widest mb-6 block">Case Studies</span>
+                    <span className="text-monks-accent font-medium tracking-widest mb-6 block">{locale === "el" ? "Μελέτες Περίπτωσης" : "Case Studies"}</span>
                     <h1 className="text-[clamp(3rem,5vw,5rem)] font-black text-white capitalize mb-8 leading-[1.1] max-w-4xl">
-                        Ιστορίες <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-monks-light to-white/30">Επιτυχίας</span> & <span className="gradient-text">Τεχνολογίας</span>
+                        {locale === "el" ? <>Ιστορίες <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-monks-light to-white/30">Επιτυχίας</span> & <span className="gradient-text">Τεχνολογίας</span></> : <>Success & <span className="gradient-text">Technology</span> Stories</>}
                     </h1>
-                    <p className="text-xl md:text-2xl text-monks-light max-w-3xl leading-relaxed">
-                        Δείτε πώς βοηθήσαμε κορυφαίες επιχειρήσεις να μετασχηματίσουν την λειτουργία τους μέσω προηγμένων λύσεων λογισμικού, Cloud υποδομών και αυτοματισμών.
+                    <p className="text-xl md:text-2xl text-monks-light max-w-3xl leading-relaxed text-justify">
+                        {locale === "el"
+                            ? "Δείτε πώς βοηθήσαμε κορυφαίες επιχειρήσεις να μετασχηματίσουν την λειτουργία τους μέσω προηγμένων λύσεων λογισμικού, Cloud υποδομών και αυτοματισμών."
+                            : "See how we helped leading businesses transform their operations through advanced software, cloud infrastructure and automation."}
                     </p>
                 </motion.div>
             </section>

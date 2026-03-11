@@ -391,6 +391,8 @@ model Service {
   
   featuresEL         Json?
   featuresEN         Json?
+  benefitsEL         Json?     // Array of strings (bullet points)
+  benefitsEN         Json?
   features           ServiceFeature[]
   media              ServiceMedia[]
 

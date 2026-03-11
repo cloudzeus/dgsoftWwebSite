@@ -5,13 +5,23 @@ import Footer from "../../components/Footer";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "../../context/LocaleContext";
 
 export default function ArticleDetailClient({ article }: { article: any }) {
+    const locale = useLocale();
     const authorName = article.author
         ? `${article.author.firstName} ${article.author.lastName}`
         : "DGSOFT Team";
-    const categoryName = article.categories?.[0]?.nameEL || "Άρθρο";
+    const title = (locale === "en" && article.titleEN) ? article.titleEN : article.titleEL;
+    const shortDescription = (locale === "en" && article.shortDescriptionEN) ? article.shortDescriptionEN : (article.shortDescriptionEL || article.shortDescriptionEN);
+    const description = (locale === "en" && article.descriptionEN) ? article.descriptionEN : (article.descriptionEL || article.descriptionEN);
+    const categoryName = (locale === "en" && article.categories?.[0]?.nameEN) ? article.categories[0].nameEN : (article.categories?.[0]?.nameEL || (locale === "el" ? "Άρθρο" : "Article"));
     const hasHero = !!article.featureImage;
+
+    const backLabel = locale === "el" ? "ΠΙΣΩ ΣΤΑ ΑΡΘΡΑ" : "BACK TO ARTICLES";
+    const authorLabel = locale === "el" ? "Συγγραφέας" : "Author";
+    const dateLabel = locale === "el" ? "Δημοσίευση" : "Published";
+    const photosLabel = locale === "el" ? "Φωτογραφίες" : "Photos";
 
     return (
         <main className="min-h-screen bg-monks-black flex flex-col selection:bg-monks-accent selection:text-white">
@@ -22,7 +32,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                 <div className="relative w-full h-[55vh] md:h-[70vh] overflow-hidden">
                     <img
                         src={article.featureImage}
-                        alt={article.titleEL}
+                        alt={title}
                         className="w-full h-full object-cover"
                     />
                     {/* Deep gradient overlay so text is always readable */}
@@ -32,7 +42,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                     <div className="absolute top-28 left-6 md:left-12 z-10">
                         <Link href="/blog" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors group text-sm font-bold tracking-wider backdrop-blur-sm bg-white/5 border border-white/10 px-4 py-2 rounded-full">
                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            ΠΙΣΩ ΣΤΑ ΑΡΘΡΑ
+                            {backLabel}
                         </Link>
                     </div>
 
@@ -56,7 +66,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                                 transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
                                 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-[1.15] drop-shadow-2xl"
                             >
-                                {article.titleEL}
+                                {title}
                             </motion.h1>
 
                             <motion.div
@@ -75,7 +85,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                     <div className="max-w-[1000px] mx-auto">
                         <Link href="/blog" className="inline-flex items-center gap-2 text-monks-light hover:text-white transition-colors mb-8 group text-sm font-bold tracking-wider">
                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            ΠΙΣΩ ΣΤΑ ΑΡΘΡΑ
+                            {backLabel}
                         </Link>
                         <div className="flex gap-3 mb-5">
                             <span className="px-3 py-1 bg-monks-accent/20 text-monks-accent text-xs font-bold rounded-full border border-monks-accent/20">
@@ -83,7 +93,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                             </span>
                         </div>
                         <h1 className="text-2xl md:text-4xl font-black text-white leading-[1.2]">
-                            {article.titleEL}
+                            {title}
                         </h1>
                     </div>
                 </div>
@@ -100,7 +110,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-white text-sm font-bold">{authorName}</span>
-                                <span className="text-monks-light text-xs">Συγγραφέας</span>
+                                <span className="text-monks-light text-xs">{authorLabel}</span>
                             </div>
                         </div>
 
@@ -112,37 +122,37 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-white text-sm font-bold">
-                                    {new Date(article.createdAt).toLocaleDateString("el-GR", { day: "2-digit", month: "short", year: "numeric" })}
+                                    {new Date(article.createdAt).toLocaleDateString(locale === "el" ? "el-GR" : "en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                                 </span>
-                                <span className="text-monks-light text-xs">Δημοσίευση</span>
+                                <span className="text-monks-light text-xs">{dateLabel}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Short Description pull-quote */}
-                    {article.shortDescriptionEL && (
-                        <p className="text-lg text-monks-light leading-relaxed mb-10 border-l-4 border-monks-accent pl-6 italic">
-                            {article.shortDescriptionEL}
+                    {(shortDescription) && (
+                        <p className="text-lg text-monks-light leading-relaxed mb-10 border-l-4 border-monks-accent pl-6 italic text-justify">
+                            {shortDescription}
                         </p>
                     )}
 
                     {/* Main Content */}
-                    {article.descriptionEL && (
+                    {description && (
                         <div
-                            className="prose prose-invert prose-lg max-w-none text-monks-light
+                            className="prose prose-invert prose-lg max-w-none text-monks-light text-justify [&_p]:text-justify [&_li]:text-justify
                                 prose-h2:text-white prose-h2:font-bold prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
                                 prose-h3:text-white prose-h3:font-semibold prose-h3:text-xl
                                 prose-p:leading-relaxed prose-p:text-monks-light
                                 prose-strong:text-white prose-strong:font-bold
                                 prose-ul:text-monks-light prose-li:marker:text-monks-accent"
-                            dangerouslySetInnerHTML={{ __html: article.descriptionEL }}
+                            dangerouslySetInnerHTML={{ __html: description }}
                         />
                     )}
 
                     {/* Media Gallery — non-cover items */}
                     {article.media && article.media.filter((m: any) => m.url !== article.featureImage).length > 0 && (
                         <div className="mt-16 border-t border-white/10 pt-12">
-                            <h3 className="text-white text-xl font-bold mb-6">Φωτογραφίες</h3>
+                            <h3 className="text-white text-xl font-bold mb-6">{photosLabel}</h3>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {article.media.filter((m: any) => m.url !== article.featureImage).map((m: any, i: number) => (
                                     <div key={i} className="aspect-video rounded-xl overflow-hidden border border-white/10 group">

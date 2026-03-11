@@ -11,11 +11,13 @@ import LatestInsights from "./sections/LatestInsights";
 import Footer from "./components/Footer";
 import { getPublicLocations } from "./lib/actions/location";
 import { getPublicWorks } from "./lib/queries/work";
+import { getPublicServices } from "./lib/queries/public-services";
 
 export default async function Home() {
-  const [locations, works] = await Promise.all([
+  const [locations, works, services] = await Promise.all([
     getPublicLocations(),
-    getPublicWorks()
+    getPublicWorks(),
+    getPublicServices()
   ]);
 
   return (
@@ -23,7 +25,7 @@ export default async function Home() {
       <Navigation />
       <Hero />
       <Customers />
-      <Solutions />
+      <Solutions services={services.slice(0, 4)} />
       <Work initialWorks={works} />
       <Locations data={locations} />
       <About />

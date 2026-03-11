@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScroll from "./components/SmoothScroll";
+import LocaleProviderWrapper from "./components/LocaleProviderWrapper";
 
 export const metadata: Metadata = {
   title: "DGSOFT — Digital Innovation Studio",
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="el" suppressHydrationWarning>
       <body className="antialiased bg-monks-black text-white">
-        <SmoothScroll>
-          {children}
-        </SmoothScroll>
+        <LocaleProviderWrapper>
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
+        </LocaleProviderWrapper>
       </body>
     </html>
   );

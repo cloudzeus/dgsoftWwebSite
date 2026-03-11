@@ -6,13 +6,15 @@ import Footer from "../components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, TrendingUp, HandCoins, Building2, Globe2, Smartphone, X, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "../context/LocaleContext";
+import db from "../../data/db.json";
 
-const programs = [
-    { slug: "digital-tools", title: "Ψηφιακά Εργαλεία ΜΜΕ", category: "Επιδοτήσεις ΕΣΠΑ", amount: "έως 18.000€", icon: Smartphone, desc: "Αναβάθμιση του ψηφιακού εξοπλισμού και της υποδομής των μικρομεσαίων επιχειρήσεων." },
-    { slug: "digital-transactions", title: "Ψηφιακές Συναλλαγές", category: "Ταμείο Ανάκαμψης", amount: "έως 30.000€", icon: HandCoins, desc: "Εκσυγχρονισμός και ψηφιοποίηση των μεθόδων τιμολόγησης, είσπραξης και διαχείρισης αποθεμάτων." },
-    { slug: "innovation-grants", title: "Ενίσχυση Καινοτομίας", category: "Νέες Τεχνολογίες", amount: "Ανοιχτό", icon: TrendingUp, desc: "Χρηματοδότηση για την ενσωμάτωση AI, Cloud computing, και προηγμένων ψηφιακών τεχνολογιών παραγωγής." },
-    { slug: "smart-manufacturing", title: "Έξυπνη Μεταποίηση", category: "Βιομηχανία 4.0", amount: "έως 5.000.000€", icon: Building2, desc: "Στρατηγικές επιδοτήσεις για βιομηχανίες με σκοπό την πλήρη αυτοματοποίηση ροών." },
-];
+const iconMap: Record<string, typeof Smartphone> = {
+    Smartphone,
+    HandCoins,
+    TrendingUp,
+    Building2,
+};
 
 export default function EUProgramsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +27,8 @@ export default function EUProgramsPage() {
     const [contactTime, setContactTime] = useState("morning");
     const [contactMethod, setContactMethod] = useState("phone");
     const [isLoading, setIsLoading] = useState(false);
+    const locale = useLocale();
+    const programs = (db as any).euPrograms || [];
 
     const handleFetchVat = async () => {
         if (!vat) return;
@@ -65,17 +69,19 @@ export default function EUProgramsPage() {
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     >
                         <h1 className="text-display-sm md:text-display-md font-bold text-white mb-6 leading-[1.1]">
-                            Ευρωπαϊκά <span className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-transparent bg-clip-text">Προγράμματα</span>
+                            {locale === "el" ? <>Ευρωπαϊκά <span className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-transparent bg-clip-text">Προγράμματα</span></> : <>European <span className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-transparent bg-clip-text">Programs</span></>}
                         </h1>
-                        <p className="text-xl text-monks-light max-w-3xl leading-relaxed mb-8">
-                            Αξιοποιήστε τα τρέχοντα ευρωπαϊκά και εθνικά προγράμματα επιδότησης. Σας βοηθάμε να πετύχετε την απόλυτη ψηφιακή αναβάθμιση της επιχείρησής σας, αναλαμβάνοντας όλη τη διαδικασία υποβολής και υλοποίησης.
+                        <p className="text-xl text-monks-light max-w-3xl leading-relaxed mb-8 text-justify">
+                            {locale === "el"
+                                ? "Αξιοποιήστε τα τρέχοντα ευρωπαϊκά και εθνικά προγράμματα επιδότησης. Σας βοηθάμε να πετύχετε την απόλυτη ψηφιακή αναβάθμιση της επιχείρησής σας, αναλαμβάνοντας όλη τη διαδικασία υποβολής και υλοποίησης."
+                                : "Make the most of current European and national funding programs. We help you achieve full digital upgrade of your business, handling the entire submission and implementation process."}
                         </p>
 
                         <button
                             onClick={() => setIsModalOpen(true)}
                             className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-monks-black font-semibold px-8 py-4 rounded-full hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all duration-300"
                         >
-                            Ελέγξτε την Επιλεξιμότητά σας
+                            {locale === "el" ? "Ελέγξτε την Επιλεξιμότητά σας" : "Check Your Eligibility"}
                         </button>
                     </motion.div>
                 </div>
@@ -85,10 +91,11 @@ export default function EUProgramsPage() {
             <section className="py-24 relative flex-grow">
                 <div className="max-w-[1800px] mx-auto px-6 md:px-12">
                     <div className="grid md:grid-cols-2 gap-8">
-                        {programs.map((program, index) => {
-                            const Icon = program.icon;
+                        {programs.map((program: any, index: number) => {
+                            const lang = program[locale] || program.el || {};
+                            const Icon = iconMap[program.icon] || Smartphone;
                             return (
-                                <Link href={`/eu-programs/${program.slug}`} key={index}>
+                                <Link href={`/eu-programs/${program.slug}`} key={program.slug || index}>
                                     <motion.div
                                         initial={{ opacity: 0, y: 40 }}
                                         whileInView={{ opacity: 1, y: 0 }}
@@ -107,24 +114,24 @@ export default function EUProgramsPage() {
                                                     <Icon className="w-8 h-8 text-white group-hover:text-[#FFD700] transition-colors duration-500" />
                                                 </div>
                                                 <div className="text-right">
-                                                    <span className="text-xs text-monks-light tracking-wide block mb-1">Προϋπολογισμός</span>
+                                                    <span className="text-xs text-monks-light tracking-wide block mb-1">{locale === "el" ? "Προϋπολογισμός" : "Budget"}</span>
                                                     <span className="font-bold text-[#FFD700] bg-[#FFD700]/10 px-3 py-1 rounded-full text-sm shadow-sm backdrop-blur-sm">
-                                                        {program.amount}
+                                                        {lang.amount || ""}
                                                     </span>
                                                 </div>
                                             </div>
 
                                             <div className="mb-4 text-sm font-medium text-white/50 tracking-wider flex items-center gap-2">
                                                 <Globe2 className="w-4 h-4 text-[#0A3D73] group-hover:text-[#FFD700] transition-colors duration-300" />
-                                                {program.category}
+                                                {lang.category || ""}
                                             </div>
 
                                             <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-[#FFD700] transition-colors duration-500 pr-8">
-                                                {program.title}
+                                                {lang.title || ""}
                                             </h3>
 
-                                            <p className="text-monks-light leading-relaxed flex-grow">
-                                                {program.desc}
+                                            <p className="text-monks-light leading-relaxed flex-grow text-justify">
+                                                {lang.desc || ""}
                                             </p>
 
                                         </div>
@@ -152,7 +159,7 @@ export default function EUProgramsPage() {
                                 <X className="w-6 h-6" />
                             </button>
 
-                            <h2 className="text-2xl font-bold text-white mb-6">Στοιχεία Επικοινωνίας</h2>
+                            <h2 className="text-2xl font-bold text-white mb-6">{locale === "el" ? "Στοιχεία Επικοινωνίας" : "Contact Details"}</h2>
 
                             <div className="space-y-5">
                                 <div>
@@ -162,7 +169,7 @@ export default function EUProgramsPage() {
                                             type="text"
                                             value={vat}
                                             onChange={(e) => setVat(e.target.value)}
-                                            placeholder="π.χ. 801946016"
+                                            placeholder={locale === "el" ? "π.χ. 801946016" : "e.g. 801946016"}
                                             className="flex-grow bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
                                         />
                                         <button
@@ -173,11 +180,11 @@ export default function EUProgramsPage() {
                                             {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-[#FFD700]" /> : <Search className="w-5 h-5" />}
                                         </button>
                                     </div>
-                                    <p className="text-xs text-monks-light mt-1">Συμπληρώστε το ΑΦΜ και κάντε αναζήτηση για αυτόματη συμπλήρωση.</p>
+                                    <p className="text-xs text-monks-light mt-1">{locale === "el" ? "Συμπληρώστε το ΑΦΜ και κάντε αναζήτηση για αυτόματη συμπλήρωση." : "Enter VAT number and search for auto-fill."}</p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-monks-light mb-2">Όνομα Εταιρίας</label>
+                                    <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Όνομα Εταιρίας" : "Company Name"}</label>
                                     <input
                                         type="text"
                                         value={companyName}
@@ -188,7 +195,7 @@ export default function EUProgramsPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">Διεύθυνση</label>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Διεύθυνση" : "Address"}</label>
                                         <input
                                             type="text"
                                             value={address}
@@ -197,7 +204,7 @@ export default function EUProgramsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">Τ.Κ. (Zip Code)</label>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τ.Κ. (Zip Code)" : "Zip Code"}</label>
                                         <input
                                             type="text"
                                             value={zipCode}
@@ -209,12 +216,12 @@ export default function EUProgramsPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">Τηλέφωνο Επικοινωνίας</label>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τηλέφωνο Επικοινωνίας" : "Contact Phone"}</label>
                                         <input
                                             type="tel"
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value)}
-                                            placeholder="π.χ. 2101234567"
+                                            placeholder={locale === "el" ? "π.χ. 2101234567" : "e.g. 2101234567"}
                                             className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
                                         />
                                     </div>
@@ -232,26 +239,26 @@ export default function EUProgramsPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">Ιδανική Ώρα Επικοινωνίας</label>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Ιδανική Ώρα Επικοινωνίας" : "Preferred Contact Time"}</label>
                                         <select
                                             value={contactTime}
                                             onChange={(e) => setContactTime(e.target.value)}
                                             className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors appearance-none"
                                         >
-                                            <option value="morning">Πρωί (09:00 - 12:00)</option>
-                                            <option value="afternoon">Μεσημέρι (12:00 - 15:00)</option>
-                                            <option value="evening">Απόγευμα (15:00 - 18:00)</option>
+                                            <option value="morning">{locale === "el" ? "Πρωί (09:00 - 12:00)" : "Morning (09:00 - 12:00)"}</option>
+                                            <option value="afternoon">{locale === "el" ? "Μεσημέρι (12:00 - 15:00)" : "Noon (12:00 - 15:00)"}</option>
+                                            <option value="evening">{locale === "el" ? "Απόγευμα (15:00 - 18:00)" : "Afternoon (15:00 - 18:00)"}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">Τρόπος Επικοινωνίας</label>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τρόπος Επικοινωνίας" : "Contact Method"}</label>
                                         <div className="flex bg-white/5 border border-white/10 rounded-lg overflow-hidden p-1">
                                             <button
                                                 type="button"
                                                 onClick={() => setContactMethod("phone")}
                                                 className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${contactMethod === 'phone' ? 'bg-[#FFD700] text-monks-black' : 'text-monks-light hover:text-white'}`}
                                             >
-                                                Τηλέφωνο
+                                                {locale === "el" ? "Τηλέφωνο" : "Phone"}
                                             </button>
                                             <button
                                                 type="button"
@@ -268,10 +275,10 @@ export default function EUProgramsPage() {
                                     className="w-full bg-[#FFD700] text-monks-black font-semibold py-3 rounded-lg hover:bg-[#E3AA00] transition-colors mt-2"
                                     onClick={() => {
                                         setIsModalOpen(false);
-                                        alert("Το αίτημά σας καταχωρήθηκε! Θα επικοινωνήσουμε μαζί σας σύντομα.");
+                                        alert(locale === "el" ? "Το αίτημά σας καταχωρήθηκε! Θα επικοινωνήσουμε μαζί σας σύντομα." : "Your request has been submitted! We will contact you soon.");
                                     }}
                                 >
-                                    Υποβολή Αιτήματος
+                                    {locale === "el" ? "Υποβολή Αιτήματος" : "Submit Request"}
                                 </button>
                             </div>
                         </motion.div>

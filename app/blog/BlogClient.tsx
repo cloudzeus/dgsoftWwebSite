@@ -5,8 +5,14 @@ import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "../context/LocaleContext";
 
 export default function BlogClient({ initialArticles = [] }: { initialArticles: any[] }) {
+    const locale = useLocale();
+    const title = (p: any) => (locale === "en" && p.titleEN) ? p.titleEN : p.titleEL;
+    const shortDesc = (p: any) => (locale === "en" && p.shortDescriptionEN) ? p.shortDescriptionEN : (p.shortDescriptionEL || p.shortDescriptionEN || "");
+    const categoryName = (p: any) => (locale === "en" && p.categories?.[0]?.nameEN) ? p.categories[0].nameEN : (p.categories?.[0]?.nameEL || (locale === "el" ? "Ειδήσεις" : "News"));
+
     return (
         <main className="min-h-screen bg-monks-black flex flex-col">
             <Navigation />
@@ -24,12 +30,20 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     >
-                        <span className="text-monks-accent font-medium tracking-widest mb-4 block text-sm">Ειδήσεις & Insights</span>
+                        <span className="text-monks-accent font-medium tracking-widest mb-4 block text-sm">
+                            {locale === "el" ? "Ειδήσεις & Insights" : "News & Insights"}
+                        </span>
                         <h1 className="text-5xl md:text-7xl lg:text-[6rem] font-bold text-white mb-6 leading-[1.1]">
-                            Τεχνολογικά <span className="text-transparent bg-clip-text bg-gradient-to-r from-monks-light to-white/50">Νέα</span>
+                            {locale === "el" ? (
+                                <>Τεχνολογικά <span className="text-transparent bg-clip-text bg-gradient-to-r from-monks-light to-white/50">Νέα</span></>
+                            ) : (
+                                <>Tech <span className="text-transparent bg-clip-text bg-gradient-to-r from-monks-light to-white/50">News</span></>
+                            )}
                         </h1>
-                        <p className="text-xl text-monks-light max-w-2xl leading-relaxed">
-                            Μάθετε πρώτοι για τις τεχνολογικές εξελίξεις, μελέτες επιτυχίας και τρόπους ανάπτυξης μέσα από τις τελευταίες μας δημοσιεύσεις.
+                        <p className="text-xl text-monks-light max-w-2xl leading-relaxed text-justify">
+                            {locale === "el"
+                                ? "Μάθετε πρώτοι για τις τεχνολογικές εξελίξεις, μελέτες επιτυχίας και τρόπους ανάπτυξης μέσα από τις τελευταίες μας δημοσιεύσεις."
+                                : "Stay first on tech trends, success stories and growth tips from our latest posts."}
                         </p>
                     </motion.div>
                 </div>
@@ -40,7 +54,7 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                 <div className="max-w-[1500px] mx-auto px-6 md:px-12">
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {initialArticles.map((post, index) => {
-                            const categoryName = post.categories?.[0]?.[`nameEL`] || "Ειδήσεις";
+                            const catName = categoryName(post);
                             const authorName = post.author ? `${post.author.firstName} ${post.author.lastName}` : "DGSOFT Team";
 
                             return (
@@ -54,34 +68,34 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                                     >
                                         {post.featureImage ? (
                                             <div className="h-64 w-full relative overflow-hidden border-b border-white/5">
-                                                <img src={post.featureImage} alt={post.titleEL} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                                <img src={post.featureImage} alt={title(post)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-monks-black/80 to-transparent" />
                                             </div>
                                         ) : (
                                             <div className="h-64 w-full bg-monks-gray relative overflow-hidden flex items-center justify-center border-b border-white/5">
                                                 <div className="absolute inset-0 bg-gradient-to-tr from-monks-accent/20 to-transparent mix-blend-overlay group-hover:scale-110 transition-transform duration-700" />
                                                 <div className="w-1/2 h-full absolute flex space-x-2 -skew-x-[30deg] bg-white/5 group-hover:bg-monks-accent/5 transition-colors duration-500" />
-                                                <span className="text-white/20 font-black text-4xl opacity-50 group-hover:scale-110 transition-transform duration-700 blur-sm">{categoryName.substring(0, 3).toUpperCase()}</span>
+                                                <span className="text-white/20 font-black text-4xl opacity-50 group-hover:scale-110 transition-transform duration-700 blur-sm">{catName.substring(0, 3).toUpperCase()}</span>
                                             </div>
                                         )}
 
                                         <div className="p-8 flex flex-col flex-grow">
                                             <div className="flex items-center justify-between gap-4 mb-6">
                                                 <span className="px-4 py-1.5 rounded-full text-xs font-bold text-monks-accent bg-monks-accent/10">
-                                                    {categoryName}
+                                                    {catName}
                                                 </span>
                                                 <div className="flex items-center gap-2 text-xs text-monks-light font-medium">
                                                     <Calendar className="w-3.5 h-3.5" />
-                                                    {new Date(post.createdAt).toLocaleDateString('el-GR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    {new Date(post.createdAt).toLocaleDateString(locale === "el" ? "el-GR" : "en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                                                 </div>
                                             </div>
 
                                             <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-monks-accent transition-colors duration-500 line-clamp-3">
-                                                {post.titleEL}
+                                                {title(post)}
                                             </h3>
 
-                                            <p className="text-monks-light text-sm leading-relaxed flex-grow mb-8 line-clamp-4">
-                                                {post.shortDescriptionEL}
+                                            <p className="text-monks-light text-sm leading-relaxed flex-grow mb-8 line-clamp-4 text-justify">
+                                                {shortDesc(post)}
                                             </p>
 
                                             <div className="pt-6 mt-auto border-t border-white/5 flex items-center justify-between text-white text-sm font-bold group-hover:text-monks-light transition-colors">
@@ -91,7 +105,7 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                                                 </div>
 
                                                 <div className="flex items-center gap-2 text-monks-accent group-hover:gap-4 transition-all">
-                                                    Άρθρο
+                                                    {locale === "el" ? "Άρθρο" : "Article"}
                                                     <ArrowRight className="w-4 h-4" />
                                                 </div>
                                             </div>

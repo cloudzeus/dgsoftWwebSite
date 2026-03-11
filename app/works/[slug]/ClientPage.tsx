@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Server, Activity, Lock, Cpu, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
+import { useLocale } from "../../context/LocaleContext";
 
 const worksData: Record<string, any> = {
     "soft1-cloud-erp-series-6": {
@@ -79,24 +80,22 @@ const worksData: Record<string, any> = {
 };
 
 export default function ClientPage({ slug, initialWork }: { slug: string; initialWork?: any }) {
+    const locale = useLocale();
     const staticData = worksData[slug] || worksData["soft1-cloud-erp-series-6"];
 
     // Map dynamic data if available
     const data = initialWork ? {
-        title: initialWork.titleEL,
-        client: initialWork.customer?.NAME || "Επιχειρηματικός Μετασχηματισμός",
-        solutions: initialWork.serviceNames?.map((s: any) => s.nameEL).join(", ") || "Business Solutions",
+        title: (locale === "en" && initialWork.titleEN) ? initialWork.titleEN : initialWork.titleEL,
+        client: initialWork.customer?.NAME || (locale === "el" ? "Επιχειρηματικός Μετασχηματισμός" : "Business Transformation"),
+        solutions: initialWork.serviceNames?.map((s: any) => (locale === "en" && s.nameEN) ? s.nameEN : s.nameEL).join(", ") || (locale === "el" ? "Λύσεις Επιχειρήσεων" : "Business Solutions"),
         year: initialWork.completionDate || "2024",
-        challenge: initialWork.challengeEL || "—",
-        metrics: initialWork.stats?.map((s: any) => {
-            // Icon mapping if possible, otherwise default Activity
-            return {
-                icon: Activity,
-                title: s.value,
-                desc: s.textEL
-            };
-        }) || [],
-        steps: (initialWork.stepsEL as string[]) || []
+        challenge: (locale === "en" && initialWork.challengeEN) ? initialWork.challengeEN : (initialWork.challengeEL || initialWork.challengeEN || "—"),
+        metrics: initialWork.stats?.map((s: any) => ({
+            icon: Activity,
+            title: s.value,
+            desc: (locale === "en" && s.textEN) ? s.textEN : (s.textEL || s.textEN || "")
+        })) || [],
+        steps: (locale === "en" && initialWork.stepsEN?.length) ? initialWork.stepsEN : (initialWork.stepsEL || initialWork.stepsEN || [])
     } : staticData;
 
     const container = useRef(null);
@@ -125,7 +124,7 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
                 <div className="max-w-[1500px] w-full mx-auto px-6 md:px-12 relative z-20">
                     <Link href="/works" className="inline-flex items-center gap-2 text-monks-light hover:text-white transition-colors mb-12 group">
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-2 transition-transform" />
-                        <span className="text-sm font-bold tracking-wider">Πίσω στα έργα</span>
+                        <span className="text-sm font-bold tracking-wider">{locale === "el" ? "Πίσω στα έργα" : "Back to works"}</span>
                     </Link>
 
                     <div className="grid lg:grid-cols-12 gap-12 items-end">
@@ -136,7 +135,7 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
                                 transition={{ duration: 0.8, ease: "easeOut" }}
                             >
                                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-monks-gray/50 border border-white/10 text-monks-accent text-sm font-bold tracking-wider mb-8">
-                                    <Server className="w-4 h-4" /> Case Study
+                                    <Server className="w-4 h-4" /> {locale === "el" ? "Μελέτη Περίπτωσης" : "Case Study"}
                                 </div>
                                 <h1 className="text-5xl md:text-6xl lg:text-7xl leading-[1.1] font-black text-white mb-8">
                                     {data.title}
@@ -146,15 +145,15 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
 
                         <div className="lg:col-span-4 flex flex-col gap-6 lg:pb-4 border-l border-white/10 pl-8">
                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-                                <h4 className="text-xs text-monks-light tracking-widest mb-1">Πελάτης</h4>
+                                <h4 className="text-xs text-monks-light tracking-widest mb-1">{locale === "el" ? "Πελάτης" : "Client"}</h4>
                                 <p className="font-medium text-white text-lg">{data.client}</p>
                             </motion.div>
                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-                                <h4 className="text-xs text-monks-light tracking-widest mb-1">Λύσεις</h4>
+                                <h4 className="text-xs text-monks-light tracking-widest mb-1">{locale === "el" ? "Λύσεις" : "Solutions"}</h4>
                                 <p className="font-medium text-white text-lg">{data.solutions}</p>
                             </motion.div>
                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
-                                <h4 className="text-xs text-monks-light tracking-widest mb-1">Έτος Ολοκλήρωσης</h4>
+                                <h4 className="text-xs text-monks-light tracking-widest mb-1">{locale === "el" ? "Έτος Ολοκλήρωσης" : "Completion Year"}</h4>
                                 <p className="font-medium text-white text-lg">{data.year}</p>
                             </motion.div>
                         </div>
@@ -165,8 +164,8 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
             {/* Intro Metrics Grid */}
             <section className="py-24 relative bg-[#0a0b0d]">
                 <div className="max-w-[1500px] mx-auto px-6 md:px-12 grid lg:grid-cols-12 gap-16 items-center">
-                    <div className="lg:col-span-6 lg:col-start-1 text-2xl md:text-3xl text-monks-light font-light leading-relaxed">
-                        <span className="text-white font-bold">Η Πρόκληση:</span> {data.challenge}
+                    <div className="lg:col-span-6 lg:col-start-1 text-2xl md:text-3xl text-monks-light font-light leading-relaxed text-justify">
+                        <span className="text-white font-bold">{locale === "el" ? "Η Πρόκληση:" : "The Challenge:"}</span> {data.challenge}
                     </div>
 
                     <div className="lg:col-span-5 lg:col-start-8 grid grid-cols-2 gap-6">
@@ -187,7 +186,7 @@ export default function ClientPage({ slug, initialWork }: { slug: string; initia
             {/* Abstract Systems Architecture Visual */}
             <section className="py-24 px-6 md:px-12 bg-monks-black">
                 <div className="max-w-[1500px] mx-auto">
-                    <h2 className="text-3xl font-bold text-white mb-12">Η Αρχιτεκτονική Λύση</h2>
+                    <h2 className="text-3xl font-bold text-white mb-12">{locale === "el" ? "Η Αρχιτεκτονική Λύση" : "The Solution Architecture"}</h2>
 
                     <div className="rounded-[3rem] overflow-hidden bg-monks-gray relative p-8 md:p-16 border border-white/5 flex flex-col lg:flex-row gap-12 items-center justify-between">
                         <div className="flex-1 space-y-6 z-10">

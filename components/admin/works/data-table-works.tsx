@@ -464,6 +464,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                         searchPlaceholder="Search services..."
                                         className="rounded-xl border border-border"
                                     />
+                                </div>
                                 <div className="space-y-4">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Strategic Challenge Protocol</Label>
                                     <Textarea className="min-h-[160px] rounded-[32px] border-zinc-200 shadow-sm p-8 text-sm leading-relaxed" placeholder="Outline the complex problems solved..." value={formData.challengeEL} onChange={e => setFormData({ ...formData, challengeEL: e.target.value })} />

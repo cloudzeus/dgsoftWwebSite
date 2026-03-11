@@ -25,4 +25,6 @@ export type ServiceFormValues = {
     order: number
     featuresEL: string[]
     featuresEN: string[]
+    benefitsEL?: string[]
+    benefitsEN?: string[]
 }

@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
-
 import { usePathname } from "next/navigation";
+import { useLocale, useSetLocale } from "../context/LocaleContext";
 
 const navLinksConfig = {
   el: [
@@ -32,7 +32,8 @@ export default function Navigation() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [lang, setLang] = useState<"el" | "en">("el");
+  const lang = useLocale();
+  const setLang = useSetLocale();
 
   const navLinks = navLinksConfig[lang];
 

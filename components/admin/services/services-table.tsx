@@ -108,6 +108,8 @@ export type ServiceType = {
     categoryId: string
     featuresEL: any
     featuresEN: any
+    benefitsEL?: string[] | null
+    benefitsEN?: string[] | null
     category: ServiceCategoryType
     features: ServiceFeatureType[]
     media: ServiceMediaType[]

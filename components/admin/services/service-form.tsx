@@ -16,8 +16,13 @@ import {
     Link as LinkIcon,
     Languages,
     Sparkles,
-    Plus
+    Plus,
+    GripVertical,
+    Star
 } from "lucide-react"
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core"
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -43,8 +48,8 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { createService, updateService } from "@/app/lib/actions/service"
-import { ServiceType, ServiceCategoryType } from "./services-table"
+import { createService, updateService, createServiceMedia, updateServiceMediaOrder, deleteServiceMedia } from "@/app/lib/actions/service"
+import { ServiceType, ServiceCategoryType, ServiceMediaType } from "./services-table"
 
 const serviceSchema = z.object({
     nameEL: z.string().min(1, "Greek name is required"),
@@ -59,6 +64,8 @@ const serviceSchema = z.object({
     order: z.number().default(0),
     featuresEL: z.array(z.string()).default([]),
     featuresEN: z.array(z.string()).default([]),
+    benefitsEL: z.array(z.string()).default([]),
+    benefitsEN: z.array(z.string()).default([]),
 })
 
 type ServiceFormValues = z.infer<typeof serviceSchema>
@@ -68,10 +75,13 @@ interface ServiceFormProps {
     categories: ServiceCategoryType[]
     onSuccess: () => void
     onCancel: () => void
+    onMediaChange?: () => void
 }
 
-export function ServiceForm({ service, categories, onSuccess, onCancel }: ServiceFormProps) {
+export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaChange }: ServiceFormProps) {
     const [isSaving, setIsSaving] = React.useState(false)
+    const [isGenerating, setIsGenerating] = React.useState(false)
+    const [isExpandingDescription, setIsExpandingDescription] = React.useState(false)
     const [featureImage, setFeatureImage] = React.useState<string | null>(service?.featureImage || null)
     const [brandLogo, setBrandLogo] = React.useState<string | null>(service?.brandLogo || null)
     const [isUploadingFeature, setIsUploadingFeature] = React.useState(false)
@@ -92,40 +102,22 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
             categoryId: service?.categoryId || "",
             brandName: service?.brandName || "",
             order: service?.order || 0,
-            featuresEL: service?.featuresEL || [],
-            featuresEN: service?.featuresEN || [],
+            featuresEL: service?.features?.length ? service.features.map(f => f.nameEL) : [],
+            featuresEN: service?.features?.length ? service.features.map(f => f.nameEN || "") : [],
+            benefitsEL: (service as any)?.benefitsEL ?? [],
+            benefitsEN: (service as any)?.benefitsEN ?? [],
         }
     })
 
-    // Auto-generate slug from Greek name
-    const watchNameEL = form.watch("nameEL")
-    React.useEffect(() => {
-        if (!service && watchNameEL) {
-            const generatedSlug = watchNameEL
-                .toLowerCase()
-                .replace(/[α-ω]/g, (char) => {
-                    const map: any = { 'α': 'a', 'β': 'b', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'ζ': 'z', 'η': 'i', 'θ': 'th', 'ι': 'i', 'κ': 'k', 'λ': 'l', 'μ': 'm', 'ν': 'n', 'ξ': 'x', 'ο': 'o', 'π': 'p', 'ρ': 'r', 'σ': 's', 'ς': 's', 'τ': 't', 'υ': 'y', 'φ': 'f', 'χ': 'ch', 'ψ': 'ps', 'ω': 'o' }
-                    return map[char] || char
-                })
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '')
-            form.setValue("slug", generatedSlug)
-        }
-    }, [watchNameEL, form, service])
-
-    // Auto-generate slug from nameEL
-    React.useEffect(() => {
-        const subscription = form.watch((value, { name }) => {
-            if (name === "nameEL" && !service) {
-                const slug = value.nameEL
-                    ?.toLowerCase()
-                    .replace(/[^a-z0-9\u0370-\u03ff]+/g, "-")
-                    .replace(/^-+|-+$/g, "")
-                form.setValue("slug", slug || "")
-            }
-        })
-        return () => subscription.unsubscribe()
-    }, [form, service])
+    const slugFromNameEL = (name: string) =>
+        !name ? "" : name
+            .toLowerCase()
+            .replace(/[α-ω]/g, (char: string) => {
+                const map: Record<string, string> = { 'α': 'a', 'β': 'b', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'ζ': 'z', 'η': 'i', 'θ': 'th', 'ι': 'i', 'κ': 'k', 'λ': 'l', 'μ': 'm', 'ν': 'n', 'ξ': 'x', 'ο': 'o', 'π': 'p', 'ρ': 'r', 'σ': 's', 'ς': 's', 'τ': 't', 'υ': 'y', 'φ': 'f', 'χ': 'ch', 'ψ': 'ps', 'ω': 'o' }
+                return map[char] ?? char
+            })
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'feature' | 'logo') => {
         const file = e.target.files?.[0]
@@ -177,7 +169,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
             const data = await res.json()
             if (data.translated) {
                 form.setValue(targetField, data.translated as any)
-                toast.success("Translation complete")
+                toast.success("Translation complete (DeepSeek/OpenAI)")
             } else {
                 throw new Error(data.error || "Translation failed")
             }
@@ -188,14 +180,64 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
         }
     }
 
+    const handleGenerateWithAI = async () => {
+        const nameEL = form.getValues("nameEL")
+        if (!nameEL?.trim()) {
+            toast.error("Enter service name (Greek) first")
+            return
+        }
+        setIsGenerating(true)
+        const tid = toast.loading("Generating full content with OpenAI...")
+        try {
+            const categoryId = form.getValues("categoryId")
+            const category = categories.find(c => c.id === categoryId)
+            const res = await fetch("/api/admin/services/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    nameEL: nameEL.trim(),
+                    categoryName: category?.nameEL ?? undefined,
+                    vendorName: form.getValues("brandName") || undefined,
+                }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Generate failed")
+            form.setValue("nameEN", data.nameEN || "")
+            form.setValue("shortDescriptionEL", data.shortDescriptionEL || "")
+            form.setValue("shortDescriptionEN", data.shortDescriptionEN || "")
+            form.setValue("descriptionEL", data.descriptionEL || "")
+            form.setValue("descriptionEN", data.descriptionEN || "")
+            if (Array.isArray(data.features) && data.features.length > 0) {
+                form.setValue("featuresEL", data.features.map((f: any) => f.nameEL || ""))
+                form.setValue("featuresEN", data.features.map((f: any) => f.nameEN || ""))
+            }
+            if (Array.isArray(data.benefitsEL)) form.setValue("benefitsEL", data.benefitsEL)
+            if (Array.isArray(data.benefitsEN)) form.setValue("benefitsEN", data.benefitsEN)
+            toast.success("Content generated", { id: tid })
+        } catch (err: any) {
+            toast.error(err.message, { id: tid })
+        } finally {
+            setIsGenerating(false)
+        }
+    }
+
     const onSubmit = async (values: ServiceFormValues) => {
         setIsSaving(true)
-        console.log("Submitting values:", values)
         try {
+            const features = (values.featuresEL || []).map((nameEL, i) => ({
+                nameEL,
+                nameEN: values.featuresEN?.[i] || null,
+                descriptionEL: null,
+                descriptionEN: null,
+                order: i,
+            })).filter(f => f.nameEL?.trim())
             const payload = {
                 ...values,
                 featureImage,
-                brandLogo
+                brandLogo,
+                benefitsEL: values.benefitsEL ?? [],
+                benefitsEN: values.benefitsEN ?? [],
+                features,
             }
 
             if (service) {
@@ -207,23 +249,11 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
             }
             onSuccess()
         } catch (err: any) {
-            console.error("Save error:", err)
             toast.error(err.message || "Failed to save service")
         } finally {
             setIsSaving(false)
         }
     }
-
-    // Handle form errors
-    React.useEffect(() => {
-        if (Object.keys(form.formState.errors).length > 0) {
-            console.log("Form errors:", form.formState.errors)
-            const errorFields = Object.keys(form.formState.errors).join(", ")
-            toast.error(`Please check the following fields: ${errorFields}`, {
-                description: "Ensure all required fields are filled correctly."
-            })
-        }
-    }, [form.formState.errors])
 
     const insertTag = (fieldName: keyof ServiceFormValues, tag: string) => {
         const currentValue = form.getValues(fieldName) as string
@@ -250,35 +280,93 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
 
     const RichToolbar = ({ fieldName }: { fieldName: keyof ServiceFormValues }) => (
         <div className="flex items-center gap-1 mb-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg w-fit">
-            <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => insertTag(fieldName, "bold")}><b>B</b></Button>
-            <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => insertTag(fieldName, "italic")}><i>I</i></Button>
-            <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[10px] font-bold" onClick={() => insertTag(fieldName, "list")}>LIST</Button>
-            <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[10px] font-bold" onClick={() => insertTag(fieldName, "br")}>LF</Button>
+            <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100" onClick={() => insertTag(fieldName, "bold")}><b>B</b></Button>
+            <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100" onClick={() => insertTag(fieldName, "italic")}><i>I</i></Button>
+            <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[10px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100" onClick={() => insertTag(fieldName, "list")}>LIST</Button>
+            <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[10px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100" onClick={() => insertTag(fieldName, "br")}>LF</Button>
         </div>
     )
+
+    const handleExpandDescription = async () => {
+        const shortEL = form.getValues("shortDescriptionEL")?.trim()
+        if (!shortEL) {
+            toast.error("Enter short description (Greek) first")
+            return
+        }
+        setIsExpandingDescription(true)
+        const tid = toast.loading("Generating full description with OpenAI...")
+        try {
+            const res = await fetch("/api/admin/services/expand-description", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    shortDescriptionEL: shortEL,
+                    shortDescriptionEN: form.getValues("shortDescriptionEN")?.trim() || undefined,
+                }),
+            })
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || "Expand failed")
+            form.setValue("descriptionEL", data.descriptionEL || "")
+            form.setValue("descriptionEN", data.descriptionEN || "")
+            toast.success("Full description generated", { id: tid })
+        } catch (err: any) {
+            toast.error(err.message, { id: tid })
+        } finally {
+            setIsExpandingDescription(false)
+        }
+    }
+
+    const featureSensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    )
+    const handleFeatureDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event
+        if (!over || active.id === over.id) return
+        const el = form.getValues("featuresEL")
+        const en = form.getValues("featuresEN") || []
+        const oldIndex = el.findIndex((_, i) => `feature-${i}` === active.id)
+        const newIndex = el.findIndex((_, i) => `feature-${i}` === over.id)
+        if (oldIndex === -1 || newIndex === -1) return
+        form.setValue("featuresEL", arrayMove(el, oldIndex, newIndex))
+        form.setValue("featuresEN", arrayMove(en.length >= el.length ? en : [...en, ...Array(el.length - en.length).fill("")], oldIndex, newIndex))
+    }
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-0">
                 <Tabs defaultValue="general" className="w-full">
                     <div className="px-8 pt-6 pb-4 border-b border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 sticky top-0 z-10">
-                        <TabsList className="bg-zinc-100 dark:bg-zinc-900 p-1 h-12 rounded-xl">
-                            <TabsTrigger value="general" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
-                                <Info className="w-4 h-4" /> General Info
-                            </TabsTrigger>
-                            <TabsTrigger value="content" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
-                                <FileText className="w-4 h-4" /> Description & Content
-                            </TabsTrigger>
-                            <TabsTrigger value="media" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
-                                <ImageIcon className="w-4 h-4" /> Media & Visuals
-                            </TabsTrigger>
-                            <TabsTrigger value="branding" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
-                                <Layout className="w-4 h-4" /> Branding
-                            </TabsTrigger>
-                            <TabsTrigger value="features" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
-                                <Sparkles className="w-4 h-4" /> Key Features
-                            </TabsTrigger>
-                        </TabsList>
+                        <div className="flex items-center justify-between gap-4 flex-wrap">
+                            <TabsList className="bg-zinc-100 dark:bg-zinc-900 p-1 h-12 rounded-xl">
+                                <TabsTrigger value="general" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
+                                    <Info className="w-4 h-4" /> General Info
+                                </TabsTrigger>
+                                <TabsTrigger value="content" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
+                                    <FileText className="w-4 h-4" /> Description & Content
+                                </TabsTrigger>
+                                <TabsTrigger value="media" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
+                                    <ImageIcon className="w-4 h-4" /> Media & Visuals
+                                </TabsTrigger>
+                                <TabsTrigger value="branding" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
+                                    <Layout className="w-4 h-4" /> Branding
+                                </TabsTrigger>
+                                <TabsTrigger value="features" className="rounded-lg px-6 data-[state=active]:bg-white data-[state=active]:text-zinc-900 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-white font-bold text-xs uppercase tracking-wider gap-2">
+                                    <Sparkles className="w-4 h-4" /> Key Features
+                                </TabsTrigger>
+                            </TabsList>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 font-semibold gap-2"
+                                onClick={handleGenerateWithAI}
+                                disabled={isGenerating}
+                            >
+                                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                Generate full content (OpenAI)
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar bg-zinc-50/50 dark:bg-zinc-900/10">
@@ -297,7 +385,18 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <FormLabel className="text-[10px] font-bold uppercase text-zinc-500 dark:text-zinc-400">Name (Greek) *</FormLabel>
-                                                        <FormControl><Input id="nameEL" {...field} placeholder="π.χ. ERP Cloud" className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 font-bold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 shadow-inner focus:ring-1 focus:ring-blue-500" /></FormControl>
+                                                        <FormControl>
+                                                            <Input
+                                                                id="nameEL"
+                                                                {...field}
+                                                                placeholder="π.χ. ERP Cloud"
+                                                                className="h-11 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 font-bold text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 shadow-inner focus:ring-1 focus:ring-blue-500"
+                                                                onChange={(e) => {
+                                                                    field.onChange(e)
+                                                                    if (!service) form.setValue("slug", slugFromNameEL(e.target.value))
+                                                                }}
+                                                            />
+                                                        </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
@@ -383,6 +482,20 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                         </TabsContent>
 
                         <TabsContent value="content" className="mt-0 space-y-6">
+                            <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+                                <span className="text-[11px] font-black uppercase tracking-widest text-zinc-500 dark:text-zinc-400">From short to full</span>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-zinc-300 dark:border-zinc-700 font-semibold gap-2"
+                                    onClick={handleExpandDescription}
+                                    disabled={isExpandingDescription}
+                                >
+                                    {isExpandingDescription ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                                    Generate full description from short (OpenAI)
+                                </Button>
+                            </div>
                             <div className="grid grid-cols-2 gap-8">
                                 {/* GREEK CONTENT */}
                                 <div className="space-y-6">
@@ -480,13 +593,111 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Benefits (Greek / English bullet lists) */}
+                            <div className="grid grid-cols-2 gap-8 mt-8">
+                                <div className="p-6 bg-zinc-900 text-white rounded-2xl shadow-xl space-y-4">
+                                    <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-400">Benefits (Greek)</h4>
+                                    <FormField
+                                        control={form.control as any}
+                                        name="benefitsEL"
+                                        render={({ field }) => (
+                                            <div className="space-y-2">
+                                                {(field.value || []).map((_: string, i: number) => (
+                                                    <div key={i} className="flex gap-2">
+                                                        <Input
+                                                            value={field.value?.[i] ?? ""}
+                                                            onChange={(e) => {
+                                                                const next = [...(field.value || [])]
+                                                                next[i] = e.target.value
+                                                                field.onChange(next)
+                                                            }}
+                                                            placeholder={`Benefit ${i + 1} (EL)`}
+                                                            className="h-10 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
+                                                        />
+                                                        <Button type="button" variant="ghost" size="icon" className="shrink-0 text-red-400 hover:text-red-300 hover:bg-zinc-800" onClick={() => { const next = (field.value || []).filter((_: string, j: number) => j !== i); field.onChange(next) }}>
+                                                            <X className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                                <Button type="button" variant="outline" size="sm" className="border-zinc-600 text-zinc-300 hover:bg-zinc-800" onClick={() => { const v = field.value || []; field.onChange([...v, ""]); const en = form.getValues("benefitsEN") || []; if (en.length <= v.length) form.setValue("benefitsEN", [...en, ...Array(Math.max(0, v.length + 1 - en.length)).fill("")]); }}>
+                                                    <Plus className="w-4 h-4 mr-1" /> Add benefit
+                                                </Button>
+                                            </div>
+                                        )}
+                                    />
+                                </div>
+                                <div className="p-6 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-zinc-900 dark:text-zinc-100">Benefits (English)</h4>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 px-2 text-[9px] font-black bg-zinc-700 text-white hover:bg-zinc-800 uppercase"
+                                            onClick={async () => {
+                                                const el = form.getValues("benefitsEL") || []
+                                                if (!el.filter(Boolean).length) { toast.error("Add Greek benefits first"); return }
+                                                setIsTranslating("benefitsEN")
+                                                try {
+                                                    const translated: string[] = []
+                                                    for (const text of el) {
+                                                        if (!text?.trim()) { translated.push(""); continue }
+                                                        const res = await fetch("/api/admin/translate", { method: "POST", body: JSON.stringify({ text, targetLang: "en" }) })
+                                                        const data = await res.json()
+                                                        translated.push(data.translated || "")
+                                                    }
+                                                    form.setValue("benefitsEN", translated)
+                                                    toast.success("Benefits translated (DeepSeek/OpenAI)")
+                                                } catch (e: any) {
+                                                    toast.error(e.message)
+                                                } finally {
+                                                    setIsTranslating(null)
+                                                }
+                                            }}
+                                            disabled={!!isTranslating}
+                                        >
+                                            {isTranslating === "benefitsEN" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Languages className="w-3 h-3 mr-1" />}
+                                            Translate all
+                                        </Button>
+                                    </div>
+                                    <FormField
+                                        control={form.control as any}
+                                        name="benefitsEN"
+                                        render={({ field }) => (
+                                            <div className="space-y-2">
+                                                {(field.value || []).map((_: string, i: number) => (
+                                                    <div key={i} className="flex gap-2">
+                                                        <Input
+                                                            value={field.value?.[i] ?? ""}
+                                                            onChange={(e) => {
+                                                                const next = [...(field.value || [])]
+                                                                next[i] = e.target.value
+                                                                field.onChange(next)
+                                                            }}
+                                                            placeholder={`Benefit ${i + 1} (EN)`}
+                                                            className="h-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
+                                                        />
+                                                        <Button type="button" variant="ghost" size="icon" className="shrink-0 text-red-500 hover:text-red-600" onClick={() => { const next = (field.value || []).filter((_: string, j: number) => j !== i); field.onChange(next) }}>
+                                                            <X className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                                <Button type="button" variant="outline" size="sm" className="border-zinc-300 dark:border-zinc-700" onClick={() => { const v = field.value || []; field.onChange([...v, ""]); const el = form.getValues("benefitsEL") || []; if (el.length <= v.length) form.setValue("benefitsEL", [...el, ...Array(Math.max(0, v.length + 1 - el.length)).fill("")]); }}>
+                                                    <Plus className="w-4 h-4 mr-1" /> Add benefit
+                                                </Button>
+                                            </div>
+                                        )}
+                                    />
+                                </div>
+                            </div>
                         </TabsContent>
 
                         <TabsContent value="media" className="mt-0 space-y-6">
                             <div className="max-w-4xl mx-auto p-12 bg-white dark:bg-zinc-950 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-xl space-y-8">
                                 <div className="text-center space-y-2">
-                                    <h4 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white">Featured Asset Management</h4>
-                                    <p className="text-xs text-zinc-400 max-w-md mx-auto">This asset will be used as the primary hero background. Use high-quality 1080p+ assets.</p>
+                                    <h4 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white">Featured Asset</h4>
+                                    <p className="text-xs text-zinc-400 max-w-md mx-auto">Primary hero asset. You can also set it from the media list below when editing.</p>
                                 </div>
 
                                 <div className="relative aspect-video rounded-[2rem] border-4 border-dashed border-zinc-100 dark:border-zinc-900 bg-zinc-50 dark:bg-zinc-900/30 overflow-hidden group transition-all hover:border-zinc-200 dark:hover:border-zinc-700">
@@ -522,6 +733,16 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                         </div>
                                     )}
                                 </div>
+
+                                {service?.id && onMediaChange && (
+                                    <MediaListSection
+                                        serviceId={service.id}
+                                        media={service.media}
+                                        featureImage={featureImage}
+                                        setFeatureImage={setFeatureImage}
+                                        onMediaChange={onMediaChange}
+                                    />
+                                )}
                             </div>
                         </TabsContent>
 
@@ -620,7 +841,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             </Button>
                                         </div>
                                         <div className="space-y-3">
-                                            {form.watch("featuresEL").map((_, i) => (
+                                            {form.watch("featuresEL").map((_: string, i: number) => (
                                                 <div key={i} className="flex items-center gap-3 group">
                                                     <span className="text-[10px] font-bold text-zinc-500 w-5 text-right">{i + 1}.</span>
                                                     <Input
@@ -687,7 +908,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                                             </div>
                                         </div>
                                         <div className="space-y-3">
-                                            {form.watch("featuresEN").map((_, i) => (
+                                            {form.watch("featuresEN").map((_: string, i: number) => (
                                                 <div key={i} className="flex items-center gap-3 group">
                                                     <span className="text-[10px] font-bold text-zinc-500 w-5 text-right">{i + 1}.</span>
                                                     <Input
@@ -733,5 +954,138 @@ export function ServiceForm({ service, categories, onSuccess, onCancel }: Servic
                 </Tabs>
             </form>
         </Form>
+    )
+}
+
+function MediaListSection({
+    serviceId,
+    media,
+    featureImage,
+    setFeatureImage,
+    onMediaChange,
+}: {
+    serviceId: string
+    media: ServiceMediaType[]
+    featureImage: string | null
+    setFeatureImage: (url: string | null) => void
+    onMediaChange: () => void
+}) {
+    const [isUploading, setIsUploading] = React.useState(false)
+    const mediaSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }))
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        setIsUploading(true)
+        const tid = toast.loading("Uploading...")
+        try {
+            const formData = new FormData()
+            formData.append("file", file)
+            formData.append("type", "media")
+            const res = await fetch("/api/admin/services/upload", { method: "POST", body: formData })
+            const data = await res.json()
+            if (data.url) {
+                await createServiceMedia({
+                    serviceId,
+                    url: data.url,
+                    mediaType: file.type.startsWith("video/") ? "VIDEO" : "IMAGE",
+                    order: media.length,
+                })
+                onMediaChange()
+                toast.success("Media added", { id: tid })
+            } else throw new Error(data.error || "Upload failed")
+        } catch (err: any) {
+            toast.error(err.message, { id: tid })
+        } finally {
+            setIsUploading(false)
+            e.target.value = ""
+        }
+    }
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event
+        if (!over || active.id === over.id) return
+        const ids = media.map(m => m.id)
+        const oldIndex = ids.indexOf(String(active.id))
+        const newIndex = ids.indexOf(String(over.id))
+        if (oldIndex === -1 || newIndex === -1) return
+        const newOrder = arrayMove(ids, oldIndex, newIndex)
+        try {
+            await updateServiceMediaOrder(serviceId, newOrder)
+            onMediaChange()
+            toast.success("Order updated")
+        } catch (err: any) {
+            toast.error(err.message)
+        }
+    }
+
+    const handleSetFeature = (url: string) => {
+        setFeatureImage(url)
+        toast.success("Set as feature image (save to persist)")
+    }
+
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteServiceMedia(id)
+            onMediaChange()
+            toast.success("Media removed")
+        } catch (err: any) {
+            toast.error(err.message)
+        }
+    }
+
+    return (
+        <div className="space-y-4">
+            <h4 className="text-sm font-black text-zinc-900 dark:text-white">Media library — drag to reorder, set one as feature image</h4>
+            <DndContext sensors={mediaSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={media.map(m => m.id)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-3">
+                        {media.map((m) => (
+                            <MediaSortableItem
+                                key={m.id}
+                                item={m}
+                                isFeature={featureImage === m.url}
+                                onSetFeature={() => handleSetFeature(m.url)}
+                                onDelete={() => handleDelete(m.id)}
+                            />
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
+            <Label className={`flex items-center justify-center gap-2 w-full py-4 border-2 border-dashed rounded-xl cursor-pointer ${isUploading ? "opacity-50" : "hover:bg-zinc-50 dark:hover:bg-zinc-900/50"}`}>
+                {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+                Add media (image or video)
+                <input type="file" className="hidden" accept="image/*,video/*" onChange={handleUpload} disabled={isUploading} />
+            </Label>
+        </div>
+    )
+}
+
+function MediaSortableItem({ item, isFeature, onSetFeature, onDelete }: { item: ServiceMediaType; isFeature: boolean; onSetFeature: () => void; onDelete: () => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
+    const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }
+    return (
+        <div ref={setNodeRef} style={style} className="flex items-center gap-4 p-4 border rounded-2xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 group hover:shadow-lg">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl">
+                <GripVertical className="h-4 w-4 text-zinc-400" />
+            </div>
+            <div className="relative w-24 h-16 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
+                {item.mediaType === "VIDEO" ? (
+                    <video src={item.url} className="w-full h-full object-cover" muted />
+                ) : (
+                    <img src={item.url} alt="" className="w-full h-full object-cover" />
+                )}
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-xs font-mono text-zinc-500 truncate">{item.url.split("/").pop()}</p>
+                {isFeature && <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-amber-600"><Star className="w-3 h-3 fill-amber-500" /> Feature image</span>}
+            </div>
+            <div className="flex items-center gap-2">
+                {!isFeature && (
+                    <Button type="button" variant="outline" size="sm" className="text-[10px] font-bold" onClick={onSetFeature}>Set as feature</Button>
+                )}
+                <Button type="button" variant="ghost" size="icon" className="text-zinc-400 hover:text-red-500" onClick={onDelete}><X className="w-4 h-4" /></Button>
+            </div>
+        </div>
     )
 }

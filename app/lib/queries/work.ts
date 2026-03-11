@@ -17,7 +17,22 @@ export async function getPublicWorks() {
                 }
             }
         });
-        return JSON.parse(JSON.stringify(works));
+
+        // Resolve service names for each work so the list can show tech by locale
+        const worksWithServices = await Promise.all(
+            works.map(async (work) => {
+                const serviceIds = (work.servicesUsed as string[]) || [];
+                const services = serviceIds.length > 0
+                    ? await prisma.service.findMany({
+                        where: { id: { in: serviceIds } },
+                        select: { nameEL: true, nameEN: true }
+                    })
+                    : [];
+                return { ...work, serviceNames: services };
+            })
+        );
+
+        return JSON.parse(JSON.stringify(worksWithServices));
     } catch (error) {
         console.error("Error fetching works:", error);
         return [];

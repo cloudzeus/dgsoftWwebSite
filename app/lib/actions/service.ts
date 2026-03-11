@@ -82,49 +82,83 @@ export async function getServices() {
     return serialize(services)
 }
 
-export async function createService(data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null }) {
+export async function createService(data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null, benefitsEL?: string[], benefitsEN?: string[], features?: { nameEL: string, nameEN?: string | null, descriptionEL?: string | null, descriptionEN?: string | null, order: number }[] }) {
     await checkAuth()
+    const { features, ...rest } = data as any
     const service = await db.service.create({
         data: {
-            nameEL: data.nameEL,
-            nameEN: data.nameEN,
-            shortDescriptionEL: data.shortDescriptionEL,
-            shortDescriptionEN: data.shortDescriptionEN,
-            descriptionEL: data.descriptionEL,
-            descriptionEN: data.descriptionEN,
-            slug: data.slug,
-            featureImage: data.featureImage,
-            brandName: data.brandName,
-            brandLogo: data.brandLogo,
-            order: data.order || 0,
-            categoryId: data.categoryId,
-            featuresEL: data.featuresEL,
-            featuresEN: data.featuresEN
+            nameEL: rest.nameEL,
+            nameEN: rest.nameEN,
+            shortDescriptionEL: rest.shortDescriptionEL,
+            shortDescriptionEN: rest.shortDescriptionEN,
+            descriptionEL: rest.descriptionEL,
+            descriptionEN: rest.descriptionEN,
+            slug: rest.slug,
+            featureImage: rest.featureImage,
+            brandName: rest.brandName,
+            brandLogo: rest.brandLogo,
+            order: rest.order ?? 0,
+            categoryId: rest.categoryId,
+            featuresEL: rest.featuresEL,
+            featuresEN: rest.featuresEN,
+            benefitsEL: rest.benefitsEL ?? undefined,
+            benefitsEN: rest.benefitsEN ?? undefined,
+            ...(Array.isArray(features) && features.length > 0
+                ? { features: { create: features.map((f: any, i: number) => ({ nameEL: f.nameEL, nameEN: f.nameEN ?? null, descriptionEL: f.descriptionEL ?? null, descriptionEN: f.descriptionEN ?? null, order: f.order ?? i })) } }
+                : {})
+        },
+        include: {
+            category: true,
+            features: { orderBy: { order: 'asc' } },
+            media: { orderBy: { order: 'asc' } }
         }
     })
     revalidatePath("/admin/services")
     return serialize(service)
 }
 
-export async function updateService(id: string, data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null }) {
+export async function updateService(id: string, data: ServiceFormValues & { featureImage?: string | null, brandLogo?: string | null, benefitsEL?: string[], benefitsEN?: string[], features?: { nameEL: string, nameEN?: string | null, descriptionEL?: string | null, descriptionEN?: string | null, order: number }[] }) {
     await checkAuth()
+    const { features, ...rest } = data as any
+    if (Array.isArray(features)) {
+        await db.serviceFeature.deleteMany({ where: { serviceId: id } })
+        if (features.length > 0) {
+            await db.serviceFeature.createMany({
+                data: features.map((f: any, i: number) => ({
+                    serviceId: id,
+                    nameEL: f.nameEL,
+                    nameEN: f.nameEN ?? null,
+                    descriptionEL: f.descriptionEL ?? null,
+                    descriptionEN: f.descriptionEN ?? null,
+                    order: f.order ?? i
+                }))
+            })
+        }
+    }
     const service = await db.service.update({
         where: { id },
         data: {
-            nameEL: data.nameEL,
-            nameEN: data.nameEN,
-            shortDescriptionEL: data.shortDescriptionEL,
-            shortDescriptionEN: data.shortDescriptionEN,
-            descriptionEL: data.descriptionEL,
-            descriptionEN: data.descriptionEN,
-            slug: data.slug,
-            featureImage: data.featureImage,
-            brandName: data.brandName,
-            brandLogo: data.brandLogo,
-            order: data.order,
-            categoryId: data.categoryId,
-            featuresEL: data.featuresEL,
-            featuresEN: data.featuresEN
+            nameEL: rest.nameEL,
+            nameEN: rest.nameEN,
+            shortDescriptionEL: rest.shortDescriptionEL,
+            shortDescriptionEN: rest.shortDescriptionEN,
+            descriptionEL: rest.descriptionEL,
+            descriptionEN: rest.descriptionEN,
+            slug: rest.slug,
+            featureImage: rest.featureImage,
+            brandName: rest.brandName,
+            brandLogo: rest.brandLogo,
+            order: rest.order,
+            categoryId: rest.categoryId,
+            featuresEL: rest.featuresEL,
+            featuresEN: rest.featuresEN,
+            benefitsEL: rest.benefitsEL ?? undefined,
+            benefitsEN: rest.benefitsEN ?? undefined
+        },
+        include: {
+            category: true,
+            features: { orderBy: { order: 'asc' } },
+            media: { orderBy: { order: 'asc' } }
         }
     })
     revalidatePath("/admin/services")
@@ -202,8 +236,53 @@ export async function createServiceMedia(data: any) {
     return serialize(media)
 }
 
+export async function updateServiceMedia(id: string, data: { url?: string; mediaType?: string; order?: number }) {
+    await checkAuth()
+    const media = await db.serviceMedia.update({
+        where: { id },
+        data: { url: data.url, mediaType: data.mediaType, order: data.order }
+    })
+    revalidatePath("/admin/services")
+    return serialize(media)
+}
+
+export async function updateServiceMediaOrder(serviceId: string, orderedIds: string[]) {
+    await checkAuth()
+    await db.$transaction(
+        orderedIds.map((id, index) =>
+            db.serviceMedia.update({
+                where: { id },
+                data: { order: index }
+            })
+        )
+    )
+    revalidatePath("/admin/services")
+}
+
 export async function deleteServiceMedia(id: string) {
     await checkAuth()
     await db.serviceMedia.delete({ where: { id } })
+    revalidatePath("/admin/services")
+}
+
+export async function updateServiceFeatureImage(serviceId: string, featureImage: string | null) {
+    await checkAuth()
+    await db.service.update({
+        where: { id: serviceId },
+        data: { featureImage }
+    })
+    revalidatePath("/admin/services")
+}
+
+export async function updateServiceFeatureOrder(serviceId: string, orderedIds: string[]) {
+    await checkAuth()
+    await db.$transaction(
+        orderedIds.map((id, index) =>
+            db.serviceFeature.update({
+                where: { id },
+                data: { order: index }
+            })
+        )
+    )
     revalidatePath("/admin/services")
 }

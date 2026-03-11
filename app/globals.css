@@ -19,6 +19,15 @@ body {
   overflow-x: hidden;
 }
 
+/* Main content text alignment: justified (όμοιο από όλες τις μεριές) */
+.prose p,
+.prose li,
+main .text-justify,
+article p,
+article li {
+  text-align: justify;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

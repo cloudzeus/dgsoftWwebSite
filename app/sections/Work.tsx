@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "../context/LocaleContext";
 
 const projects = [
   {
@@ -42,16 +43,22 @@ const projects = [
 
 export default function Work({ initialWorks }: { initialWorks?: any[] }) {
   const { ref, isVisible } = useScrollAnimation(0.1);
+  const locale = useLocale();
 
   const displayProjects = initialWorks && initialWorks.length > 0
-    ? initialWorks.slice(0, 4).map(w => ({
-      client: w.customer?.NAME || "Client",
-      title: w.titleEL,
-      description: w.challengeEL ? (w.challengeEL.length > 100 ? w.challengeEL.substring(0, 97) + "..." : w.challengeEL) : "Case study for " + w.titleEL,
-      category: "Case Study",
-      year: w.completionDate || "2024",
-      slug: w.slug
-    }))
+    ? initialWorks.slice(0, 4).map(w => {
+        const title = (locale === "en" && w.titleEN) ? w.titleEN : w.titleEL;
+        const challenge = (locale === "en" && w.challengeEN) ? w.challengeEN : (w.challengeEL || w.challengeEN);
+        const description = challenge ? (challenge.length > 100 ? challenge.substring(0, 97) + "..." : challenge) : (locale === "el" ? "Μελέτη περίπτωσης για " : "Case study for ") + title;
+        return {
+          client: w.customer?.NAME || (locale === "el" ? "Πελάτης" : "Client"),
+          title,
+          description,
+          category: locale === "el" ? "Μελέτη Περίπτωσης" : "Case Study",
+          year: w.completionDate || "2024",
+          slug: w.slug
+        };
+      })
     : projects;
 
   return (
@@ -69,14 +76,23 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
           className="flex flex-col md:flex-row md:items-end md:justify-between mb-20 gap-8"
         >
           <div>
-            <span className="section-number">Κλαδοι</span>
+            <span className="section-number">{locale === "el" ? "Έργα" : "Work"}</span>
             <h2 className="text-display-md font-bold text-white">
-              <span className="gradient-text">Λύσεις</span> για κάθε<br />
-              επιχείρηση.
+              {locale === "el" ? (
+                <>
+                  <span className="gradient-text">Λύσεις</span> για κάθε<br />
+                  επιχείρηση.
+                </>
+              ) : (
+                <>
+                  <span className="gradient-text">Solutions</span> for every<br />
+                  business.
+                </>
+              )}
             </h2>
           </div>
           <Link href="/works" className="mt-4 md:mt-0 flex items-center gap-2 text-monks-light hover:text-white transition-colors group px-6 py-3 rounded-full border border-white/20 hover:border-white">
-            <span className="font-semibold text-sm tracking-wider">View All Projects</span>
+            <span className="font-semibold text-sm tracking-wider">{locale === "el" ? "Όλα τα Έργα" : "View All Projects"}</span>
             <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
@@ -110,7 +126,7 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
 
                   {/* Description */}
                   <div className="md:col-span-4">
-                    <p className="text-monks-light leading-relaxed line-clamp-2">
+                    <p className="text-monks-light leading-relaxed line-clamp-2 text-justify">
                       {project.description}
                     </p>
                   </div>
@@ -140,23 +156,24 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
 
           <div className="relative z-10 p-8 md:p-16 grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <span className="text-monks-accent font-medium mb-4 block">Επιδοτούμενα Προγράμματα</span>
+              <span className="text-monks-accent font-medium mb-4 block">{locale === "el" ? "Επιδοτούμενα Προγράμματα" : "EU Funded Programs"}</span>
               <h3 className="text-3xl md:text-5xl font-bold text-white mb-6">
-                Κάνε την ψηφιακή αναβάθμιση με επιδότηση
+                {locale === "el" ? "Κάνε την ψηφιακή αναβάθμιση με επιδότηση" : "Upgrade digitally with EU funding"}
               </h3>
-              <p className="text-monks-light mb-8 text-lg">
-                Η DGSOFT σε βοηθά να αποκτήσεις Soft1 ERP, CRM, CTI και ειδικές
-                πλατφόρμες με σημαντική επιδότηση ή και χωρίς ίδιο κόστος επένδυσης.
+              <p className="text-monks-light mb-8 text-lg text-justify">
+                {locale === "el"
+                  ? "Η DGSOFT σε βοηθά να αποκτήσεις Soft1 ERP, CRM, CTI και ειδικές πλατφόρμες με σημαντική επιδότηση ή και χωρίς ίδιο κόστος επένδυσης."
+                  : "DGSOFT helps you get Soft1 ERP, CRM, CTI and custom platforms with significant funding or even zero upfront investment."}
               </p>
               <Link href="/eu-programs" className="inline-block px-8 py-4 bg-white text-monks-black font-semibold rounded-full hover:bg-monks-accent hover:text-white transition-all duration-300">
-                Μάθε Περισσότερα
+                {locale === "el" ? "Μάθε Περισσότερα" : "Learn More"}
               </Link>
             </div>
 
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-monks-gray to-monks-dark flex items-center justify-center">
               <div className="text-center">
                 <div className="text-6xl font-bold gradient-text mb-2">ΕΣΠΑ</div>
-                <div className="text-monks-light">Ψηφιακά Εργαλεία</div>
+                <div className="text-monks-light">{locale === "el" ? "Ψηφιακά Εργαλεία" : "Digital Tools"}</div>
               </div>
             </div>
           </div>
