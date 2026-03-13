@@ -18,6 +18,7 @@ import {
   type EmailBlock,
   type BlockType,
   type NewsletterContent,
+  type BodyOptions,
 } from "@/lib/newsletter-blocks";
 import {
   GripVerticalIcon,
@@ -35,9 +36,24 @@ import {
   ChevronDownIcon,
   UploadIcon,
   Loader2Icon,
+  Palette,
+  Images,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { getNewsletterMedia } from "@/app/lib/actions/newsletter";
 
 const BLOCK_TYPES: { type: BlockType; label: string; icon: React.ElementType }[] = [
   { type: "heading", label: "Heading", icon: HeadingIcon },
@@ -57,11 +73,16 @@ type VisualDesignerProps = {
 
 export function VisualDesigner({ value, onChange, className }: VisualDesignerProps) {
   const blocks = value?.blocks ?? [];
+  const bodyOptions = value?.bodyOptions ?? {};
   const [previewHtml, setPreviewHtml] = React.useState<string>("");
   const [previewOpen, setPreviewOpen] = React.useState(false);
 
   const setBlocks = (next: EmailBlock[]) => {
-    onChange({ blocks: next });
+    onChange({ ...value, blocks: next });
+  };
+
+  const setBodyOptions = (opts: Partial<BodyOptions>) => {
+    onChange({ ...value, bodyOptions: { ...bodyOptions, ...opts } });
   };
 
   const addBlock = (type: BlockType) => {
@@ -87,7 +108,7 @@ export function VisualDesigner({ value, onChange, className }: VisualDesignerPro
   };
 
   const refreshPreview = () => {
-    setPreviewHtml(renderBlocksToHtml(blocks));
+    setPreviewHtml(renderBlocksToHtml(value));
     setPreviewOpen(true);
   };
 
@@ -119,6 +140,20 @@ export function VisualDesigner({ value, onChange, className }: VisualDesignerPro
           Preview
         </Button>
       </div>
+
+      <Accordion type="single" collapsible className="rounded-lg border bg-muted/20">
+        <AccordionItem value="body-style">
+          <AccordionTrigger className="px-3 py-2 text-sm font-medium">
+            <span className="flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              Email body style (background)
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="px-3 pb-3">
+            <BodyStyleEditor bodyOptions={bodyOptions} onChange={setBodyOptions} />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <div className="min-h-[200px] space-y-2 rounded-lg border bg-muted/30 p-3">
         {blocks.length === 0 ? (
@@ -157,6 +192,100 @@ export function VisualDesigner({ value, onChange, className }: VisualDesignerPro
         </div>
       )}
     </div>
+  );
+}
+
+type BodyStyleEditorProps = {
+  bodyOptions: BodyOptions;
+  onChange: (opts: Partial<BodyOptions>) => void;
+};
+
+function BodyStyleEditor({ bodyOptions, onChange }: BodyStyleEditorProps) {
+  const [mediaOpen, setMediaOpen] = React.useState(false);
+  const [mediaList, setMediaList] = React.useState<{ id: string; url: string; name: string | null }[]>([]);
+  React.useEffect(() => {
+    if (mediaOpen) getNewsletterMedia().then(setMediaList);
+  }, [mediaOpen]);
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <div>
+        <Label className="text-xs">Background color</Label>
+        <div className="mt-1 flex gap-2">
+          <input
+            type="color"
+            value={bodyOptions.backgroundColor || "#ffffff"}
+            onChange={(e) => onChange({ backgroundColor: e.target.value })}
+            className="h-8 w-12 cursor-pointer rounded border"
+          />
+          <Input
+            value={bodyOptions.backgroundColor ?? ""}
+            onChange={(e) => onChange({ backgroundColor: e.target.value || undefined })}
+            placeholder="#ffffff"
+            className="h-8 flex-1 font-mono text-xs"
+          />
+        </div>
+      </div>
+      <div>
+        <Label className="text-xs">Background image (URL)</Label>
+        <div className="mt-1 flex gap-2">
+          <Input
+            value={bodyOptions.backgroundImage ?? ""}
+            onChange={(e) => onChange({ backgroundImage: e.target.value || undefined })}
+            placeholder="https://... or pick from library"
+            className="h-8 flex-1 text-xs"
+          />
+          <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => setMediaOpen(true)}>
+            <Images className="h-4 w-4" />
+            Library
+          </Button>
+        </div>
+      </div>
+      <MediaLibraryDialog
+        open={mediaOpen}
+        onOpenChange={setMediaOpen}
+        items={mediaList}
+        onSelect={(url) => {
+          onChange({ backgroundImage: url });
+          setMediaOpen(false);
+        }}
+      />
+    </div>
+  );
+}
+
+type MediaLibraryDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  items: { id: string; url: string; name: string | null }[];
+  onSelect: (url: string) => void;
+};
+
+function MediaLibraryDialog({ open, onOpenChange, items, onSelect }: MediaLibraryDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[80vh] max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Images className="h-5 w-5" />
+            Media library
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid max-h-[60vh] grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
+          {items.length === 0 && <p className="col-span-full py-4 text-center text-sm text-muted-foreground">No images yet. Upload from an Image block.</p>}
+          {items.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className="flex flex-col items-center overflow-hidden rounded-lg border bg-muted/30 transition hover:border-primary"
+              onClick={() => onSelect(m.url)}
+            >
+              <img src={m.url} alt={m.name ?? ""} className="h-24 w-full object-cover" />
+              <span className="w-full truncate p-1 text-center text-[10px]">{m.name ?? "Image"}</span>
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -271,6 +400,7 @@ function HeadingEditor({
 }) {
   if (block.type !== "heading") return null;
   const props = block.props ?? { text: "", level: 1 as const, align: "left" as const };
+  const color = (props as { color?: string }).color ?? "";
   return (
     <div className="grid gap-2 sm:grid-cols-3">
       <div className="sm:col-span-2">
@@ -314,6 +444,25 @@ function HeadingEditor({
           </SelectContent>
         </Select>
       </div>
+      <div className="sm:col-span-2 flex items-end gap-2">
+        <div className="flex-1">
+          <Label className="text-xs">Text color</Label>
+          <div className="mt-1 flex gap-2">
+            <input
+              type="color"
+              value={color || "#000000"}
+              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value } })}
+              className="h-8 w-12 cursor-pointer rounded border"
+            />
+            <Input
+              value={color}
+              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value || undefined } })}
+              placeholder="#000000"
+              className="h-8 flex-1 font-mono text-xs"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -327,6 +476,7 @@ function ParagraphEditor({
 }) {
   if (block.type !== "paragraph") return null;
   const props = block.props ?? { text: "", align: "left" as const };
+  const color = (props as { color?: string }).color ?? "";
   return (
     <div className="space-y-2">
       <Label className="text-xs">Text</Label>
@@ -337,21 +487,40 @@ function ParagraphEditor({
         rows={3}
         className="min-h-[60px] resize-y text-sm"
       />
-      <div>
-        <Label className="text-xs">Align</Label>
-        <Select
-          value={props.align ?? "left"}
-          onValueChange={(v: "left" | "center" | "right") => onUpdate({ ...block, props: { ...props, align: v } })}
-        >
-          <SelectTrigger className="mt-1 h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="left">Left</SelectItem>
-            <SelectItem value="center">Center</SelectItem>
-            <SelectItem value="right">Right</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <div>
+          <Label className="text-xs">Align</Label>
+          <Select
+            value={props.align ?? "left"}
+            onValueChange={(v: "left" | "center" | "right") => onUpdate({ ...block, props: { ...props, align: v } })}
+          >
+            <SelectTrigger className="mt-1 h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Left</SelectItem>
+              <SelectItem value="center">Center</SelectItem>
+              <SelectItem value="right">Right</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs">Text color</Label>
+          <div className="mt-1 flex gap-2">
+            <input
+              type="color"
+              value={color || "#000000"}
+              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value } })}
+              className="h-8 w-12 cursor-pointer rounded border"
+            />
+            <Input
+              value={color}
+              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value || undefined } })}
+              placeholder="#000000"
+              className="h-8 flex-1 font-mono text-xs"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -366,6 +535,11 @@ function ImageEditor({
 }) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = React.useState(false);
+  const [mediaOpen, setMediaOpen] = React.useState(false);
+  const [mediaList, setMediaList] = React.useState<{ id: string; url: string; name: string | null }[]>([]);
+  React.useEffect(() => {
+    if (mediaOpen) getNewsletterMedia().then(setMediaList);
+  }, [mediaOpen]);
 
   if (block.type !== "image") return null;
   const props = block.props ?? { src: "", alt: "", href: "", width: 600, align: "center" as const };
@@ -398,12 +572,12 @@ function ImageEditor({
     <div className="grid gap-2 sm:grid-cols-2">
       <div className="sm:col-span-2">
         <Label className="text-xs">Image</Label>
-        <div className="mt-1 flex gap-2">
+        <div className="mt-1 flex flex-wrap gap-2">
           <Input
             value={props.src}
             onChange={(e) => onUpdate({ ...block, props: { ...props, src: e.target.value } })}
-            placeholder="Upload or paste URL"
-            className="h-8 flex-1"
+            placeholder="Upload, paste URL, or pick from library"
+            className="h-8 flex-1 min-w-[160px]"
           />
           <input
             ref={fileInputRef}
@@ -423,7 +597,26 @@ function ImageEditor({
             {uploading ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <UploadIcon className="h-4 w-4" />}
             Upload
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0 gap-1.5"
+            onClick={() => setMediaOpen(true)}
+          >
+            <Images className="h-4 w-4" />
+            Library
+          </Button>
         </div>
+        <MediaLibraryDialog
+          open={mediaOpen}
+          onOpenChange={setMediaOpen}
+          items={mediaList}
+          onSelect={(url) => {
+            onUpdate({ ...block, props: { ...props, src: url } });
+            setMediaOpen(false);
+          }}
+        />
       </div>
       <div>
         <Label className="text-xs">Alt text</Label>
@@ -481,6 +674,8 @@ function ButtonEditor({
 }) {
   if (block.type !== "button") return null;
   const props = block.props ?? { text: "Button", href: "https://", align: "center" as const };
+  const bgColor = (props as { backgroundColor?: string }).backgroundColor ?? "#2563eb";
+  const textColor = (props as { textColor?: string }).textColor ?? "#ffffff";
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       <div>
@@ -516,6 +711,44 @@ function ButtonEditor({
             <SelectItem value="right">Right</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+      <div className="sm:col-span-2 flex flex-wrap gap-4">
+        <div className="flex items-end gap-2">
+          <div>
+            <Label className="text-xs">Background color</Label>
+            <div className="mt-1 flex gap-2">
+              <input
+                type="color"
+                value={bgColor}
+                onChange={(e) => onUpdate({ ...block, props: { ...props, backgroundColor: e.target.value } })}
+                className="h-8 w-12 cursor-pointer rounded border"
+              />
+              <Input
+                value={bgColor}
+                onChange={(e) => onUpdate({ ...block, props: { ...props, backgroundColor: e.target.value || undefined } })}
+                className="h-8 w-24 font-mono text-xs"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex items-end gap-2">
+          <div>
+            <Label className="text-xs">Text color</Label>
+            <div className="mt-1 flex gap-2">
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => onUpdate({ ...block, props: { ...props, textColor: e.target.value } })}
+                className="h-8 w-12 cursor-pointer rounded border"
+              />
+              <Input
+                value={textColor}
+                onChange={(e) => onUpdate({ ...block, props: { ...props, textColor: e.target.value || undefined } })}
+                className="h-8 w-24 font-mono text-xs"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

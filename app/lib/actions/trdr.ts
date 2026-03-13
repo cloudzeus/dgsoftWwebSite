@@ -8,6 +8,8 @@ import { getSoftOneTableData, getSoftOneTrdrByAfm, setSoftOneTrdrData, type SetD
 import { SOFTONE_CLIENT_ID_COOKIE } from "@/lib/softone-cookie"
 import { getVatCompanyInfo, getVatCorrectData, type VatWwaCompanyInfo } from "@/lib/vat-wwa"
 import { getCoordinates } from "@/app/lib/actions/location"
+import { getAddressRegionMap } from "@/app/lib/actions/address-region"
+import { normalizeAddressKey } from "@/lib/address-region-utils"
 
 export async function getCustomers() {
     const session = await auth()
@@ -155,6 +157,12 @@ export async function updateCustomer(id: string, data: any) {
     }
 }
 
+function toNum(v: unknown): number | undefined {
+    if (v == null || v === "") return undefined
+    const n = Number(v)
+    return Number.isFinite(n) ? n : undefined
+}
+
 /** Push customer data to SoftOne ERP (SetData). Only ERP-relevant fields are sent. */
 export async function pushCustomerToErp(trdrNumber: number, data: Record<string, unknown>): Promise<{ success: boolean; message?: string }> {
     const session = await auth()
@@ -168,11 +176,11 @@ export async function pushCustomerToErp(trdrNumber: number, data: Record<string,
         TRDR: trdrNumber,
         CODE: data.CODE != null ? String(data.CODE) : undefined,
         NAME: data.NAME != null ? String(data.NAME) : undefined,
-        AFM: data.AFM != null ? String(data.AFM) : undefined,
-        COUNTRY: data.COUNTRY != null ? Number(data.COUNTRY) : undefined,
-        TRDGROUP: data.TRDGROUP != null ? Number(data.TRDGROUP) : undefined,
-        TRDPGROUP: data.TRDPGROUP != null ? Number(data.TRDPGROUP) : undefined,
-        TRDBUSINESS: data.TRDBUSINESS != null ? Number(data.TRDBUSINESS) : undefined,
+        AFM: data.AFM != null ? String(data.AFM).trim() || undefined : undefined,
+        COUNTRY: toNum(data.COUNTRY),
+        TRDGROUP: toNum(data.TRDGROUP),
+        TRDPGROUP: toNum(data.TRDPGROUP),
+        TRDBUSINESS: toNum(data.TRDBUSINESS),
         PHONE01: data.PHONE01 != null ? String(data.PHONE01) : undefined,
         PHONE02: data.PHONE02 != null ? String(data.PHONE02) : undefined,
         ADDRESS: data.ADDRESS != null ? String(data.ADDRESS) : undefined,
@@ -316,7 +324,11 @@ export async function getKAD(customerId: string, afm: string) {
     const session = await auth()
     if (!session) throw new Error("Unauthorized")
 
-    if (!afm || afm.trim() === "") throw new Error("No AFM provided")
+    if (!afm || afm.trim() === "") {
+        const existing = await prisma.tRDR.findUnique({ where: { id: customerId }, include: { kads: true } })
+        if (!existing) throw new Error("Customer not found")
+        return JSON.parse(JSON.stringify(existing))
+    }
 
     try {
         const res = await fetch("https://vat.wwa.gr/afm2info", {

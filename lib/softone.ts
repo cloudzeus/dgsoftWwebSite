@@ -579,7 +579,13 @@ export async function setSoftOneTrdrData(
   for (const key of TRDR_SETDATA_KEYS) {
     const val = data[key];
     if (val === undefined) continue;
-    body[key] = val === null || val === "" ? "" : val;
+    if (val === null || val === "") {
+      body[key] = "";
+    } else if (typeof val === "number" && !Number.isFinite(val)) {
+      continue;
+    } else {
+      body[key] = val;
+    }
   }
 
   console.log("[SoftOne SetData] Request TRDR:", trdrNumber, "keys:", Object.keys(body).filter(k => !["clientId", "appId", "version", "service", "TABLE", "TRDR"].includes(k)));

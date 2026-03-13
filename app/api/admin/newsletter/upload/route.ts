@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import sharp from "sharp";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -55,6 +56,16 @@ export async function POST(req: Request) {
     }
 
     const finalUrl = `https://${process.env.BUNNY_CDN_HOSTNAME}/newsletter/${filename}`;
+    const displayName = file.name || filename;
+    const folderIdRaw = formData.get("folderId");
+    const folderId = typeof folderIdRaw === "string" && folderIdRaw.trim() ? folderIdRaw.trim() : null;
+    await prisma.newsletterMedia.create({
+      data: {
+        url: finalUrl,
+        name: displayName.length > 255 ? displayName.slice(0, 252) + "..." : displayName,
+        folderId: folderId || undefined,
+      },
+    });
     return NextResponse.json({ url: finalUrl });
   } catch (error: unknown) {
     console.error("Newsletter image upload error:", error);

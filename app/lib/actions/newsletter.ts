@@ -317,8 +317,7 @@ export async function createNewsletterTemplate(data: { name: string; description
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const content = data.content as object;
-  const blocks = (content as { blocks?: EmailBlock[] }).blocks ?? [];
-  const htmlCache = renderBlocksToHtml(blocks);
+  const htmlCache = renderBlocksToHtml(data.content);
   const t = await prisma.newsletterTemplate.create({
     data: {
       name: data.name,
@@ -339,7 +338,7 @@ export async function updateNewsletterTemplate(id: string, data: { name?: string
   if (data.description != null) update.description = data.description;
   if (data.content != null) {
     update.content = data.content as object;
-    update.htmlCache = renderBlocksToHtml((data.content as { blocks: EmailBlock[] }).blocks);
+    update.htmlCache = renderBlocksToHtml(data.content);
   }
   const t = await prisma.newsletterTemplate.update({ where: { id }, data: update });
   revalidatePath(`${NEWSLETTER_PATH}/templates`);
@@ -351,6 +350,119 @@ export async function deleteNewsletterTemplate(id: string) {
   if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized");
   await prisma.newsletterTemplate.delete({ where: { id } });
   revalidatePath(`${NEWSLETTER_PATH}/templates`);
+}
+
+/** List media library items (logos, images) for newsletter templates. Pass folderId to filter by folder, null for "Uncategorized", undefined for all. */
+export async function getNewsletterMedia(folderId?: string | null) {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return [];
+  try {
+    const where: { folderId?: string | null } = {};
+    if (folderId !== undefined) where.folderId = folderId;
+    return await prisma.newsletterMedia.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    });
+  } catch (err) {
+    console.error("getNewsletterMedia:", err);
+    return [];
+  }
+}
+
+export type NewsletterMediaFolderItem = { id: string; name: string; createdAt: Date; _count: { media: number } };
+
+/** List all media folders with media count. */
+export async function getNewsletterMediaFolders(): Promise<NewsletterMediaFolderItem[]> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return [];
+  const delegate = (prisma as { newsletterMediaFolder?: { findMany: (args: object) => Promise<NewsletterMediaFolderItem[]> } })
+    .newsletterMediaFolder;
+  if (!delegate) {
+    console.warn("Prisma client missing newsletterMediaFolder – run: npx prisma generate");
+    return [];
+  }
+  try {
+    return await delegate.findMany({
+      orderBy: { name: "asc" },
+      include: { _count: { select: { media: true } } },
+    });
+  } catch (err) {
+    console.error("getNewsletterMediaFolders:", err);
+    return [];
+  }
+}
+
+/** Create a new media folder. */
+export async function createNewsletterMediaFolder(name: string): Promise<{ id: string } | { error: string }> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return { error: "Unauthorized" };
+  const trimmed = name.trim();
+  if (!trimmed) return { error: "Folder name is required" };
+  const delegate = (prisma as { newsletterMediaFolder?: { create: (args: object) => Promise<{ id: string }> } })
+    .newsletterMediaFolder;
+  if (!delegate) return { error: "Database not ready. Run: npx prisma generate, then restart the server." };
+  try {
+    const folder = await delegate.create({ data: { name: trimmed } });
+    revalidatePath("/admin/newsletter/media");
+    return { id: folder.id };
+  } catch (err) {
+    console.error("createNewsletterMediaFolder:", err);
+    return { error: err instanceof Error ? err.message : "Failed to create folder" };
+  }
+}
+
+/** Rename a media folder. */
+export async function updateNewsletterMediaFolder(id: string, name: string): Promise<{ error?: string }> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return { error: "Unauthorized" };
+  const trimmed = name.trim();
+  if (!trimmed) return { error: "Folder name is required" };
+  const delegate = (prisma as { newsletterMediaFolder?: { update: (args: object) => Promise<unknown> } })
+    .newsletterMediaFolder;
+  if (!delegate) return { error: "Database not ready. Run: npx prisma generate, then restart the server." };
+  try {
+    await delegate.update({ where: { id }, data: { name: trimmed } });
+    revalidatePath("/admin/newsletter/media");
+    return {};
+  } catch (err) {
+    console.error("updateNewsletterMediaFolder:", err);
+    return { error: err instanceof Error ? err.message : "Failed to update folder" };
+  }
+}
+
+/** Delete a media folder (media inside become uncategorized). */
+export async function deleteNewsletterMediaFolder(id: string): Promise<{ error?: string }> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return { error: "Unauthorized" };
+  const delegate = (prisma as { newsletterMediaFolder?: { delete: (args: object) => Promise<unknown> } })
+    .newsletterMediaFolder;
+  if (!delegate) return { error: "Database not ready. Run: npx prisma generate, then restart the server." };
+  try {
+    await delegate.delete({ where: { id } });
+    revalidatePath("/admin/newsletter/media");
+    return {};
+  } catch (err) {
+    console.error("deleteNewsletterMediaFolder:", err);
+    return { error: err instanceof Error ? err.message : "Failed to delete folder" };
+  }
+}
+
+/** Move media item to a folder (folderId null = uncategorized). */
+export async function setNewsletterMediaFolder(mediaId: string, folderId: string | null): Promise<{ error?: string }> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return { error: "Unauthorized" };
+  try {
+    await prisma.newsletterMedia.update({
+      where: { id: mediaId },
+      data: { folderId },
+    });
+    revalidatePath("/admin/newsletter/media");
+    return {};
+  } catch (err) {
+    console.error("setNewsletterMediaFolder:", err);
+    return { error: err instanceof Error ? err.message : "Failed to move media" };
+  }
 }
 
 // ——— Campaigns ———
@@ -462,8 +574,8 @@ export async function sendNewsletterTestEmail(params: {
     });
     if (template?.htmlCache) html = template.htmlCache;
     else if (template?.content) {
-      const content = template.content as { blocks?: EmailBlock[] };
-      html = renderBlocksToHtml(content.blocks ?? []);
+      const content = template.content as NewsletterContent;
+      html = renderBlocksToHtml(content);
     }
   }
 
@@ -494,8 +606,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
 
   let html = campaign.template?.htmlCache ?? "";
   if (!html && campaign.template?.content) {
-    const content = campaign.template.content as { blocks?: EmailBlock[] };
-    html = renderBlocksToHtml(content.blocks ?? []);
+    html = renderBlocksToHtml(campaign.template.content as NewsletterContent);
   }
   if (!html) html = "<p>No content.</p>";
 

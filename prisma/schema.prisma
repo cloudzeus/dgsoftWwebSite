@@ -531,6 +531,26 @@ model WorkMedia {
   updatedAt DateTime @updatedAt
 }
 
+// Newsletter: media folders for organizing gallery
+model NewsletterMediaFolder {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  media     NewsletterMedia[]
+}
+
+// Newsletter: media library (logos, images for templates)
+model NewsletterMedia {
+  id        String   @id @default(cuid())
+  url       String   @db.VarChar(1024)
+  name      String?  @db.VarChar(255)
+  folderId  String?
+  folder    NewsletterMediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([folderId])
+}
+
 // Newsletter: visual designer templates and campaigns
 model NewsletterTemplate {
   id          String   @id @default(cuid())

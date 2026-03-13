@@ -235,6 +235,7 @@ export function GenericDataTable<TData, TValue>({
         getSubRows,
         onRowSelectionChange,
         enableRowSelection,
+        getRowId: (row) => String((row as Record<string, unknown>)[rowIdKey as string] ?? Math.random()),
         state: {
             sorting,
             columnFilters,

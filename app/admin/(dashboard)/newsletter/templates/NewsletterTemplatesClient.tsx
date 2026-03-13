@@ -57,8 +57,11 @@ export function NewsletterTemplatesClient({
     setEditingId(t.id);
     setName(t.name);
     setDescription(t.description ?? "");
-    const c = t.content as { blocks?: unknown[] } | null;
-    setContent(c?.blocks?.length ? (t.content as NewsletterContent) : { blocks: [] });
+    const c = t.content as NewsletterContent | null;
+    setContent({
+      blocks: c?.blocks ?? [],
+      bodyOptions: c?.bodyOptions ?? {},
+    });
     setOpen(true);
   };
 

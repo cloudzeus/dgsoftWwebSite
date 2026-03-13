@@ -119,6 +119,11 @@ const navData = {
       url: "/admin/newsletter/campaigns",
       icon: SendIcon,
     },
+    {
+      title: "Media gallery",
+      url: "/admin/newsletter/media",
+      icon: CameraIcon,
+    },
   ],
   navFunding: [
     {

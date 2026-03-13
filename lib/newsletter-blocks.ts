@@ -5,14 +5,19 @@
 
 export type BlockType = "heading" | "paragraph" | "image" | "button" | "divider" | "spacer" | "html";
 
+export type BodyOptions = {
+  backgroundColor?: string;
+  backgroundImage?: string;
+};
+
 export type BlockBase = { id: string; type: BlockType };
 export type HeadingBlock = BlockBase & {
   type: "heading";
-  props: { text: string; level?: 1 | 2 | 3; align?: "left" | "center" | "right" };
+  props: { text: string; level?: 1 | 2 | 3; align?: "left" | "center" | "right"; color?: string };
 };
 export type ParagraphBlock = BlockBase & {
   type: "paragraph";
-  props: { text: string; align?: "left" | "center" | "right" };
+  props: { text: string; align?: "left" | "center" | "right"; color?: string };
 };
 export type ImageBlock = BlockBase & {
   type: "image";
@@ -20,7 +25,7 @@ export type ImageBlock = BlockBase & {
 };
 export type ButtonBlock = BlockBase & {
   type: "button";
-  props: { text: string; href: string; align?: "left" | "center" | "right" };
+  props: { text: string; href: string; align?: "left" | "center" | "right"; backgroundColor?: string; textColor?: string };
 };
 export type DividerBlock = BlockBase & { type: "divider"; props?: Record<string, never> };
 export type SpacerBlock = BlockBase & { type: "spacer"; props?: { height?: number } };
@@ -35,7 +40,7 @@ export type EmailBlock =
   | SpacerBlock
   | HtmlBlock;
 
-export type NewsletterContent = { blocks: EmailBlock[] };
+export type NewsletterContent = { blocks: EmailBlock[]; bodyOptions?: BodyOptions };
 
 const defaultTableAttrs = 'border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto;"';
 
@@ -53,13 +58,17 @@ function renderBlock(block: EmailBlock): string {
       const level = block.props?.level ?? 1;
       const align = block.props?.align ?? "left";
       const text = block.props?.text ?? "";
+      const color = (block.props as { color?: string }).color;
+      const colorStyle = color ? `color: ${escapeHtml(color)};` : "";
       const tag = `h${level}`;
-      return `<table ${defaultTableAttrs}><tr><td style="padding: 12px 0; text-align: ${align};"><${tag} style="margin: 0; font-size: ${level === 1 ? "24" : level === 2 ? "20" : "16"}px;">${escapeHtml(text)}</${tag}></td></tr></table>`;
+      return `<table ${defaultTableAttrs}><tr><td style="padding: 12px 0; text-align: ${align};"><${tag} style="margin: 0; font-size: ${level === 1 ? "24" : level === 2 ? "20" : "16"}px; ${colorStyle}">${escapeHtml(text)}</${tag}></td></tr></table>`;
     }
     case "paragraph": {
       const align = block.props?.align ?? "left";
       const text = escapeHtml(block.props?.text ?? "").replace(/\n/g, "<br>");
-      return `<table ${defaultTableAttrs}><tr><td style="padding: 8px 0; text-align: ${align}; line-height: 1.5;">${text}</td></tr></table>`;
+      const color = (block.props as { color?: string }).color;
+      const colorStyle = color ? `color: ${escapeHtml(color)};` : "";
+      return `<table ${defaultTableAttrs}><tr><td style="padding: 8px 0; text-align: ${align}; line-height: 1.5; ${colorStyle}">${text}</td></tr></table>`;
     }
     case "image": {
       const src = block.props?.src ?? "";
@@ -77,7 +86,9 @@ function renderBlock(block: EmailBlock): string {
       const text = block.props?.text ?? "Button";
       const href = block.props?.href ?? "#";
       const align = block.props?.align ?? "center";
-      return `<table ${defaultTableAttrs}><tr><td style="padding: 16px 0; text-align: ${align};"><a href="${escapeHtml(href)}" style="display: inline-block; padding: 12px 24px; background: #2563eb; color: #fff !important; text-decoration: none; border-radius: 6px; font-weight: 600;">${escapeHtml(text)}</a></td></tr></table>`;
+      const bgColor = (block.props as { backgroundColor?: string }).backgroundColor ?? "#2563eb";
+      const textColor = (block.props as { textColor?: string }).textColor ?? "#ffffff";
+      return `<table ${defaultTableAttrs}><tr><td style="padding: 16px 0; text-align: ${align};"><a href="${escapeHtml(href)}" style="display: inline-block; padding: 12px 24px; background: ${escapeHtml(bgColor)}; color: ${escapeHtml(textColor)} !important; text-decoration: none; border-radius: 6px; font-weight: 600;">${escapeHtml(text)}</a></td></tr></table>`;
     }
     case "divider":
       return `<table ${defaultTableAttrs}><tr><td style="padding: 16px 0;"><hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0;" /></td></tr></table>`;
@@ -92,11 +103,26 @@ function renderBlock(block: EmailBlock): string {
   }
 }
 
-/** Render blocks array to full HTML email body (wrapper table + blocks). */
-export function renderBlocksToHtml(blocks: EmailBlock[]): string {
-  if (!blocks?.length) return "";
+/** Render full newsletter content (blocks + body options) to HTML email body. */
+export function renderBlocksToHtml(content: NewsletterContent): string;
+/** @deprecated Use renderBlocksToHtml(content) with { blocks, bodyOptions }. */
+export function renderBlocksToHtml(blocks: EmailBlock[]): string;
+export function renderBlocksToHtml(contentOrBlocks: NewsletterContent | EmailBlock[]): string {
+  const content: NewsletterContent = Array.isArray(contentOrBlocks)
+    ? { blocks: contentOrBlocks }
+    : contentOrBlocks;
+  const blocks = content.blocks ?? [];
+  const bodyOptions = content.bodyOptions ?? {};
   const parts = blocks.map((b) => renderBlock(b));
-  return `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1f2937;">${parts.join("")}</div>`;
+  const innerHtml = parts.join("");
+  const bgStyle: string[] = ["font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;", "color: #1f2937;"];
+  if (bodyOptions.backgroundColor) {
+    bgStyle.push(`background-color: ${bodyOptions.backgroundColor};`);
+  }
+  if (bodyOptions.backgroundImage) {
+    bgStyle.push(`background-image: url(${escapeHtml(bodyOptions.backgroundImage)}); background-size: cover; background-repeat: no-repeat;`);
+  }
+  return `<div style="${bgStyle.join(" ")}">${innerHtml}</div>`;
 }
 
 /** Create a new empty block of given type. */

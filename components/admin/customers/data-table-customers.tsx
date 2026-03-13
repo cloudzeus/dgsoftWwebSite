@@ -394,6 +394,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
     })
 
     const handleSave = async (pushToErp: boolean = false) => {
+        if (!editingCustomer && pushToErp) return
         setIsSaving(true)
         try {
             const payload = buildPayload()
@@ -403,10 +404,12 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 if (pushToErp) {
                     const erpResult = await pushCustomerToErp(editingCustomer.TRDR, payload)
                     if (erpResult.success) {
-                        toast.success("Saved to database and ERP")
+                        toast.success("Saved to database and sent to ERP (SetData)")
                     } else {
-                        toast.success("Saved to database")
-                        toast.error(erpResult.message ?? "ERP update failed")
+                        toast.warning("Saved to database, but ERP update failed", {
+                            description: erpResult.message ?? "Check SoftOne connection and try again.",
+                            duration: 6000,
+                        })
                     }
                 } else {
                     toast.success("Customer updated in database")
@@ -605,13 +608,26 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             } as any);
                             setIsDialogOpen(true);
                         }}><Edit3 className="w-4 h-4 mr-2" /> Modify Profile</DropdownMenuItem>
-                        <DropdownMenuItem onClick={async () => {
-                            toast.promise(getKAD(row.original.id, row.original.AFM || ""), {
-                                loading: 'Syncing KADs...',
-                                success: (d) => { setData(prev => prev.map(c => c.id === d.id ? d as any : c)); return 'Knowledge database synced'; },
-                                error: (e) => e.message
-                            });
-                        }} className="text-indigo-600"><Zap className="w-4 h-4 mr-2" /> Sync KADs</DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!row.original.AFM?.trim()) {
+                                    toast.error("No AFM – enter AFM to sync KADs");
+                                    return;
+                                }
+                                toast.promise(getKAD(row.original.id, row.original.AFM), {
+                                    loading: "Syncing KADs…",
+                                    success: (d) => {
+                                        setData((prev) => prev.map((c) => (c.id === d.id ? (d as any) : c)));
+                                        return "Knowledge database synced";
+                                    },
+                                    error: (err) => err?.message ?? "Sync failed",
+                                });
+                            }}
+                            className="text-indigo-600"
+                        >
+                            <Zap className="w-4 h-4 mr-2" /> Sync KADs
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={async () => {
                             if (!row.original.AFM?.trim()) {
                                 toast.error("Customer has no AFM")
