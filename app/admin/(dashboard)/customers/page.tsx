@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { getCustomers, getSoftOneLookups } from "@/app/lib/actions/trdr"
+import { getAddressRegionMap } from "@/app/lib/actions/address-region"
 import { CustomersDataTable } from "@/components/admin/customers/data-table-customers"
 import { SyncAllFromSoftOneButton } from "@/components/admin/customers/sync-all-from-softone-button"
 import { SyncLookupsButton } from "@/components/admin/customers/sync-lookups-button"
@@ -8,7 +9,11 @@ import { SyncGeodataButton } from "@/components/admin/customers/sync-geodata-but
 export const metadata: Metadata = { title: "Customers | Admin Dashboard" }
 
 export default async function CustomersPage() {
-  const [customers, lookups] = await Promise.all([getCustomers(), getSoftOneLookups()])
+  const [customers, lookups, addressRegionMap] = await Promise.all([
+    getCustomers(),
+    getSoftOneLookups(),
+    getAddressRegionMap(),
+  ])
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6">
@@ -20,7 +25,12 @@ export default async function CustomersPage() {
           <SyncGeodataButton />
         </div>
       </div>
-      <CustomersDataTable data={customers} lookups={lookups} />
+      <CustomersDataTable
+        data={customers}
+        lookups={lookups}
+        maptilerApiKey={process.env.MAPTILER_API_KEY ?? ""}
+        addressRegionMap={addressRegionMap}
+      />
     </div>
   )
 }

@@ -368,20 +368,41 @@ model KadEuProgram {
 }
 
 model Periferia {
-  id        String   @id @default(cuid())
-  code      String   @unique
-  nameEL    String   @db.VarChar(255)
-  nameEN    String?  @db.VarChar(255)
-  level     Int      @default(3) // 3=Περιφέρεια, 4=Περιφερειακή ενότητα, 5=Δήμος
+  id         String   @id @default(cuid())
+  code       String   @unique
+  nameEL     String   @db.VarChar(255)
+  nameEN     String?  @db.VarChar(255)
+  level      Int      @default(3) // 3=Περιφέρεια, 4=Περιφερειακή ενότητα, 5=Δήμος
   parentCode String?
+  latitude   Float?
+  longitude  Float?
 
   parent    Periferia?   @relation("Hierarchy", fields: [parentCode], references: [code], onDelete: Restrict, onUpdate: Cascade)
   children  Periferia[]  @relation("Hierarchy")
 
   programs  EuProgramPeriferia[]
+  addressRegions CustomerAddressRegion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CustomerAddressRegion {
+  id           String    @id @default(cuid())
+  addressKey   String    @unique @db.VarChar(512)
+  rawAddress   String?   @db.VarChar(255)
+  rawCity      String?   @db.VarChar(128)
+  rawZip       String?   @db.VarChar(20)
+  countryCode  Int?
+  latitude     Float?
+  longitude    Float?
+  periferiaId  String
+  confirmed    Boolean   @default(false)
+  suggestedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  periferia    Periferia @relation(fields: [periferiaId], references: [id], onDelete: Cascade)
 }
 
 model EuProgramPeriferia {

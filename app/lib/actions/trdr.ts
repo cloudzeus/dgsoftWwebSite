@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client"
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
-import { getSoftOneTableData, setSoftOneTrdrData, type SetDataTrdrPayload } from "@/lib/softone"
+import { getSoftOneTableData, getSoftOneTrdrByAfm, setSoftOneTrdrData, type SetDataTrdrPayload } from "@/lib/softone"
 import { SOFTONE_CLIENT_ID_COOKIE } from "@/lib/softone-cookie"
 import { getVatCompanyInfo, getVatCorrectData, type VatWwaCompanyInfo } from "@/lib/vat-wwa"
 import { getCoordinates } from "@/app/lib/actions/location"
@@ -184,6 +184,119 @@ export async function pushCustomerToErp(trdrNumber: number, data: Record<string,
     const result = await setSoftOneTrdrData(clientId, trdrNumber, erpPayload)
     if (result.success) return { success: true }
     return { success: false, message: (result as { message?: string }).message ?? "ERP update failed" }
+}
+
+export type SyncFromErpByAfmResult = { success: boolean; message?: string; updated?: boolean }
+
+/** Query ERP by customer AFM and update our DB with the result. Enriches with vat.wwa.gr for Greek AFM. */
+export async function syncCustomerFromErpByAfm(customerId: string): Promise<SyncFromErpByAfmResult> {
+    const session = await auth()
+    if (!session) return { success: false, message: "Unauthorized" }
+
+    const cookieStore = await cookies()
+    const clientId = cookieStore.get(SOFTONE_CLIENT_ID_COOKIE)?.value
+    if (!clientId) return { success: false, message: "Not authenticated to SoftOne. Log in at Admin → SoftOne first." }
+
+    const customer = await prisma.tRDR.findUnique({ where: { id: customerId }, include: { kads: true } })
+    if (!customer) return { success: false, message: "Customer not found" }
+    const afm = customer.AFM?.trim()
+    if (!afm) return { success: false, message: "Customer has no AFM" }
+
+    const result = await getSoftOneTrdrByAfm(clientId, afm)
+    if (!("rows" in result) || !result.success) {
+        return { success: false, message: (result as { message?: string }).message ?? "ERP request failed" }
+    }
+    const rows = result.rows
+    if (!rows.length) return { success: false, message: "No record in ERP for this AFM" }
+
+    const row = rows[0]
+    const trdrNum = toInt(getRowVal(row, "TRDR"))
+    const code = toStr(getRowVal(row, "CODE"), 25) ?? (trdrNum != null ? `CMD-${trdrNum}` : null)
+    const name = toStr(getRowVal(row, "NAME"), 128)
+    const countryCode = toInt(getRowVal(row, "COUNTRY"))
+    let vatInfo: Awaited<ReturnType<typeof getVatCompanyInfo>> = null
+    if (afm && countryCode === GREECE_COUNTRY_CODE && isGreekAfm(afm)) {
+        vatInfo = await getVatCompanyInfo(afm)
+    }
+    const correctData = getVatCorrectData(vatInfo)
+
+    const softOneRow = {
+        SODTYPE: toInt(getRowVal(row, "SODTYPE")) ?? 13,
+        TRDR: trdrNum ?? customer.TRDR,
+        CODE: code ?? customer.CODE,
+        NAME: name ?? customer.NAME,
+        AFM: afm,
+        COUNTRY: toInt(getRowVal(row, "COUNTRY")),
+        SOCURRENCY: toInt(getRowVal(row, "SOCURRENCY")),
+        ADDRESS: toStr(getRowVal(row, "ADDRESS"), 100),
+        ZIP: toStr(getRowVal(row, "ZIP"), 10),
+        DISTRICT: toStr(getRowVal(row, "DISTRICT"), 30),
+        CITY: toStr(getRowVal(row, "CITY"), 30),
+        AREAS: toInt(getRowVal(row, "AREAS")),
+        PHONE01: toStr(getRowVal(row, "PHONE01"), 20),
+        PHONE02: toStr(getRowVal(row, "PHONE02"), 20),
+        JOBTYPE: toInt(getRowVal(row, "JOBTYPE")),
+        JOBTYPETRD: toStr(getRowVal(row, "JOBTYPETRD"), 128),
+        EMAIL: toStr(getRowVal(row, "EMAIL"), 128),
+        EMAILACC: toStr(getRowVal(row, "EMAILACC"), 128),
+        TRDBUSINESS: toInt(getRowVal(row, "TRDBUSINESS")),
+        SHIPMENT: toInt(getRowVal(row, "SHIPMENT")),
+        PAYMENT: toInt(getRowVal(row, "PAYMENT")),
+        SOCARRIER: toInt(getRowVal(row, "SOCARRIER")),
+        IRSDATA: toStr(getRowVal(row, "IRSDATA"), 128),
+        REMARKS: toStr(getRowVal(row, "REMARKS")),
+        INSDATE: toDate(getRowVal(row, "INSDATE")),
+        UPDDATE: toDate(getRowVal(row, "UPDDATE")),
+        SOTITLE: toStr(getRowVal(row, "SOTITLE"), 64),
+        ISACTIVE: toInt(getRowVal(row, "ISACTIVE")),
+        ISPROSP: toInt(getRowVal(row, "ISPROSP")),
+        LATITUDE: toFloat(getRowVal(row, "LATITUDE")),
+        LONGITUDE: toFloat(getRowVal(row, "LONGITUDE")),
+        OBTYPE: toInt(getRowVal(row, "OBTYPE")),
+        TRDGROUP: toInt(getRowVal(row, "TRDGROUP")),
+        TRDPGROUP: toInt(getRowVal(row, "TRDPGROUP")),
+        WEBPAGE: toStr(getRowVal(row, "WEBPAGE"), 255),
+        CONSENT: toInt(getRowVal(row, "CONSENT")),
+        PRJCS: toInt(getRowVal(row, "PRJCS")),
+        numEmployees: toInt(getRowVal(row, "numEmployees")) ?? toInt(getRowVal(row, "NUMEMPLOYEES")),
+        legalStatus: null as string | null,
+        registDate: null as string | null,
+    }
+    const merged = { ...softOneRow }
+    if (correctData) {
+        if (correctData.NAME) merged.NAME = correctData.NAME.slice(0, 128)
+        if (correctData.ADDRESS) merged.ADDRESS = correctData.ADDRESS.slice(0, 100)
+        if (correctData.CITY) merged.CITY = correctData.CITY.slice(0, 30)
+        if (correctData.ZIP) merged.ZIP = correctData.ZIP.slice(0, 10)
+        if (correctData.legalStatus) merged.legalStatus = correctData.legalStatus.slice(0, 128)
+        if (correctData.registDate) merged.registDate = correctData.registDate.slice(0, 50)
+    }
+
+    const updatePayload: Record<string, unknown> = { ...merged }
+    delete updatePayload.id
+    delete (updatePayload as any).createdAt
+    delete (updatePayload as any).updatedAt
+    const dataOnlyTrdrKeys: Record<string, unknown> = {}
+    for (const k of TRDR_DATA_KEYS) {
+        if (updatePayload[k] !== undefined) dataOnlyTrdrKeys[k] = updatePayload[k]
+    }
+    const kadsPayload = correctData?.kads?.length ? correctData.kads : undefined
+    const kadsToCreate = kadsPayload && kadsPayload.length > 0 ? sanitizeKadsForCreate(kadsPayload as unknown[]) : undefined
+
+    const updateData = {
+        ...dataOnlyTrdrKeys,
+        kads: {
+            deleteMany: {},
+            ...(kadsToCreate && kadsToCreate.length > 0 ? { create: kadsToCreate } : {}),
+        },
+    } as Prisma.TRDRUpdateInput
+
+    await prisma.tRDR.update({
+        where: { id: customerId },
+        data: updateData,
+        include: { kads: true },
+    })
+    return { success: true, updated: true }
 }
 
 export async function deleteCustomer(id: string) {
@@ -628,19 +741,20 @@ export async function syncGeodataForCustomers(): Promise<SyncGeodataResult> {
 
         for (const c of customers) {
             const parts = [c.ADDRESS, c.CITY, c.ZIP].filter((s): s is string => !!s?.trim())
-            const query = parts.length ? parts.join(", ") : null
-            if (!query) continue
+            if (parts.length === 0) continue
+            const baseQuery = parts.join(", ")
+            const query = `${baseQuery}, Greece`
 
             try {
                 const coords = await getCoordinates(query)
-                if (coords && typeof coords.latitude === "number" && typeof coords.longitude === "number") {
+                if (coords && Number.isFinite(coords.latitude) && Number.isFinite(coords.longitude)) {
                     await prisma.tRDR.update({
                         where: { id: c.id },
                         data: { LATITUDE: coords.latitude, LONGITUDE: coords.longitude },
                     })
                     updated++
                 }
-                await new Promise((r) => setTimeout(r, 250))
+                await new Promise((r) => setTimeout(r, 400))
             } catch (e: any) {
                 errors.push(`TRDR ${c.TRDR}: ${e?.message ?? String(e)}`)
             }

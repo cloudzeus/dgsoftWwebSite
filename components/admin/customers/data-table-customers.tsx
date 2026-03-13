@@ -69,8 +69,9 @@ import {
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
 import { toast } from "sonner"
-import { createCustomer, updateCustomer, deleteCustomer, getKAD, updateCustomerCarousel, pushCustomerToErp, syncAllFromSoftOne, syncSoftOneLookups, syncGeodataForCustomers, type SoftOneLookups } from "@/app/lib/actions/trdr"
+import { createCustomer, updateCustomer, deleteCustomer, getKAD, updateCustomerCarousel, pushCustomerToErp, syncCustomerFromErpByAfm, syncAllFromSoftOne, syncSoftOneLookups, syncGeodataForCustomers, type SoftOneLookups } from "@/app/lib/actions/trdr"
 import { getCoordinates } from "@/app/lib/actions/location"
+import { normalizeAddressKey } from "@/lib/address-region-utils"
 import { GenericDataTable } from "../shared/generic-data-table"
 
 export type Customer = {
@@ -115,7 +116,53 @@ const defaultLookups: SoftOneLookups = { countries: {}, trdpGroups: {}, trdBusin
 
 type CustomerFilter = "avatar" | "webpage" | "email" | "afm"
 
-export function CustomersDataTable({ data: initialData, lookups = defaultLookups }: { data: Customer[]; lookups?: SoftOneLookups }) {
+/** Map tab content: MapTiler static map when coords exist, else placeholder. */
+function CustomerMapTab({ customer, maptilerApiKey }: { customer: Customer; maptilerApiKey: string }) {
+    const lat = customer.LATITUDE != null ? Number(customer.LATITUDE) : null
+    const lng = customer.LONGITUDE != null ? Number(customer.LONGITUDE) : null
+    const hasCoords = lat != null && lng != null && !Number.isNaN(lat) && !Number.isNaN(lng)
+
+    if (!maptilerApiKey?.trim()) {
+        return (
+            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
+                <p className="text-xs text-zinc-500">MapTiler API key not configured.</p>
+            </div>
+        )
+    }
+    if (!hasCoords) {
+        return (
+            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
+                <MapPin className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2" />
+                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">No coordinates</p>
+                <p className="text-[10px] text-zinc-400 mt-1">Use &quot;Get coordinates&quot; in row actions or in the edit modal.</p>
+            </div>
+        )
+    }
+
+    // MapTiler static map: center-based URL (streets-v2 style)
+    const zoom = 14
+    const width = 640
+    const height = 320
+    const staticUrl = `https://api.maptiler.com/maps/streets-v2/static/${lng},${lat},${zoom}/${width}x${height}.png?key=${encodeURIComponent(maptilerApiKey.trim())}`
+
+    return (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border overflow-hidden shadow-sm">
+            <div className="relative w-full aspect-[2/1] min-h-[200px] bg-zinc-100 dark:bg-zinc-800">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={staticUrl}
+                    alt={`Map: ${customer.NAME ?? "Customer"} location`}
+                    className="w-full h-full object-cover"
+                />
+            </div>
+            <p className="px-3 py-2 text-[10px] text-zinc-500 border-t bg-zinc-50 dark:bg-zinc-900/50">
+                {customer.ADDRESS ?? ""} {customer.ZIP ?? ""} {customer.CITY ?? ""}
+            </p>
+        </div>
+    )
+}
+
+export function CustomersDataTable({ data: initialData, lookups = defaultLookups, maptilerApiKey = "", addressRegionMap = {} }: { data: Customer[]; lookups?: SoftOneLookups; maptilerApiKey?: string; addressRegionMap?: Record<string, { path: string; periferiaId: string }> }) {
     const router = useRouter()
     const [isPendingSyncAll, startTransitionSyncAll] = useTransition()
     const [data, setData] = React.useState<Customer[]>(initialData)
@@ -565,6 +612,23 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 error: (e) => e.message
                             });
                         }} className="text-indigo-600"><Zap className="w-4 h-4 mr-2" /> Sync KADs</DropdownMenuItem>
+                        <DropdownMenuItem onClick={async () => {
+                            if (!row.original.AFM?.trim()) {
+                                toast.error("Customer has no AFM")
+                                return
+                            }
+                            try {
+                                const res = await syncCustomerFromErpByAfm(row.original.id)
+                                if (res.success) {
+                                    toast.success("Synced from ERP")
+                                    router.refresh()
+                                } else {
+                                    toast.error(res.message ?? "Sync from ERP failed")
+                                }
+                            } catch (e) {
+                                toast.error(e instanceof Error ? e.message : "Sync from ERP failed")
+                            }
+                        }} className="text-sky-600"><RefreshCcw className="w-4 h-4 mr-2" /> Sync from ERP (AFM)</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleSyncAllFromSoftOne} disabled={isPendingSyncAll} className="text-emerald-600">
                             {isPendingSyncAll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CloudDownload className="w-4 h-4 mr-2" />}
@@ -595,6 +659,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 <TabsList className="mb-4 bg-white dark:bg-zinc-900 p-1 h-8 rounded-lg border shadow-sm w-fit gap-1">
                     <TabsTrigger value="stats" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">Market Intelligence</TabsTrigger>
                     <TabsTrigger value="kads" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">KAD ({customer.kads?.length || 0})</TabsTrigger>
+                    <TabsTrigger value="map" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">Map</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="stats" className="animate-in fade-in duration-300">
@@ -628,12 +693,27 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 <p className="text-xs font-semibold text-indigo-600">{customer.legalStatus != null && typeof customer.legalStatus === "string" ? customer.legalStatus : "—"}</p>
                             </div>
                         </div>
+                        {addressRegionMap && (() => {
+                            const key = normalizeAddressKey(customer.ADDRESS, customer.CITY, customer.ZIP ?? null)
+                            const mapping = key && key !== "||" ? addressRegionMap[key] : null
+                            if (!mapping) return null
+                            return (
+                                <div className="md:col-span-2 bg-amber-50/50 dark:bg-amber-900/10 p-3 rounded-xl border border-amber-200/50 dark:border-amber-800/50 shadow-sm">
+                                    <h5 className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Region (Περιφέρεια → Νομός → Δήμος)</h5>
+                                    <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">{mapping.path}</p>
+                                </div>
+                            )
+                        })()}
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2 bg-zinc-800 p-3 rounded-xl text-white">
                         <div className="flex items-center gap-2 px-2 text-xs"><Mail className="w-3 h-3 text-indigo-400 shrink-0" /><span className="font-medium">{customer.EMAIL ?? "—"}</span></div>
                         <div className="flex items-center gap-2 px-2 border-l border-white/10 text-xs"><Phone className="w-3 h-3 text-emerald-400 shrink-0" /><span className="font-medium">{customer.PHONE01 ?? "—"}</span></div>
                         <div className="flex items-center gap-2 px-2 border-l border-white/10 text-xs ml-auto"><Globe className="w-3 h-3 text-sky-400 shrink-0" /><a href={customer.website || "#"} target="_blank" rel="noopener noreferrer" className="font-medium underline decoration-sky-400/30 hover:text-sky-400">{customer.website ? "Web" : "—"}</a></div>
                     </div>
+                </TabsContent>
+
+                <TabsContent value="map" className="mt-0">
+                    <CustomerMapTab customer={customer} maptilerApiKey={maptilerApiKey} />
                 </TabsContent>
 
                 <TabsContent value="kads">

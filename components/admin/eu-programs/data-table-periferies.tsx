@@ -39,6 +39,7 @@ import {
     importKallikratis,
     translateAllPeriferies
 } from "@/app/lib/actions/eu-program"
+import { GeocodePeriferiesButton } from "./geocode-periferies-button"
 import { GenericDataTable } from "../shared/generic-data-table"
 
 export type PeriferiaType = {
@@ -48,6 +49,8 @@ export type PeriferiaType = {
     nameEN: string | null
     level: number
     parentCode: string | null
+    latitude?: number | null
+    longitude?: number | null
     children?: PeriferiaType[]
 }
 
@@ -211,6 +214,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                     <Button size="sm" onClick={handleImport} disabled={isImporting} className="bg-zinc-800 text-white font-bold h-10 px-4 rounded-xl shadow-lg transition-transform active:scale-95">
                         {isImporting ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : <DownloadCloud className="w-4 h-4 mr-2" />} Sync Kallikratis
                     </Button>
+                    <GeocodePeriferiesButton />
                 </div>
             </div>
 
@@ -235,6 +239,14 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                                 <div>
                                     <Label className="text-zinc-400 font-bold block mb-1">Total Sub-regions</Label>
                                     <p className="font-bold text-indigo-600">{region.children?.length || 0} Children</p>
+                                </div>
+                                <div>
+                                    <Label className="text-zinc-400 font-bold block mb-1">Coordinates</Label>
+                                    <p className="font-mono text-xs">
+                                        {region.latitude != null && region.longitude != null
+                                            ? `${region.latitude.toFixed(4)}, ${region.longitude.toFixed(4)}`
+                                            : "—"}
+                                    </p>
                                 </div>
                             </div>
                         </div>

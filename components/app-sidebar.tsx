@@ -23,6 +23,7 @@ import {
   GlobeIcon,
   WrenchIcon,
   PlugIcon,
+  MailIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -99,7 +100,11 @@ const navData = {
       url: "/admin/works",
       icon: FolderIcon,
     },
-
+    {
+      title: "Send email",
+      url: "/admin/email",
+      icon: MailIcon,
+    },
   ],
   navFunding: [
     {
@@ -111,6 +116,11 @@ const navData = {
       title: "Periferies",
       url: "/admin/eu-programs/periferies",
       icon: GlobeIcon,
+    },
+    {
+      title: "Address → Region",
+      url: "/admin/eu-programs/address-mapping",
+      icon: MapPinIcon,
     },
     {
       title: "KAD Management",

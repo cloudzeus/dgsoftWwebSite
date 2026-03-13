@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
+import { getCoordinates } from "@/app/lib/actions/location"
 
 export async function getEuPrograms() {
     const session = await auth()
@@ -250,6 +251,45 @@ export async function deletePeriferia(id: string) {
     try {
         return await prisma.periferia.delete({ where: { id } })
     } catch (error: any) { throw new Error(error.message) }
+}
+
+export type GeocodePeriferiesResult = { success: boolean; updated: number; skipped: number; errors: string[] }
+
+/** Geocode all Periferia rows that do not already have latitude and longitude. Skips rows that already have both set. */
+export async function geocodePeriferies(): Promise<GeocodePeriferiesResult> {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") return { success: false, updated: 0, skipped: 0, errors: [] }
+
+    const [toUpdate, total] = await Promise.all([
+        prisma.periferia.findMany({
+            where: { OR: [{ latitude: null }, { longitude: null }] },
+            select: { id: true, nameEL: true },
+        }),
+        prisma.periferia.count(),
+    ])
+    const skipped = total - toUpdate.length
+
+    let updated = 0
+    const errors: string[] = []
+
+    for (const p of toUpdate) {
+        const query = `${p.nameEL}, Greece`
+        try {
+            const coords = await getCoordinates(query)
+            if (coords && Number.isFinite(coords.latitude) && Number.isFinite(coords.longitude)) {
+                await prisma.periferia.update({
+                    where: { id: p.id },
+                    data: { latitude: coords.latitude, longitude: coords.longitude },
+                })
+                updated++
+            }
+            await new Promise((r) => setTimeout(r, 400))
+        } catch (e: any) {
+            errors.push(`${p.nameEL}: ${e?.message ?? String(e)}`)
+        }
+    }
+
+    return { success: errors.length === 0, updated, skipped, errors }
 }
 
 export async function importKallikratis() {

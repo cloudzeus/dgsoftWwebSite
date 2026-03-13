@@ -458,13 +458,14 @@ const LOOKUP_TABLE_FIELDS: Record<string, string> = {
 };
 
 /**
- * Get table data (rows) from SoftOne using GetTable (TABLE=CUSTOMER, FIELDS=…, FILTER=1=1).
- * Response is decoded with iconv (win1253 → UTF-8). Returns rows as objects keyed by field name.
+ * Get table data (rows) from SoftOne using GetTable with optional FILTER.
+ * When filter is omitted, uses "1=1". Response is decoded with iconv (win1253 → UTF-8).
  */
-export async function getSoftOneTableData(
+export async function getSoftOneTableDataWithFilter(
   clientID: string,
   objectName: string,
-  tableName: string
+  tableName: string,
+  filter: string = "1=1"
 ): Promise<
   | { success: true; rows: Record<string, unknown>[] }
   | SoftOneErrorResponse
@@ -475,7 +476,6 @@ export async function getSoftOneTableData(
     return { success: false, message: "SOFTONE_APP_ID not set", code: -1 };
   }
 
-  // Working sample: clientId, appId (number), version, service: "GetTable", TABLE, FIELDS, FILTER
   const body: Record<string, unknown> = {
     clientId: clientID,
     appId: Number(appId) || 2000,
@@ -486,10 +486,10 @@ export async function getSoftOneTableData(
       objectName === "CUSTOMER" && tableName === "TRDR"
         ? TRDR_GET_TABLE_FIELDS
         : LOOKUP_TABLE_FIELDS[tableName] ?? `${tableName},CODE,NAME`,
-    FILTER: "1=1",
+    FILTER: filter,
   };
 
-  console.log("[SoftOne GetTable] Request:", objectName, tableName, "fields length:", String(body.FIELDS).length);
+  console.log("[SoftOne GetTable] Request:", objectName, tableName, "filter:", filter);
   const res = await softOneFetch<SoftOneGetTableResponse>(body);
 
   if (!res || typeof res !== "object") {
@@ -513,6 +513,35 @@ export async function getSoftOneTableData(
     : parseGetTableResponse(res as SoftOneGetTableResponse);
   console.log("[SoftOne GetTable] Parsed rows:", rows.length, "sample keys:", rows[0] ? Object.keys(rows[0]) : []);
   return { success: true, rows };
+}
+
+/** Get table data (all rows) from SoftOne using GetTable with FILTER=1=1. */
+export async function getSoftOneTableData(
+  clientID: string,
+  objectName: string,
+  tableName: string
+): Promise<
+  | { success: true; rows: Record<string, unknown>[] }
+  | SoftOneErrorResponse
+> {
+  return getSoftOneTableDataWithFilter(clientID, objectName, tableName, "1=1");
+}
+
+/** Get a single customer (TRDR) from SoftOne by AFM. Returns first matching row or empty array. */
+export async function getSoftOneTrdrByAfm(
+  clientID: string,
+  afm: string
+): Promise<
+  | { success: true; rows: Record<string, unknown>[] }
+  | SoftOneErrorResponse
+> {
+  const trimmed = afm?.trim();
+  if (!trimmed) {
+    return { success: false, message: "AFM is required", code: -1 };
+  }
+  const escaped = trimmed.replace(/'/g, "''");
+  const filter = `AFM='${escaped}'`;
+  return getSoftOneTableDataWithFilter(clientID, "CUSTOMER", "TRDR", filter);
 }
 
 /** ERP fields we can send to SoftOne SetData for CUSTOMER/TRDR. Same names as GetTable. */
