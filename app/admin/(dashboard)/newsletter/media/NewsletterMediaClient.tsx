@@ -91,9 +91,16 @@ export function NewsletterMediaClient({
           ? null
           : folderFilter;
     const list = await getNewsletterMedia(filter);
-    setMedia(list);
-    if (folderFilter === "all") setUncategorizedCount(list.filter((m) => !m.folderId).length);
-    else if (folderFilter === "uncategorized") setUncategorizedCount(list.length);
+    const normalized: MediaItem[] = list.map((m) => ({
+      id: m.id,
+      url: m.url,
+      name: m.name,
+      folderId: m.folderId,
+      createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt ?? ""),
+    }));
+    setMedia(normalized);
+    if (folderFilter === "all") setUncategorizedCount(normalized.filter((m) => !m.folderId).length);
+    else if (folderFilter === "uncategorized") setUncategorizedCount(normalized.length);
   }, [folderFilter]);
 
   const refreshFolders = React.useCallback(async () => {
