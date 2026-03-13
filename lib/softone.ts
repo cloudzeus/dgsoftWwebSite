@@ -1,7 +1,7 @@
 /**
  * SoftOne Web Services API client.
- * All responses from SoftOne are decoded from ANSI (Windows-1253 / Greek) to UTF-8.
- * Use decodeSoftOneResponse() or SOFTONE_RESPONSE_ENCODING in any SoftOne integration.
+ * All SoftOne responses are read as ArrayBuffer and decoded with iconv-lite from ANSI 1253 (Windows-1253) to UTF-8.
+ * Use decodeSoftOneResponse() for any custom SoftOne fetch; softOneFetch() applies it automatically.
  * @see https://softone.gr/ws/
  *
  * Data model (hierarchy):
@@ -16,7 +16,10 @@ import iconv from "iconv-lite"
 /** Use this encoding when decoding any SoftOne API response (ANSI Greek → UTF-8). */
 export const SOFTONE_RESPONSE_ENCODING = "win1253" as const
 
-/** Decode SoftOne response body from Windows-1253 (ANSI Greek) to UTF-8. Always use for SoftOne API. */
+/**
+ * Decode SoftOne response body from ANSI 1253 (Windows-1253 / Greek) to UTF-8 using iconv-lite.
+ * All SoftOne responses must be read as ArrayBuffer and passed here before parsing (e.g. JSON).
+ */
 export function decodeSoftOneResponse(buffer: ArrayBuffer): string {
   return iconv.decode(Buffer.from(buffer), SOFTONE_RESPONSE_ENCODING)
 }
@@ -110,6 +113,7 @@ export type SoftOneGetTableFieldsResponse = {
 
 /**
  * Call SoftOne s1services JSON API.
+ * All responses are read as ArrayBuffer and decoded with iconv-lite (ANSI 1253 → UTF-8) before JSON.parse.
  */
 async function softOneFetch<T>(body: Record<string, unknown>): Promise<T | SoftOneErrorResponse> {
   const baseUrl = getBaseUrl();
@@ -134,7 +138,7 @@ async function softOneFetch<T>(body: Record<string, unknown>): Promise<T | SoftO
   });
 
   const arrayBuffer = await res.arrayBuffer();
-  const decoded = decodeSoftOneResponse(arrayBuffer);
+  const decoded = decodeSoftOneResponse(arrayBuffer); // iconv-lite: ANSI 1253 → UTF-8
   let data: T | SoftOneErrorResponse;
   try {
     data = JSON.parse(decoded || "{}") as T | SoftOneErrorResponse;
@@ -217,6 +221,7 @@ export async function softOneLoginAndAuthenticate(): Promise<
 
 /**
  * Ping SoftOne to verify WebModule is reachable (no auth).
+ * Response is read as ArrayBuffer and decoded with iconv-lite (ANSI 1253 → UTF-8).
  */
 export async function softOnePing(): Promise<SoftOnePingResponse> {
   const baseUrl = getBaseUrl();
@@ -226,7 +231,7 @@ export async function softOnePing(): Promise<SoftOnePingResponse> {
   try {
     const res = await fetch(`${baseUrl}?ping`);
     const arrayBuffer = await res.arrayBuffer();
-    const text = decodeSoftOneResponse(arrayBuffer);
+    const text = decodeSoftOneResponse(arrayBuffer); // iconv-lite: ANSI 1253 → UTF-8
     const ok = res.ok && text.toLowerCase().includes("ping from softone");
     return { ok, message: ok ? text.trim() : text || res.statusText };
   } catch (e) {
@@ -376,6 +381,191 @@ export async function getSoftOneTableFields(
     };
   }
   return (res as SoftOneErrorResponse) ?? { success: false, message: "Failed to get fields" };
+}
+
+/** GetTable response: data = array of value-arrays, model[0] = array of { name, type }. */
+export type SoftOneGetTableResponse = {
+  success?: boolean;
+  errorcode?: number;
+  error?: string;
+  table?: string;
+  count?: number;
+  model?: Array<Array<{ name: string; type?: string }>>;
+  keys?: string;
+  data?: unknown[][];
+  message?: string;
+  [key: string]: unknown;
+};
+
+/**
+ * Parse GetTable response: data is array of arrays, model[0] gives column names.
+ * Returns rows as Record<string, unknown>[] (one object per row, keys = field names).
+ */
+function parseGetTableResponse(res: SoftOneGetTableResponse): Record<string, unknown>[] {
+  const data = res.data;
+  if (!Array.isArray(data) || data.length === 0) return [];
+
+  const modelRow = res.model?.[0];
+  const names: string[] = Array.isArray(modelRow)
+    ? modelRow.map((c, idx) => (c && typeof c === "object" && "name" in c ? String(c.name) : `col_${idx}`))
+    : [];
+
+  const namesResolved =
+    names.length > 0 ? names : (data[0] as unknown[]).map((_, idx) => `col_${idx}`);
+
+  return data.map((rowArr) => {
+    const row: Record<string, unknown> = {};
+    const values = Array.isArray(rowArr) ? rowArr : [];
+    values.forEach((val, idx) => {
+      const key = (namesResolved[idx] ?? `col_${idx}`).toString().toUpperCase();
+      row[key] = val;
+    });
+    return row;
+  });
+}
+
+/**
+ * Parse GetTable response for CUSTOMER/TRDR using the exact FIELDS order we requested.
+ * Ensures COUNTRY, TRDPGROUP, TRDBUSINESS etc. are mapped by position even if API model names differ.
+ */
+function parseGetTableResponseWithFieldOrder(
+  res: SoftOneGetTableResponse,
+  fieldNames: string[]
+): Record<string, unknown>[] {
+  const data = res.data;
+  if (!Array.isArray(data) || data.length === 0) return [];
+
+  return data.map((rowArr) => {
+    const row: Record<string, unknown> = {};
+    const values = Array.isArray(rowArr) ? rowArr : [];
+    values.forEach((val, idx) => {
+      const key = (fieldNames[idx] ?? `col_${idx}`).toString().toUpperCase();
+      row[key] = val;
+    });
+    return row;
+  });
+}
+
+/** TRDR/CUSTOMER fields for GetTable. Include COUNTRY, TRDGROUP, TRDPGROUP, TRDBUSINESS for display. */
+const TRDR_GET_TABLE_FIELDS =
+  "TRDR,CODE,NAME,AFM,COUNTRY,TRDGROUP,TRDPGROUP,TRDBUSINESS,PHONE01,PHONE02,ADDRESS,ZIP,CITY,EMAIL,REMARKS";
+
+/** GetTable FIELDS for SoftOne lookup tables (COUNTRY, TRDPGROUP, TRDBUSINESS). */
+const LOOKUP_TABLE_FIELDS: Record<string, string> = {
+  COUNTRY: "COUNTRY,NAME",
+  TRDPGROUP: "TRDPGROUP,CODE,NAME",
+  TRDBUSINESS: "TRDBUSINESS,CODE,NAME",
+};
+
+/**
+ * Get table data (rows) from SoftOne using GetTable (TABLE=CUSTOMER, FIELDS=…, FILTER=1=1).
+ * Response is decoded with iconv (win1253 → UTF-8). Returns rows as objects keyed by field name.
+ */
+export async function getSoftOneTableData(
+  clientID: string,
+  objectName: string,
+  tableName: string
+): Promise<
+  | { success: true; rows: Record<string, unknown>[] }
+  | SoftOneErrorResponse
+> {
+  const appId = process.env.SOFTONE_APP_ID;
+  if (!appId) {
+    console.log("[SoftOne GetTable] Abort: SOFTONE_APP_ID not set");
+    return { success: false, message: "SOFTONE_APP_ID not set", code: -1 };
+  }
+
+  // Working sample: clientId, appId (number), version, service: "GetTable", TABLE, FIELDS, FILTER
+  const body: Record<string, unknown> = {
+    clientId: clientID,
+    appId: Number(appId) || 2000,
+    version: "1",
+    service: "GetTable",
+    TABLE: objectName,
+    FIELDS:
+      objectName === "CUSTOMER" && tableName === "TRDR"
+        ? TRDR_GET_TABLE_FIELDS
+        : LOOKUP_TABLE_FIELDS[tableName] ?? `${tableName},CODE,NAME`,
+    FILTER: "1=1",
+  };
+
+  console.log("[SoftOne GetTable] Request:", objectName, tableName, "fields length:", String(body.FIELDS).length);
+  const res = await softOneFetch<SoftOneGetTableResponse>(body);
+
+  if (!res || typeof res !== "object") {
+    console.log("[SoftOne GetTable] No/invalid response:", res);
+    return (res as SoftOneErrorResponse) ?? { success: false, message: "Failed to get table data" };
+  }
+
+  if ("success" in res && res.success === false) {
+    const errMsg = (res as SoftOneGetTableResponse).error ?? (res as SoftOneErrorResponse).message;
+    const errCode = (res as SoftOneGetTableResponse).errorcode ?? (res as SoftOneErrorResponse).code;
+    console.log("[SoftOne GetTable] API error:", errCode, errMsg);
+    return { success: false, message: errMsg ?? "SoftOne error", code: errCode ?? -1 };
+  }
+
+  const isCustomerTrdr = objectName === "CUSTOMER" && tableName === "TRDR";
+  const rows = isCustomerTrdr
+    ? parseGetTableResponseWithFieldOrder(
+        res as SoftOneGetTableResponse,
+        TRDR_GET_TABLE_FIELDS.split(",").map((s) => s.trim())
+      )
+    : parseGetTableResponse(res as SoftOneGetTableResponse);
+  console.log("[SoftOne GetTable] Parsed rows:", rows.length, "sample keys:", rows[0] ? Object.keys(rows[0]) : []);
+  return { success: true, rows };
+}
+
+/** ERP fields we can send to SoftOne SetData for CUSTOMER/TRDR. Same names as GetTable. */
+const TRDR_SETDATA_KEYS = [
+  "TRDR", "CODE", "NAME", "AFM", "COUNTRY", "TRDGROUP", "TRDPGROUP", "TRDBUSINESS",
+  "PHONE01", "PHONE02", "ADDRESS", "ZIP", "CITY", "EMAIL", "REMARKS",
+] as const;
+
+export type SetDataTrdrPayload = Partial<Record<typeof TRDR_SETDATA_KEYS[number], string | number | null>>;
+
+/**
+ * Update a single TRDR (customer) record in SoftOne ERP via SetData.
+ * clientID from cookie; trdrNumber is the TRDR primary key in SoftOne; data contains ERP field names and values.
+ */
+export async function setSoftOneTrdrData(
+  clientID: string,
+  trdrNumber: number,
+  data: SetDataTrdrPayload
+): Promise<{ success: true } | SoftOneErrorResponse> {
+  const appId = process.env.SOFTONE_APP_ID;
+  if (!appId) {
+    console.log("[SoftOne SetData] Abort: SOFTONE_APP_ID not set");
+    return { success: false, message: "SOFTONE_APP_ID not set", code: -1 };
+  }
+
+  const body: Record<string, unknown> = {
+    clientId: clientID,
+    appId: Number(appId) || 2000,
+    version: "1",
+    service: "SetData",
+    TABLE: "CUSTOMER",
+    TRDR: trdrNumber,
+  };
+
+  for (const key of TRDR_SETDATA_KEYS) {
+    const val = data[key];
+    if (val === undefined) continue;
+    body[key] = val === null || val === "" ? "" : val;
+  }
+
+  console.log("[SoftOne SetData] Request TRDR:", trdrNumber, "keys:", Object.keys(body).filter(k => !["clientId", "appId", "version", "service", "TABLE", "TRDR"].includes(k)));
+  const res = await softOneFetch<{ success?: boolean; error?: string; errorcode?: number }>(body);
+
+  if (!res || typeof res !== "object") {
+    return (res as SoftOneErrorResponse) ?? { success: false, message: "Invalid SetData response", code: -1 };
+  }
+  if ("success" in res && res.success === false) {
+    const errMsg = (res as { error?: string }).error ?? (res as SoftOneErrorResponse).message;
+    const errCode = (res as { errorcode?: number }).errorcode ?? (res as SoftOneErrorResponse).code;
+    console.log("[SoftOne SetData] API error:", errCode, errMsg);
+    return { success: false, message: errMsg ?? "SetData failed", code: errCode ?? -1 };
+  }
+  return { success: true };
 }
 
 export type SoftOneTableWithFields = {

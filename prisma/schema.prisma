@@ -74,9 +74,11 @@ model TRDR {
   CITY           String?   @db.VarChar(30)
   AREAS          Int?
   PHONE01        String?   @db.VarChar(20)
+  PHONE02        String?   @db.VarChar(20)
   JOBTYPE        Int?
   JOBTYPETRD     String?   @db.VarChar(128)
   EMAIL          String?   @db.VarChar(128)
+  EMAILACC       String?   @db.VarChar(128)
   TRDBUSINESS    Int?
   SHIPMENT       Int?
   PAYMENT        Int?
@@ -86,6 +88,17 @@ model TRDR {
   INSDATE        DateTime?
   UPDDATE        DateTime?
   SOTITLE        String?   @db.VarChar(64)
+
+  ISACTIVE       Int?      @db.SmallInt
+  ISPROSP        Int?      @db.SmallInt
+  LATITUDE       Float?
+  LONGITUDE      Float?
+  OBTYPE         Int?      @db.SmallInt
+  TRDGROUP       Int?
+  TRDPGROUP      Int?      @db.SmallInt
+  WEBPAGE        String?   @db.VarChar(255)
+  CONSENT        Int?      @db.SmallInt
+  PRJCS          Int?
 
   logo           String?
   website        String?
@@ -113,6 +126,33 @@ model trdrKad {
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+}
+
+// SoftOne lookup tables (synced from GetTable for display names)
+model SoftOneCountry {
+  id        String   @id @default(cuid())
+  code      Int      @unique // COUNTRY code, matches TRDR.COUNTRY
+  name      String?  @db.VarChar(128)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SoftOneTrdpGroup {
+  id        String   @id @default(cuid())
+  code      Int      @unique // TRDPGROUP code, matches TRDR.TRDPGROUP
+  shortCode String?  @db.VarChar(25)
+  name      String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SoftOneTrdBusiness {
+  id        String   @id @default(cuid())
+  code      Int      @unique // TRDBUSINESS code, matches TRDR.TRDBUSINESS
+  shortCode String?  @db.VarChar(25)
+  name      String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ArticleCategory {

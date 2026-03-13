@@ -140,7 +140,7 @@ const SortableRow = ({ row, renderExpandedRow, columnsCount, isSortable, rowIdKe
                     customClass && customClass
                 )}>
                     <TableCell colSpan={columnsCount} className="p-0 border-none">
-                        <div className="px-8 pb-8 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-300">
                             {renderExpandedRow(row.original)}
                         </div>
                     </TableCell>
@@ -262,7 +262,7 @@ export function GenericDataTable<TData, TValue>({
                     onClick={() => (renderExpandedRow || row.getCanExpand()) && row.toggleExpanded()}
                 >
                     {row.getVisibleCells().map((cell: any) => (
-                        <TableCell key={cell.id} className="py-4 px-4">
+                        <TableCell key={cell.id} className="py-2.5 px-3 text-sm">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                     ))}
@@ -274,7 +274,7 @@ export function GenericDataTable<TData, TValue>({
                         customClass && customClass
                     )}>
                         <TableCell colSpan={finalColumns.length} className="p-0 border-none">
-                            <div className="px-8 pb-8 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div className="px-4 pb-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                 {renderExpandedRow(row.original)}
                             </div>
                         </TableCell>
@@ -292,7 +292,7 @@ export function GenericDataTable<TData, TValue>({
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id} className="border-b border-border bg-muted/40">
                             {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id} className="text-xs font-semibold uppercase tracking-wide text-muted-foreground py-4 bg-muted/40">
+                                <TableHead key={header.id} className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground py-2.5 px-3 bg-muted/40">
                                     {header.isPlaceholder
                                         ? null
                                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -321,7 +321,7 @@ export function GenericDataTable<TData, TValue>({
                         </SortableContext>
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={finalColumns.length} className="h-24 text-center text-sm text-muted-foreground">
+                            <TableCell colSpan={finalColumns.length} className="h-16 text-center text-xs text-muted-foreground">
                                 No results.
                             </TableCell>
                         </TableRow>
@@ -337,7 +337,7 @@ export function GenericDataTable<TData, TValue>({
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id} className="border-b border-border bg-muted/40">
                             {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id} className="text-xs font-semibold uppercase tracking-wide text-muted-foreground py-4 bg-muted/40">
+                                <TableHead key={header.id} className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground py-2.5 px-3 bg-muted/40">
                                 {header.isPlaceholder
                                     ? null
                                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -351,7 +351,7 @@ export function GenericDataTable<TData, TValue>({
                     table.getRowModel().rows.map((row) => renderRow(row))
                 ) : (
                     <TableRow>
-                        <TableCell colSpan={finalColumns.length} className="h-24 text-center">
+                        <TableCell colSpan={finalColumns.length} className="h-16 text-center text-xs text-muted-foreground">
                             No results.
                         </TableCell>
                     </TableRow>
@@ -361,8 +361,8 @@ export function GenericDataTable<TData, TValue>({
     )
 
     return (
-        <div className="w-full space-y-4">
-            <div className="flex items-center justify-between gap-2">
+        <div className="w-full flex flex-col min-h-[calc(100vh-10rem)] max-h-[calc(100vh-6rem)]">
+            <div className="flex items-center justify-between gap-2 shrink-0 mb-3">
                 <div className="flex items-center flex-1 gap-2">
                     <div className="relative w-full max-w-sm">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -374,14 +374,14 @@ export function GenericDataTable<TData, TValue>({
                                     table.getColumn(searchColumn)!.setFilterValue(event.target.value)
                                 }
                             }}
-                            className="pl-10 h-10 rounded-xl"
+                            className="pl-9 h-8 text-sm rounded-lg"
                         />
                     </div>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="ml-auto flex h-10 gap-2 border-dashed rounded-xl">
-                                <SlidersHorizontal className="h-4 w-4" />
+                            <Button variant="outline" size="sm" className="ml-auto flex h-8 text-xs gap-1.5 border-dashed rounded-lg">
+                                <SlidersHorizontal className="h-3.5 w-3.5" />
                                 Columns
                             </Button>
                         </DropdownMenuTrigger>
@@ -406,39 +406,39 @@ export function GenericDataTable<TData, TValue>({
                 </div>
 
                 {onAddClick && (
-                    <Button onClick={onAddClick} className="h-10 px-6 rounded-xl shadow-md bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Button onClick={onAddClick} className="h-8 text-sm px-4 rounded-lg shadow-sm bg-primary text-primary-foreground hover:bg-primary/90">
                         <Plus className="mr-2 h-4 w-4" /> {addButtonLabel}
                     </Button>
                 )}
             </div>
 
-            <div className="rounded-xl border border-border bg-card text-card-foreground shadow-md overflow-hidden max-h-[65vh] flex flex-col">
-            <div
-                className="overflow-auto min-h-0 flex-1"
-                onWheel={(e) => e.stopPropagation()}
-            >
-                {isSortable ? sortableBody : staticBody}
-            </div>
+            <div className="rounded-xl border border-border bg-card text-card-foreground shadow-md overflow-hidden flex-1 min-h-0 flex flex-col">
+                <div
+                    className="overflow-auto min-h-0 flex-1"
+                    onWheel={(e) => e.stopPropagation()}
+                >
+                    {isSortable ? sortableBody : staticBody}
+                </div>
             </div>
 
-            <div className="flex items-center justify-between px-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between px-2 py-2.5 shrink-0 border-t border-border bg-muted/30 rounded-b-xl">
+                <div className="flex-1 text-xs text-muted-foreground">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                    {table.getFilteredRowModel().rows.length} row(s) selected
                 </div>
-                <div className="flex items-center space-x-6 lg:space-x-8">
-                    <div className="flex items-center space-x-2">
-                        <p className="text-sm font-medium text-muted-foreground">Rows per page</p>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                        <p className="text-xs text-muted-foreground">Rows</p>
                         <Select
                             value={`${table.getState().pagination.pageSize}`}
                             onValueChange={(value) => {
                                 table.setPageSize(Number(value))
                             }}
                         >
-                            <SelectTrigger className="h-8 w-[70px] rounded-lg">
+                            <SelectTrigger className="h-7 w-[65px] rounded-md text-xs">
                                 <SelectValue placeholder={table.getState().pagination.pageSize} />
                             </SelectTrigger>
-                            <SelectContent side="top" className="rounded-xl">
+                            <SelectContent side="top" className="rounded-lg">
                                 {[10, 20, 25, 50, 100].map((pageSize) => (
                                     <SelectItem key={pageSize} value={`${pageSize}`}>
                                         {pageSize}
@@ -447,42 +447,45 @@ export function GenericDataTable<TData, TValue>({
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="flex w-[100px] items-center justify-center text-sm text-muted-foreground text-center">
-                        Page {table.getState().pagination.pageIndex + 1} of{" "}
-                        {table.getPageCount() || 1}
+                    <div className="flex w-[90px] items-center justify-center text-xs text-muted-foreground text-center">
+                        Page {table.getState().pagination.pageIndex + 1} / {table.getPageCount() || 1}
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-1">
                         <Button
                             variant="outline"
-                            className="hidden h-8 w-8 p-0 lg:flex rounded-lg"
+                            size="icon"
+                            className="h-7 w-7 rounded-md"
                             onClick={() => table.setPageIndex(0)}
                             disabled={!table.getCanPreviousPage()}
                         >
-                            <ChevronsLeft className="h-4 w-4" />
+                            <ChevronsLeft className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                             variant="outline"
-                            className="h-8 w-8 p-0 rounded-lg"
+                            size="icon"
+                            className="h-7 w-7 rounded-md"
                             onClick={() => table.previousPage()}
                             disabled={!table.getCanPreviousPage()}
                         >
-                            <ChevronLeft className="h-4 w-4" />
+                            <ChevronLeft className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                             variant="outline"
-                            className="h-8 w-8 p-0 rounded-lg"
+                            size="icon"
+                            className="h-7 w-7 rounded-md"
                             onClick={() => table.nextPage()}
                             disabled={!table.getCanNextPage()}
                         >
-                            <ChevronRight className="h-4 w-4" />
+                            <ChevronRight className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                             variant="outline"
-                            className="hidden h-8 w-8 p-0 lg:flex rounded-lg"
+                            size="icon"
+                            className="h-7 w-7 rounded-md"
                             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                             disabled={!table.getCanNextPage()}
                         >
-                            <ChevronsRight className="h-4 w-4" />
+                            <ChevronsRight className="h-3.5 w-3.5" />
                         </Button>
                     </div>
                 </div>

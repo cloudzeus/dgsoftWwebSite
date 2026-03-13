@@ -1,60 +1,106 @@
 "use client";
 
 import { motion } from "framer-motion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-const customers = [
-    { name: "Customer 1", id: 1 },
-    { name: "Customer 2", id: 2 },
-    { name: "Customer 3", id: 3 },
-    { name: "Customer 4", id: 4 },
-    { name: "Customer 5", id: 5 },
-    { name: "Customer 6", id: 6 },
-    { name: "Customer 7", id: 7 },
-    { name: "Customer 8", id: 8 },
-];
+export type CarouselCustomer = {
+  id: string;
+  NAME: string;
+  CODE?: string | null;
+  logo?: string | null;
+  website?: string | null;
+  WEBPAGE?: string | null;
+};
 
-export default function Customers() {
-    return (
-        <section id="customers" className="py-24 bg-monks-dark relative overflow-hidden">
-            <div className="max-w-[1800px] mx-auto px-6 md:px-12 mb-12">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.8 }}
-                    className="text-center"
-                >
-                    <span className="section-number justify-center">Οι Πελάτες Μας</span>
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mt-4">
-                        Μας Εμπιστεύονται για την <span className="gradient-text">Ψηφιακή Τους Μετάβαση</span>
-                    </h2>
-                </motion.div>
-            </div>
+export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) {
+  const customers = data.filter((c) => c.logo?.trim());
+  const items = customers.length > 0 ? customers : [];
 
-            <div className="relative flex overflow-x-hidden w-full group">
-                <div className="absolute top-0 bottom-0 left-0 w-32 bg-gradient-to-r from-monks-dark to-transparent z-10" />
-                <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-monks-dark to-transparent z-10" />
+  return (
+    <section id="customers" className="py-24 bg-monks-dark relative overflow-hidden">
+      <div className="max-w-[1800px] mx-auto px-6 md:px-12 mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <span className="section-number justify-center">Οι Πελάτες Μας</span>
+          <h2 className="text-3xl md:text-5xl font-bold text-white mt-4">
+            Μας Εμπιστεύονται για την <span className="gradient-text">Ψηφιακή Τους Μετάβαση</span>
+          </h2>
+        </motion.div>
+      </div>
 
-                <motion.div
-                    animate={{ x: ["0%", "-50%"] }}
-                    transition={{
-                        repeat: Infinity,
-                        ease: "linear",
-                        duration: 30,
-                    }}
-                    className="flex whitespace-nowrap gap-16 py-8"
-                >
-                    {/* Double array to create seamless loop */}
-                    {[...customers, ...customers].map((customer, i) => (
-                        <div
-                            key={`${customer.id}-${i}`}
-                            className="flex-shrink-0 flex items-center justify-center w-[200px] h-[100px] bg-monks-gray/50 border border-white/5 rounded-2xl hover:bg-monks-gray hover:border-monks-accent/50 transition-all duration-300"
+      <div className="relative flex overflow-x-hidden w-full group">
+        <div className="absolute top-0 bottom-0 left-0 w-32 bg-gradient-to-r from-monks-dark to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-monks-dark to-transparent z-10 pointer-events-none" />
+
+        <TooltipProvider delayDuration={150}>
+          <motion.div
+            animate={{ x: items.length > 0 ? ["0%", "-50%"] : "0%" }}
+            transition={{
+              repeat: items.length > 0 ? Infinity : 0,
+              ease: "linear",
+              duration: 40,
+            }}
+            className="flex whitespace-nowrap gap-16 py-8"
+          >
+            {items.length === 0 ? (
+              <div className="w-full flex items-center justify-center py-12">
+                <p className="text-white/40 text-sm">Featured company logos will appear here.</p>
+              </div>
+            ) : (
+              [...items, ...items].map((customer, i) => {
+                const logo = customer.logo?.trim();
+                const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(customer.NAME ?? "")}&background=334155&color=94a3b8`;
+                const src = logo || fallbackUrl;
+                const website = customer.website?.trim() || customer.WEBPAGE?.trim();
+                const content = (
+                  <div
+                    key={`${customer.id}-${i}`}
+                    className="flex-shrink-0 flex items-center justify-center w-[180px] h-[100px] bg-white rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden p-4"
+                  >
+                    <img
+                      src={src}
+                      alt={customer.NAME}
+                      className="w-full h-full object-contain"
+                      onError={(e) => (e.currentTarget.src = fallbackUrl)}
+                    />
+                  </div>
+                );
+                return (
+                  <Tooltip key={`${customer.id}-${i}`}>
+                    <TooltipTrigger asChild>
+                      {website ? (
+                        <a
+                          href={website.startsWith("http") ? website : `https://${website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="focus:outline-none focus:ring-2 focus:ring-monks-accent/50 rounded-2xl"
                         >
-                            <span className="text-white/50 text-xl font-bold">{customer.name}</span>
-                        </div>
-                    ))}
-                </motion.div>
-            </div>
-        </section>
-    );
+                          {content}
+                        </a>
+                      ) : (
+                        <span className="block">{content}</span>
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="rounded-lg px-2.5 py-1.5 bg-zinc-800 text-white border-0 shadow-lg">
+                      <p className="text-xs font-medium text-white/95">{customer.NAME}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })
+            )}
+          </motion.div>
+        </TooltipProvider>
+      </div>
+    </section>
+  );
 }
