@@ -147,18 +147,31 @@ export function AddressMappingClient({
     const groupList = Array.from(groups.values());
     const tid = toast.loading(`Area 1 / ${groupList.length} (1 query per city+zip)…`);
     let totalSaved = 0;
+    let failedError: string | null = null;
     for (let i = 0; i < groupList.length; i++) {
       const group = groupList[i];
       setSuggestingKey(group[0]?.addressKey ?? null);
       toast.loading(`Area ${i + 1} / ${groupList.length}: ${group.length} address(es)…`, { id: tid });
       try {
         const result = await suggestAndSaveGroup(group);
-        if (result.success) totalSaved += result.saved;
-      } catch (_) {}
+        if (result.success) {
+          totalSaved += result.saved;
+        } else {
+          failedError = result.error ?? "AI suggestion failed";
+          toast.error(failedError, { id: tid, duration: 8000 });
+          break;
+        }
+      } catch (e) {
+        failedError = e instanceof Error ? e.message : "Suggest failed";
+        toast.error(failedError, { id: tid, duration: 8000 });
+        break;
+      }
       await new Promise((r) => setTimeout(r, 300));
     }
     setSuggestingKey(null);
-    toast.success(`Saved ${totalSaved} mapping(s) in ${groupList.length} area(s).`, { id: tid, duration: 4000 });
+    if (failedError == null) {
+      toast.success(`Saved ${totalSaved} mapping(s) in ${groupList.length} area(s).`, { id: tid, duration: 4000 });
+    }
     try {
       const fresh = await getDistinctCustomerAddresses();
       setAddresses(fresh);

@@ -24,6 +24,8 @@ import {
   WrenchIcon,
   PlugIcon,
   MailIcon,
+  SendIcon,
+  LayoutTemplateIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -106,6 +108,18 @@ const navData = {
       icon: MailIcon,
     },
   ],
+  navNewsletter: [
+    {
+      title: "Templates",
+      url: "/admin/newsletter/templates",
+      icon: LayoutTemplateIcon,
+    },
+    {
+      title: "Campaigns",
+      url: "/admin/newsletter/campaigns",
+      icon: SendIcon,
+    },
+  ],
   navFunding: [
     {
       title: "EU Programs",
@@ -182,6 +196,24 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navData.navMain} />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Newsletter</SidebarGroupLabel>
+          <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarMenu>
+              {navData.navNewsletter.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         <SidebarGroup>
           <SidebarGroupLabel>Funding & European Programs</SidebarGroupLabel>

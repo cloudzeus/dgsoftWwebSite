@@ -530,3 +530,49 @@ model WorkMedia {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Newsletter: visual designer templates and campaigns
+model NewsletterTemplate {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(255)
+  description String?  @db.VarChar(512)
+  content     Json     // blocks: { blocks: Array<{ type, props }> }
+  htmlCache   String?  @db.LongText // rendered HTML for sending
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaigns   NewsletterCampaign[]
+}
+
+model NewsletterCampaign {
+  id          String    @id @default(cuid())
+  name        String    @db.VarChar(255)
+  subject     String    @db.VarChar(512)
+  templateId  String?
+  template    NewsletterTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  status      String    @default("draft") @db.VarChar(32) // draft, sending, sent, failed
+  filters     Json?     // { regionIds, nomosIds, dimosIds, cities, legalStatuses, kadCodes, trdpGroupIds, trdBusinessIds }
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  recipients  NewsletterCampaignRecipient[]
+}
+
+model NewsletterCampaignRecipient {
+  id         String    @id @default(cuid())
+  campaignId String
+  campaign   NewsletterCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  email      String    @db.VarChar(255)
+  trdrId     String?   // TRDR.id for reference
+  status     String    @default("pending") @db.VarChar(32) // pending, sent, delivered, failed, opened, clicked
+  mailgunId  String?   @db.VarChar(255)
+  error      String?   @db.Text
+  openedAt   DateTime?
+  clickedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([campaignId])
+  @@index([email])
+}

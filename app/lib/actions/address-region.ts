@@ -10,6 +10,90 @@ const ADDRESS_MAPPING_PATH = "/admin/eu-programs/address-mapping";
 
 const LEVEL_DIMOS = 5;
 
+/** Call DeepSeek or OpenAI for address→region mapping. Tries DeepSeek first if key set, then OpenAI. */
+async function callAddressMappingAI(prompt: string): Promise<{ success: boolean; text?: string; error?: string }> {
+  const deepseekKey = process.env.DEEPSEEK_API_KEY?.trim();
+  const openaiKey = process.env.OPENAI_API_KEY?.trim();
+
+  if (!deepseekKey && !openaiKey) {
+    return {
+      success: false,
+      error:
+        "No AI API key configured. Set DEEPSEEK_API_KEY or OPENAI_API_KEY in your deployment environment variables (e.g. Vercel → Project → Settings → Environment Variables).",
+    };
+  }
+
+  const tryDeepSeek = async (): Promise<string> => {
+    if (!deepseekKey) throw new Error("DEEPSEEK_API_KEY not set");
+    const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions";
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${deepseekKey}`,
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.1,
+      }),
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`DeepSeek ${res.status}: ${t.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    return (data.choices?.[0]?.message?.content ?? "").trim();
+  };
+
+  const tryOpenAI = async (): Promise<string> => {
+    if (!openaiKey) throw new Error("OPENAI_API_KEY not set");
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${openaiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.1,
+      }),
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`OpenAI ${res.status}: ${t.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    return (data.choices?.[0]?.message?.content ?? "").trim();
+  };
+
+  try {
+    if (deepseekKey) {
+      try {
+        const text = await tryDeepSeek();
+        return { success: true, text };
+      } catch (e) {
+        if (openaiKey) {
+          try {
+            const text = await tryOpenAI();
+            return { success: true, text };
+          } catch (openaiErr) {
+            const msg = e instanceof Error ? e.message : String(e);
+            return { success: false, error: `DeepSeek failed: ${msg}. OpenAI fallback also failed.` };
+          }
+        }
+        return { success: false, error: e instanceof Error ? e.message : String(e) };
+      }
+    }
+    const text = await tryOpenAI();
+    return { success: true, text };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { success: false, error: msg };
+  }
+}
+
 /** If customer(s) at this address lack city, fetch from afm2info, update TRDR, return row with enriched address/city/zip for mapping. */
 export async function enrichAddressFromVat(row: DistinctAddressRow): Promise<DistinctAddressRow> {
   const session = await auth();
@@ -219,16 +303,12 @@ export type BulkSuggestResult = {
   rawZip?: string | null;
 };
 
-/** Suggest mappings for a batch of addresses in one DeepSeek call (city + address/area used together). */
+/** Suggest mappings for a batch of addresses in one AI call (DeepSeek or OpenAI). */
 export async function suggestAddressMappingBulk(
   batch: DistinctAddressRow[]
 ): Promise<{ success: boolean; results?: BulkSuggestResult[]; error?: string }> {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return { success: false, error: "Unauthorized" };
-
-  const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
-  const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions";
-  if (!apiKey) return { success: false, error: "DEEPSEEK_API_KEY not set" };
 
   const dimosList = await getPeriferiesFlattened();
   if (dimosList.length === 0) return { success: false, error: "No Δήμοι in database" };
@@ -264,50 +344,28 @@ ${dimosListForPrompt(dimosList)}
 
 Reply with exactly ${N} lines. Line i is the result for Address i: either the periferia id (cuid) only, or UNKNOWN. No other text, no numbering.`;
 
-  try {
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.1,
-      }),
-    });
+  const ai = await callAddressMappingAI(prompt);
+  if (!ai.success || ai.text == null) return { success: false, error: ai.error };
 
-    if (!res.ok) {
-      const t = await res.text();
-      return { success: false, error: `API ${res.status}: ${t.slice(0, 200)}` };
-    }
+  const lines = ai.text.split(/\r?\n/).map((l: string) => l.trim()).filter(Boolean).slice(0, N);
+  const idSet = new Set(dimosList.map((d) => d.id));
 
-    const data = await res.json();
-    const text = (data.choices?.[0]?.message?.content ?? "").trim();
-    const lines = text.split(/\r?\n/).map((l: string) => l.trim()).filter(Boolean).slice(0, N);
-    const idSet = new Set(dimosList.map((d) => d.id));
+  const results: BulkSuggestResult[] = slice.map((row, i) => {
+    const line = lines[i] ?? "";
+    const id = line.toUpperCase() === "UNKNOWN" ? null : line.split(/\s/)[0]?.trim() ?? null;
+    const valid = id && idSet.has(id) ? id : null;
+    const enriched = enrichedBatch[i];
+    return {
+      addressKey: row.addressKey,
+      periferiaId: valid,
+      saveKey: enriched.addressKey,
+      rawAddress: enriched.rawAddress,
+      rawCity: enriched.rawCity,
+      rawZip: enriched.rawZip,
+    };
+  });
 
-    const results: BulkSuggestResult[] = slice.map((row, i) => {
-      const line = lines[i] ?? "";
-      const id = line.toUpperCase() === "UNKNOWN" ? null : line.split(/\s/)[0]?.trim() ?? null;
-      const valid = id && idSet.has(id) ? id : null;
-      const enriched = enrichedBatch[i];
-      return {
-        addressKey: row.addressKey,
-        periferiaId: valid,
-        saveKey: enriched.addressKey,
-        rawAddress: enriched.rawAddress,
-        rawCity: enriched.rawCity,
-        rawZip: enriched.rawZip,
-      };
-    });
-
-    return { success: true, results };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return { success: false, error: msg };
-  }
+  return { success: true, results };
 }
 
 /** Save multiple suggested mappings (only those with periferiaId). Uses saveKey and raw* when provided (enriched key after VAT). */
@@ -375,10 +433,6 @@ export async function suggestAddressMapping(params: {
   };
   const enriched = await enrichAddressFromVat(minimalRow);
 
-  const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
-  const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions";
-  if (!apiKey) return { success: false, error: "DEEPSEEK_API_KEY not set" };
-
   const dimosList = await getPeriferiesFlattened();
   if (dimosList.length === 0) return { success: false, error: "No Δήμοι in database" };
 
@@ -398,40 +452,19 @@ ${dimosListForPrompt(dimosList)}
 
 Reply with ONLY the id (cuid) of the chosen Δήμος, nothing else. No explanation, no quotes. If the address is clearly outside Greece or cannot be matched, reply with: UNKNOWN`;
 
-  try {
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.1,
-      }),
-    });
+  const ai = await callAddressMappingAI(prompt);
+  if (!ai.success || ai.text == null) return { success: false, error: ai.error };
 
-    if (!res.ok) {
-      const t = await res.text();
-      return { success: false, error: `API ${res.status}: ${t.slice(0, 200)}` };
-    }
+  const text = ai.text;
+  if (text.toUpperCase() === "UNKNOWN") return { success: true, addressKeyToSave: enriched.addressKey, rawAddress: enriched.rawAddress, rawCity: enriched.rawCity, rawZip: enriched.rawZip };
 
-    const data = await res.json();
-    const text = (data.choices?.[0]?.message?.content ?? "").trim();
-    if (text.toUpperCase() === "UNKNOWN") return { success: true, addressKeyToSave: enriched.addressKey, rawAddress: enriched.rawAddress, rawCity: enriched.rawCity, rawZip: enriched.rawZip };
+  const id = text.split(/\s/)[0]?.trim();
+  if (!id) return { success: false, error: "Empty response" };
 
-    const id = text.split(/\s/)[0]?.trim();
-    if (!id) return { success: false, error: "Empty response" };
+  const found = dimosList.some((d) => d.id === id);
+  if (!found) return { success: false, error: `Invalid id: ${id}` };
 
-    const found = dimosList.some((d) => d.id === id);
-    if (!found) return { success: false, error: `Invalid id: ${id}` };
-
-    return { success: true, periferiaId: id, addressKeyToSave: enriched.addressKey, rawAddress: enriched.rawAddress, rawCity: enriched.rawCity, rawZip: enriched.rawZip };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return { success: false, error: msg };
-  }
+  return { success: true, periferiaId: id, addressKeyToSave: enriched.addressKey, rawAddress: enriched.rawAddress, rawCity: enriched.rawCity, rawZip: enriched.rawZip };
 }
 
 /** Save or update address → periferia mapping. */
