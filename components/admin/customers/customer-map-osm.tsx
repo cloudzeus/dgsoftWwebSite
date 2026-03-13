@@ -111,7 +111,7 @@ export function CustomerMapOSM({ lat, lng, name, address }: CustomerMapOSMProps)
     <div className="bg-white dark:bg-zinc-900 rounded-xl border overflow-hidden shadow-sm">
       <div
         ref={containerRef}
-        className="w-full aspect-[2/1] min-h-[200px] bg-zinc-100 dark:bg-zinc-800 [&_.leaflet-container]:rounded-b-xl"
+        className="w-full h-[250px] bg-zinc-100 dark:bg-zinc-800 [&_.leaflet-container]:rounded-b-xl [&_.leaflet-container]:!h-full"
         style={{ opacity: ready ? 1 : 0.6 }}
       />
       {(address ?? name) && (

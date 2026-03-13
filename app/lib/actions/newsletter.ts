@@ -421,17 +421,18 @@ export type NewsletterMediaFolderItem = { id: string; name: string; createdAt: D
 export async function getNewsletterMediaFolders(): Promise<NewsletterMediaFolderItem[]> {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return [];
-  const delegate = (prisma as { newsletterMediaFolder?: { findMany: (args: object) => Promise<NewsletterMediaFolderItem[]> } })
+  const delegate = (prisma as unknown as { newsletterMediaFolder?: { findMany: (args: object) => Promise<unknown> } })
     .newsletterMediaFolder;
   if (!delegate) {
     console.warn("Prisma client missing newsletterMediaFolder – run: npx prisma generate");
     return [];
   }
   try {
-    return await delegate.findMany({
+    const rows = await delegate.findMany({
       orderBy: { name: "asc" },
       include: { _count: { select: { media: true } } },
     });
+    return rows as NewsletterMediaFolderItem[];
   } catch (err) {
     console.error("getNewsletterMediaFolders:", err);
     return [];
