@@ -71,6 +71,7 @@ import { toast } from "sonner"
 import { createCustomer, updateCustomer, deleteCustomer, getKAD, updateCustomerCarousel, pushCustomerToErp, syncCustomerFromErpByAfm, syncAllFromSoftOne, syncSoftOneLookups, syncGeodataForCustomers, type SoftOneLookups } from "@/app/lib/actions/trdr"
 import { getCoordinates } from "@/app/lib/actions/location"
 import { normalizeAddressKey } from "@/lib/address-region-utils"
+import { CustomerMapOSM } from "./customer-map-osm"
 import { GenericDataTable } from "../shared/generic-data-table"
 
 export type Customer = {
@@ -123,74 +124,128 @@ function parseLatLng(value: unknown): number | null {
     return Number.isFinite(n) ? n : null;
 }
 
-/** Map tab content: static map via our proxy (API key server-side) or direct MapTiler when coords exist. */
-function CustomerMapTab({ customer, mapStaticUrl }: { customer: Customer; mapStaticUrl: string | null }) {
+/** Build a single-line address string from ADDRESS, ZIP, CITY for geocoding. */
+function buildAddressQuery(customer: Customer): string {
+    return [customer.ADDRESS, customer.ZIP, customer.CITY]
+        .filter((v): v is string => v != null && typeof v === "string" && v.trim() !== "")
+        .map((v) => v.trim())
+        .join(", ")
+        .trim()
+}
+
+/** Map tab content: interactive OpenStreetMap. Uses LAT/LNG if present, otherwise geocodes ADDRESS + ZIP + CITY. */
+function CustomerMapTab({ customer }: { customer: Customer }) {
     const raw = customer as Record<string, unknown>
     const lat = parseLatLng(raw.LATITUDE ?? raw.latitude)
     const lng = parseLatLng(raw.LONGITUDE ?? raw.longitude)
     const hasCoords = lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)
-    const [imgError, setImgError] = React.useState(false)
 
-    if (!mapStaticUrl) {
+    const addressQuery = React.useMemo(() => buildAddressQuery(customer), [customer.ADDRESS, customer.ZIP, customer.CITY])
+    const [geocoded, setGeocoded] = React.useState<{ lat: number; lng: number } | null>(null)
+    const [geocodeLoading, setGeocodeLoading] = React.useState(false)
+    const [geocodeError, setGeocodeError] = React.useState<string | null>(null)
+
+    // When no stored coords but we have address text, geocode on mount
+    React.useEffect(() => {
+        if (hasCoords || !addressQuery) return
+        let cancelled = false
+        setGeocodeError(null)
+        setGeocodeLoading(true)
+        getCoordinates(addressQuery)
+            .then((res) => {
+                if (cancelled) return
+                if (res) setGeocoded({ lat: res.latitude, lng: res.longitude })
+                else setGeocoded(null)
+            })
+            .catch((e) => {
+                if (!cancelled) setGeocodeError(e instanceof Error ? e.message : "Geocode failed")
+            })
+            .finally(() => {
+                if (!cancelled) setGeocodeLoading(false)
+            })
+        return () => { cancelled = true }
+    }, [hasCoords, addressQuery])
+
+    // Use stored coords if present
+    if (hasCoords) {
+        const latNum = Number(lat)
+        const lngNum = Number(lng)
+        const addressLine = addressQuery || undefined
+        return (
+            <CustomerMapOSM
+                lat={latNum}
+                lng={lngNum}
+                name={customer.NAME ?? undefined}
+                address={addressLine}
+            />
+        )
+    }
+
+    // Use geocoded coords when we had address and got a result
+    if (geocoded) {
+        const addressLine = addressQuery || undefined
+        return (
+            <CustomerMapOSM
+                lat={geocoded.lat}
+                lng={geocoded.lng}
+                name={customer.NAME ?? undefined}
+                address={addressLine}
+            />
+        )
+    }
+
+    if (geocodeLoading) {
         return (
             <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
-                <p className="text-xs text-zinc-500">Map not configured (MAPTILER_API_KEY in .env).</p>
+                <Loader2 className="w-8 h-8 mx-auto text-zinc-400 animate-spin mb-2" />
+                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Looking up location…</p>
+                <p className="text-[10px] text-zinc-400 mt-1">{addressQuery}</p>
             </div>
         )
     }
-    if (!hasCoords) {
-        return (
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
-                <MapPin className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2" />
-                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">No coordinates</p>
-                <p className="text-[10px] text-zinc-400 mt-1">Use &quot;Get coordinates&quot; in row actions or in the edit modal.</p>
-            </div>
-        )
-    }
 
-    const latNum = Number(lat)
-    const lngNum = Number(lng)
-    // Use our API proxy so the API key never hits the client and the image loads reliably
-    const staticUrl = `${mapStaticUrl}?lat=${encodeURIComponent(latNum)}&lng=${encodeURIComponent(lngNum)}`
-
-    if (imgError) {
+    if (geocodeError) {
+        const searchUrl = `https://www.openstreetmap.org/search?query=${encodeURIComponent(addressQuery)}`
         return (
             <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
                 <MapPin className="w-8 h-8 mx-auto text-zinc-400 mb-2" />
-                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Map image could not be loaded</p>
-                <p className="text-[10px] text-zinc-400 mt-1">Coordinates: {latNum.toFixed(5)}, {lngNum.toFixed(5)}</p>
-                <a
-                    href={`https://www.openstreetmap.org/?mlat=${latNum}&mlon=${lngNum}&zoom=15`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-block text-xs text-primary underline"
-                >
-                    Open in OpenStreetMap
-                </a>
+                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Could not find location</p>
+                <p className="text-[10px] text-zinc-400 mt-1">{geocodeError}</p>
+                {addressQuery && (
+                    <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-primary underline">
+                        Search on OpenStreetMap
+                    </a>
+                )}
             </div>
         )
     }
 
-    return (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border overflow-hidden shadow-sm">
-            <div className="relative w-full aspect-[2/1] min-h-[200px] bg-zinc-100 dark:bg-zinc-800">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={staticUrl}
-                    alt={`Map: ${customer.NAME ?? "Customer"} location`}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                    onError={() => setImgError(true)}
-                />
+    // No coords and no address to geocode
+    if (!addressQuery) {
+        return (
+            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
+                <MapPin className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2" />
+                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">No coordinates or address</p>
+                <p className="text-[10px] text-zinc-400 mt-1">Add address, ZIP, or city, or use &quot;Get coordinates&quot; in row actions.</p>
             </div>
-            <p className="px-3 py-2 text-[10px] text-zinc-500 border-t bg-zinc-50 dark:bg-zinc-900/50">
-                {customer.ADDRESS ?? ""} {customer.ZIP ?? ""} {customer.CITY ?? ""}
-            </p>
+        )
+    }
+
+    // Address was sent but no result (geocode returned null)
+    const searchUrl = `https://www.openstreetmap.org/search?query=${encodeURIComponent(addressQuery)}`
+    return (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
+            <MapPin className="w-8 h-8 mx-auto text-zinc-400 mb-2" />
+            <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Location not found for this address</p>
+            <p className="text-[10px] text-zinc-400 mt-1">{addressQuery}</p>
+            <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-primary underline">
+                Search on OpenStreetMap
+            </a>
         </div>
     )
 }
 
-export function CustomersDataTable({ data: initialData, lookups = defaultLookups, mapStaticUrl = null, addressRegionMap = {} }: { data: Customer[]; lookups?: SoftOneLookups; mapStaticUrl?: string | null; addressRegionMap?: Record<string, { path: string; periferiaId: string }> }) {
+export function CustomersDataTable({ data: initialData, lookups = defaultLookups, addressRegionMap = {} }: { data: Customer[]; lookups?: SoftOneLookups; addressRegionMap?: Record<string, { path: string; periferiaId: string }> }) {
     const router = useRouter()
     const [isPendingSyncAll, startTransitionSyncAll] = useTransition()
     const [data, setData] = React.useState<Customer[]>(initialData)
@@ -223,6 +278,8 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
 
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [editingCustomer, setEditingCustomer] = React.useState<Customer | null>(null)
+    /** Controlled tab for expanded row so the map mounts only when Map tab is visible (Leaflet needs a visible container). */
+    const [expandedRowTab, setExpandedRowTab] = React.useState<"stats" | "map" | "kads">("stats")
 
     const [formData, setFormData] = React.useState({
         SODTYPE: 13,
@@ -706,7 +763,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         const trdBusinessName = customer.TRDBUSINESS != null ? lookups.trdBusinesses[customer.TRDBUSINESS] : null
         return (
         <div className="py-4 px-4 bg-[#f8fafc] dark:bg-zinc-950/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-inner">
-            <Tabs defaultValue="stats">
+            <Tabs value={expandedRowTab} onValueChange={(v) => setExpandedRowTab(v as "stats" | "map" | "kads")}>
                 <TabsList className="mb-4 bg-white dark:bg-zinc-900 p-1 h-8 rounded-lg border shadow-sm w-fit gap-1">
                     <TabsTrigger value="stats" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">Market Intelligence</TabsTrigger>
                     <TabsTrigger value="kads" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">KAD ({customer.kads?.length || 0})</TabsTrigger>
@@ -763,8 +820,8 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                     </div>
                 </TabsContent>
 
-                <TabsContent value="map" className="mt-0">
-                    <CustomerMapTab customer={customer} mapStaticUrl={mapStaticUrl} />
+                <TabsContent value="map" className="mt-0 min-h-[250px]">
+                    {expandedRowTab === "map" && <CustomerMapTab customer={customer} />}
                 </TabsContent>
 
                 <TabsContent value="kads">

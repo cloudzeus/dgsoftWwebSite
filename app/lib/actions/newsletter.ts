@@ -515,13 +515,25 @@ export async function setNewsletterMediaFolder(mediaId: string, folderId: string
 export async function getNewsletterCampaigns() {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return [];
-  return prisma.newsletterCampaign.findMany({
+  const campaigns = await prisma.newsletterCampaign.findMany({
     orderBy: { updatedAt: "desc" },
     include: {
       _count: { select: { recipients: true } },
       template: { select: { name: true } },
     },
   });
+  if (campaigns.length === 0) return [];
+  const rows = await prisma.$queryRaw<{ campaignId: string; companyCount: bigint }[]>`
+    SELECT campaignId, COUNT(DISTINCT trdrId) as companyCount
+    FROM NewsletterCampaignRecipient
+    WHERE trdrId IS NOT NULL AND trdrId != ''
+    GROUP BY campaignId
+  `;
+  const companyByCampaign = new Map(rows.map((r) => [r.campaignId, Number(r.companyCount)]));
+  return campaigns.map((c) => ({
+    ...c,
+    companyCount: companyByCampaign.get(c.id) ?? 0,
+  }));
 }
 
 export async function getNewsletterCampaign(id: string) {

@@ -55,6 +55,7 @@ type Campaign = {
   templateId: string | null;
   _count: { recipients: number };
   template: { name: string } | null;
+  companyCount?: number;
 };
 
 type FilterOptions = {
@@ -278,6 +279,7 @@ export function NewsletterCampaignsClient({
               </p>
               <p className="text-xs">
                 Template: {c.template?.name ?? "—"} · Recipients: {c._count?.recipients ?? 0}
+                {(c.companyCount ?? 0) > 0 && ` · Companies: ${c.companyCount}`}
               </p>
               {c.sentAt && (
                 <p className="text-xs text-muted-foreground">
