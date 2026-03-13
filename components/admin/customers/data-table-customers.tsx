@@ -3,7 +3,6 @@
 import * as React from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import {
-    ArrowUpDown,
     ChevronDown,
     Plus,
     Loader2,
@@ -91,6 +90,7 @@ export type Customer = {
     PHONE02?: string | null
     EMAIL: string | null
     EMAILACC?: string | null
+    CCCEMAILMAR?: string | null
     logo: string | null
     website: string | null
     WEBPAGE?: string | null
@@ -123,16 +123,18 @@ function parseLatLng(value: unknown): number | null {
     return Number.isFinite(n) ? n : null;
 }
 
-/** Map tab content: MapTiler static map when coords exist, else placeholder. */
-function CustomerMapTab({ customer, maptilerApiKey }: { customer: Customer; maptilerApiKey: string }) {
-    const lat = parseLatLng((customer as Record<string, unknown>).LATITUDE ?? (customer as Record<string, unknown>).latitude)
-    const lng = parseLatLng((customer as Record<string, unknown>).LONGITUDE ?? (customer as Record<string, unknown>).longitude)
-    const hasCoords = lat != null && lng != null
+/** Map tab content: static map via our proxy (API key server-side) or direct MapTiler when coords exist. */
+function CustomerMapTab({ customer, mapStaticUrl }: { customer: Customer; mapStaticUrl: string | null }) {
+    const raw = customer as Record<string, unknown>
+    const lat = parseLatLng(raw.LATITUDE ?? raw.latitude)
+    const lng = parseLatLng(raw.LONGITUDE ?? raw.longitude)
+    const hasCoords = lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)
+    const [imgError, setImgError] = React.useState(false)
 
-    if (!maptilerApiKey?.trim()) {
+    if (!mapStaticUrl) {
         return (
             <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
-                <p className="text-xs text-zinc-500">MapTiler API key not configured.</p>
+                <p className="text-xs text-zinc-500">Map not configured (MAPTILER_API_KEY in .env).</p>
             </div>
         )
     }
@@ -146,11 +148,28 @@ function CustomerMapTab({ customer, maptilerApiKey }: { customer: Customer; mapt
         )
     }
 
-    // MapTiler static map: center-based URL (streets-v2 style)
-    const zoom = 14
-    const width = 640
-    const height = 320
-    const staticUrl = `https://api.maptiler.com/maps/streets-v2/static/${lng},${lat},${zoom}/${width}x${height}.png?key=${encodeURIComponent(maptilerApiKey.trim())}`
+    const latNum = Number(lat)
+    const lngNum = Number(lng)
+    // Use our API proxy so the API key never hits the client and the image loads reliably
+    const staticUrl = `${mapStaticUrl}?lat=${encodeURIComponent(latNum)}&lng=${encodeURIComponent(lngNum)}`
+
+    if (imgError) {
+        return (
+            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
+                <MapPin className="w-8 h-8 mx-auto text-zinc-400 mb-2" />
+                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Map image could not be loaded</p>
+                <p className="text-[10px] text-zinc-400 mt-1">Coordinates: {latNum.toFixed(5)}, {lngNum.toFixed(5)}</p>
+                <a
+                    href={`https://www.openstreetmap.org/?mlat=${latNum}&mlon=${lngNum}&zoom=15`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-xs text-primary underline"
+                >
+                    Open in OpenStreetMap
+                </a>
+            </div>
+        )
+    }
 
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-xl border overflow-hidden shadow-sm">
@@ -160,6 +179,8 @@ function CustomerMapTab({ customer, maptilerApiKey }: { customer: Customer; mapt
                     src={staticUrl}
                     alt={`Map: ${customer.NAME ?? "Customer"} location`}
                     className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={() => setImgError(true)}
                 />
             </div>
             <p className="px-3 py-2 text-[10px] text-zinc-500 border-t bg-zinc-50 dark:bg-zinc-900/50">
@@ -169,7 +190,7 @@ function CustomerMapTab({ customer, maptilerApiKey }: { customer: Customer; mapt
     )
 }
 
-export function CustomersDataTable({ data: initialData, lookups = defaultLookups, maptilerApiKey = "", addressRegionMap = {} }: { data: Customer[]; lookups?: SoftOneLookups; maptilerApiKey?: string; addressRegionMap?: Record<string, { path: string; periferiaId: string }> }) {
+export function CustomersDataTable({ data: initialData, lookups = defaultLookups, mapStaticUrl = null, addressRegionMap = {} }: { data: Customer[]; lookups?: SoftOneLookups; mapStaticUrl?: string | null; addressRegionMap?: Record<string, { path: string; periferiaId: string }> }) {
     const router = useRouter()
     const [isPendingSyncAll, startTransitionSyncAll] = useTransition()
     const [data, setData] = React.useState<Customer[]>(initialData)
@@ -216,6 +237,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         PHONE02: "",
         EMAIL: "",
         EMAILACC: "",
+        CCCEMAILMAR: "",
         website: "",
         registDate: "",
         legalStatus: "",
@@ -244,6 +266,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         PHONE02: "",
         EMAIL: "",
         EMAILACC: "",
+        CCCEMAILMAR: "",
         website: "",
         registDate: "",
         legalStatus: "",
@@ -409,7 +432,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 const updated = await updateCustomer(editingCustomer.id, payload)
                 setData((prev) => prev.map((c) => (c.id === updated.id ? (updated as any) : c)))
                 if (pushToErp) {
-                    const erpResult = await pushCustomerToErp(editingCustomer.TRDR, payload)
+                    const erpResult = await pushCustomerToErp(editingCustomer.TRDR, payload, editingCustomer)
                     if (erpResult.success) {
                         toast.success("Saved to database and sent to ERP (SetData)")
                     } else {
@@ -453,11 +476,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             accessorKey: "NAME",
-            header: ({ column }) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="font-semibold text-xs uppercase tracking-wide p-0 h-auto hover:bg-transparent">
-                    Company <ArrowUpDown className="ml-1 h-3 w-3" />
-                </Button>
-            ),
+            header: "Company",
             cell: ({ row }) => (
                 <div className="flex flex-col">
                     <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{row.original.NAME}</span>
@@ -472,6 +491,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             id: "COUNTRY",
+            accessorKey: "COUNTRY",
             header: "Country",
             cell: ({ row }) => {
                 const code = (row.original as Customer).COUNTRY
@@ -528,6 +548,11 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
             cell: ({ row }) => <span className="text-xs truncate max-w-[120px] block" title={(row.original as Customer).EMAILACC ?? undefined}>{(row.original as Customer).EMAILACC ?? "—"}</span>
         },
         {
+            accessorKey: "CCCEMAILMAR",
+            header: "Email Μαρ.",
+            cell: ({ row }) => <span className="text-xs truncate max-w-[120px] block" title={(row.original as Customer).CCCEMAILMAR ?? undefined}>{(row.original as Customer).CCCEMAILMAR ?? "—"}</span>
+        },
+        {
             accessorKey: "website",
             header: "Web",
             cell: ({ row }) => {
@@ -558,6 +583,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             id: "TRDPGROUP",
+            accessorKey: "TRDPGROUP",
             header: "Τρ.Όμιλος",
             cell: ({ row }) => {
                 const code = (row.original as Customer).TRDPGROUP
@@ -567,6 +593,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             id: "TRDBUSINESS",
+            accessorKey: "TRDBUSINESS",
             header: "Επιχείρηση",
             cell: ({ row }) => {
                 const code = (row.original as Customer).TRDBUSINESS
@@ -612,6 +639,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 PHONE02: ((c as any).PHONE02 ?? c.PHONE02 ?? "") || "",
                                 EMAIL: (c.EMAIL ?? "") || "",
                                 EMAILACC: ((c as any).EMAILACC ?? c.EMAILACC ?? "") || "",
+                                CCCEMAILMAR: ((c as any).CCCEMAILMAR ?? c.CCCEMAILMAR ?? "") || "",
                             } as any);
                             setIsDialogOpen(true);
                         }}><Edit3 className="w-4 h-4 mr-2" /> Modify Profile</DropdownMenuItem>
@@ -736,7 +764,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 </TabsContent>
 
                 <TabsContent value="map" className="mt-0">
-                    <CustomerMapTab customer={customer} maptilerApiKey={maptilerApiKey} />
+                    <CustomerMapTab customer={customer} mapStaticUrl={mapStaticUrl} />
                 </TabsContent>
 
                 <TabsContent value="kads">
@@ -894,11 +922,15 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <TabsContent value="contact" className="mt-0 space-y-4">
                                 <div className="space-y-1.5">
                                     <Label className="text-[10px] font-semibold uppercase text-zinc-500">Email</Label>
-                                    <Input type="email" className="h-8 text-sm rounded-md" value={formData.EMAIL ?? ""} onChange={e => setFormData({ ...formData, EMAIL: e.target.value })} />
+                                    <Input type="text" className="h-8 text-sm rounded-md" value={formData.EMAIL ?? ""} onChange={e => setFormData({ ...formData, EMAIL: e.target.value })} placeholder="Multiple with ;" />
                                 </div>
                                 <div className="space-y-1.5">
                                     <Label className="text-[10px] font-semibold uppercase text-zinc-500">Email (account)</Label>
-                                    <Input type="email" className="h-8 text-sm rounded-md" value={formData.EMAILACC ?? ""} onChange={e => setFormData({ ...formData, EMAILACC: e.target.value })} placeholder="Λογ. email" />
+                                    <Input type="text" className="h-8 text-sm rounded-md" value={formData.EMAILACC ?? ""} onChange={e => setFormData({ ...formData, EMAILACC: e.target.value })} placeholder="Λογ. email (multiple with ;)" />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">CCCEMAILMAR</Label>
+                                    <Input type="text" className="h-8 text-sm rounded-md" value={formData.CCCEMAILMAR ?? ""} onChange={e => setFormData({ ...formData, CCCEMAILMAR: e.target.value })} placeholder="Email Μαρ. (multiple with ;)" />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">

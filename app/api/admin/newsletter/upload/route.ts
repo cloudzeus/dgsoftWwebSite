@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         AccessKey: process.env.BUNNY_ACCESS_KEY!,
         "Content-Type": contentType,
       },
-      body: processedBuffer,
+      body: new Uint8Array(processedBuffer),
     });
 
     if (!uploadRes.ok) {

@@ -446,9 +446,9 @@ function parseGetTableResponseWithFieldOrder(
   });
 }
 
-/** TRDR/CUSTOMER fields for GetTable. Include COUNTRY, TRDGROUP, TRDPGROUP, TRDBUSINESS for display. */
+/** TRDR/CUSTOMER fields for GetTable. Include INSDATE/UPDDATE and CCCEMAILMAR. */
 const TRDR_GET_TABLE_FIELDS =
-  "TRDR,CODE,NAME,AFM,COUNTRY,TRDGROUP,TRDPGROUP,TRDBUSINESS,PHONE01,PHONE02,ADDRESS,ZIP,CITY,EMAIL,REMARKS";
+  "TRDR,CODE,NAME,AFM,COUNTRY,TRDGROUP,TRDPGROUP,TRDBUSINESS,PHONE01,PHONE02,ADDRESS,ZIP,CITY,EMAIL,EMAILACC,CCCEMAILMAR,REMARKS,INSDATE,UPDDATE";
 
 /** GetTable FIELDS for SoftOne lookup tables (COUNTRY, TRDPGROUP, TRDBUSINESS). */
 const LOOKUP_TABLE_FIELDS: Record<string, string> = {
@@ -460,12 +460,14 @@ const LOOKUP_TABLE_FIELDS: Record<string, string> = {
 /**
  * Get table data (rows) from SoftOne using GetTable with optional FILTER.
  * When filter is omitted, uses "1=1". Response is decoded with iconv (win1253 → UTF-8).
+ * For CUSTOMER/TRDR, optional fieldsOverride (e.g. "TRDR,EMAILACC") limits requested columns.
  */
 export async function getSoftOneTableDataWithFilter(
   clientID: string,
   objectName: string,
   tableName: string,
-  filter: string = "1=1"
+  filter: string = "1=1",
+  fieldsOverride?: string
 ): Promise<
   | { success: true; rows: Record<string, unknown>[] }
   | SoftOneErrorResponse
@@ -476,16 +478,18 @@ export async function getSoftOneTableDataWithFilter(
     return { success: false, message: "SOFTONE_APP_ID not set", code: -1 };
   }
 
+  const fields =
+    objectName === "CUSTOMER" && tableName === "TRDR"
+      ? (fieldsOverride ?? TRDR_GET_TABLE_FIELDS)
+      : LOOKUP_TABLE_FIELDS[tableName] ?? `${tableName},CODE,NAME`;
+
   const body: Record<string, unknown> = {
     clientId: clientID,
     appId: Number(appId) || 2000,
     version: "1",
     service: "GetTable",
     TABLE: objectName,
-    FIELDS:
-      objectName === "CUSTOMER" && tableName === "TRDR"
-        ? TRDR_GET_TABLE_FIELDS
-        : LOOKUP_TABLE_FIELDS[tableName] ?? `${tableName},CODE,NAME`,
+    FIELDS: fields,
     FILTER: filter,
   };
 
@@ -505,11 +509,9 @@ export async function getSoftOneTableDataWithFilter(
   }
 
   const isCustomerTrdr = objectName === "CUSTOMER" && tableName === "TRDR";
+  const fieldList = (typeof fields === "string" ? fields.split(",").map((s) => s.trim()) : []) as string[];
   const rows = isCustomerTrdr
-    ? parseGetTableResponseWithFieldOrder(
-        res as SoftOneGetTableResponse,
-        TRDR_GET_TABLE_FIELDS.split(",").map((s) => s.trim())
-      )
+    ? parseGetTableResponseWithFieldOrder(res as SoftOneGetTableResponse, fieldList)
     : parseGetTableResponse(res as SoftOneGetTableResponse);
   console.log("[SoftOne GetTable] Parsed rows:", rows.length, "sample keys:", rows[0] ? Object.keys(rows[0]) : []);
   return { success: true, rows };

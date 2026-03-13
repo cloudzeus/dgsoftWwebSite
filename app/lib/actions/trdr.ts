@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client"
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
-import { getSoftOneTableData, getSoftOneTrdrByAfm, setSoftOneTrdrData, type SetDataTrdrPayload } from "@/lib/softone"
+import { getSoftOneTableData, getSoftOneTableDataWithFilter, getSoftOneTrdrByAfm, setSoftOneTrdrData, type SetDataTrdrPayload } from "@/lib/softone"
 import { SOFTONE_CLIENT_ID_COOKIE } from "@/lib/softone-cookie"
 import { getVatCompanyInfo, getVatCorrectData, type VatWwaCompanyInfo } from "@/lib/vat-wwa"
 import { getCoordinates } from "@/app/lib/actions/location"
@@ -56,7 +56,7 @@ export async function updateCustomerCarousel(id: string, displayAtCarousel: bool
 /** TRDR scalar fields allowed in update/create (excludes id, createdAt, updatedAt, relations). */
 const TRDR_DATA_KEYS = new Set([
     "SODTYPE", "TRDR", "CODE", "NAME", "AFM", "COUNTRY", "SOCURRENCY", "ADDRESS", "ZIP", "DISTRICT", "CITY",
-    "AREAS", "PHONE01", "PHONE02", "JOBTYPE", "JOBTYPETRD", "EMAIL", "EMAILACC", "TRDBUSINESS", "SHIPMENT",
+    "AREAS", "PHONE01", "PHONE02", "JOBTYPE", "JOBTYPETRD", "EMAIL", "EMAILACC", "CCCEMAILMAR", "TRDBUSINESS", "SHIPMENT",
     "PAYMENT", "SOCARRIER", "IRSDATA", "REMARKS", "INSDATE", "UPDDATE", "SOTITLE", "ISACTIVE", "ISPROSP",
     "LATITUDE", "LONGITUDE", "OBTYPE", "TRDGROUP", "TRDPGROUP", "WEBPAGE", "CONSENT", "PRJCS",
     "logo", "website", "displayAtCarousel", "registDate", "legalStatus", "numEmployees",
@@ -163,8 +163,12 @@ function toNum(v: unknown): number | undefined {
     return Number.isFinite(n) ? n : undefined
 }
 
-/** Push customer data to SoftOne ERP (SetData). Only ERP-relevant fields are sent. */
-export async function pushCustomerToErp(trdrNumber: number, data: Record<string, unknown>): Promise<{ success: boolean; message?: string }> {
+/** Push customer data to SoftOne ERP (SetData). When original is provided, only changed fields are sent to avoid erasing other ERP values. */
+export async function pushCustomerToErp(
+    trdrNumber: number,
+    data: Record<string, unknown>,
+    original?: Record<string, unknown> | null
+): Promise<{ success: boolean; message?: string }> {
     const session = await auth()
     if (!session) return { success: false, message: "Unauthorized" }
 
@@ -172,23 +176,50 @@ export async function pushCustomerToErp(trdrNumber: number, data: Record<string,
     const clientId = cookieStore.get(SOFTONE_CLIENT_ID_COOKIE)?.value
     if (!clientId) return { success: false, message: "Not authenticated to SoftOne. Log in at Admin → SoftOne first." }
 
-    const erpPayload: SetDataTrdrPayload = {
-        TRDR: trdrNumber,
-        CODE: data.CODE != null ? String(data.CODE) : undefined,
-        NAME: data.NAME != null ? String(data.NAME) : undefined,
-        AFM: data.AFM != null ? String(data.AFM).trim() || undefined : undefined,
-        COUNTRY: toNum(data.COUNTRY),
-        TRDGROUP: toNum(data.TRDGROUP),
-        TRDPGROUP: toNum(data.TRDPGROUP),
-        TRDBUSINESS: toNum(data.TRDBUSINESS),
-        PHONE01: data.PHONE01 != null ? String(data.PHONE01) : undefined,
-        PHONE02: data.PHONE02 != null ? String(data.PHONE02) : undefined,
-        ADDRESS: data.ADDRESS != null ? String(data.ADDRESS) : undefined,
-        ZIP: data.ZIP != null ? String(data.ZIP) : undefined,
-        CITY: data.CITY != null ? String(data.CITY) : undefined,
-        EMAIL: data.EMAIL != null ? String(data.EMAIL) : undefined,
-        REMARKS: data.REMARKS != null ? String(data.REMARKS) : undefined,
+    const numKeys = ["COUNTRY", "TRDGROUP", "TRDPGROUP", "TRDBUSINESS"] as const
+    const strKeys = ["CODE", "NAME", "AFM", "PHONE01", "PHONE02", "ADDRESS", "ZIP", "CITY", "EMAIL", "REMARKS"] as const
+
+    const getCurrent = (key: string): string | number | null | undefined => {
+        if (numKeys.includes(key as any)) return toNum(data[key]) ?? undefined
+        if (key === "AFM") return data.AFM != null ? String(data.AFM).trim() || undefined : undefined
+        return data[key] != null ? String(data[key]).trim() || undefined : undefined
     }
+    const getOriginal = (key: string): string | number | null | undefined => {
+        if (!original) return undefined
+        if (numKeys.includes(key as any)) return toNum(original[key]) ?? undefined
+        return original[key] != null ? String(original[key]).trim() || undefined : undefined
+    }
+
+    const erpPayload: SetDataTrdrPayload = { TRDR: trdrNumber }
+
+    if (original != null) {
+        for (const key of numKeys) {
+            const cur = getCurrent(key)
+            const orig = getOriginal(key)
+            if (cur !== orig) (erpPayload as Record<string, unknown>)[key] = cur ?? ""
+        }
+        for (const key of strKeys) {
+            const cur = getCurrent(key)
+            const orig = getOriginal(key)
+            if (cur !== orig) (erpPayload as Record<string, unknown>)[key] = cur ?? ""
+        }
+    } else {
+        erpPayload.CODE = data.CODE != null ? String(data.CODE) : undefined
+        erpPayload.NAME = data.NAME != null ? String(data.NAME) : undefined
+        erpPayload.AFM = data.AFM != null ? String(data.AFM).trim() || undefined : undefined
+        erpPayload.COUNTRY = toNum(data.COUNTRY)
+        erpPayload.TRDGROUP = toNum(data.TRDGROUP)
+        erpPayload.TRDPGROUP = toNum(data.TRDPGROUP)
+        erpPayload.TRDBUSINESS = toNum(data.TRDBUSINESS)
+        erpPayload.PHONE01 = data.PHONE01 != null ? String(data.PHONE01) : undefined
+        erpPayload.PHONE02 = data.PHONE02 != null ? String(data.PHONE02) : undefined
+        erpPayload.ADDRESS = data.ADDRESS != null ? String(data.ADDRESS) : undefined
+        erpPayload.ZIP = data.ZIP != null ? String(data.ZIP) : undefined
+        erpPayload.CITY = data.CITY != null ? String(data.CITY) : undefined
+        erpPayload.EMAIL = data.EMAIL != null ? String(data.EMAIL) : undefined
+        erpPayload.REMARKS = data.REMARKS != null ? String(data.REMARKS) : undefined
+    }
+
     const result = await setSoftOneTrdrData(clientId, trdrNumber, erpPayload)
     if (result.success) return { success: true }
     return { success: false, message: (result as { message?: string }).message ?? "ERP update failed" }
@@ -247,6 +278,7 @@ export async function syncCustomerFromErpByAfm(customerId: string): Promise<Sync
         JOBTYPETRD: toStr(getRowVal(row, "JOBTYPETRD"), 128),
         EMAIL: toStr(getRowVal(row, "EMAIL"), 128),
         EMAILACC: toStr(getRowVal(row, "EMAILACC"), 128),
+        CCCEMAILMAR: toStr(getRowVal(row, "CCCEMAILMAR"), 255),
         TRDBUSINESS: toInt(getRowVal(row, "TRDBUSINESS")),
         SHIPMENT: toInt(getRowVal(row, "SHIPMENT")),
         PAYMENT: toInt(getRowVal(row, "PAYMENT")),
@@ -317,6 +349,62 @@ export async function deleteCustomer(id: string) {
     } catch (error: any) {
         console.error("DELETE CUSTOMER Error:", error)
         throw new Error(error.message)
+    }
+}
+
+export type DeleteInactiveResult = { success: boolean; deleted: number; message?: string }
+
+/** Fetch TRDR numbers with ISACTIVE=0 from SoftOne, then delete those from our MySQL database. Admin only. */
+export async function deleteInactiveCustomers(): Promise<DeleteInactiveResult> {
+    const session = await auth()
+    if (!session || (session.user as { role?: string })?.role !== "ADMIN") {
+        return { success: false, deleted: 0, message: "Unauthorized" }
+    }
+
+    const cookieStore = await cookies()
+    const clientId = cookieStore.get(SOFTONE_CLIENT_ID_COOKIE)?.value
+    if (!clientId) {
+        return { success: false, deleted: 0, message: "Not authenticated to SoftOne. Log in at Admin → SoftOne first." }
+    }
+
+    try {
+        const result = await getSoftOneTableDataWithFilter(
+            clientId,
+            "CUSTOMER",
+            "TRDR",
+            "ISACTIVE=0",
+            "TRDR"
+        )
+        if (!("rows" in result) || !result.success) {
+            const msg = (result as { message?: string }).message ?? "Failed to get inactive TRDR list from SoftOne"
+            return { success: false, deleted: 0, message: msg }
+        }
+
+        const trdrNumbers = result.rows
+            .map((row) => toInt(getRowVal(row, "TRDR")))
+            .filter((n): n is number => n != null && Number.isFinite(n))
+
+        console.log("[Delete inactive] SoftOne returned", result.rows.length, "customers with ISACTIVE=0. Parsed TRDR count:", trdrNumbers.length)
+
+        if (trdrNumbers.length === 0) {
+            console.log("[Delete inactive] No inactive TRDRs to delete.")
+            return { success: true, deleted: 0 }
+        }
+
+        const foundInDb = await prisma.tRDR.findMany({
+            where: { TRDR: { in: trdrNumbers } },
+            select: { id: true },
+        })
+        console.log("[Delete inactive] Found", foundInDb.length, "of those in MySQL.")
+
+        const deleteResult = await prisma.tRDR.deleteMany({
+            where: { TRDR: { in: trdrNumbers } },
+        })
+        console.log("[Delete inactive] Deleted all those records. Deleted count:", deleteResult.count)
+        return { success: true, deleted: deleteResult.count }
+    } catch (err: any) {
+        console.error("[Delete inactive customers]", err)
+        return { success: false, deleted: 0, message: err?.message ?? "Delete failed" }
     }
 }
 
@@ -500,6 +588,7 @@ export async function syncCustomersFromSoftOne(): Promise<SyncCustomersResult> {
                     JOBTYPETRD: toStr(getRowVal(row, "JOBTYPETRD"), 128),
                     EMAIL: toStr(getRowVal(row, "EMAIL"), 128),
                     EMAILACC: toStr(getRowVal(row, "EMAILACC"), 128),
+                    CCCEMAILMAR: toStr(getRowVal(row, "CCCEMAILMAR"), 255),
                     TRDBUSINESS: toInt(getRowVal(row, "TRDBUSINESS")),
                     SHIPMENT: toInt(getRowVal(row, "SHIPMENT")),
                     PAYMENT: toInt(getRowVal(row, "PAYMENT")),
@@ -650,6 +739,55 @@ export async function syncAllFromSoftOne(): Promise<SyncAllFromSoftOneResult> {
     } catch (err: any) {
         console.error("[Sync All From SoftOne]", err)
         return { success: false, message: err?.message ?? "Sync failed" }
+    }
+}
+
+export type SyncEmailAccResult = { success: boolean; updated: number; message?: string }
+
+/** Fetch TRDR + EMAILACC + CCCEMAILMAR from SoftOne and update our DB. Use after full sync to refresh email fields. */
+export async function syncEmailAccFromSoftOne(): Promise<SyncEmailAccResult> {
+    const session = await auth()
+    if (!session) return { success: false, updated: 0, message: "Unauthorized" }
+
+    const cookieStore = await cookies()
+    const clientId = cookieStore.get(SOFTONE_CLIENT_ID_COOKIE)?.value
+    if (!clientId)
+        return { success: false, updated: 0, message: "Not authenticated to SoftOne. Log in at Admin → SoftOne first." }
+
+    try {
+        const result = await getSoftOneTableDataWithFilter(
+            clientId,
+            "CUSTOMER",
+            "TRDR",
+            "1=1",
+            "TRDR,EMAILACC,CCCEMAILMAR"
+        )
+        if (!("rows" in result) || !result.success) {
+            const msg = (result as { message?: string }).message ?? "Failed to get email fields from SoftOne"
+            return { success: false, updated: 0, message: msg }
+        }
+
+        let updated = 0
+        for (const row of result.rows) {
+            const trdrNum = toInt(getRowVal(row, "TRDR"))
+            if (trdrNum == null) continue
+            const emailAcc = toStr(getRowVal(row, "EMAILACC"), 128)
+            const cccEmailMar = toStr(getRowVal(row, "CCCEMAILMAR"), 255)
+            const existing = await prisma.tRDR.findUnique({ where: { TRDR: trdrNum }, select: { id: true } })
+            if (!existing) continue
+            await prisma.tRDR.update({
+                where: { id: existing.id },
+                data: {
+                    EMAILACC: emailAcc ?? null,
+                    CCCEMAILMAR: cccEmailMar ?? null,
+                },
+            })
+            updated++
+        }
+        return { success: true, updated }
+    } catch (err: any) {
+        console.error("[Sync email fields From SoftOne]", err)
+        return { success: false, updated: 0, message: err?.message ?? "Sync failed" }
     }
 }
 

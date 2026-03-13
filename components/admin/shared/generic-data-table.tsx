@@ -24,6 +24,9 @@ import {
     ChevronLeft,
     ChevronsLeft,
     ChevronsRight,
+    ArrowUpDown,
+    ArrowUp,
+    ArrowDown,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -86,6 +89,30 @@ interface GenericDataTableProps<TData, TValue> {
     onRowSelectionChange?: (selection: any) => void
     enableRowSelection?: boolean
     initialColumnVisibility?: VisibilityState
+}
+
+/** Renders a table header cell: clickable with sort indicator when column supports sorting. */
+function SortableHeaderCell({ header }: { header: any }) {
+    if (header.isPlaceholder) return null
+    const canSort = header.column.getCanSort()
+    const content = flexRender(header.column.columnDef.header, header.getContext())
+    if (!canSort) return <>{content}</>
+    const isAsc = header.column.getIsSorted() === "asc"
+    const isDesc = header.column.getIsSorted() === "desc"
+    return (
+        <div
+            role="button"
+            tabIndex={0}
+            className="flex items-center gap-0.5 font-semibold text-[11px] uppercase tracking-wide text-muted-foreground hover:text-foreground cursor-pointer select-none w-full min-w-0"
+            onClick={() => header.column.toggleSorting(isAsc)}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && header.column.toggleSorting(isAsc)}
+        >
+            <span className="truncate min-w-0">{content}</span>
+            {isAsc && <ArrowUp className="ml-0.5 h-3 w-3 shrink-0" />}
+            {isDesc && <ArrowDown className="ml-0.5 h-3 w-3 shrink-0" />}
+            {!isAsc && !isDesc && <ArrowUpDown className="ml-0.5 h-3 w-3 shrink-0 opacity-50" />}
+        </div>
+    )
 }
 
 const SortableRow = ({ row, renderExpandedRow, columnsCount, isSortable, rowIdKey, getRowClassName }: any) => {
@@ -297,9 +324,7 @@ export function GenericDataTable<TData, TValue>({
                         <TableRow key={headerGroup.id} className="border-b border-border bg-muted/40">
                             {headerGroup.headers.map((header) => (
                                 <TableHead key={header.id} className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground py-2.5 px-3 bg-muted/40">
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(header.column.columnDef.header, header.getContext())}
+                                    <SortableHeaderCell header={header} />
                                 </TableHead>
                             ))}
                         </TableRow>
@@ -342,13 +367,11 @@ export function GenericDataTable<TData, TValue>({
                         <TableRow key={headerGroup.id} className="border-b border-border bg-muted/40">
                             {headerGroup.headers.map((header) => (
                                 <TableHead key={header.id} className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground py-2.5 px-3 bg-muted/40">
-                                {header.isPlaceholder
-                                    ? null
-                                    : flexRender(header.column.columnDef.header, header.getContext())}
-                            </TableHead>
-                        ))}
-                    </TableRow>
-                ))}
+                                    <SortableHeaderCell header={header} />
+                                </TableHead>
+                            ))}
+                        </TableRow>
+                    ))}
             </TableHeader>
             <TableBody>
                 {table.getRowModel().rows?.length ? (

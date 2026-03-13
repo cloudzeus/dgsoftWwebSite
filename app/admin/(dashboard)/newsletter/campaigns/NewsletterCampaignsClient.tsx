@@ -32,6 +32,7 @@ import {
   getNewsletterCampaign,
   getNewsletterCustomersByIds,
   type NewsletterFilters,
+  type EmailFieldKey,
   type RegionOption,
   type CityOption,
   type LegalOption,
@@ -39,6 +40,7 @@ import {
   type TrdpOption,
   type TrdBusinessOption,
 } from "@/app/lib/actions/newsletter";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PlusIcon, SendIcon, UsersIcon, Loader2Icon, PencilIcon, MailIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -410,6 +412,28 @@ export function NewsletterCampaignsClient({
             </div>
 
             <div className="border-t pt-4">
+              <Label className="mb-3 block">Email fields to use per customer</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Choose which customer email field(s) to send to. Multiple addresses in one field (separated by ;) are all used.
+              </p>
+              <div className="flex flex-wrap gap-4 mb-4">
+                {(["EMAIL", "EMAILACC", "CCCEMAILMAR"] as EmailFieldKey[]).map((field) => {
+                  const selected = (filters.emailFields?.length ? filters.emailFields : ["EMAIL", "EMAILACC", "CCCEMAILMAR"]).includes(field);
+                  return (
+                    <label key={field} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <Checkbox
+                        checked={selected}
+                        onCheckedChange={(checked) => {
+                          const current = filters.emailFields?.length ? [...filters.emailFields] : (["EMAIL", "EMAILACC", "CCCEMAILMAR"] as EmailFieldKey[]);
+                          const next = checked ? (current.includes(field) ? current : [...current, field]) : current.filter((f) => f !== field);
+                          updateFilter("emailFields", next.length === 3 ? undefined : next);
+                        }}
+                      />
+                      <span>{field}</span>
+                    </label>
+                  );
+                })}
+              </div>
               <Label className="mb-3 block">Recipient filters (optional)</Label>
               <p className="text-xs text-muted-foreground mb-3">
                 Select regions, cities, legal status, KAD, TRDPGROUP, TRDBUSINESS to build the list. Then use &quot;Build list&quot; on the campaign card.

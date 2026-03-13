@@ -52,20 +52,23 @@ type MediaItem = {
   url: string;
   name: string | null;
   folderId: string | null;
-  createdAt: Date;
+  createdAt: string;
 };
 
 type FolderFilter = "all" | "uncategorized" | string; // string = folder id
+
+/** Serialized shape from RSC (createdAt as string). */
+type SerializedFolderItem = { id: string; name: string; createdAt: string; _count: { media: number } };
 
 export function NewsletterMediaClient({
   initialMedia,
   initialFolders,
 }: {
   initialMedia: MediaItem[];
-  initialFolders: NewsletterMediaFolderItem[];
+  initialFolders: SerializedFolderItem[] | NewsletterMediaFolderItem[];
 }) {
   const [media, setMedia] = React.useState<MediaItem[]>(initialMedia);
-  const [folders, setFolders] = React.useState<NewsletterMediaFolderItem[]>(initialFolders);
+  const [folders, setFolders] = React.useState<(SerializedFolderItem | NewsletterMediaFolderItem)[]>(initialFolders);
   const [folderFilter, setFolderFilter] = React.useState<FolderFilter>("all");
   const [uploading, setUploading] = React.useState(false);
   const [copiedId, setCopiedId] = React.useState<string | null>(null);

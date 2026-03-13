@@ -10,6 +10,40 @@ import { renderBlocksToHtml, type EmailBlock, type NewsletterContent } from "@/l
 
 const NEWSLETTER_PATH = "/admin/newsletter";
 
+/** Parse EMAIL/EMAILACC: multiple addresses may be separated by ";". Returns trimmed non-empty list. */
+function parseEmailList(value: string | null | undefined): string[] {
+  if (value == null || typeof value !== "string") return [];
+  return value
+    .split(";")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+export type EmailFieldKey = "EMAIL" | "EMAILACC" | "CCCEMAILMAR";
+const ALL_EMAIL_FIELDS: EmailFieldKey[] = ["EMAIL", "EMAILACC", "CCCEMAILMAR"];
+
+/** Get emails for a customer from selected fields only (each field may contain ";"). Deduplicated by lowercase. */
+function getEmailsForCustomer(
+  c: { EMAIL: string | null; EMAILACC: string | null; CCCEMAILMAR?: string | null },
+  fields?: EmailFieldKey[] | null
+): string[] {
+  const use = fields?.length ? fields : ALL_EMAIL_FIELDS;
+  const parts: string[] = [];
+  if (use.includes("EMAIL")) parts.push(...parseEmailList(c.EMAIL ?? null));
+  if (use.includes("EMAILACC")) parts.push(...parseEmailList(c.EMAILACC ?? null));
+  if (use.includes("CCCEMAILMAR")) parts.push(...parseEmailList((c as { CCCEMAILMAR?: string | null }).CCCEMAILMAR ?? null));
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const e of parts) {
+    const lower = e.toLowerCase();
+    if (!seen.has(lower)) {
+      seen.add(lower);
+      out.push(e);
+    }
+  }
+  return out;
+}
+
 export type NewsletterFilters = {
   regionIds?: string[];
   nomosIds?: string[];
@@ -21,6 +55,8 @@ export type NewsletterFilters = {
   trdBusinessIds?: string[];
   /** Manually selected customer (TRDR) IDs to include as recipients. */
   manualTrdrIds?: string[];
+  /** Which customer email fields to use for sending (default: all three). */
+  emailFields?: EmailFieldKey[];
 };
 
 /** Resolve region/nomos/dimos selection to set of level-5 (dimos) periferia IDs. */
@@ -102,6 +138,7 @@ export async function buildRecipientList(filters: NewsletterFilters): Promise<{ 
     OR: [
       { EMAIL: { not: null, notIn: [""] } },
       { EMAILACC: { not: null, notIn: [""] } },
+      { CCCEMAILMAR: { not: null, notIn: [""] } },
     ],
   };
 
@@ -126,7 +163,7 @@ export async function buildRecipientList(filters: NewsletterFilters): Promise<{ 
 
   const customers = await prisma.tRDR.findMany({
     where,
-    select: { id: true, EMAIL: true, EMAILACC: true, ADDRESS: true, CITY: true, ZIP: true },
+    select: { id: true, EMAIL: true, EMAILACC: true, CCCEMAILMAR: true, ADDRESS: true, CITY: true, ZIP: true },
   });
 
   let filtered = customers;
@@ -147,25 +184,31 @@ export async function buildRecipientList(filters: NewsletterFilters): Promise<{ 
     (filters.trdpGroupIds?.length ?? 0) > 0 ||
     (filters.trdBusinessIds?.length ?? 0) > 0;
 
+  const emailFields = filters.emailFields?.length ? filters.emailFields : undefined;
+
   if (hasFilter) {
     for (const c of filtered) {
-      const email = (c.EMAILACC ?? c.EMAIL ?? "").trim() || (c.EMAIL ?? "").trim();
-      if (!email || seen.has(email.toLowerCase())) continue;
-      seen.add(email.toLowerCase());
-      list.push({ email, trdrId: c.id });
+      const emails = getEmailsForCustomer(c, emailFields);
+      for (const email of emails) {
+        if (seen.has(email.toLowerCase())) continue;
+        seen.add(email.toLowerCase());
+        list.push({ email, trdrId: c.id });
+      }
     }
   }
 
   if (filters.manualTrdrIds?.length) {
     const manual = await prisma.tRDR.findMany({
       where: { id: { in: filters.manualTrdrIds } },
-      select: { id: true, EMAIL: true, EMAILACC: true },
+      select: { id: true, EMAIL: true, EMAILACC: true, CCCEMAILMAR: true },
     });
     for (const c of manual) {
-      const email = (c.EMAILACC ?? c.EMAIL ?? "").trim() || (c.EMAIL ?? "").trim();
-      if (!email || seen.has(email.toLowerCase())) continue;
-      seen.add(email.toLowerCase());
-      list.push({ email, trdrId: c.id });
+      const emails = getEmailsForCustomer(c, emailFields);
+      for (const email of emails) {
+        if (seen.has(email.toLowerCase())) continue;
+        seen.add(email.toLowerCase());
+        list.push({ email, trdrId: c.id });
+      }
     }
   }
 
@@ -190,6 +233,7 @@ export async function searchNewsletterCustomers(
           OR: [
             { EMAIL: { not: null, notIn: [""] } },
             { EMAILACC: { not: null, notIn: [""] } },
+            { CCCEMAILMAR: { not: null, notIn: [""] } },
           ],
         },
         {
@@ -198,11 +242,12 @@ export async function searchNewsletterCustomers(
             { CODE: { contains: q } },
             { EMAIL: { contains: q } },
             { EMAILACC: { contains: q } },
+            { CCCEMAILMAR: { contains: q } },
           ],
         },
       ],
     },
-    select: { id: true, NAME: true, CODE: true, EMAIL: true, EMAILACC: true },
+    select: { id: true, NAME: true, CODE: true, EMAIL: true, EMAILACC: true, CCCEMAILMAR: true },
     take: limit,
   });
 
@@ -210,7 +255,7 @@ export async function searchNewsletterCustomers(
     id: c.id,
     name: c.NAME ?? "",
     code: c.CODE ?? "",
-    email: (c.EMAILACC ?? c.EMAIL ?? "").trim() || (c.EMAIL ?? "").trim(),
+    email: getEmailsForCustomer(c).join("; ") || "",
   }));
 }
 
@@ -223,13 +268,13 @@ export async function getNewsletterCustomersByIds(
 
   const list = await prisma.tRDR.findMany({
     where: { id: { in: ids } },
-    select: { id: true, NAME: true, CODE: true, EMAIL: true, EMAILACC: true },
+    select: { id: true, NAME: true, CODE: true, EMAIL: true, EMAILACC: true, CCCEMAILMAR: true },
   });
   return list.map((c) => ({
     id: c.id,
     name: c.NAME ?? "",
     code: c.CODE ?? "",
-    email: (c.EMAILACC ?? c.EMAIL ?? "").trim() || (c.EMAIL ?? "").trim(),
+    email: getEmailsForCustomer(c).join("; ") || "",
   }));
 }
 

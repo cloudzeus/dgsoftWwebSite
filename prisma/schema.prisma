@@ -79,6 +79,7 @@ model TRDR {
   JOBTYPETRD     String?   @db.VarChar(128)
   EMAIL          String?   @db.VarChar(128)
   EMAILACC       String?   @db.VarChar(128)
+  CCCEMAILMAR    String?   @db.VarChar(255)
   TRDBUSINESS    Int?
   SHIPMENT       Int?
   PAYMENT        Int?
