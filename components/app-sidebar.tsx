@@ -3,7 +3,6 @@
 import * as React from "react"
 import Link from "next/link"
 import {
-  ArrowUpCircleIcon,
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
@@ -46,7 +45,8 @@ import {
   SidebarMenuItem,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarGroupContent,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 const navData = {
@@ -181,6 +181,10 @@ export function AppSidebar({
   user?: { name: string; email: string; avatar: string }
 }) {
   const resolvedUser = user ?? { name: "Admin", email: "", avatar: "" }
+  const { state } = useSidebar()
+  const logoExpanded = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404552985-q91g8r.webp"
+  const logoCollapsed = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp"
+  const logoSrc = state === "collapsed" ? logoCollapsed : logoExpanded
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -191,9 +195,16 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+              <a
+                href="/admin/dashboard"
+                className={`flex items-center overflow-hidden ${state === "expanded" ? "justify-start" : "justify-center"}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logoSrc}
+                  alt="DGSmart"
+                  className="h-8 w-auto max-w-full object-contain object-left"
+                />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

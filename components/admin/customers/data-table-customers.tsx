@@ -116,11 +116,18 @@ const defaultLookups: SoftOneLookups = { countries: {}, trdpGroups: {}, trdBusin
 
 type CustomerFilter = "avatar" | "webpage" | "email" | "afm"
 
+/** Parse numeric coordinate from customer (may be number or string from JSON). */
+function parseLatLng(value: unknown): number | null {
+    if (value == null || value === "") return null;
+    const n = typeof value === "string" ? parseFloat(value) : Number(value);
+    return Number.isFinite(n) ? n : null;
+}
+
 /** Map tab content: MapTiler static map when coords exist, else placeholder. */
 function CustomerMapTab({ customer, maptilerApiKey }: { customer: Customer; maptilerApiKey: string }) {
-    const lat = customer.LATITUDE != null ? Number(customer.LATITUDE) : null
-    const lng = customer.LONGITUDE != null ? Number(customer.LONGITUDE) : null
-    const hasCoords = lat != null && lng != null && !Number.isNaN(lat) && !Number.isNaN(lng)
+    const lat = parseLatLng((customer as Record<string, unknown>).LATITUDE ?? (customer as Record<string, unknown>).latitude)
+    const lng = parseLatLng((customer as Record<string, unknown>).LONGITUDE ?? (customer as Record<string, unknown>).longitude)
+    const hasCoords = lat != null && lng != null
 
     if (!maptilerApiKey?.trim()) {
         return (

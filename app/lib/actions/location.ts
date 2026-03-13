@@ -104,27 +104,44 @@ function parseCoord(value: unknown): number | null {
 }
 
 export async function getCoordinates(query: string): Promise<{ latitude: number; longitude: number } | null> {
-    const session = await auth()
-    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
+    const session = await auth();
+    const role = (session?.user as { role?: string } | undefined)?.role ?? session?.user?.role;
+    if (!session || role !== "ADMIN") throw new Error("Unauthorized access. Admin only.");
 
-    const apiKey = process.env.GEOCODE_API;
-    if (!apiKey?.trim()) throw new Error("Geocode API key is missing");
+    const apiKey = process.env.GEOCODE_API?.trim();
+    if (!apiKey) throw new Error("Geocode API key is missing. Set GEOCODE_API in .env (get a free key at geocode.maps.co).");
 
-    const q = query?.trim();
+    let q = (query ?? "").trim();
     if (!q) return null;
 
+    // Improve results for Greek addresses: append country if not already present
+    const lower = q.toLowerCase();
+    if (!lower.includes("greece") && !lower.includes("ελλάδα") && !lower.includes("ellada")) {
+        q = `${q}, Greece`;
+    }
+
     try {
-        const url = `https://geocode.maps.co/search?q=${encodeURIComponent(q)}&api_key=${apiKey}&limit=1`;
+        const url = `https://geocode.maps.co/search?q=${encodeURIComponent(q)}&api_key=${encodeURIComponent(apiKey)}&limit=1`;
         const res = await fetch(url, { next: { revalidate: 0 } });
+        const text = await res.text();
+
         if (!res.ok) {
-            const text = await res.text();
-            throw new Error(`Geocode API error ${res.status}: ${text || res.statusText}`);
+            let msg = `Geocode API error ${res.status}: ${text || res.statusText}`;
+            if (res.status === 401 || res.status === 403) msg = "Invalid or missing GEOCODE_API key. Check .env and geocode.maps.co.";
+            if (res.status === 429) msg = "Geocode rate limit exceeded. Try again in a few minutes.";
+            console.error("GEOCODE Error:", msg);
+            throw new Error(msg);
         }
 
-        const data = await res.json();
+        let data: unknown;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            throw new Error("Invalid geocode API response");
+        }
         if (!Array.isArray(data) || data.length === 0) return null;
 
-        const first = data[0];
+        const first = data[0] as Record<string, unknown>;
         const lat = parseCoord(first?.lat ?? first?.latitude);
         const lon = parseCoord(first?.lon ?? first?.longitude);
         if (lat == null || lon == null) return null;

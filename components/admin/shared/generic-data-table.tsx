@@ -236,6 +236,9 @@ export function GenericDataTable<TData, TValue>({
         onRowSelectionChange,
         enableRowSelection,
         getRowId: (row) => String((row as Record<string, unknown>)[rowIdKey as string] ?? Math.random()),
+        initialState: {
+            pagination: { pageSize: 50 },
+        },
         state: {
             sorting,
             columnFilters,
