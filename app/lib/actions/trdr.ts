@@ -1,11 +1,12 @@
 "use server";
 
+import { Prisma } from "@prisma/client"
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
 import { cookies } from "next/headers"
 import { getSoftOneTableData, setSoftOneTrdrData, type SetDataTrdrPayload } from "@/lib/softone"
 import { SOFTONE_CLIENT_ID_COOKIE } from "@/lib/softone-cookie"
-import { getVatCompanyInfo, getVatCorrectData } from "@/lib/vat-wwa"
+import { getVatCompanyInfo, getVatCorrectData, type VatWwaCompanyInfo } from "@/lib/vat-wwa"
 import { getCoordinates } from "@/app/lib/actions/location"
 
 export async function getCustomers() {
@@ -73,15 +74,19 @@ function sanitizeTrdrPayload(restData: Record<string, unknown>): Record<string, 
 /** Fields allowed on trdrKad for nested create (exclude relation id and timestamps). */
 const TRDR_KAD_CREATE_KEYS = new Set(["afm", "firm_act_code", "firm_act_descr", "firm_act_kind"]);
 
-function sanitizeKadsForCreate(kads: unknown[]): Record<string, unknown>[] {
+type KadCreateItem = { afm?: string | null; firm_act_code: string; firm_act_descr: string; firm_act_kind?: boolean };
+
+function sanitizeKadsForCreate(kads: unknown[]): KadCreateItem[] {
     return kads.map((item) => {
-        if (!item || typeof item !== "object") return {};
-        const out: Record<string, unknown> = {};
-        for (const key of Object.keys(item as Record<string, unknown>)) {
-            if (TRDR_KAD_CREATE_KEYS.has(key)) out[key] = (item as Record<string, unknown>)[key];
-        }
-        return out;
-    });
+        if (!item || typeof item !== "object") return { firm_act_code: "", firm_act_descr: "" };
+        const raw = item as Record<string, unknown>;
+        return {
+            afm: typeof raw.afm === "string" ? raw.afm : null,
+            firm_act_code: typeof raw.firm_act_code === "string" ? raw.firm_act_code.slice(0, 50) : "",
+            firm_act_descr: typeof raw.firm_act_descr === "string" ? raw.firm_act_descr.slice(0, 255) : "",
+            firm_act_kind: raw.firm_act_kind === true || raw.firm_act_kind === "1",
+        };
+    }).filter((k) => k.firm_act_code !== "" || k.firm_act_descr !== "");
 }
 
 export async function createCustomer(data: any) {
@@ -101,12 +106,13 @@ export async function createCustomer(data: any) {
             sanitized.CODE = `CMD-${sanitized.TRDR}`;
         }
 
-        const kadsToCreate = Array.isArray(kads) && kads.length > 0 ? sanitizeKadsForCreate(kads) : undefined;
+        const kadsToCreate = Array.isArray(kads) && kads.length > 0 ? sanitizeKadsForCreate(kads) : [];
+        const createData = {
+            ...sanitized,
+            ...(kadsToCreate.length > 0 ? { kads: { create: kadsToCreate } } : {}),
+        } as Prisma.TRDRCreateInput;
         const res = await prisma.tRDR.create({
-            data: {
-                ...sanitized,
-                ...(kadsToCreate && kadsToCreate.length > 0 ? { kads: { create: kadsToCreate } } : {})
-            },
+            data: createData,
             include: { kads: true }
         })
         return JSON.parse(JSON.stringify(res))
@@ -130,15 +136,16 @@ export async function updateCustomer(id: string, data: any) {
             if (sanitized[k] !== undefined) dataOnlyTrdrKeys[k] = sanitized[k];
         }
 
+        const updateData = {
+            ...dataOnlyTrdrKeys,
+            kads: {
+                deleteMany: {},
+                ...(kadsToCreate && kadsToCreate.length > 0 ? { create: kadsToCreate } : {}),
+            },
+        } as Prisma.TRDRUpdateInput;
         const res = await prisma.tRDR.update({
             where: { id },
-            data: {
-                ...dataOnlyTrdrKeys,
-                kads: {
-                    deleteMany: {},
-                    ...(kadsToCreate && kadsToCreate.length > 0 ? { create: kadsToCreate } : {})
-                }
-            },
+            data: updateData,
             include: { kads: true }
         })
         return JSON.parse(JSON.stringify(res))
@@ -206,7 +213,7 @@ export async function getKAD(customerId: string, afm: string) {
         });
 
         if (!res.ok) throw new Error("VAT API error");
-        const apiData = await res.json();
+        const apiData = (await res.json()) as VatWwaCompanyInfo & { error?: string };
 
         if (apiData.error) throw new Error(apiData.error);
 
@@ -217,9 +224,15 @@ export async function getKAD(customerId: string, afm: string) {
             firm_act_kind: k.firm_act_kind === "1"
         })) || [];
 
+        const correctData = getVatCorrectData(apiData as VatWwaCompanyInfo);
+        const registDate = correctData?.registDate?.slice(0, 50) ?? undefined;
+        const legalStatus = correctData?.legalStatus?.slice(0, 128) ?? undefined;
+
         const dbRes = await prisma.tRDR.update({
             where: { id: customerId },
             data: {
+                ...(registDate != null ? { registDate } : {}),
+                ...(legalStatus != null ? { legalStatus } : {}),
                 kads: {
                     deleteMany: {},
                     ...(fetchedKads.length > 0 ? { create: fetchedKads } : {})
