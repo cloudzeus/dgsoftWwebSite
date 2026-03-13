@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: "Map customer addresses to periferies/nomoi/dimos for funding programs",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AddressMappingPage() {
   const [addresses, periferiesOptions] = await Promise.all([
     getDistinctCustomerAddresses(),

@@ -2,8 +2,11 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
 import { normalizeAddressKey } from "@/lib/address-region-utils";
 import { getVatCompanyInfo, getVatCorrectData } from "@/lib/vat-wwa";
+
+const ADDRESS_MAPPING_PATH = "/admin/eu-programs/address-mapping";
 
 const LEVEL_DIMOS = 5;
 
@@ -50,11 +53,17 @@ export async function enrichAddressFromVat(row: DistinctAddressRow): Promise<Dis
     data: updatePayload,
   });
 
+  const rawAddress = correct.ADDRESS ?? row.rawAddress;
+  const rawCity = correct.CITY ?? row.rawCity;
+  const rawZip = correct.ZIP ?? row.rawZip;
+  const enrichedKey = normalizeAddressKey(rawAddress, rawCity, rawZip);
+
   return {
     ...row,
-    rawAddress: correct.ADDRESS ?? row.rawAddress,
-    rawCity: correct.CITY ?? row.rawCity,
-    rawZip: correct.ZIP ?? row.rawZip,
+    addressKey: enrichedKey,
+    rawAddress,
+    rawCity,
+    rawZip,
   };
 }
 
@@ -201,7 +210,14 @@ function dimosListForPrompt(options: PeriferiaOption[]): string {
 
 const BULK_BATCH_SIZE = 15;
 
-export type BulkSuggestResult = { addressKey: string; periferiaId: string | null };
+export type BulkSuggestResult = {
+  addressKey: string;
+  periferiaId: string | null;
+  saveKey?: string;
+  rawAddress?: string | null;
+  rawCity?: string | null;
+  rawZip?: string | null;
+};
 
 /** Suggest mappings for a batch of addresses in one DeepSeek call (city + address/area used together). */
 export async function suggestAddressMappingBulk(
@@ -276,7 +292,15 @@ Reply with exactly ${N} lines. Line i is the result for Address i: either the pe
       const line = lines[i] ?? "";
       const id = line.toUpperCase() === "UNKNOWN" ? null : line.split(/\s/)[0]?.trim() ?? null;
       const valid = id && idSet.has(id) ? id : null;
-      return { addressKey: row.addressKey, periferiaId: valid };
+      const enriched = enrichedBatch[i];
+      return {
+        addressKey: row.addressKey,
+        periferiaId: valid,
+        saveKey: enriched.addressKey,
+        rawAddress: enriched.rawAddress,
+        rawCity: enriched.rawCity,
+        rawZip: enriched.rawZip,
+      };
     });
 
     return { success: true, results };
@@ -286,21 +310,28 @@ Reply with exactly ${N} lines. Line i is the result for Address i: either the pe
   }
 }
 
-/** Save multiple suggested mappings (only those with periferiaId). */
+/** Save multiple suggested mappings (only those with periferiaId). Uses saveKey and raw* when provided (enriched key after VAT). */
 export async function saveAddressMappingBulk(
-  items: Array<{ row: DistinctAddressRow; periferiaId: string }>
+  items: Array<{
+    row: DistinctAddressRow;
+    periferiaId: string;
+    saveKey?: string;
+    rawAddress?: string | null;
+    rawCity?: string | null;
+    rawZip?: string | null;
+  }>
 ): Promise<{ success: boolean; saved: number; error?: string }> {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return { success: false, saved: 0, error: "Unauthorized" };
 
   let saved = 0;
-  for (const { row, periferiaId } of items) {
+  for (const { row, periferiaId, saveKey, rawAddress, rawCity, rawZip } of items) {
     try {
       const result = await saveAddressMapping({
-        addressKey: row.addressKey,
-        rawAddress: row.rawAddress,
-        rawCity: row.rawCity,
-        rawZip: row.rawZip,
+        addressKey: saveKey ?? row.addressKey,
+        rawAddress: rawAddress ?? row.rawAddress,
+        rawCity: rawCity ?? row.rawCity,
+        rawZip: rawZip ?? row.rawZip,
         countryCode: row.countryCode,
         latitude: row.latitude,
         longitude: row.longitude,
@@ -311,6 +342,7 @@ export async function saveAddressMappingBulk(
       if (result.success) saved++;
     } catch (_) {}
   }
+  if (saved > 0) revalidatePath(ADDRESS_MAPPING_PATH);
   return { success: true, saved };
 }
 
@@ -323,7 +355,7 @@ export async function suggestAddressMapping(params: {
   countryCode: number | null;
   latitude: number | null;
   longitude: number | null;
-}): Promise<{ success: boolean; periferiaId?: string; error?: string }> {
+}): Promise<{ success: boolean; periferiaId?: string; error?: string; addressKeyToSave?: string; rawAddress?: string | null; rawCity?: string | null; rawZip?: string | null }> {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return { success: false, error: "Unauthorized" };
 
@@ -387,7 +419,7 @@ Reply with ONLY the id (cuid) of the chosen Δήμος, nothing else. No explana
 
     const data = await res.json();
     const text = (data.choices?.[0]?.message?.content ?? "").trim();
-    if (text.toUpperCase() === "UNKNOWN") return { success: true };
+    if (text.toUpperCase() === "UNKNOWN") return { success: true, addressKeyToSave: enriched.addressKey, rawAddress: enriched.rawAddress, rawCity: enriched.rawCity, rawZip: enriched.rawZip };
 
     const id = text.split(/\s/)[0]?.trim();
     if (!id) return { success: false, error: "Empty response" };
@@ -395,7 +427,7 @@ Reply with ONLY the id (cuid) of the chosen Δήμος, nothing else. No explana
     const found = dimosList.some((d) => d.id === id);
     if (!found) return { success: false, error: `Invalid id: ${id}` };
 
-    return { success: true, periferiaId: id };
+    return { success: true, periferiaId: id, addressKeyToSave: enriched.addressKey, rawAddress: enriched.rawAddress, rawCity: enriched.rawCity, rawZip: enriched.rawZip };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return { success: false, error: msg };
@@ -445,6 +477,7 @@ export async function saveAddressMapping(params: {
         suggestedAt: params.suggestedAt ?? undefined,
       },
     });
+    revalidatePath(ADDRESS_MAPPING_PATH);
     return { success: true };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -489,6 +522,50 @@ export async function setAddressMappingConfirmed(addressKey: string, confirmed: 
   }
 }
 
+/** Suggest once for a group (same city+zip), then save the same periferia to every row in the group. One DeepSeek call per group. */
+export async function suggestAndSaveGroup(rows: DistinctAddressRow[]): Promise<{ success: boolean; saved: number; error?: string }> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return { success: false, saved: 0, error: "Unauthorized" };
+  if (rows.length === 0) return { success: true, saved: 0 };
+
+  const first = await enrichAddressFromVat(rows[0]);
+  const result = await suggestAddressMapping({
+    addressKey: first.addressKey,
+    rawAddress: first.rawAddress,
+    rawCity: first.rawCity,
+    rawZip: first.rawZip,
+    countryCode: first.countryCode,
+    latitude: first.latitude,
+    longitude: first.longitude,
+  });
+
+  if (!result.success || !result.periferiaId) {
+    return { success: false, saved: 0, error: result.error };
+  }
+
+  const periferiaId = result.periferiaId;
+  let saved = 0;
+  for (const row of rows) {
+    const enriched = await enrichAddressFromVat(row);
+    const saveKey = enriched.addressKey;
+    const saveResult = await saveAddressMapping({
+      addressKey: saveKey,
+      rawAddress: enriched.rawAddress,
+      rawCity: enriched.rawCity,
+      rawZip: enriched.rawZip,
+      countryCode: row.countryCode,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      periferiaId,
+      confirmed: false,
+      suggestedAt: new Date(),
+    });
+    if (saveResult.success) saved++;
+  }
+  revalidatePath(ADDRESS_MAPPING_PATH);
+  return { success: true, saved };
+}
+
 /** Run AI suggestion for a single address and persist suggested mapping (not confirmed). */
 export async function runSuggestAndSave(row: DistinctAddressRow): Promise<{ success: boolean; periferiaId?: string; error?: string }> {
   const session = await auth();
@@ -506,11 +583,12 @@ export async function runSuggestAndSave(row: DistinctAddressRow): Promise<{ succ
 
   if (!result.success || !result.periferiaId) return result;
 
+  const saveKey = result.addressKeyToSave ?? row.addressKey;
   const saveResult = await saveAddressMapping({
-    addressKey: row.addressKey,
-    rawAddress: row.rawAddress,
-    rawCity: row.rawCity,
-    rawZip: row.rawZip,
+    addressKey: saveKey,
+    rawAddress: result.rawAddress ?? row.rawAddress,
+    rawCity: result.rawCity ?? row.rawCity,
+    rawZip: result.rawZip ?? row.rawZip,
     countryCode: row.countryCode,
     latitude: row.latitude,
     longitude: row.longitude,

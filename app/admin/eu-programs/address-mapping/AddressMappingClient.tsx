@@ -35,12 +35,11 @@ import {
   runSuggestAndSave,
   saveAddressMapping,
   setAddressMappingConfirmed,
-  suggestAddressMappingBulk,
-  saveAddressMappingBulk,
+  suggestAndSaveGroup,
+  getDistinctCustomerAddresses,
 } from "@/app/lib/actions/address-region";
+import { getCityZipGroupKey } from "@/lib/address-region-utils";
 import { useRouter } from "next/navigation";
-
-const BULK_BATCH_SIZE = 15;
 
 type Props = {
   initialAddresses: DistinctAddressRow[];
@@ -134,23 +133,36 @@ export function AddressMappingClient({
   };
 
   const handleSuggestAll = async () => {
-    const toRun = addresses.filter((a) => !a.periferiaId || !a.confirmed);
+    const toRun = addresses.filter((a) => !a.periferiaId);
     if (toRun.length === 0) {
-      toast.info("All addresses already have a confirmed mapping.");
+      toast.info("All addresses already have a mapping. Nothing to suggest.");
       return;
     }
-    toast.info(`Suggesting for ${toRun.length} address(es)…`);
-    let done = 0;
+    const groups = new Map<string, DistinctAddressRow[]>();
     for (const row of toRun) {
-      setSuggestingKey(row.addressKey);
+      const key = getCityZipGroupKey(row.rawCity, row.rawZip);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(row);
+    }
+    const groupList = Array.from(groups.values());
+    const tid = toast.loading(`Area 1 / ${groupList.length} (1 query per city+zip)…`);
+    let totalSaved = 0;
+    for (let i = 0; i < groupList.length; i++) {
+      const group = groupList[i];
+      setSuggestingKey(group[0]?.addressKey ?? null);
+      toast.loading(`Area ${i + 1} / ${groupList.length}: ${group.length} address(es)…`, { id: tid });
       try {
-        await runSuggestAndSave(row);
-        done++;
+        const result = await suggestAndSaveGroup(group);
+        if (result.success) totalSaved += result.saved;
       } catch (_) {}
-      await new Promise((r) => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 300));
     }
     setSuggestingKey(null);
-    toast.success(`Suggested ${done} mapping(s). Refresh to see.`);
+    toast.success(`Saved ${totalSaved} mapping(s) in ${groupList.length} area(s).`, { id: tid, duration: 4000 });
+    try {
+      const fresh = await getDistinctCustomerAddresses();
+      setAddresses(fresh);
+    } catch (_) {}
     router.refresh();
   };
 
