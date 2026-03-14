@@ -25,6 +25,7 @@ import {
   MailIcon,
   SendIcon,
   LayoutTemplateIcon,
+  CalendarDaysIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -106,6 +107,11 @@ const navData = {
       title: "Send email",
       url: "/admin/email",
       icon: MailIcon,
+    },
+    {
+      title: "Teams Calendar",
+      url: "/admin/teams-calendar",
+      icon: CalendarDaysIcon,
     },
   ],
   navNewsletter: [

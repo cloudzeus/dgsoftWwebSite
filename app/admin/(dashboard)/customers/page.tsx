@@ -4,6 +4,7 @@ import { getAddressRegionMap } from "@/app/lib/actions/address-region"
 import { CustomersDataTable } from "@/components/admin/customers/data-table-customers"
 import { SyncAllFromSoftOneButton } from "@/components/admin/customers/sync-all-from-softone-button"
 import { SyncLookupsButton } from "@/components/admin/customers/sync-lookups-button"
+import { SyncKadLegalButton } from "@/components/admin/customers/sync-kad-legal-button"
 import { SyncGeodataButton } from "@/components/admin/customers/sync-geodata-button"
 import { SyncEmailAccButton } from "@/components/admin/customers/sync-emailacc-button"
 
@@ -23,6 +24,7 @@ export default async function CustomersPage() {
         <div className="flex flex-wrap items-center gap-2">
           <SyncAllFromSoftOneButton />
           <SyncLookupsButton />
+          <SyncKadLegalButton />
           <SyncGeodataButton />
           <SyncEmailAccButton />
         </div>

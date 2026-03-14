@@ -4,7 +4,7 @@ import { useState } from "react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, TrendingUp, HandCoins, Building2, Globe2, Smartphone, X, Search, Loader2 } from "lucide-react";
+import { ArrowUpRight, TrendingUp, HandCoins, Building2, Globe2, Smartphone, X, Search, Loader2, Video, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useLocale } from "../context/LocaleContext";
 import db from "../../data/db.json";
@@ -27,6 +27,8 @@ export default function EUProgramsPage() {
     const [contactTime, setContactTime] = useState("morning");
     const [contactMethod, setContactMethod] = useState("phone");
     const [isLoading, setIsLoading] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [teamsResult, setTeamsResult] = useState<{ joinUrl: string; subject: string; start: string } | null>(null);
     const locale = useLocale();
     const programs = (db as any).euPrograms || [];
 
@@ -53,9 +55,77 @@ export default function EUProgramsPage() {
         }
     };
 
+    const handleSubmit = async () => {
+        setSubmitError(null);
+        setTeamsResult(null);
+        if (contactMethod === "teams") {
+            if (!email?.trim()) {
+                setSubmitError(locale === "el" ? "Το email είναι απαραίτητο για Teams." : "Email is required for Teams.");
+                return;
+            }
+            setIsLoading(true);
+            try {
+                const res = await fetch("/api/eu-programs/teams-request", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: email.trim(),
+                        companyName: companyName.trim() || undefined,
+                        vat: vat.trim() || undefined,
+                        address: address.trim() || undefined,
+                        zipCode: zipCode.trim() || undefined,
+                        phone: phone.trim() || undefined,
+                        contactTime,
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    setSubmitError(data.error ?? (locale === "el" ? "Αποτυχία αιτήματος." : "Request failed."));
+                    return;
+                }
+                setTeamsResult({ joinUrl: data.joinUrl, subject: data.subject, start: data.start });
+                setIsModalOpen(false);
+            } catch (err) {
+                setSubmitError(locale === "el" ? "Σφάλμα δικτύου. Δοκιμάστε ξανά." : "Network error. Please try again.");
+            } finally {
+                setIsLoading(false);
+            }
+            return;
+        }
+        setIsModalOpen(false);
+        alert(locale === "el" ? "Το αίτημά σας καταχωρήθηκε! Θα επικοινωνήσουμε μαζί σας σύντομα." : "Your request has been submitted! We will contact you soon.");
+    };
+
     return (
         <main className="min-h-screen bg-monks-black flex flex-col relative">
             <Navigation />
+            {teamsResult && (
+                <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[90] max-w-md mx-4 bg-monks-gray border border-[#FFD700]/30 rounded-xl p-4 shadow-xl flex items-start gap-3">
+                    <CheckCircle className="h-6 w-6 text-[#FFD700] shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                        <p className="text-white font-medium mb-1">{locale === "el" ? "Η συνάντηση ορίστηκε" : "Meeting scheduled"}</p>
+                        <p className="text-monks-light text-sm mb-2">{teamsResult.subject}</p>
+                        <p className="text-monks-light text-xs mb-3">{locale === "el" ? "Σας στάλθηκε email με τον σύνδεσμο Teams." : "Check your email for the Teams link."}</p>
+                        <a
+                            href={teamsResult.joinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-[#FFD700] text-monks-black font-semibold px-4 py-2 rounded-lg hover:bg-[#E3AA00] transition-colors text-sm"
+                        >
+                            <Video className="h-4 w-4" />
+                            {locale === "el" ? "Άνοιγμα Teams" : "Open Teams"}
+                        </a>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setTeamsResult(null)}
+                        className="text-monks-light hover:text-white p-1"
+                        aria-label="Close"
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
 
             {/* Hero Section */}
             <section className="relative pt-48 pb-24 overflow-hidden">
@@ -271,14 +341,16 @@ export default function EUProgramsPage() {
                                     </div>
                                 </div>
 
+                                {submitError && (
+                                    <p className="text-sm text-red-400">{submitError}</p>
+                                )}
                                 <button
-                                    className="w-full bg-[#FFD700] text-monks-black font-semibold py-3 rounded-lg hover:bg-[#E3AA00] transition-colors mt-2"
-                                    onClick={() => {
-                                        setIsModalOpen(false);
-                                        alert(locale === "el" ? "Το αίτημά σας καταχωρήθηκε! Θα επικοινωνήσουμε μαζί σας σύντομα." : "Your request has been submitted! We will contact you soon.");
-                                    }}
+                                    type="button"
+                                    className="w-full bg-[#FFD700] text-monks-black font-semibold py-3 rounded-lg hover:bg-[#E3AA00] transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={handleSubmit}
+                                    disabled={isLoading}
                                 >
-                                    {locale === "el" ? "Υποβολή Αιτήματος" : "Submit Request"}
+                                    {isLoading ? (locale === "el" ? "Αποστολή…" : "Submitting…") : (locale === "el" ? "Υποβολή Αιτήματος" : "Submit Request")}
                                 </button>
                             </div>
                         </motion.div>

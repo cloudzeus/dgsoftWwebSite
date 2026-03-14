@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Linkedin, Twitter, Instagram, Github } from "lucide-react";
+import { ArrowUpRight, Linkedin, Twitter, Instagram, Github, Facebook } from "lucide-react";
 
 const footerLinks = {
   solutions: [
@@ -26,9 +26,10 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
+  { icon: Facebook, href: "https://www.facebook.com/softsoftwaredg", label: "Facebook" },
+  { icon: Linkedin, href: "https://www.linkedin.com/company/dgsoft/posts/?feedView=all", label: "LinkedIn" },
   { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Instagram, href: "#", label: "Instagram" },
+  { icon: Instagram, href: "https://www.instagram.com/direct/t/17843988246377755/", label: "Instagram" },
   { icon: Github, href: "#", label: "GitHub" },
 ];
 
@@ -61,6 +62,8 @@ export default function Footer() {
                   key={index}
                   href={social.href}
                   aria-label={social.label}
+                  target={social.href.startsWith("http") ? "_blank" : undefined}
+                  rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
                   className="w-10 h-10 rounded-full bg-monks-gray flex items-center justify-center text-monks-light hover:bg-monks-accent hover:text-white transition-all duration-300"
                 >
                   <social.icon className="w-4 h-4" />

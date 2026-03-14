@@ -356,12 +356,14 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
             })
             const apiData = await res.json()
             if (apiData.basic_rec) {
-                const fetchedKads = apiData.firm_act_tab?.item?.map((k: any) => ({
+                const rawItem = apiData.firm_act_tab?.item
+                const itemArray = Array.isArray(rawItem) ? rawItem : rawItem != null && typeof rawItem === "object" ? [rawItem] : []
+                const fetchedKads = itemArray.map((k: any) => ({
                     afm: formData.AFM.trim(),
                     firm_act_code: String(k.firm_act_code || ""),
                     firm_act_descr: String(k.firm_act_descr || ""),
                     firm_act_kind: k.firm_act_kind === "1"
-                })) || [];
+                }))
 
                 const str = (v: unknown) => (v != null && typeof v === "string" ? v : "")
                 setFormData(prev => ({
@@ -534,12 +536,20 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         {
             accessorKey: "NAME",
             header: "Company",
-            cell: ({ row }) => (
-                <div className="flex flex-col">
-                    <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{row.original.NAME}</span>
-                    <span className="text-[10px] uppercase tracking-wide text-zinc-400 font-mono">{row.original.AFM}</span>
-                </div>
-            )
+            cell: ({ row }) => {
+                const kadCount = row.original.kads?.length ?? 0
+                return (
+                    <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{row.original.NAME}</span>
+                            <Badge variant="secondary" className="text-[8px] font-bold px-1.5 py-0 h-4 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                                {kadCount} KAD{kadCount !== 1 ? "s" : ""}
+                            </Badge>
+                        </div>
+                        <span className="text-[10px] uppercase tracking-wide text-zinc-400 font-mono">{row.original.AFM}</span>
+                    </div>
+                )
+            }
         },
         {
             accessorKey: "CODE",

@@ -27,6 +27,36 @@ export async function getCustomers() {
     }
 }
 
+/** Find TRDR (customer) records where any email field (EMAIL, EMAILACC, CCCEMAILMAR) contains the given domain (e.g. "dgsmart.gr"). */
+export async function getTrdrByEmailDomain(domain: string) {
+    const session = await auth()
+    if (!session) throw new Error("Unauthorized")
+
+    const needle = domain.includes("@") ? domain : `@${domain}`
+    const data = await prisma.tRDR.findMany({
+        where: {
+            OR: [
+                { EMAIL: { contains: needle } },
+                { EMAILACC: { contains: needle } },
+                { CCCEMAILMAR: { contains: needle } },
+            ],
+        },
+        select: {
+            id: true,
+            TRDR: true,
+            CODE: true,
+            NAME: true,
+            EMAIL: true,
+            EMAILACC: true,
+            CCCEMAILMAR: true,
+            PHONE01: true,
+            PHONE02: true,
+        },
+        orderBy: { NAME: "asc" },
+    })
+    return JSON.parse(JSON.stringify(data))
+}
+
 /** For first-page companies scroller: customers with displayAtCarousel true (with logo + tooltip). */
 export async function getPublicCustomersForCarousel() {
     try {
@@ -430,12 +460,18 @@ export async function getKAD(customerId: string, afm: string) {
 
         if (apiData.error) throw new Error(apiData.error);
 
-        const fetchedKads = apiData.firm_act_tab?.item?.map((k: any) => ({
+        const rawItems = apiData.firm_act_tab?.item;
+        const itemArray: unknown[] = Array.isArray(rawItems)
+            ? rawItems
+            : rawItems != null && typeof rawItems === "object"
+                ? [rawItems]
+                : [];
+        const fetchedKads = itemArray.map((k: any) => ({
             afm: afm.trim(),
-            firm_act_code: String(k.firm_act_code || ""),
-            firm_act_descr: String(k.firm_act_descr || ""),
-            firm_act_kind: k.firm_act_kind === "1"
-        })) || [];
+            firm_act_code: String(k?.firm_act_code ?? "").trim().slice(0, 50),
+            firm_act_descr: String(k?.firm_act_descr ?? "").trim().slice(0, 255),
+            firm_act_kind: k?.firm_act_kind === "1"
+        }));
 
         const correctData = getVatCorrectData(apiData as VatWwaCompanyInfo);
         const registDate = correctData?.registDate?.slice(0, 50) ?? undefined;
@@ -458,6 +494,96 @@ export async function getKAD(customerId: string, afm: string) {
     } catch (error: any) {
         console.error("GET KAD Error:", error)
         throw new Error(error.message)
+    }
+}
+
+/** Customer considered to have KAD/legal/established data if any of these is set. */
+function hasKadLegalData(row: { legalStatus: string | null; registDate: string | null; kads: unknown[] }): boolean {
+    const hasLegal = row.legalStatus != null && row.legalStatus.trim() !== ""
+    const hasRegist = row.registDate != null && row.registDate.trim() !== ""
+    const hasKads = Array.isArray(row.kads) && row.kads.length > 0
+    return hasLegal || hasRegist || hasKads
+}
+
+export type CustomersKadSyncStatus = {
+    success: boolean
+    message?: string
+    /** Customers with Greek AFM that already have KAD/legal/established. */
+    alreadyComplete: number
+    /** Customers with Greek AFM that still need sync. */
+    toSync: Array<{ id: string; AFM: string }>
+    /** Customers without Greek AFM (skipped). */
+    noGreekAfm: number
+}
+
+/** Find which customers already have KAD/legal/established and which need syncing (Greek AFM only). */
+export async function getCustomersKadSyncStatus(): Promise<CustomersKadSyncStatus> {
+    const session = await auth()
+    if (!session) return { success: false, message: "Unauthorized", alreadyComplete: 0, toSync: [], noGreekAfm: 0 }
+
+    try {
+        const all = await prisma.tRDR.findMany({
+            select: { id: true, AFM: true, legalStatus: true, registDate: true, kads: { select: { id: true } } },
+        })
+        let alreadyComplete = 0
+        const toSync: Array<{ id: string; AFM: string }> = []
+        let noGreekAfm = 0
+        for (const row of all) {
+            const afm = row.AFM?.trim() ?? ""
+            if (!isGreekAfm(afm)) {
+                noGreekAfm++
+                continue
+            }
+            const kads = row.kads ?? []
+            const hasAnyKads = Array.isArray(kads) && kads.length > 0
+            const hasData = hasKadLegalData({ legalStatus: row.legalStatus, registDate: row.registDate, kads })
+            if (hasData && hasAnyKads) {
+                alreadyComplete++
+            } else {
+                toSync.push({ id: row.id, AFM: afm })
+            }
+        }
+        return { success: true, alreadyComplete, toSync, noGreekAfm }
+    } catch (err: any) {
+        console.error("[getCustomersKadSyncStatus]", err)
+        return { success: false, message: err?.message ?? "Failed to get status", alreadyComplete: 0, toSync: [], noGreekAfm: 0 }
+    }
+}
+
+export type SyncKadLegalResult = {
+    success: boolean
+    message?: string
+    alreadyComplete: number
+    synced: number
+    errors: string[]
+}
+
+/** First get status (already complete vs to sync), then fetch KAD/legal/established from vat.wwa.gr for all that need it. */
+export async function syncKadAndLegalForAllMissing(): Promise<SyncKadLegalResult> {
+    const session = await auth()
+    if (!session) {
+        return { success: false, message: "Unauthorized", alreadyComplete: 0, synced: 0, errors: [] }
+    }
+    const status = await getCustomersKadSyncStatus()
+    if (!status.success) {
+        return { success: false, message: status.message, alreadyComplete: 0, synced: 0, errors: [] }
+    }
+    const errors: string[] = []
+    let synced = 0
+    for (const { id, AFM } of status.toSync) {
+        try {
+            await getKAD(id, AFM)
+            synced++
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e)
+            errors.push(`${AFM}: ${msg}`)
+        }
+    }
+    return {
+        success: true,
+        alreadyComplete: status.alreadyComplete,
+        synced,
+        errors,
     }
 }
 

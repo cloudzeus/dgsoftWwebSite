@@ -92,7 +92,9 @@ export function getVatCorrectData(vatInfo: VatWwaCompanyInfo | null): VatWwaCorr
   const city = toStr(br?.postal_area_description, 30) // postal_area_description → CITY
   const legalStatus = toStr(br?.legal_status_descr, 128)
   const registDate = toStr(br?.regist_date, 50)
-  const kads = (vatInfo.firm_act_tab?.item ?? []).map((k) => ({
+  const rawItem = vatInfo.firm_act_tab?.item
+  const itemArray = Array.isArray(rawItem) ? rawItem : rawItem != null && typeof rawItem === "object" ? [rawItem] : []
+  const kads = itemArray.map((k) => ({
     afm: toStr(vatInfo.afm ?? "", 20) ?? "",
     firm_act_code: (String(k.firm_act_code ?? "").trim().slice(0, 50)) || "",
     firm_act_descr: (String(k.firm_act_descr ?? "").trim().slice(0, 255)) || "",
