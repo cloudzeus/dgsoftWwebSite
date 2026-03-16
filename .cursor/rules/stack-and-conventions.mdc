@@ -1,0 +1,39 @@
+---
+description: Project stack — Next.js 16+, Auth.js, Prisma + MySQL, shadcn forms, server-side data
+alwaysApply: true
+---
+
+# Stack & Conventions
+
+Follow these in all new and modified code.
+
+## Framework
+
+- **Next.js 16+** — Use the latest stable Next.js 16 or newer. Prefer App Router; use Server Components by default; use Client Components only when needed (e.g. `"use client"` for interactivity, forms with client state).
+
+## Authentication
+
+- **Auth.js** — Use Auth.js (next-auth) for all authentication: login, session, protected routes, role checks. Configure provider(s) and callbacks in the Auth.js config; use `auth()` in server components and API routes to get the session. Protect admin/dashboard routes by redirecting when `session?.user` is missing or role is insufficient.
+
+## Database
+
+- **Prisma ORM** — Use Prisma for all database access. Do not use raw SQL or another ORM.
+- **MySQL** — Use MySQL as the database. Set `provider = "mysql"` in `schema.prisma` and use `DATABASE_URL` in `.env`. Prefer `prisma db push` for schema changes (per project preference over migrations).
+
+## Forms & UI
+
+- **shadcn/ui** — Use shadcn components for all forms and form-like UI: `Input`, `Label`, `Select`, `Checkbox`, `Switch`, `Textarea`, `Button`, `Dialog`, `Sheet`, etc. Install missing components via shadcn CLI. Do not use plain HTML form elements when a shadcn equivalent exists (e.g. use shadcn `Input` instead of bare `<input>` for styled forms).
+
+## Data fetching
+
+- **Server-side only** — Fetch data on the server: in Server Components (async `page.tsx` or layout), in `getData()`-style functions called from server components, or in API routes that run on the server. Do not use client-side fetching for initial page data; use server fetching and pass data as props. Client-side fetch only for user-triggered actions (e.g. submit, refresh) or when the route is explicitly client-only.
+
+## Summary
+
+| Area           | Choice              |
+|----------------|---------------------|
+| Framework      | Next.js 16+         |
+| Auth           | Auth.js             |
+| Database        | Prisma + MySQL      |
+| Forms / UI     | shadcn/ui           |
+| Data fetching  | Server-side by default |

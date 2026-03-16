@@ -1,0 +1,110 @@
+---
+description: Admin dashboard design system — layout, theme, data tables, and components for reuse across projects
+alwaysApply: false
+globs: app/admin/**/*.tsx,components/admin/**/*.tsx,components/app-sidebar.tsx,components/site-header.tsx,components/data-table.tsx,components/admin/shared/**/*.tsx,app/globals.css
+---
+
+# Admin Dashboard Design System
+
+Use this design system for all admin / dashboard sections so the look and feel stays consistent across projects.
+
+**Stack (see `.cursor/rules/stack-and-conventions.mdc`):** Next.js 16+, Auth.js for auth, Prisma ORM + MySQL, shadcn for all forms, server-side data fetching by default.
+
+## Layout Structure
+
+- **Dashboard layout**: Wrap admin pages in a root div with `admin-theme min-h-screen bg-background text-foreground`. Use `SidebarProvider` → `AppSidebar` + `SidebarInset` → `SiteHeader` + `main` (with `flex-1 p-4 md:p-6`).
+- **Main content**: `<main className="flex-1 p-4 md:p-6">` for padding; inner pages use `flex flex-1 flex-col gap-4` or similar for consistent spacing.
+- **Sidebar**: shadcn `Sidebar` with `SidebarHeader` (logo), `SidebarContent` (NavMain + SidebarGroups), `SidebarFooter` (NavUser). Use `SidebarGroup` + `SidebarGroupLabel` + `SidebarGroupContent` for sections (e.g. "Newsletter", "Funding"). Menu items: `SidebarMenuItem` + `SidebarMenuButton asChild` + `Link`.
+- **Header**: Thin bar (`h-12`) with `SidebarTrigger`, vertical `Separator`, and title (e.g. "Admin Center"). Class: `border-b border-border bg-card`.
+
+## Admin Theme (CSS Variables)
+
+Apply class `admin-theme` on the dashboard root. Define in `globals.css` under a media or scope:
+
+- **Background**: Light blue-grey (`--background: 214 25% 92%`), **foreground** dark grey (`--foreground: 0 0% 20%`).
+- **Cards**: White `--card: 0 0% 100%`, same foreground.
+- **Primary**: Blue (`--primary: 211 36% 38%`), primary-foreground white.
+- **Muted**: Slightly lighter grey for secondary text (`--muted-foreground: 218 12% 54%`).
+- **Border/input**: `--border` and `--input` same light grey (`214 20% 88%`).
+- **Radius**: `--radius: 0.5rem`.
+- **Sidebar**: White background, same primary for active state; `--sidebar-*` variables for accent/border.
+- **Scrollbars**: Customize `.admin-theme ::-webkit-scrollbar-*` (track, thumb, thumb:hover) to match the light theme.
+
+## Data Tables
+
+- **Base**: Use TanStack Table (`@tanstack/react-table`) with shadcn `Table`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`. Prefer a shared `GenericDataTable` when possible: columns, data, search placeholder, optional sortable/reorder (e.g. `@dnd-kit`), pagination, column visibility dropdown.
+- **Features**: Sorting (clickable headers), column filters, pagination (page size select + prev/next), optional row selection (checkboxes), expandable rows for detail.
+- **Location**: Put entity-specific tables under `components/admin/<entity>/data-table-<entity>.tsx` (e.g. `data-table-customers.tsx`). Shared base in `components/data-table.tsx` or `components/admin/shared/generic-data-table.tsx`.
+- **Styling**: Tables use default shadcn table styles; ensure borders and hover states use `border-border`, `bg-muted/50` for header if needed. Keep text `text-foreground`, secondary info `text-muted-foreground`.
+- **Actions**: Row actions via `DropdownMenu` (trigger: icon button or "Actions") with `DropdownMenuItem`s. Primary actions (e.g. "Add") as `Button` with `Plus` icon above or beside the table.
+
+## Cards and Page Structure
+
+- **Page container**: Use shadcn `Card` for main content blocks. `CardHeader` with `CardTitle` (and optional description); `CardContent` for body.
+- **Multiple sections**: Stack Cards or use a single Card with `CardContent` and internal spacing. Prefer `gap-4` or `gap-6` between sections.
+- **Headings**: Use `text-sm font-semibold text-muted-foreground` for section labels; `CardTitle` or `text-lg font-semibold` for main titles.
+
+## Forms and Dialogs
+
+- **Forms**: shadcn `Input`, `Label`, `Select`, `Checkbox`, `Switch`, `Textarea` inside `Dialog` or `Sheet`. Use `DialogHeader`, `DialogTitle`, `DialogDescription`, `DialogContent`, `DialogFooter` for modals. Use `Label` + `Input` in a grid or stack with consistent `gap-2` / `gap-4`.
+- **Buttons**: Primary action `Button` (default variant); secondary/cancel `variant="outline"`. Destructive actions `variant="destructive"`. Use `Loader2` with `animate-spin` for loading.
+- **Toasts**: Use `sonner` (`toast.success`, `toast.error`) for feedback after mutations.
+
+## Badges and Status
+
+- **Badges**: shadcn `Badge` for status (e.g. active/inactive, draft/published). Use `variant="secondary"` or `variant="default"`; for custom colors use `className` (e.g. `bg-amber-500/20 text-amber-700`).
+- **Icons**: Prefer `lucide-react`; use consistent icon size (`w-4 h-4` or `w-5 h-5` for headers). Combine with text in buttons and table cells.
+
+## Naming and File Organization
+
+- **Admin routes**: `app/admin/(dashboard)/<page>/page.tsx`. Use route groups for layout (e.g. `(dashboard)`).
+- **Admin components**: `components/admin/<feature>/` (e.g. `components/admin/customers/`). One main data table component per entity; optional subcomponents (e.g. map, form dialog) in the same folder.
+- **Shared admin UI**: `components/admin/shared/` for `GenericDataTable` or other reusable admin pieces. Use `components/ui/` for generic shadcn components.
+- **Server actions**: `app/lib/actions/<domain>.ts` (e.g. `trdr.ts`, `email.ts`). Use `"use server"`; return plain objects or throw for errors.
+
+## Accessibility and UX
+
+- **Loading**: Show `Skeleton` or spinner (e.g. `Loader2`) while data is loading; disable submit buttons during mutation.
+- **Empty states**: When `data.length === 0`, show a short message and optional CTA instead of an empty table.
+- **Responsive**: Sidebar collapses to sheet on mobile (`useSidebar()`, `Sheet`); tables can scroll horizontally or use responsive column visibility.
+- **Labels**: Use `aria-label` on icon-only buttons; associate `Label` with form controls via `htmlFor` / `id`.
+
+## Admin Theme CSS (copy into globals.css)
+
+```css
+.admin-theme {
+  --background: 214 25% 92%;
+  --foreground: 0 0% 20%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 20%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 20%;
+  --primary: 211 36% 38%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 214 25% 94%;
+  --secondary-foreground: 0 0% 20%;
+  --muted: 214 20% 95%;
+  --muted-foreground: 218 12% 54%;
+  --accent: 209 72% 59%;
+  --accent-foreground: 0 0% 100%;
+  --border: 214 20% 88%;
+  --input: 214 20% 88%;
+  --ring: 211 36% 38%;
+  --radius: 0.5rem;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 0 0% 20%;
+  --sidebar-primary: 211 36% 38%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 214 25% 96%;
+  --sidebar-accent-foreground: 0 0% 20%;
+  --sidebar-border: 214 20% 90%;
+  --sidebar-ring: 211 36% 38%;
+}
+.admin-theme ::-webkit-scrollbar-track { background: hsl(214 20% 95%); }
+.admin-theme ::-webkit-scrollbar-thumb { background: hsl(218 12% 75%); border-radius: 4px; }
+.admin-theme ::-webkit-scrollbar-thumb:hover { background: hsl(211 36% 38%); }
+```
+
+## Reusing Across Projects
+
+Copy this rule into each project's `.cursor/rules/`. Copy the admin-theme CSS block into that project's `app/globals.css`. Reuse or recreate the dashboard layout (SidebarProvider, AppSidebar, SidebarInset, SiteHeader), shadcn/ui components, and GenericDataTable (or equivalent) so the admin experience stays consistent.
