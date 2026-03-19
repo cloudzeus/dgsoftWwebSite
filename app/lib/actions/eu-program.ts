@@ -1,15 +1,130 @@
 "use server";
 
+import { Prisma, EuProgramRequirementType } from "@prisma/client"
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
 import { getCoordinates } from "@/app/lib/actions/location"
+
+function toIntOrNull(value: unknown): number | null {
+    if (value == null || value === "") return null
+    const n = Number(value)
+    return Number.isFinite(n) ? Math.trunc(n) : null
+}
+
+function toDecimalOrNull(value: unknown): Prisma.Decimal | null {
+    if (value == null || value === "") return null
+    const normalized = String(value).replace(",", ".").trim()
+    if (!normalized) return null
+    const n = Number(normalized)
+    if (!Number.isFinite(n)) return null
+    return new Prisma.Decimal(n)
+}
+
+function toFloatOrNull(value: unknown): number | null {
+    if (value == null || value === "") return null
+    const n = Number(value)
+    return Number.isFinite(n) ? n : null
+}
+
+type CriterionInput = {
+    key: string
+    operator: string
+    targetValue: string
+    errorMessage: string
+}
+
+type RequirementInput = {
+    type: EuProgramRequirementType
+    key: string
+    operator: string
+    value: string
+    isMandatory: boolean
+    errorMessageEL: string
+}
+
+type ExpenseLimitInput = {
+    code: string
+    description: string
+    maxPercentage: number | null
+    minPercentage: number | null
+    maxAmount: Prisma.Decimal | null
+    isMandatory: boolean
+}
+
+function sanitizeCriteria(criteria: unknown[]): CriterionInput[] {
+    return criteria
+        .map((item) => {
+            if (!item || typeof item !== "object") return null
+            const row = item as Record<string, unknown>
+            const key = String(row.key ?? "").trim()
+            const operator = String(row.operator ?? "").trim()
+            const targetValue = String(row.targetValue ?? "").trim()
+            const errorMessage = String(row.errorMessage ?? "").trim()
+            if (!key || !operator || !targetValue || !errorMessage) return null
+            return { key, operator, targetValue, errorMessage }
+        })
+        .filter((item): item is CriterionInput => item != null)
+}
+
+function normalizeRequirementType(type: unknown): EuProgramRequirementType {
+    const t = String(type ?? "").trim().toUpperCase()
+    if (t === "LEGAL_FORM") return "LEGAL_FORM"
+    if (t === "REGION" || t === "REGIONAL") return "REGION"
+    if (t === "DATE" || t === "TIMING") return "DATE"
+    if (t === "DE_MINIMIS") return "DE_MINIMIS"
+    if (t === "BOOLEAN") return "BOOLEAN"
+    if (t === "NUMBER" || t === "FINANCIAL") return "NUMBER"
+    return "TEXT"
+}
+
+function sanitizeRequirements(requirements: unknown[]): RequirementInput[] {
+    return requirements
+        .map((item) => {
+            if (!item || typeof item !== "object") return null
+            const row = item as Record<string, unknown>
+            const key = String(row.key ?? "").trim()
+            const operator = String(row.operator ?? "").trim().toUpperCase()
+            const value = String(row.value ?? "").trim()
+            const errorMessageEL = String(row.errorMessageEL ?? row.message ?? "").trim()
+            if (!key || !operator || !value || !errorMessageEL) return null
+            return {
+                type: normalizeRequirementType(row.type),
+                key,
+                operator,
+                value,
+                isMandatory: row.isMandatory !== false,
+                errorMessageEL,
+            } satisfies RequirementInput
+        })
+        .filter((item): item is RequirementInput => item != null)
+}
+
+function sanitizeExpenseLimits(expenseLimits: unknown[]): ExpenseLimitInput[] {
+    return expenseLimits
+        .map((item) => {
+            if (!item || typeof item !== "object") return null
+            const row = item as Record<string, unknown>
+            const code = String(row.code ?? row.expenseCategoryId ?? "").trim().replace(/\s+/g, "").replace(",", ".")
+            const description = String(row.description ?? row.descriptionEL ?? "").trim()
+            if (!code) return null
+            return {
+                code,
+                description,
+                maxPercentage: toFloatOrNull(row.maxPercentage),
+                minPercentage: toFloatOrNull(row.minPercentage),
+                maxAmount: toDecimalOrNull(row.maxAmount),
+                isMandatory: row.isMandatory === true,
+            } satisfies ExpenseLimitInput
+        })
+        .filter((item): item is ExpenseLimitInput => item != null)
+}
 
 export async function getEuPrograms() {
     const session = await auth()
     if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
 
     try {
-        return await prisma.euProgram.findMany({
+        const data = await prisma.euProgram.findMany({
             orderBy: { createdAt: "desc" },
             include: {
                 kads: {
@@ -17,11 +132,124 @@ export async function getEuPrograms() {
                 },
                 periferies: {
                     include: { periferia: true }
+                },
+                requirements: true,
+                criteria: true,
+                expenseLimits: {
+                    include: { expenseCategory: true }
                 }
             }
         })
+        return JSON.parse(JSON.stringify(data))
     } catch (error: any) {
         console.error("GET EU PROGRAMS Error:", error)
+        throw new Error(error.message)
+    }
+}
+
+export async function getEuProgramById(id: string) {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
+
+    try {
+        const data = await prisma.euProgram.findUnique({
+            where: { id },
+            include: {
+                kads: { include: { kad: true } },
+                periferies: { include: { periferia: true } },
+                requirements: true,
+                criteria: true,
+                expenseLimits: { include: { expenseCategory: true } },
+                media: { orderBy: { order: "asc" } },
+            },
+        })
+        if (!data) return null
+        return JSON.parse(JSON.stringify(data))
+    } catch (error: any) {
+        console.error("GET EU PROGRAM BY ID Error:", error)
+        throw new Error(error.message)
+    }
+}
+
+/** Patch a single scalar field on an EU program (for inline edit). */
+export async function updateEuProgramField(
+    id: string,
+    field: string,
+    value: unknown
+): Promise<{ success: boolean; error?: string }> {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") return { success: false, error: "Unauthorized" }
+
+    const allowed: Record<string, string> = {
+        nameEL: "nameEL", nameEN: "nameEN",
+        shortDescriptionEL: "shortDescriptionEL", shortDescriptionEN: "shortDescriptionEN",
+        descriptionEL: "descriptionEL", descriptionEN: "descriptionEN",
+        announcedDate: "announcedDate", submissionDate: "submissionDate", endDate: "endDate",
+        active: "active", publicationFile: "publicationFile", image: "image",
+        minimumCompanyYears: "minimumCompanyYears", minimumEmployees: "minimumEmployees",
+        percentageOfFinance: "percentageOfFinance", minBudget: "minBudget", maxBudget: "maxBudget",
+        indirectCostPercentage: "indirectCostPercentage",
+    }
+    if (!allowed[field]) return { success: false, error: "Invalid field" }
+
+    try {
+        const dateFields = ["announcedDate", "submissionDate", "endDate"]
+        const payload: Record<string, unknown> = {}
+        if (dateFields.includes(field) && (value === "" || value == null)) {
+            payload[field] = null
+        } else if (dateFields.includes(field) && value) {
+            payload[field] = new Date(String(value))
+        } else if (field === "minBudget" || field === "maxBudget") {
+            payload[field] = value === "" || value == null ? null : toDecimalOrNull(value)
+        } else if (field === "minimumCompanyYears" || field === "minimumEmployees") {
+            payload[field] = toIntOrNull(value)
+        } else if (field === "indirectCostPercentage") {
+            payload[field] = toFloatOrNull(value) ?? 0.07
+        } else if (field === "active") {
+            payload[field] = Boolean(value)
+        } else {
+            payload[field] = value === "" ? null : value
+        }
+
+        await prisma.euProgram.update({
+            where: { id },
+            data: payload as Prisma.EuProgramUpdateInput,
+        })
+        return { success: true }
+    } catch (error: any) {
+        console.error("UPDATE EU PROGRAM FIELD Error:", error)
+        return { success: false, error: error.message }
+    }
+}
+
+export async function addEuProgramMedia(programId: string, data: { url: string; mediaType?: string; title?: string }) {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized")
+
+    try {
+        const nextOrder = await prisma.euProgramMedia.count({ where: { euProgramId: programId } })
+        return await prisma.euProgramMedia.create({
+            data: {
+                euProgramId: programId,
+                url: data.url,
+                mediaType: data.mediaType ?? "IMAGE",
+                title: data.title?.trim() || null,
+                order: nextOrder,
+            },
+        })
+    } catch (error: any) {
+        console.error("ADD EU PROGRAM MEDIA Error:", error)
+        throw new Error(error.message)
+    }
+}
+
+export async function deleteEuProgramMedia(mediaId: string) {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized")
+
+    try {
+        await prisma.euProgramMedia.delete({ where: { id: mediaId } })
+    } catch (error: any) {
         throw new Error(error.message)
     }
 }
@@ -31,24 +259,56 @@ export async function createEuProgram(data: any) {
     if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
 
     try {
-        const { kads, ...programData } = data;
+        const { kads, criteria, requirements, expenseLimits, ...programData } = data;
+        const criteriaToCreate = Array.isArray(criteria) ? sanitizeCriteria(criteria) : []
+        const requirementsToCreate = Array.isArray(requirements) ? sanitizeRequirements(requirements) : []
+        const expenseLimitsToCreate = Array.isArray(expenseLimits) ? sanitizeExpenseLimits(expenseLimits) : []
 
-        return await prisma.euProgram.create({
+        const created = await prisma.euProgram.create({
             data: {
                 ...programData,
                 active: programData.active ?? true,
-                minimumCompanyYears: programData.minimumCompanyYears ? parseInt(programData.minimumCompanyYears, 10) : null,
-                minimumEmployees: programData.minimumEmployees ? parseInt(programData.minimumEmployees, 10) : null,
-                maxBudget: programData.maxBudget ? parseFloat(programData.maxBudget) : null,
+                minimumCompanyYears: toIntOrNull(programData.minimumCompanyYears),
+                minimumEmployees: toIntOrNull(programData.minimumEmployees),
+                minBudget: toDecimalOrNull(programData.minBudget),
+                maxBudget: toDecimalOrNull(programData.maxBudget),
+                indirectCostPercentage: toFloatOrNull(programData.indirectCostPercentage) ?? 0.07,
                 announcedDate: programData.announcedDate ? new Date(programData.announcedDate) : null,
                 submissionDate: programData.submissionDate ? new Date(programData.submissionDate) : null,
                 endDate: programData.endDate ? new Date(programData.endDate) : null,
+                ...(criteriaToCreate.length > 0 ? { criteria: { create: criteriaToCreate } } : {}),
+                ...(requirementsToCreate.length > 0 ? { requirements: { create: requirementsToCreate } } : {}),
+                ...(expenseLimitsToCreate.length > 0 ? {
+                    expenseLimits: {
+                        create: expenseLimitsToCreate.map((item) => ({
+                            maxPercentage: item.maxPercentage,
+                            minPercentage: item.minPercentage,
+                            maxAmount: item.maxAmount,
+                            isMandatory: item.isMandatory,
+                            expenseCategory: {
+                                connectOrCreate: {
+                                    where: { code: item.code },
+                                    create: {
+                                        code: item.code,
+                                        descriptionEL: item.description || item.code,
+                                    }
+                                }
+                            }
+                        }))
+                    }
+                } : {}),
             },
             include: {
                 kads: { include: { kad: true } },
-                periferies: { include: { periferia: true } }
+                periferies: { include: { periferia: true } },
+                requirements: true,
+                criteria: true,
+                expenseLimits: {
+                    include: { expenseCategory: true }
+                }
             }
         });
+        return JSON.parse(JSON.stringify(created))
     } catch (error: any) {
         console.error("CREATE EU PROGRAM Error:", error)
         throw new Error(error.message)
@@ -60,25 +320,64 @@ export async function updateEuProgram(id: string, data: any) {
     if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
 
     try {
-        const { kads, ...programData } = data;
+        const { kads, criteria, requirements, expenseLimits, ...programData } = data;
+        const criteriaToCreate = Array.isArray(criteria) ? sanitizeCriteria(criteria) : []
+        const requirementsToCreate = Array.isArray(requirements) ? sanitizeRequirements(requirements) : []
+        const expenseLimitsToCreate = Array.isArray(expenseLimits) ? sanitizeExpenseLimits(expenseLimits) : []
 
-        return await prisma.euProgram.update({
+        const updated = await prisma.euProgram.update({
             where: { id },
             data: {
                 ...programData,
                 active: programData.active ?? true,
-                minimumCompanyYears: programData.minimumCompanyYears ? parseInt(programData.minimumCompanyYears, 10) : null,
-                minimumEmployees: programData.minimumEmployees ? parseInt(programData.minimumEmployees, 10) : null,
-                maxBudget: programData.maxBudget ? parseFloat(programData.maxBudget) : null,
+                minimumCompanyYears: toIntOrNull(programData.minimumCompanyYears),
+                minimumEmployees: toIntOrNull(programData.minimumEmployees),
+                minBudget: toDecimalOrNull(programData.minBudget),
+                maxBudget: toDecimalOrNull(programData.maxBudget),
+                indirectCostPercentage: toFloatOrNull(programData.indirectCostPercentage) ?? 0.07,
                 announcedDate: programData.announcedDate ? new Date(programData.announcedDate) : null,
                 submissionDate: programData.submissionDate ? new Date(programData.submissionDate) : null,
                 endDate: programData.endDate ? new Date(programData.endDate) : null,
+                criteria: {
+                    deleteMany: {},
+                    ...(criteriaToCreate.length > 0 ? { create: criteriaToCreate } : {}),
+                },
+                requirements: {
+                    deleteMany: {},
+                    ...(requirementsToCreate.length > 0 ? { create: requirementsToCreate } : {}),
+                },
+                expenseLimits: {
+                    deleteMany: {},
+                    ...(expenseLimitsToCreate.length > 0 ? {
+                        create: expenseLimitsToCreate.map((item) => ({
+                            maxPercentage: item.maxPercentage,
+                            minPercentage: item.minPercentage,
+                            maxAmount: item.maxAmount,
+                            isMandatory: item.isMandatory,
+                            expenseCategory: {
+                                connectOrCreate: {
+                                    where: { code: item.code },
+                                    create: {
+                                        code: item.code,
+                                        descriptionEL: item.description || item.code,
+                                    }
+                                }
+                            }
+                        }))
+                    } : {}),
+                },
             },
             include: {
                 kads: { include: { kad: true } },
-                periferies: { include: { periferia: true } }
+                periferies: { include: { periferia: true } },
+                requirements: true,
+                criteria: true,
+                expenseLimits: {
+                    include: { expenseCategory: true }
+                }
             }
         });
+        return JSON.parse(JSON.stringify(updated))
     } catch (error: any) {
         console.error("UPDATE EU PROGRAM Error:", error)
         throw new Error(error.message)
@@ -511,5 +810,48 @@ export async function bulkCreateKads(data: { dotcode: string, nameEL: string }[]
     } catch (error: any) {
         console.error("BULK KAD ERROR", error);
         throw new Error(error.message);
+    }
+}
+
+export async function getExpenseCategories() {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
+
+    try {
+        const data = await prisma.expenseCategory.findMany({
+            orderBy: [{ code: "asc" }],
+            include: {
+                _count: {
+                    select: { expenseLimits: true }
+                }
+            }
+        })
+        return JSON.parse(JSON.stringify(data))
+    } catch (error: any) {
+        console.error("GET EXPENSE CATEGORIES Error:", error)
+        throw new Error(error.message)
+    }
+}
+
+export async function getEuProgramExpenseLimits() {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
+
+    try {
+        const data = await prisma.euProgramExpenseLimit.findMany({
+            orderBy: [{ euProgram: { nameEL: "asc" } }, { expenseCategory: { code: "asc" } }],
+            include: {
+                euProgram: {
+                    select: { id: true, nameEL: true }
+                },
+                expenseCategory: {
+                    select: { id: true, code: true, descriptionEL: true }
+                }
+            }
+        })
+        return JSON.parse(JSON.stringify(data))
+    } catch (error: any) {
+        console.error("GET PROGRAM EXPENSE LIMITS Error:", error)
+        throw new Error(error.message)
     }
 }

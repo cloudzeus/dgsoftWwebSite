@@ -24,6 +24,9 @@ export default function EUProgramsPage() {
     const [zipCode, setZipCode] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
+    const [employees, setEmployees] = useState("");
+    const [closedYears, setClosedYears] = useState("");
+    const [avgTurnover, setAvgTurnover] = useState("");
     const [contactTime, setContactTime] = useState("morning");
     const [contactMethod, setContactMethod] = useState("phone");
     const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +78,9 @@ export default function EUProgramsPage() {
                         address: address.trim() || undefined,
                         zipCode: zipCode.trim() || undefined,
                         phone: phone.trim() || undefined,
+                        employees: employees.trim() || undefined,
+                        closedYears: closedYears.trim() || undefined,
+                        avgTurnover: avgTurnover.trim() || undefined,
                         contactTime,
                     }),
                 });
@@ -302,6 +308,39 @@ export default function EUProgramsPage() {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="π.χ. email@company.gr"
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Εργαζόμενοι" : "Employees"}</label>
+                                        <input
+                                            type="number"
+                                            value={employees}
+                                            onChange={(e) => setEmployees(e.target.value)}
+                                            placeholder={locale === "el" ? "π.χ. 12" : "e.g. 12"}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Κλεισμένες χρήσεις" : "Closed years"}</label>
+                                        <input
+                                            type="number"
+                                            value={closedYears}
+                                            onChange={(e) => setClosedYears(e.target.value)}
+                                            placeholder={locale === "el" ? "π.χ. 2" : "e.g. 2"}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Μέσος κύκλος εργασιών (€)" : "Average turnover (€)"}</label>
+                                        <input
+                                            type="number"
+                                            value={avgTurnover}
+                                            onChange={(e) => setAvgTurnover(e.target.value)}
+                                            placeholder="e.g. 100000"
                                             className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
                                         />
                                     </div>

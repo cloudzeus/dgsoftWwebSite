@@ -151,7 +151,17 @@ const navData = {
       title: "KAD Management",
       url: "/admin/eu-programs/kads",
       icon: FileCodeIcon,
-    }
+    },
+    {
+      title: "Expense Categories",
+      url: "/admin/eu-programs/expense-categories",
+      icon: DatabaseIcon,
+    },
+    {
+      title: "Expense Limits",
+      url: "/admin/eu-programs/expense-limits",
+      icon: ClipboardListIcon,
+    },
   ],
   navSoftone: [
     {

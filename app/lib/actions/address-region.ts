@@ -10,6 +10,20 @@ const ADDRESS_MAPPING_PATH = "/admin/eu-programs/address-mapping";
 
 const LEVEL_DIMOS = 5;
 
+function parseToDateOrNull(value: string | null): Date | null {
+  if (value == null || value.trim() === "") return null;
+  const iso = new Date(value);
+  if (!Number.isNaN(iso.getTime())) return iso;
+  const m = value.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+  if (!m) return null;
+  const day = Number(m[1]);
+  const month = Number(m[2]) - 1;
+  let year = Number(m[3]);
+  if (year < 100) year += 2000;
+  const parsed = new Date(Date.UTC(year, month, day));
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 /** Call DeepSeek or OpenAI for address→region mapping. Tries DeepSeek first if key set, then OpenAI. */
 async function callAddressMappingAI(prompt: string): Promise<{ success: boolean; text?: string; error?: string }> {
   const deepseekKey = process.env.DEEPSEEK_API_KEY?.trim();
@@ -124,7 +138,7 @@ export async function enrichAddressFromVat(row: DistinctAddressRow): Promise<Dis
     ...(correct.ZIP != null && { ZIP: correct.ZIP }),
     ...(correct.NAME != null && { NAME: correct.NAME }),
     ...(correct.legalStatus != null && { legalStatus: correct.legalStatus }),
-    ...(correct.registDate != null && { registDate: correct.registDate }),
+    ...(correct.registDate != null && { registDate: parseToDateOrNull(correct.registDate) }),
   };
   if (Object.keys(updatePayload).length === 0) return row;
 

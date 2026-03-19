@@ -18,7 +18,10 @@ export async function getCustomers() {
     try {
         const data = await prisma.tRDR.findMany({
             orderBy: { createdAt: "desc" },
-            include: { kads: true }
+            include: {
+                kads: true,
+                financials: { orderBy: { year: "desc" } }
+            }
         })
         return JSON.parse(JSON.stringify(data))
     } catch (error: any) {
@@ -89,8 +92,70 @@ const TRDR_DATA_KEYS = new Set([
     "AREAS", "PHONE01", "PHONE02", "JOBTYPE", "JOBTYPETRD", "EMAIL", "EMAILACC", "CCCEMAILMAR", "TRDBUSINESS", "SHIPMENT",
     "PAYMENT", "SOCARRIER", "IRSDATA", "REMARKS", "INSDATE", "UPDDATE", "SOTITLE", "ISACTIVE", "ISPROSP",
     "LATITUDE", "LONGITUDE", "OBTYPE", "TRDGROUP", "TRDPGROUP", "WEBPAGE", "CONSENT", "PRJCS",
-    "logo", "website", "displayAtCarousel", "registDate", "legalStatus", "numEmployees",
+    "logo", "website", "displayAtCarousel", "registDate", "legalStatus", "legalForm", "isFranchise", "isHomeAddress", "numEmployees",
 ])
+
+type CompanyFinancialsCreateItem = {
+    year: number
+    turnover: Prisma.Decimal
+    ebitda: Prisma.Decimal
+    netProfit: Prisma.Decimal
+    eme: Prisma.Decimal
+    assets: Prisma.Decimal
+    equity: Prisma.Decimal
+    totalDeMinimis3Years: Prisma.Decimal
+}
+
+function parseToDateOrNull(value: unknown): Date | null {
+    if (value == null || value === "") return null
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value
+    const raw = String(value).trim()
+    if (!raw) return null
+    const isoCandidate = new Date(raw)
+    if (!Number.isNaN(isoCandidate.getTime())) return isoCandidate
+    const match = raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/)
+    if (!match) return null
+    const day = Number(match[1])
+    const month = Number(match[2]) - 1
+    let year = Number(match[3])
+    if (year < 100) year += 2000
+    const parsed = new Date(Date.UTC(year, month, day))
+    return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+function toDecimalOrNull(value: unknown): Prisma.Decimal | null {
+    if (value == null || value === "") return null
+    const normalized = String(value).replace(",", ".").trim()
+    if (!normalized) return null
+    const n = Number(normalized)
+    if (!Number.isFinite(n)) return null
+    return new Prisma.Decimal(n)
+}
+
+function toDecimalOrZero(value: unknown): Prisma.Decimal {
+    return toDecimalOrNull(value) ?? new Prisma.Decimal(0)
+}
+
+function sanitizeCompanyFinancialsForCreate(financials: unknown[]): CompanyFinancialsCreateItem[] {
+    return financials
+        .map((row) => {
+            if (!row || typeof row !== "object") return null
+            const raw = row as Record<string, unknown>
+            const year = Number(raw.year)
+            if (!Number.isInteger(year) || year < 1900 || year > 3000) return null
+            return {
+                year,
+                turnover: toDecimalOrZero(raw.turnover),
+                ebitda: toDecimalOrZero(raw.ebitda),
+                netProfit: toDecimalOrZero(raw.netProfit),
+                eme: toDecimalOrZero(raw.eme),
+                assets: toDecimalOrZero(raw.assets),
+                equity: toDecimalOrZero(raw.equity),
+                totalDeMinimis3Years: toDecimalOrZero(raw.totalDeMinimis3Years),
+            } satisfies CompanyFinancialsCreateItem
+        })
+        .filter((row): row is CompanyFinancialsCreateItem => row != null)
+}
 
 function sanitizeTrdrPayload(restData: Record<string, unknown>): Record<string, unknown> {
     const out: Record<string, unknown> = {};
@@ -98,6 +163,7 @@ function sanitizeTrdrPayload(restData: Record<string, unknown>): Record<string, 
         if (!TRDR_DATA_KEYS.has(key)) continue;
         let val = restData[key];
         if (val === "" && key !== "NAME" && key !== "CODE") val = null;
+        if (key === "registDate") val = parseToDateOrNull(val);
         out[key] = val;
     }
     return out;
@@ -126,7 +192,7 @@ export async function createCustomer(data: any) {
     if (!session) throw new Error("Unauthorized")
 
     try {
-        const { kads, ...restData } = data;
+        const { kads, financials, ...restData } = data;
         const sanitized = sanitizeTrdrPayload(restData);
 
         if (!sanitized.TRDR || sanitized.TRDR === 0) {
@@ -139,13 +205,18 @@ export async function createCustomer(data: any) {
         }
 
         const kadsToCreate = Array.isArray(kads) && kads.length > 0 ? sanitizeKadsForCreate(kads) : [];
+        const financialsToCreate = Array.isArray(financials) && financials.length > 0 ? sanitizeCompanyFinancialsForCreate(financials) : [];
         const createData = {
             ...sanitized,
             ...(kadsToCreate.length > 0 ? { kads: { create: kadsToCreate } } : {}),
+            ...(financialsToCreate.length > 0 ? { financials: { create: financialsToCreate } } : {}),
         } as Prisma.TRDRCreateInput;
         const res = await prisma.tRDR.create({
             data: createData,
-            include: { kads: true }
+            include: {
+                kads: true,
+                financials: { orderBy: { year: "desc" } }
+            }
         })
         return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
@@ -159,9 +230,10 @@ export async function updateCustomer(id: string, data: any) {
     if (!session) throw new Error("Unauthorized")
 
     try {
-        const { kads, ...restData } = data;
+        const { kads, financials, ...restData } = data;
         const sanitized = sanitizeTrdrPayload(restData);
         const kadsToCreate = Array.isArray(kads) && kads.length > 0 ? sanitizeKadsForCreate(kads) : undefined;
+        const financialsToCreate = Array.isArray(financials) && financials.length > 0 ? sanitizeCompanyFinancialsForCreate(financials) : undefined;
 
         const dataOnlyTrdrKeys: Record<string, unknown> = {};
         for (const k of TRDR_DATA_KEYS) {
@@ -174,11 +246,18 @@ export async function updateCustomer(id: string, data: any) {
                 deleteMany: {},
                 ...(kadsToCreate && kadsToCreate.length > 0 ? { create: kadsToCreate } : {}),
             },
+            financials: {
+                deleteMany: {},
+                ...(financialsToCreate && financialsToCreate.length > 0 ? { create: financialsToCreate } : {}),
+            },
         } as Prisma.TRDRUpdateInput;
         const res = await prisma.tRDR.update({
             where: { id },
             data: updateData,
-            include: { kads: true }
+            include: {
+                kads: true,
+                financials: { orderBy: { year: "desc" } }
+            }
         })
         return JSON.parse(JSON.stringify(res))
     } catch (error: any) {
@@ -266,7 +345,10 @@ export async function syncCustomerFromErpByAfm(customerId: string): Promise<Sync
     const clientId = cookieStore.get(SOFTONE_CLIENT_ID_COOKIE)?.value
     if (!clientId) return { success: false, message: "Not authenticated to SoftOne. Log in at Admin → SoftOne first." }
 
-    const customer = await prisma.tRDR.findUnique({ where: { id: customerId }, include: { kads: true } })
+    const customer = await prisma.tRDR.findUnique({
+        where: { id: customerId },
+        include: { kads: true, financials: { orderBy: { year: "desc" } } }
+    })
     if (!customer) return { success: false, message: "Customer not found" }
     const afm = customer.AFM?.trim()
     if (!afm) return { success: false, message: "Customer has no AFM" }
@@ -330,7 +412,7 @@ export async function syncCustomerFromErpByAfm(customerId: string): Promise<Sync
         PRJCS: toInt(getRowVal(row, "PRJCS")),
         numEmployees: toInt(getRowVal(row, "numEmployees")) ?? toInt(getRowVal(row, "NUMEMPLOYEES")),
         legalStatus: null as string | null,
-        registDate: null as string | null,
+        registDate: null as Date | null,
     }
     const merged = { ...softOneRow }
     if (correctData) {
@@ -339,7 +421,7 @@ export async function syncCustomerFromErpByAfm(customerId: string): Promise<Sync
         if (correctData.CITY) merged.CITY = correctData.CITY.slice(0, 30)
         if (correctData.ZIP) merged.ZIP = correctData.ZIP.slice(0, 10)
         if (correctData.legalStatus) merged.legalStatus = correctData.legalStatus.slice(0, 128)
-        if (correctData.registDate) merged.registDate = correctData.registDate.slice(0, 50)
+        if (correctData.registDate) merged.registDate = parseToDateOrNull(correctData.registDate)
     }
 
     const updatePayload: Record<string, unknown> = { ...merged }
@@ -364,7 +446,7 @@ export async function syncCustomerFromErpByAfm(customerId: string): Promise<Sync
     await prisma.tRDR.update({
         where: { id: customerId },
         data: updateData,
-        include: { kads: true },
+        include: { kads: true, financials: { orderBy: { year: "desc" } } },
     })
     return { success: true, updated: true }
 }
@@ -443,7 +525,10 @@ export async function getKAD(customerId: string, afm: string) {
     if (!session) throw new Error("Unauthorized")
 
     if (!afm || afm.trim() === "") {
-        const existing = await prisma.tRDR.findUnique({ where: { id: customerId }, include: { kads: true } })
+        const existing = await prisma.tRDR.findUnique({
+            where: { id: customerId },
+            include: { kads: true, financials: { orderBy: { year: "desc" } } }
+        })
         if (!existing) throw new Error("Customer not found")
         return JSON.parse(JSON.stringify(existing))
     }
@@ -474,7 +559,7 @@ export async function getKAD(customerId: string, afm: string) {
         }));
 
         const correctData = getVatCorrectData(apiData as VatWwaCompanyInfo);
-        const registDate = correctData?.registDate?.slice(0, 50) ?? undefined;
+        const registDate = parseToDateOrNull(correctData?.registDate);
         const legalStatus = correctData?.legalStatus?.slice(0, 128) ?? undefined;
 
         const dbRes = await prisma.tRDR.update({
@@ -487,7 +572,7 @@ export async function getKAD(customerId: string, afm: string) {
                     ...(fetchedKads.length > 0 ? { create: fetchedKads } : {})
                 }
             },
-            include: { kads: true }
+            include: { kads: true, financials: { orderBy: { year: "desc" } } }
         });
         return JSON.parse(JSON.stringify(dbRes))
 
@@ -498,9 +583,9 @@ export async function getKAD(customerId: string, afm: string) {
 }
 
 /** Customer considered to have KAD/legal/established data if any of these is set. */
-function hasKadLegalData(row: { legalStatus: string | null; registDate: string | null; kads: unknown[] }): boolean {
+function hasKadLegalData(row: { legalStatus: string | null; registDate: Date | string | null; kads: unknown[] }): boolean {
     const hasLegal = row.legalStatus != null && row.legalStatus.trim() !== ""
-    const hasRegist = row.registDate != null && row.registDate.trim() !== ""
+    const hasRegist = row.registDate != null
     const hasKads = Array.isArray(row.kads) && row.kads.length > 0
     return hasLegal || hasRegist || hasKads
 }
@@ -736,7 +821,7 @@ export async function syncCustomersFromSoftOne(): Promise<SyncCustomersResult> {
                     PRJCS: toInt(getRowVal(row, "PRJCS")),
                     numEmployees: toInt(getRowVal(row, "numEmployees")) ?? toInt(getRowVal(row, "NUMEMPLOYEES")),
                     legalStatus: null as string | null,
-                    registDate: null as string | null,
+                    registDate: null as Date | null,
                 }
 
                 // 3) Update the insertion: apply vat.wwa.gr correct data over SoftOne (official source wins)
@@ -747,7 +832,7 @@ export async function syncCustomersFromSoftOne(): Promise<SyncCustomersResult> {
                     if (correctData.CITY) merged.CITY = correctData.CITY.slice(0, 30)
                     if (correctData.ZIP) merged.ZIP = correctData.ZIP.slice(0, 10)
                     if (correctData.legalStatus) merged.legalStatus = correctData.legalStatus.slice(0, 128)
-                    if (correctData.registDate) merged.registDate = correctData.registDate.slice(0, 50)
+                    if (correctData.registDate) merged.registDate = parseToDateOrNull(correctData.registDate)
                 }
 
                 const existingByTrdr = await prisma.tRDR.findUnique({ where: { TRDR: merged.TRDR } })

@@ -15,10 +15,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "No image provided" }, { status: 400 });
         }
 
-        // We use OpenAI GPT-4o Vision to extract data because it requires 0 extra setup, handles greek OCR perfectly, and parses tabular KADs easily.
-        const apiKey = process.env.OPENAI_API_KEY;
+        // Image OCR scanner uses OpenAI Vision.
+        const apiKey = process.env.OPENAI_API_KEY?.trim();
         if (!apiKey) {
-            return NextResponse.json({ error: "OPENAI_API_KEY is not set" }, { status: 500 });
+            return NextResponse.json(
+                {
+                    error:
+                        "OPENAI_API_KEY is not configured. Use the 'Upload Program Details PDF -> Parse & Save' flow (DeepSeek) or set a valid OpenAI key for image OCR scanner.",
+                },
+                { status: 500 }
+            );
         }
 
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -28,7 +34,7 @@ export async function POST(req: Request) {
                 "Authorization": `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "gpt-4o",
+                model: process.env.OPENAI_OCR_MODEL?.trim() || "gpt-4o",
                 messages: [
                     {
                         role: "system",
@@ -56,8 +62,27 @@ export async function POST(req: Request) {
         });
 
         if (!response.ok) {
-            const errBody = await response.text();
-            throw new Error(`OpenAI API Error: ${response.status} - ${errBody}`);
+            let providerMessage = `OpenAI request failed (${response.status})`;
+            try {
+                const errJson = await response.json();
+                providerMessage =
+                    errJson?.error?.message ||
+                    errJson?.message ||
+                    providerMessage;
+                const code = errJson?.error?.code || errJson?.code;
+                if (code === "invalid_api_key") {
+                    return NextResponse.json(
+                        {
+                            error:
+                                "Invalid OpenAI API key for OCR scanner. Update OPENAI_API_KEY, or use 'Upload Program Details PDF -> Parse & Save' (DeepSeek) which does not depend on OpenAI OCR.",
+                        },
+                        { status: 401 }
+                    );
+                }
+            } catch {
+                // ignore parse failures and keep generic provider message
+            }
+            return NextResponse.json({ error: providerMessage }, { status: 502 });
         }
 
         const aiData = await response.json();
@@ -74,8 +99,9 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ kads: parsedKads }, { status: 200 });
-    } catch (error: any) {
-        console.error("OCR Route Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "OCR processing failed";
+        console.error("OCR Route Error:", message);
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

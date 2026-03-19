@@ -51,6 +51,9 @@ export async function POST(req: Request) {
       address,
       zipCode,
       phone,
+      employees,
+      closedYears,
+      avgTurnover,
       contactTime,
     } = body as {
       email: string;
@@ -59,6 +62,9 @@ export async function POST(req: Request) {
       address?: string;
       zipCode?: string;
       phone?: string;
+      employees?: string;
+      closedYears?: string;
+      avgTurnover?: string;
       contactTime?: string;
     };
 
@@ -118,6 +124,9 @@ export async function POST(req: Request) {
       address && `Διεύθυνση: ${address}`,
       zipCode && `Τ.Κ.: ${zipCode}`,
       phone && `Τηλ.: ${phone}`,
+      employees && `Εργαζόμενοι: ${employees}`,
+      closedYears && `Κλεισμένες χρήσεις: ${closedYears}`,
+      avgTurnover && `Μέσος κύκλος εργασιών: ${avgTurnover} EUR`,
       email && `Email: ${email}`,
       "Αίτημα από φόρμα Ευρωπαϊκών Προγραμμάτων (Check your eligibility).",
     ]

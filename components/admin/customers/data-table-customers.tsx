@@ -96,8 +96,11 @@ export type Customer = {
     website: string | null
     WEBPAGE?: string | null
     displayAtCarousel: boolean
-    registDate: string | null
+    registDate: string | Date | null
     legalStatus: string | null
+    legalForm?: string | null
+    isFranchise?: boolean
+    isHomeAddress?: boolean
     numEmployees: number | null
     REMARKS?: string | null
     ISACTIVE?: number | null
@@ -111,17 +114,64 @@ export type Customer = {
     PRJCS?: number | null
     JOBTYPETRD?: string | null
     kads?: any[]
+    financials?: {
+        id?: string
+        year: number
+        turnover?: string | number | null
+        ebitda?: string | number | null
+        netProfit?: string | number | null
+        eme?: string | number | null
+        assets?: string | number | null
+        equity?: string | number | null
+        totalDeMinimis3Years?: string | number | null
+    }[]
 }
 
 const defaultLookups: SoftOneLookups = { countries: {}, trdpGroups: {}, trdBusinesses: {} }
 
 type CustomerFilter = "avatar" | "webpage" | "email" | "afm"
 
+const LEGAL_FORM_OPTIONS = [
+    { value: "ΑΕ", label: "Ανώνυμη Εταιρεία (ΑΕ)" },
+    { value: "ΙΚΕ", label: "Ιδιωτική Κεφαλαιουχική Εταιρεία (ΙΚΕ)" },
+    { value: "ΟΕ", label: "Ομόρρυθμη Εταιρεία (ΟΕ)" },
+    { value: "ΕΕ", label: "Ετερόρρυθμη Εταιρεία (ΕΕ)" },
+    { value: "ΑΤΟΜΙΚΗ", label: "Ατομική Επιχείρηση" },
+]
+
 /** Parse numeric coordinate from customer (may be number or string from JSON). */
 function parseLatLng(value: unknown): number | null {
     if (value == null || value === "") return null;
     const n = typeof value === "string" ? parseFloat(value) : Number(value);
     return Number.isFinite(n) ? n : null;
+}
+
+function toDateInputValue(value: string | Date | null | undefined): string {
+    if (value == null || value === "") return ""
+    const d = value instanceof Date ? value : new Date(value)
+    if (Number.isNaN(d.getTime())) return ""
+    return d.toISOString().slice(0, 10)
+}
+
+function normalizeDateInput(value: string | null | undefined): string {
+    if (!value) return ""
+    const trimmed = value.trim()
+    if (!trimmed) return ""
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed
+    const m = trimmed.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/)
+    if (!m) return ""
+    const day = m[1].padStart(2, "0")
+    const month = m[2].padStart(2, "0")
+    const yearRaw = Number(m[3])
+    const year = yearRaw < 100 ? String(yearRaw + 2000) : String(yearRaw)
+    return `${year}-${month}-${day}`
+}
+
+function legalFormLabel(value: string | null | undefined): string {
+    if (!value) return "—"
+    const normalized = value.trim().toUpperCase()
+    const match = LEGAL_FORM_OPTIONS.find((item) => item.value === normalized)
+    return match?.label ?? value
 }
 
 /** Build a single-line address string from ADDRESS, ZIP, CITY for geocoding. */
@@ -298,11 +348,15 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         website: "",
         registDate: "",
         legalStatus: "",
+        legalForm: "",
+        isFranchise: false,
+        isHomeAddress: false,
         numEmployees: "",
         displayAtCarousel: false,
         removeBackgroundLogo: true,
         logo: "",
         kads: [] as any[],
+        financials: [] as Array<{ year: string; turnover: string; ebitda: string; netProfit: string; eme: string; assets: string; equity: string; totalDeMinimis3Years: string }>,
         COUNTRY: "" as string,
         TRDPGROUP: "" as string,
         TRDBUSINESS: "" as string,
@@ -327,11 +381,15 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         website: "",
         registDate: "",
         legalStatus: "",
+        legalForm: "",
+        isFranchise: false,
+        isHomeAddress: false,
         numEmployees: "",
         displayAtCarousel: false,
         removeBackgroundLogo: true,
         logo: "",
         kads: [],
+        financials: [],
         COUNTRY: "",
         TRDPGROUP: "",
         TRDBUSINESS: "",
@@ -371,7 +429,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                     NAME: str(apiData.basic_rec?.onomasia) || prev.NAME,
                     ADDRESS: `${str(apiData.basic_rec?.postal_address)} ${str(apiData.basic_rec?.postal_address_no)}`.trim() || prev.ADDRESS,
                     ZIP: str(apiData.basic_rec?.postal_zip_code) || prev.ZIP,
-                    registDate: str(apiData.basic_rec?.regist_date) || prev.registDate,
+                    registDate: normalizeDateInput(str(apiData.basic_rec?.regist_date)) || prev.registDate,
                     legalStatus: str(apiData.basic_rec?.legal_status_descr) || prev.legalStatus,
                     kads: fetchedKads,
                 }))
@@ -480,6 +538,18 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         TRDBUSINESS: formData.TRDBUSINESS ? Number(formData.TRDBUSINESS) : null,
         LATITUDE: formData.latitude ? Number(formData.latitude) : null,
         LONGITUDE: formData.longitude ? Number(formData.longitude) : null,
+        financials: (formData.financials || [])
+            .filter((row) => row.year && String(row.year).trim() !== "")
+            .map((row) => ({
+                year: Number(row.year),
+                turnover: row.turnover ? Number(row.turnover) : null,
+                ebitda: row.ebitda ? Number(row.ebitda) : null,
+                netProfit: row.netProfit ? Number(row.netProfit) : null,
+                eme: row.eme ? Number(row.eme) : null,
+                assets: row.assets ? Number(row.assets) : null,
+                equity: row.equity ? Number(row.equity) : null,
+                totalDeMinimis3Years: row.totalDeMinimis3Years ? Number(row.totalDeMinimis3Years) : null,
+            })),
     })
 
     const handleSave = async (pushToErp: boolean = false) => {
@@ -695,7 +765,11 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             setFormData({
                                 ...c,
                                 ZIP: (c.ZIP ?? "") || "",
+                                registDate: toDateInputValue(c.registDate),
                                 numEmployees: c.numEmployees?.toString() ?? "",
+                                legalForm: ((c as any).legalForm ?? "") || "",
+                                isFranchise: Boolean((c as any).isFranchise),
+                                isHomeAddress: Boolean((c as any).isHomeAddress),
                                 removeBackgroundLogo: true,
                                 COUNTRY: countryVal != null && countryVal !== "" ? String(countryVal) : "",
                                 TRDPGROUP: trdpVal != null && trdpVal !== "" ? String(trdpVal) : "",
@@ -707,6 +781,16 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 EMAIL: (c.EMAIL ?? "") || "",
                                 EMAILACC: ((c as any).EMAILACC ?? c.EMAILACC ?? "") || "",
                                 CCCEMAILMAR: ((c as any).CCCEMAILMAR ?? c.CCCEMAILMAR ?? "") || "",
+                                financials: (c.financials || []).map((f: any) => ({
+                                    year: f.year != null ? String(f.year) : "",
+                                    turnover: f.turnover != null ? String(f.turnover) : "",
+                                    ebitda: f.ebitda != null ? String(f.ebitda) : "",
+                                    netProfit: f.netProfit != null ? String(f.netProfit) : "",
+                                    eme: f.eme != null ? String(f.eme) : "",
+                                    assets: f.assets != null ? String(f.assets) : "",
+                                    equity: f.equity != null ? String(f.equity) : "",
+                                    totalDeMinimis3Years: f.totalDeMinimis3Years != null ? String(f.totalDeMinimis3Years) : "",
+                                })),
                             } as any);
                             setIsDialogOpen(true);
                         }}><Edit3 className="w-4 h-4 mr-2" /> Modify Profile</DropdownMenuItem>
@@ -791,7 +875,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                         </div>
                         <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border shadow-sm">
                             <h5 className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-2"><Calendar className="w-3 h-3" /> Established</h5>
-                            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{customer.registDate != null && typeof customer.registDate === "string" ? customer.registDate : "—"}</span>
+                            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{toDateInputValue(customer.registDate) || "—"}</span>
                         </div>
                         <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border shadow-sm">
                             <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Country</h5>
@@ -809,6 +893,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <div>
                                 <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Legal</h5>
                                 <p className="text-xs font-semibold text-indigo-600">{customer.legalStatus != null && typeof customer.legalStatus === "string" ? customer.legalStatus : "—"}</p>
+                                <p className="text-[11px] text-zinc-500 mt-1">Form: {legalFormLabel((customer as any).legalForm)}</p>
                             </div>
                         </div>
                         {addressRegionMap && (() => {
@@ -908,6 +993,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <TabsTrigger value="identity" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Identity</TabsTrigger>
                             <TabsTrigger value="contact" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Contact</TabsTrigger>
                             <TabsTrigger value="address" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Address & map</TabsTrigger>
+                            <TabsTrigger value="financials" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Financials</TabsTrigger>
                             <TabsTrigger value="branding" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Branding</TabsTrigger>
                         </TabsList>
 
@@ -984,6 +1070,42 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                     <Label className="text-[10px] font-semibold uppercase text-zinc-500">Headcount</Label>
                                     <Input type="number" className="h-8 text-sm rounded-md w-24" value={formData.numEmployees ?? ""} onChange={e => setFormData({ ...formData, numEmployees: e.target.value })} />
                                 </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Registration date</Label>
+                                        <Input type="date" className="h-8 text-sm rounded-md" value={formData.registDate ?? ""} onChange={e => setFormData({ ...formData, registDate: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Legal status</Label>
+                                        <Input className="h-8 text-sm rounded-md" value={formData.legalStatus ?? ""} onChange={e => setFormData({ ...formData, legalStatus: e.target.value })} />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Legal form</Label>
+                                        <Select value={(formData.legalForm && String(formData.legalForm).trim()) ? String(formData.legalForm) : "none"} onValueChange={(v) => setFormData({ ...formData, legalForm: v === "none" ? "" : v })}>
+                                            <SelectTrigger className="h-8 text-sm rounded-md"><SelectValue placeholder="Select legal form…" /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="none">—</SelectItem>
+                                                {LEGAL_FORM_OPTIONS.map((item) => (
+                                                    <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Franchise</Label>
+                                        <div className="h-8 px-2 rounded-md border bg-white dark:bg-zinc-900 flex items-center">
+                                            <Switch checked={!!formData.isFranchise} onCheckedChange={(v) => setFormData({ ...formData, isFranchise: !!v })} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Home address</Label>
+                                        <div className="h-8 px-2 rounded-md border bg-white dark:bg-zinc-900 flex items-center">
+                                            <Switch checked={!!formData.isHomeAddress} onCheckedChange={(v) => setFormData({ ...formData, isHomeAddress: !!v })} />
+                                        </div>
+                                    </div>
+                                </div>
                             </TabsContent>
 
                             <TabsContent value="contact" className="mt-0 space-y-4">
@@ -1045,6 +1167,72 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                     </Button>
                                 </div>
                                 <p className="text-[10px] text-zinc-400">Uses address/city/ZIP to resolve lat/long via geocode API.</p>
+                            </TabsContent>
+
+                            <TabsContent value="financials" className="mt-0 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-xs text-zinc-500">Add annual figures used by the eligibility engine.</p>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 text-xs"
+                                        onClick={() =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                financials: [
+                                                    ...prev.financials,
+                                                    { year: String(new Date().getFullYear() - 1), turnover: "", ebitda: "", netProfit: "", eme: "", assets: "", equity: "", totalDeMinimis3Years: "" },
+                                                ],
+                                            }))
+                                        }
+                                    >
+                                        <Plus className="w-3.5 h-3.5 mr-1" /> Add year
+                                    </Button>
+                                </div>
+                                <div className="space-y-2">
+                                    {formData.financials.map((f, index) => (
+                                        <div key={`${f.year}-${index}`} className="grid grid-cols-14 gap-2 p-3 bg-white dark:bg-zinc-900 rounded-lg border">
+                                            <Input
+                                                type="number"
+                                                className="col-span-2 h-8 text-xs"
+                                                placeholder="Year"
+                                                value={f.year}
+                                                onChange={(e) =>
+                                                    setFormData((prev) => {
+                                                        const next = [...prev.financials]
+                                                        next[index] = { ...next[index], year: e.target.value }
+                                                        return { ...prev, financials: next }
+                                                    })
+                                                }
+                                            />
+                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Turnover" value={f.turnover} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], turnover: e.target.value }; return { ...prev, financials: next } })} />
+                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="EBITDA" value={f.ebitda} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], ebitda: e.target.value }; return { ...prev, financials: next } })} />
+                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Net profit" value={f.netProfit} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], netProfit: e.target.value }; return { ...prev, financials: next } })} />
+                                            <Input type="number" className="col-span-1 h-8 text-xs" placeholder="EME" value={f.eme} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], eme: e.target.value }; return { ...prev, financials: next } })} />
+                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Assets" value={f.assets} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], assets: e.target.value }; return { ...prev, financials: next } })} />
+                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Equity" value={f.equity} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], equity: e.target.value }; return { ...prev, financials: next } })} />
+                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="De Minimis 3y" value={f.totalDeMinimis3Years} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], totalDeMinimis3Years: e.target.value }; return { ...prev, financials: next } })} />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="col-span-1 h-8 w-8"
+                                                onClick={() =>
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        financials: prev.financials.filter((_, i) => i !== index),
+                                                    }))
+                                                }
+                                            >
+                                                <Trash2 className="w-4 h-4 text-red-500" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {formData.financials.length === 0 && (
+                                        <div className="text-xs text-zinc-500 bg-white dark:bg-zinc-900 border rounded-lg p-3">No financial years added yet.</div>
+                                    )}
+                                </div>
                             </TabsContent>
 
                             <TabsContent value="branding" className="mt-0 space-y-4">
