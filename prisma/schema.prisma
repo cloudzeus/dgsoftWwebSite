@@ -703,6 +703,8 @@ model NewsletterBaseTemplate {
   name         String   @db.VarChar(255)
   description  String?  @db.VarChar(512)
   htmlDocument String   @db.LongText
+  /// Per-template overrides merged on top of `NewsletterBaseSettings` (e.g. different logo per shell).
+  fieldOverrides Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

@@ -58,3 +58,34 @@ export function applyBaseTemplateFields(templateHtml: string, fieldsInput?: Part
 export function mergeBaseTemplateWithDynamicContent(templateHtml: string, dynamicHtml: string): string {
   return templateHtml.split(NEWSLETTER_DYNAMIC_CONTENT_PLACEHOLDER).join(dynamicHtml);
 }
+
+/** Merge global defaults with per-template overrides (only defined keys in overrides replace global). */
+export function effectiveTemplateFields(
+  global: NewsletterBaseTemplateFields,
+  overrides: Partial<NewsletterBaseTemplateFields> | null | undefined
+): NewsletterBaseTemplateFields {
+  if (!overrides) return global;
+  const merged: NewsletterBaseTemplateFields = { ...global };
+  (Object.keys(overrides) as (keyof NewsletterBaseTemplateFields)[]).forEach((k) => {
+    const v = overrides[k];
+    if (v !== undefined && v !== null) merged[k] = v;
+  });
+  return merged;
+}
+
+/** Drop override keys that match global (so DB stays minimal). */
+export function compactFieldOverrides(
+  global: NewsletterBaseTemplateFields,
+  overrides: Partial<NewsletterBaseTemplateFields>
+): Partial<NewsletterBaseTemplateFields> | null {
+  const out: Partial<NewsletterBaseTemplateFields> = {};
+  let count = 0;
+  (Object.keys(overrides) as (keyof NewsletterBaseTemplateFields)[]).forEach((k) => {
+    const v = overrides[k];
+    if (v === undefined) return;
+    if (v === global[k]) return;
+    out[k] = v;
+    count++;
+  });
+  return count > 0 ? out : null;
+}

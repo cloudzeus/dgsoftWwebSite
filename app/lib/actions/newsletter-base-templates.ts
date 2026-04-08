@@ -2,10 +2,14 @@
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { NEWSLETTER_BASE_TEMPLATE_PRESETS } from "@/lib/newsletter-base-template-sample-html";
 import {
+  applyBaseTemplateFields,
   baseTemplateContainsPlaceholder,
+  compactFieldOverrides,
+  effectiveTemplateFields,
   NEWSLETTER_BASE_TEMPLATE_DEFAULT_FIELDS,
   NEWSLETTER_DYNAMIC_CONTENT_PLACEHOLDER,
   normalizeBaseTemplateFields,
@@ -19,9 +23,15 @@ export type NewsletterBaseTemplateDto = {
   name: string;
   description: string | null;
   htmlDocument: string;
+  fieldOverrides: Partial<NewsletterBaseTemplateFields> | null;
   createdAt: Date;
   updatedAt: Date;
 };
+
+function parseFieldOverrides(raw: unknown): Partial<NewsletterBaseTemplateFields> | null {
+  if (raw == null || typeof raw !== "object") return null;
+  return raw as Partial<NewsletterBaseTemplateFields>;
+}
 
 async function requireAdmin() {
   const s = await auth();
@@ -30,7 +40,11 @@ async function requireAdmin() {
 
 export async function listNewsletterBaseTemplates(): Promise<NewsletterBaseTemplateDto[]> {
   await requireAdmin();
-  return prisma.newsletterBaseTemplate.findMany({ orderBy: { updatedAt: "desc" } });
+  const rows = await prisma.newsletterBaseTemplate.findMany({ orderBy: { updatedAt: "desc" } });
+  return rows.map((r) => ({
+    ...r,
+    fieldOverrides: parseFieldOverrides(r.fieldOverrides),
+  }));
 }
 
 export async function createMissingNewsletterBaseTemplatePresets(): Promise<number> {
@@ -53,10 +67,32 @@ export async function createMissingNewsletterBaseTemplatePresets(): Promise<numb
   return created;
 }
 
+/**
+ * Overwrite HTML (+ description) for rows whose name matches a built-in preset (e.g. "Newsletter Template 01").
+ * Use this after we ship new preset markup so the DB is not stuck on an old Tailwind shell.
+ */
+export async function refreshBuiltInNewsletterBaseTemplatePresets(): Promise<{ updated: number }> {
+  await requireAdmin();
+  let updated = 0;
+  for (const preset of NEWSLETTER_BASE_TEMPLATE_PRESETS) {
+    const r = await prisma.newsletterBaseTemplate.updateMany({
+      where: { name: preset.name },
+      data: {
+        htmlDocument: preset.htmlDocument,
+        description: preset.description,
+      },
+    });
+    updated += r.count;
+  }
+  revalidatePath(REVALIDATE);
+  return { updated };
+}
+
 export async function createNewsletterBaseTemplate(input: {
   name: string;
   description?: string | null;
   htmlDocument: string;
+  fieldOverrides?: Partial<NewsletterBaseTemplateFields> | null;
 }): Promise<NewsletterBaseTemplateDto> {
   await requireAdmin();
   const name = input.name.trim();
@@ -64,41 +100,96 @@ export async function createNewsletterBaseTemplate(input: {
   if (!baseTemplateContainsPlaceholder(input.htmlDocument)) {
     throw new Error(`HTML must include ${NEWSLETTER_DYNAMIC_CONTENT_PLACEHOLDER}`);
   }
+  const global = await getNewsletterBaseSettings();
+  const compact =
+    input.fieldOverrides && Object.keys(input.fieldOverrides).length > 0
+      ? compactFieldOverrides(global, input.fieldOverrides)
+      : null;
   const row = await prisma.newsletterBaseTemplate.create({
     data: {
       name,
       description: input.description?.trim() || null,
       htmlDocument: input.htmlDocument,
+      fieldOverrides: compact ?? undefined,
     },
   });
   revalidatePath(REVALIDATE);
-  return row;
+  return { ...row, fieldOverrides: parseFieldOverrides(row.fieldOverrides) };
 }
 
 export async function updateNewsletterBaseTemplate(
   id: string,
-  input: { name: string; description?: string | null; htmlDocument: string }
+  input: {
+    name: string;
+    description?: string | null;
+    htmlDocument: string;
+    fieldOverrides?: Partial<NewsletterBaseTemplateFields> | null;
+  }
 ): Promise<NewsletterBaseTemplateDto> {
   await requireAdmin();
   if (!baseTemplateContainsPlaceholder(input.htmlDocument)) {
     throw new Error(`HTML must include ${NEWSLETTER_DYNAMIC_CONTENT_PLACEHOLDER}`);
   }
+  const global = await getNewsletterBaseSettings();
+  const compact =
+    input.fieldOverrides && Object.keys(input.fieldOverrides).length > 0
+      ? compactFieldOverrides(global, input.fieldOverrides)
+      : null;
   const row = await prisma.newsletterBaseTemplate.update({
     where: { id },
     data: {
       name: input.name.trim(),
       description: input.description?.trim() || null,
       htmlDocument: input.htmlDocument,
+      fieldOverrides:
+        compact === null ? Prisma.JsonNull : (compact as Prisma.InputJsonValue),
     },
   });
   revalidatePath(REVALIDATE);
-  return row;
+  return { ...row, fieldOverrides: parseFieldOverrides(row.fieldOverrides) };
 }
 
 export async function deleteNewsletterBaseTemplate(id: string): Promise<void> {
   await requireAdmin();
   await prisma.newsletterBaseTemplate.delete({ where: { id } });
   revalidatePath(REVALIDATE);
+}
+
+/**
+ * Copy a base template under a new name. Optionally bake current global logo/links into the HTML
+ * (placeholders replaced except `{{dynamic_content}}`).
+ */
+export async function duplicateNewsletterBaseTemplate(
+  sourceId: string,
+  newName: string,
+  options?: { bakeGlobalLinks?: boolean; description?: string | null }
+): Promise<NewsletterBaseTemplateDto> {
+  await requireAdmin();
+  const src = await prisma.newsletterBaseTemplate.findUnique({ where: { id: sourceId } });
+  if (!src) throw new Error("Template not found");
+  const name = newName.trim();
+  if (!name) throw new Error("Name is required");
+
+  let htmlDocument = src.htmlDocument;
+  if (options?.bakeGlobalLinks) {
+    const settings = await getNewsletterBaseSettings();
+    const merged = effectiveTemplateFields(settings, parseFieldOverrides(src.fieldOverrides));
+    htmlDocument = applyBaseTemplateFields(htmlDocument, merged);
+  }
+  if (!baseTemplateContainsPlaceholder(htmlDocument)) {
+    throw new Error(`HTML must still include ${NEWSLETTER_DYNAMIC_CONTENT_PLACEHOLDER}`);
+  }
+
+  const row = await prisma.newsletterBaseTemplate.create({
+    data: {
+      name,
+      description: options?.description?.trim() ?? src.description,
+      htmlDocument,
+      fieldOverrides: parseFieldOverrides(src.fieldOverrides) ?? undefined,
+    },
+  });
+  revalidatePath(REVALIDATE);
+  return { ...row, fieldOverrides: parseFieldOverrides(row.fieldOverrides) };
 }
 
 export async function getNewsletterBaseSettings(): Promise<NewsletterBaseTemplateFields> {
