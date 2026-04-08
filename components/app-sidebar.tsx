@@ -135,6 +135,11 @@ const navData = {
       url: "/admin/newsletter/media",
       icon: CameraIcon,
     },
+    {
+      title: "EU Lists",
+      url: "/admin/newsletter/eu-lists",
+      icon: ListIcon,
+    },
   ],
   navFunding: [
     {

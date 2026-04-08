@@ -167,11 +167,11 @@ function getActualValueForKey(company: Record<string, unknown>, key: string): un
   return company[key as keyof typeof company];
 }
 
-function normalizeKad(value: string): string {
+export function normalizeKad(value: string): string {
   return value.replace(/\./g, "").replace(/\s+/g, "").trim();
 }
 
-function hasKadPrefixMatch(companyKads: string[], programKads: string[]): boolean {
+export function hasKadPrefixMatch(companyKads: string[], programKads: string[]): boolean {
   if (programKads.length === 0) return true;
   for (const c of companyKads) {
     for (const p of programKads) {

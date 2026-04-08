@@ -21,6 +21,7 @@ import {
     Calendar,
     Euro,
     ExternalLink,
+    Mail,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -42,6 +43,7 @@ import {
 } from "@/app/lib/actions/eu-program"
 import { processGrantPdfAction } from "@/app/actions/process-grant"
 import { GenericDataTable } from "../shared/generic-data-table"
+import { GenerateEuProgramEmailListModal } from "@/components/admin/eu-programs/generate-eu-program-email-list-modal"
 
 export type EuProgramType = {
     id: string; nameEL: string; nameEN: string | null; shortDescriptionEL: string | null; shortDescriptionEN: string | null; descriptionEL: string | null; descriptionEN: string | null;
@@ -137,6 +139,8 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
     const [deepSeekMessage, setDeepSeekMessage] = React.useState("")
     const [deepSeekResult, setDeepSeekResult] = React.useState<{ requirements: number; expenseLimits: number; kads: number } | null>(null)
     const [parseSummaryByProgram, setParseSummaryByProgram] = React.useState<Record<string, { requirements: number; expenseLimits: number; kads: number }>>({})
+    const [emailListProgram, setEmailListProgram] = React.useState<EuProgramType | null>(null)
+    const [emailListModalOpen, setEmailListModalOpen] = React.useState(false)
 
     const [formData, setFormData] = React.useState({
         nameEL: "", nameEN: "", shortDescriptionEL: "", shortDescriptionEN: "", descriptionEL: "", descriptionEN: "",
@@ -527,6 +531,14 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                             }}
                         >
                             <Upload className="w-4 h-4 mr-2" /> Upload Entire PDF
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => {
+                                setEmailListProgram(row.original)
+                                setEmailListModalOpen(true)
+                            }}
+                        >
+                            <Mail className="w-4 h-4 mr-2" /> Generate email list
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Delete</DropdownMenuItem>
@@ -1124,6 +1136,15 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <GenerateEuProgramEmailListModal
+                program={emailListProgram ? { id: emailListProgram.id, nameEL: emailListProgram.nameEL } : null}
+                open={emailListModalOpen}
+                onOpenChange={(o) => {
+                    setEmailListModalOpen(o);
+                    if (!o) setEmailListProgram(null);
+                }}
+            />
         </div>
     )
 }

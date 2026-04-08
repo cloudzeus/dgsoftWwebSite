@@ -374,9 +374,25 @@ model EuProgram {
   expenseLimits   EuProgramExpenseLimit[]
   expenseCategories ExpenseCategory[]
   media             EuProgramMedia[]
+  recipientLists    EuProgramRecipientList[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Saved recipient lists from EU program KAD + regional eligibility (newsletter / outreach).
+model EuProgramRecipientList {
+  id                  String    @id @default(cuid())
+  euProgramId         String
+  euProgram           EuProgram @relation(fields: [euProgramId], references: [id], onDelete: Cascade)
+  programNameSnapshot String    @db.VarChar(255)
+  // JSON array of { email, trdrId, customerName?, customerCode? }
+  recipients          Json
+  recipientCount      Int       @default(0)
+  createdAt           DateTime  @default(now())
+
+  @@index([euProgramId])
+  @@index([createdAt])
 }
 
 model EuProgramMedia {
