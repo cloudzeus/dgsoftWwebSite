@@ -18,8 +18,12 @@ export type CarouselCustomer = {
 };
 
 export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) {
-  const customers = data.filter((c) => c.logo?.trim());
-  const items = customers.length > 0 ? customers : [];
+  /** All customers flagged for the homepage scroller; missing logos use ui-avatars fallback below. */
+  const items = data;
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <section id="customers" className="py-24 bg-monks-dark relative overflow-hidden">
@@ -44,60 +48,54 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
 
         <TooltipProvider delayDuration={150}>
           <motion.div
-            animate={{ x: items.length > 0 ? ["0%", "-50%"] : "0%" }}
+            animate={{ x: ["0%", "-50%"] }}
             transition={{
-              repeat: items.length > 0 ? Infinity : 0,
+              repeat: Infinity,
               ease: "linear",
               duration: 40,
             }}
             className="flex whitespace-nowrap gap-16 py-8"
           >
-            {items.length === 0 ? (
-              <div className="w-full flex items-center justify-center py-12">
-                <p className="text-white/40 text-sm">Featured company logos will appear here.</p>
-              </div>
-            ) : (
-              [...items, ...items].map((customer, i) => {
-                const logo = customer.logo?.trim();
-                const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(customer.NAME ?? "")}&background=334155&color=94a3b8`;
-                const src = logo || fallbackUrl;
-                const website = customer.website?.trim() || customer.WEBPAGE?.trim();
-                const content = (
-                  <div
-                    key={`${customer.id}-${i}`}
-                    className="flex-shrink-0 flex items-center justify-center w-[180px] h-[100px] bg-white rounded-2xl border border-white/20 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden p-4"
-                  >
-                    <img
-                      src={src}
-                      alt={customer.NAME}
-                      className="w-full h-full object-contain"
-                      onError={(e) => (e.currentTarget.src = fallbackUrl)}
-                    />
-                  </div>
-                );
-                return (
-                  <Tooltip key={`${customer.id}-${i}`}>
-                    <TooltipTrigger asChild>
-                      {website ? (
-                        <a
-                          href={website.startsWith("http") ? website : `https://${website}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="focus:outline-none focus:ring-2 focus:ring-monks-accent/50 rounded-2xl"
-                        >
-                          {content}
-                        </a>
-                      ) : (
-                        <span className="block">{content}</span>
-                      )}
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="rounded-lg px-2.5 py-1.5 bg-zinc-800 text-white border-0 shadow-lg">
-                      <p className="text-xs font-medium text-white/95">{customer.NAME}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                );
-              })
-            )}
+            {[...items, ...items].map((customer, i) => {
+              const logo = customer.logo?.trim();
+              const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(customer.NAME ?? "")}&background=334155&color=94a3b8`;
+              const src = logo || fallbackUrl;
+              const website = customer.website?.trim() || customer.WEBPAGE?.trim();
+              const content = (
+                <div
+                  key={`${customer.id}-${i}`}
+                  className="flex h-[100px] w-[180px] flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md"
+                >
+                  <img
+                    src={src}
+                    alt={customer.NAME}
+                    className="h-full w-full object-contain"
+                    onError={(e) => (e.currentTarget.src = fallbackUrl)}
+                  />
+                </div>
+              );
+              return (
+                <Tooltip key={`${customer.id}-${i}`}>
+                  <TooltipTrigger asChild>
+                    {website ? (
+                      <a
+                        href={website.startsWith("http") ? website : `https://${website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-2xl focus:outline-none focus:ring-2 focus:ring-monks-accent/50"
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <span className="block">{content}</span>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="rounded-lg border-0 bg-zinc-800 px-2.5 py-1.5 text-white shadow-lg">
+                    <p className="text-xs font-medium text-white/95">{customer.NAME}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
           </motion.div>
         </TooltipProvider>
       </div>
