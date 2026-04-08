@@ -16,17 +16,28 @@ function applyPrismaConnectionLimit(raw: string): string {
   if (process.env.DATABASE_CONNECTION_LIMIT === "0") {
     return raw
   }
-  const limit = process.env.DATABASE_CONNECTION_LIMIT ?? "1"
+  const limit       = process.env.DATABASE_CONNECTION_LIMIT ?? "1"
+  const poolTimeout = process.env.DATABASE_POOL_TIMEOUT      ?? "30"  // seconds to wait for a free connection
+  const connectTimeout = process.env.DATABASE_CONNECT_TIMEOUT ?? "10"  // seconds for TCP handshake
   try {
     const u = new URL(raw)
-    u.searchParams.set("connection_limit", limit)
+    u.searchParams.set("connection_limit",  limit)
+    u.searchParams.set("pool_timeout",      poolTimeout)
+    u.searchParams.set("connect_timeout",   connectTimeout)
     return u.href
   } catch {
-    let s = raw.replace(/([?&])connection_limit=[^&]*/gi, "$1")
-    s = s.replace(/\?&/, "?").replace(/&&/g, "&")
-    if (s.endsWith("?") || s.endsWith("&")) s = s.slice(0, -1)
+    let s = raw
+      .replace(/([?&])connection_limit=[^&]*/gi,  "$1")
+      .replace(/([?&])pool_timeout=[^&]*/gi,       "$1")
+      .replace(/([?&])connect_timeout=[^&]*/gi,    "$1")
+    s = s.replace(/\?&/g, "?").replace(/&&/g, "&").replace(/[?&]$/, "")
     const sep = s.includes("?") ? "&" : "?"
-    return `${s}${sep}connection_limit=${encodeURIComponent(limit)}`
+    return (
+      `${s}${sep}` +
+      `connection_limit=${encodeURIComponent(limit)}&` +
+      `pool_timeout=${encodeURIComponent(poolTimeout)}&` +
+      `connect_timeout=${encodeURIComponent(connectTimeout)}`
+    )
   }
 }
 
@@ -46,17 +57,14 @@ export function getMysql2DatabaseUrl(): string {
   const raw = process.env.DATABASE_URL
   if (!raw) throw new Error("DATABASE_URL is not set")
 
+  const PRISMA_PARAMS = ["connection_limit", "pool_timeout", "connect_timeout"]
   try {
     const u = new URL(raw)
-    u.searchParams.delete("connection_limit")
-    u.searchParams.delete("pool_timeout")
+    for (const p of PRISMA_PARAMS) u.searchParams.delete(p)
     return u.toString()
   } catch {
-    return raw
-      .replace(/([?&])connection_limit=[^&]*/gi, "$1")
-      .replace(/([?&])pool_timeout=[^&]*/gi, "$1")
-      .replace(/\?&/, "?")
-      .replace(/&&/g, "&")
-      .replace(/[?&]$/, "")
+    let s = raw
+    for (const p of PRISMA_PARAMS) s = s.replace(new RegExp(`([?&])${p}=[^&]*`, "gi"), "$1")
+    return s.replace(/\?&/g, "?").replace(/&&/g, "&").replace(/[?&]$/, "")
   }
 }
