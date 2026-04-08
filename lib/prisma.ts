@@ -1,21 +1,12 @@
 import { PrismaClient } from "@prisma/client";
+import { getPrismaDatabaseUrl } from "@/lib/database-url";
 
 /**
- * MySQL: each Node process must use a small pool or many workers / serverless
- * invocations will hit "max_user_connections". Set DATABASE_CONNECTION_LIMIT
- * (e.g. 3–5) if you still exhaust the server; optionally raise MySQL max_user_connections.
+ * MySQL: same `DATABASE_URL` as `prisma db push` / CI; optional `connection_limit` on that URL
+ * (or appended here) to avoid max_user_connections. See `lib/database-url.ts`.
  */
-function getPooledDatabaseUrl(): string | undefined {
-  const raw = process.env.DATABASE_URL;
-  if (!raw) return undefined;
-  if (/[?&]connection_limit=/.test(raw)) return raw;
-  const limit = process.env.DATABASE_CONNECTION_LIMIT ?? "5";
-  const sep = raw.includes("?") ? "&" : "?";
-  return `${raw}${sep}connection_limit=${limit}`;
-}
-
 const prismaClientSingleton = () => {
-  const url = getPooledDatabaseUrl();
+  const url = getPrismaDatabaseUrl();
   return new PrismaClient({
     datasources: {
       db: {

@@ -48,8 +48,11 @@ export async function uploadProgramDetails(formData: FormData): Promise<UploadPr
     await prisma.$transaction(async (tx) => {
       for (const limit of limits) {
         const category = await tx.expenseCategory.upsert({
-          where: { code: limit.code },
+          where: {
+            euProgramId_code: { euProgramId, code: limit.code },
+          },
           create: {
+            euProgramId,
             code: limit.code,
             descriptionEL: limit.description,
             subCategoryEL: null,
@@ -57,19 +60,19 @@ export async function uploadProgramDetails(formData: FormData): Promise<UploadPr
           update: {
             descriptionEL: limit.description,
           },
-          select: { code: true },
+          select: { id: true },
         });
 
         await tx.euProgramExpenseLimit.upsert({
           where: {
             euProgramId_expenseCategoryId: {
               euProgramId,
-              expenseCategoryId: category.code,
+              expenseCategoryId: category.id,
             },
           },
           create: {
             euProgramId,
-            expenseCategoryId: category.code,
+            expenseCategoryId: category.id,
             maxPercentage: limit.maxPercentage,
             minPercentage: limit.minPercentage,
             maxAmount: toDecimalOrNull(limit.maxAmount),

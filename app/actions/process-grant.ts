@@ -156,38 +156,37 @@ export async function processGrantPdfAction(formData: FormData): Promise<Process
         }
       }
 
-      // Pre-upsert expense categories in bulk-like mode to reduce transaction roundtrips.
-      const uniqueCategoryCodes = Array.from(
-        new Set(parsed.expenseLimits.map((limit) => limit.expenseCategoryId).filter(Boolean))
-      );
-      if (uniqueCategoryCodes.length > 0) {
-        await tx.expenseCategory.createMany({
-          data: uniqueCategoryCodes.map((code) => ({
-            code,
-            descriptionEL: "Parsed from grant PDF",
-          })),
-          skipDuplicates: true,
-        });
-      }
-
       for (const limit of parsed.expenseLimits) {
-        if (limit.descriptionEL && limit.descriptionEL.trim() !== "") {
-          await tx.expenseCategory.updateMany({
-            where: { code: limit.expenseCategoryId },
-            data: { descriptionEL: limit.descriptionEL },
-          });
-        }
+        const category = await tx.expenseCategory.upsert({
+          where: {
+            euProgramId_code: {
+              euProgramId,
+              code: limit.expenseCategoryId,
+            },
+          },
+          create: {
+            euProgramId,
+            code: limit.expenseCategoryId,
+            descriptionEL:
+              limit.descriptionEL?.trim() || "Parsed from grant PDF",
+          },
+          update: {
+            ...(limit.descriptionEL?.trim()
+              ? { descriptionEL: limit.descriptionEL.trim() }
+              : {}),
+          },
+        })
 
         await tx.euProgramExpenseLimit.upsert({
           where: {
             euProgramId_expenseCategoryId: {
               euProgramId,
-              expenseCategoryId: limit.expenseCategoryId,
+              expenseCategoryId: category.id,
             },
           },
           create: {
             euProgramId,
-            expenseCategoryId: limit.expenseCategoryId,
+            expenseCategoryId: category.id,
             maxPercentage: limit.maxPercentage,
             minPercentage: limit.minPercentage,
             maxAmount: toDecimalOrNull(limit.maxAmount),
@@ -199,7 +198,7 @@ export async function processGrantPdfAction(formData: FormData): Promise<Process
             maxAmount: toDecimalOrNull(limit.maxAmount),
             isMandatory: limit.isMandatory,
           },
-        });
+        })
       }
 
       for (const kadCodeRaw of parsed.eligibleKads) {

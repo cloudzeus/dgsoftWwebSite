@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Deployments (Docker Alpine, Debian-based Node images) need matching engines; local dev uses "native".
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -369,8 +371,9 @@ model EuProgram {
   periferies    EuProgramPeriferia[]
   criteria      EuProgramCriterion[]
   requirements  EuProgramRequirement[]
-  expenseLimits EuProgramExpenseLimit[]
-  media         EuProgramMedia[]
+  expenseLimits   EuProgramExpenseLimit[]
+  expenseCategories ExpenseCategory[]
+  media             EuProgramMedia[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -427,12 +430,16 @@ model EuProgramCriterion {
 
 model ExpenseCategory {
   id            String                  @id @default(cuid())
-  code          String                  @unique @db.VarChar(20)
+  euProgramId   String
+  euProgram     EuProgram               @relation(fields: [euProgramId], references: [id], onDelete: Cascade)
+  code          String                  @db.VarChar(20)
   descriptionEL String                  @db.VarChar(255)
   subCategoryEL String?                 @db.VarChar(255)
   expenseLimits EuProgramExpenseLimit[]
   createdAt     DateTime                @default(now())
   updatedAt     DateTime                @updatedAt
+
+  @@unique([euProgramId, code])
 }
 
 model EuProgramExpenseLimit {
@@ -445,7 +452,7 @@ model EuProgramExpenseLimit {
   isMandatory       Boolean         @default(false)
   notes             String?         @db.Text
   euProgram         EuProgram       @relation(fields: [euProgramId], references: [id], onDelete: Cascade)
-  expenseCategory   ExpenseCategory @relation(fields: [expenseCategoryId], references: [code], onDelete: Cascade)
+  expenseCategory   ExpenseCategory @relation(fields: [expenseCategoryId], references: [id], onDelete: Cascade)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 

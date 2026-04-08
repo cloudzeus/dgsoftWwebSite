@@ -17,11 +17,14 @@ export default async function EuProgramDetailsRoute({ params }: Props) {
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6">
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/admin/eu-programs" className="gap-2">
             <ArrowLeft className="h-4 w-4" /> Back to programs
           </Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/admin/eu-programs/${id}/expense-categories`}>Expense categories (OPSKE)</Link>
         </Button>
       </div>
       <EuProgramDetailsPage program={program} />

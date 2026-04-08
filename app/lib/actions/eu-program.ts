@@ -264,50 +264,63 @@ export async function createEuProgram(data: any) {
         const requirementsToCreate = Array.isArray(requirements) ? sanitizeRequirements(requirements) : []
         const expenseLimitsToCreate = Array.isArray(expenseLimits) ? sanitizeExpenseLimits(expenseLimits) : []
 
-        const created = await prisma.euProgram.create({
-            data: {
-                ...programData,
-                active: programData.active ?? true,
-                minimumCompanyYears: toIntOrNull(programData.minimumCompanyYears),
-                minimumEmployees: toIntOrNull(programData.minimumEmployees),
-                minBudget: toDecimalOrNull(programData.minBudget),
-                maxBudget: toDecimalOrNull(programData.maxBudget),
-                indirectCostPercentage: toFloatOrNull(programData.indirectCostPercentage) ?? 0.07,
-                announcedDate: programData.announcedDate ? new Date(programData.announcedDate) : null,
-                submissionDate: programData.submissionDate ? new Date(programData.submissionDate) : null,
-                endDate: programData.endDate ? new Date(programData.endDate) : null,
-                ...(criteriaToCreate.length > 0 ? { criteria: { create: criteriaToCreate } } : {}),
-                ...(requirementsToCreate.length > 0 ? { requirements: { create: requirementsToCreate } } : {}),
-                ...(expenseLimitsToCreate.length > 0 ? {
-                    expenseLimits: {
-                        create: expenseLimitsToCreate.map((item) => ({
-                            maxPercentage: item.maxPercentage,
-                            minPercentage: item.minPercentage,
-                            maxAmount: item.maxAmount,
-                            isMandatory: item.isMandatory,
-                            expenseCategory: {
-                                connectOrCreate: {
-                                    where: { code: item.code },
-                                    create: {
-                                        code: item.code,
-                                        descriptionEL: item.description || item.code,
-                                    }
-                                }
-                            }
-                        }))
-                    }
-                } : {}),
-            },
-            include: {
-                kads: { include: { kad: true } },
-                periferies: { include: { periferia: true } },
-                requirements: true,
-                criteria: true,
-                expenseLimits: {
-                    include: { expenseCategory: true }
-                }
+        const created = await prisma.$transaction(async (tx) => {
+            const program = await tx.euProgram.create({
+                data: {
+                    ...programData,
+                    active: programData.active ?? true,
+                    minimumCompanyYears: toIntOrNull(programData.minimumCompanyYears),
+                    minimumEmployees: toIntOrNull(programData.minimumEmployees),
+                    minBudget: toDecimalOrNull(programData.minBudget),
+                    maxBudget: toDecimalOrNull(programData.maxBudget),
+                    indirectCostPercentage: toFloatOrNull(programData.indirectCostPercentage) ?? 0.07,
+                    announcedDate: programData.announcedDate ? new Date(programData.announcedDate) : null,
+                    submissionDate: programData.submissionDate ? new Date(programData.submissionDate) : null,
+                    endDate: programData.endDate ? new Date(programData.endDate) : null,
+                    ...(criteriaToCreate.length > 0 ? { criteria: { create: criteriaToCreate } } : {}),
+                    ...(requirementsToCreate.length > 0 ? { requirements: { create: requirementsToCreate } } : {}),
+                },
+            })
+
+            for (const item of expenseLimitsToCreate) {
+                const category = await tx.expenseCategory.upsert({
+                    where: {
+                        euProgramId_code: { euProgramId: program.id, code: item.code },
+                    },
+                    create: {
+                        euProgramId: program.id,
+                        code: item.code,
+                        descriptionEL: item.description || item.code,
+                    },
+                    update: {
+                        descriptionEL: item.description || item.code,
+                    },
+                })
+                await tx.euProgramExpenseLimit.create({
+                    data: {
+                        euProgramId: program.id,
+                        expenseCategoryId: category.id,
+                        maxPercentage: item.maxPercentage,
+                        minPercentage: item.minPercentage,
+                        maxAmount: item.maxAmount,
+                        isMandatory: item.isMandatory,
+                    },
+                })
             }
-        });
+
+            return tx.euProgram.findUniqueOrThrow({
+                where: { id: program.id },
+                include: {
+                    kads: { include: { kad: true } },
+                    periferies: { include: { periferia: true } },
+                    requirements: true,
+                    criteria: true,
+                    expenseLimits: {
+                        include: { expenseCategory: true },
+                    },
+                },
+            })
+        })
         return JSON.parse(JSON.stringify(created))
     } catch (error: any) {
         console.error("CREATE EU PROGRAM Error:", error)
@@ -325,58 +338,72 @@ export async function updateEuProgram(id: string, data: any) {
         const requirementsToCreate = Array.isArray(requirements) ? sanitizeRequirements(requirements) : []
         const expenseLimitsToCreate = Array.isArray(expenseLimits) ? sanitizeExpenseLimits(expenseLimits) : []
 
-        const updated = await prisma.euProgram.update({
-            where: { id },
-            data: {
-                ...programData,
-                active: programData.active ?? true,
-                minimumCompanyYears: toIntOrNull(programData.minimumCompanyYears),
-                minimumEmployees: toIntOrNull(programData.minimumEmployees),
-                minBudget: toDecimalOrNull(programData.minBudget),
-                maxBudget: toDecimalOrNull(programData.maxBudget),
-                indirectCostPercentage: toFloatOrNull(programData.indirectCostPercentage) ?? 0.07,
-                announcedDate: programData.announcedDate ? new Date(programData.announcedDate) : null,
-                submissionDate: programData.submissionDate ? new Date(programData.submissionDate) : null,
-                endDate: programData.endDate ? new Date(programData.endDate) : null,
-                criteria: {
-                    deleteMany: {},
-                    ...(criteriaToCreate.length > 0 ? { create: criteriaToCreate } : {}),
+        const updated = await prisma.$transaction(async (tx) => {
+            await tx.euProgramExpenseLimit.deleteMany({ where: { euProgramId: id } })
+
+            await tx.euProgram.update({
+                where: { id },
+                data: {
+                    ...programData,
+                    active: programData.active ?? true,
+                    minimumCompanyYears: toIntOrNull(programData.minimumCompanyYears),
+                    minimumEmployees: toIntOrNull(programData.minimumEmployees),
+                    minBudget: toDecimalOrNull(programData.minBudget),
+                    maxBudget: toDecimalOrNull(programData.maxBudget),
+                    indirectCostPercentage: toFloatOrNull(programData.indirectCostPercentage) ?? 0.07,
+                    announcedDate: programData.announcedDate ? new Date(programData.announcedDate) : null,
+                    submissionDate: programData.submissionDate ? new Date(programData.submissionDate) : null,
+                    endDate: programData.endDate ? new Date(programData.endDate) : null,
+                    criteria: {
+                        deleteMany: {},
+                        ...(criteriaToCreate.length > 0 ? { create: criteriaToCreate } : {}),
+                    },
+                    requirements: {
+                        deleteMany: {},
+                        ...(requirementsToCreate.length > 0 ? { create: requirementsToCreate } : {}),
+                    },
                 },
-                requirements: {
-                    deleteMany: {},
-                    ...(requirementsToCreate.length > 0 ? { create: requirementsToCreate } : {}),
-                },
-                expenseLimits: {
-                    deleteMany: {},
-                    ...(expenseLimitsToCreate.length > 0 ? {
-                        create: expenseLimitsToCreate.map((item) => ({
-                            maxPercentage: item.maxPercentage,
-                            minPercentage: item.minPercentage,
-                            maxAmount: item.maxAmount,
-                            isMandatory: item.isMandatory,
-                            expenseCategory: {
-                                connectOrCreate: {
-                                    where: { code: item.code },
-                                    create: {
-                                        code: item.code,
-                                        descriptionEL: item.description || item.code,
-                                    }
-                                }
-                            }
-                        }))
-                    } : {}),
-                },
-            },
-            include: {
-                kads: { include: { kad: true } },
-                periferies: { include: { periferia: true } },
-                requirements: true,
-                criteria: true,
-                expenseLimits: {
-                    include: { expenseCategory: true }
-                }
+            })
+
+            for (const item of expenseLimitsToCreate) {
+                const category = await tx.expenseCategory.upsert({
+                    where: {
+                        euProgramId_code: { euProgramId: id, code: item.code },
+                    },
+                    create: {
+                        euProgramId: id,
+                        code: item.code,
+                        descriptionEL: item.description || item.code,
+                    },
+                    update: {
+                        descriptionEL: item.description || item.code,
+                    },
+                })
+                await tx.euProgramExpenseLimit.create({
+                    data: {
+                        euProgramId: id,
+                        expenseCategoryId: category.id,
+                        maxPercentage: item.maxPercentage,
+                        minPercentage: item.minPercentage,
+                        maxAmount: item.maxAmount,
+                        isMandatory: item.isMandatory,
+                    },
+                })
             }
-        });
+
+            return tx.euProgram.findUniqueOrThrow({
+                where: { id },
+                include: {
+                    kads: { include: { kad: true } },
+                    periferies: { include: { periferia: true } },
+                    requirements: true,
+                    criteria: true,
+                    expenseLimits: {
+                        include: { expenseCategory: true },
+                    },
+                },
+            })
+        })
         return JSON.parse(JSON.stringify(updated))
     } catch (error: any) {
         console.error("UPDATE EU PROGRAM Error:", error)
@@ -813,18 +840,30 @@ export async function bulkCreateKads(data: { dotcode: string, nameEL: string }[]
     }
 }
 
-export async function getExpenseCategories() {
+export async function getExpenseCategories(euProgramId: string) {
     const session = await auth()
     if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
 
+    const id = String(euProgramId ?? "").trim()
+    if (!id) throw new Error("Missing EU program id")
+
     try {
         const data = await prisma.expenseCategory.findMany({
+            where: { euProgramId: id },
             orderBy: [{ code: "asc" }],
             include: {
-                _count: {
-                    select: { expenseLimits: true }
-                }
-            }
+                expenseLimits: {
+                    where: { euProgramId: id },
+                    select: {
+                        id: true,
+                        minPercentage: true,
+                        maxPercentage: true,
+                        maxAmount: true,
+                        isMandatory: true,
+                        notes: true,
+                    },
+                },
+            },
         })
         return JSON.parse(JSON.stringify(data))
     } catch (error: any) {

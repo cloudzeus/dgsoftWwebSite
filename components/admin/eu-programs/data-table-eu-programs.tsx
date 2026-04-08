@@ -11,6 +11,7 @@ import {
     Settings,
     Map,
     FileCode,
+    Database,
     Check,
     Image as ImageIcon,
     Briefcase,
@@ -510,6 +511,11 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                         <DropdownMenuItem asChild>
                             <Link href={`/admin/eu-programs/${row.original.id}`} className="flex items-center">
                                 <ExternalLink className="w-4 h-4 mr-2" /> Program details
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/admin/eu-programs/${row.original.id}/expense-categories`} className="flex items-center">
+                                <Database className="w-4 h-4 mr-2" /> Expense categories (OPSKE)
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEdit(row.original)}><Edit className="w-4 h-4 mr-2" /> Edit Program (wizard)</DropdownMenuItem>

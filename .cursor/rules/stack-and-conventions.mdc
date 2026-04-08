@@ -19,6 +19,7 @@ Follow these in all new and modified code.
 
 - **Prisma ORM** — Use Prisma for all database access. Do not use raw SQL or another ORM.
 - **MySQL** — Use MySQL as the database. Set `provider = "mysql"` in `schema.prisma` and use `DATABASE_URL` in `.env`. Prefer `prisma db push` for schema changes (per project preference over migrations).
+- **Deployment** — The `prisma` CLI is a **runtime dependency** so installs that omit devDependencies still get `prisma generate`. `postinstall` runs `prisma generate`; `build` runs `prisma generate && next build`. After deploy, apply the schema with `npm run db:push` (requires `DATABASE_URL`). In non-interactive CI, if Prisma refuses a change that implies data loss, use `npm run db:push:accept-data-loss` only when you accept that risk. Do not use `prisma migrate` for this project.
 
 ## Forms & UI
 
