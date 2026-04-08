@@ -118,6 +118,12 @@ model TRDR {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([AFM])
+  @@index([EMAIL])
+  @@index([EMAILACC])
+  @@index([ISACTIVE])
+  @@index([displayAtCarousel])
 }
 
 model CompanyFinancials {
@@ -700,4 +706,18 @@ model NewsletterCampaignRecipient {
 
   @@index([campaignId])
   @@index([email])
+}
+
+/// Bilingual marketing page for Ariadne Service Hub (middleware / integration hub).
+model AriadniPage {
+  id      String @id @default("ariadni")
+  logoUrl String? @db.Text
+  /// PDF opens in new tab; banner shown full width under budget stat cards
+  espaPdfUrl       String? @db.Text
+  espaPdfBannerUrl String? @db.Text
+  /// Structured sections: hero, stats, paragraphs, lists (see lib/ariadni-content.ts)
+  contentEL Json?
+  contentEN Json?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }

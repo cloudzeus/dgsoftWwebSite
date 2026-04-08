@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, Play } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import Link from "next/link";
+import { EspaPdfBanner } from "@/app/components/EspaPdfBanner";
+import {
+  HOME_ESPA_BANNER_1,
+  HOME_ESPA_BANNER_2,
+} from "@/lib/home-espa-banners";
 
 const titleText = "Business Forward";
 const textVariants = {
@@ -29,7 +34,7 @@ const containerVariants = {
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-monks-black">
+    <section className="relative flex min-h-screen flex-col overflow-hidden bg-monks-black">
       {/* Background Gradient Orbs */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -62,8 +67,8 @@ export default function Hero() {
       {/* Grid Pattern Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px]" />
 
-      <div className="relative z-10 max-w-[1800px] mx-auto px-6 md:px-12 py-32">
-        <div className="max-w-5xl">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1800px] flex-1 flex-col px-6 md:px-12">
+        <div className="mx-auto flex w-full max-w-5xl flex-col justify-start py-24 md:py-28 lg:py-32">
           {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -79,7 +84,7 @@ export default function Hero() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="text-display-md font-bold text-white mb-8 leading-[1.1] flex flex-wrap"
+            className="text-display-md font-bold text-white mb-10 leading-[1.1] flex flex-wrap"
           >
             {titleText.split("").map((char, index) => (
               <motion.span
@@ -91,6 +96,30 @@ export default function Hero() {
               </motion.span>
             ))}
           </motion.h1>
+
+          {/* ESPA banners — left-aligned, ~half content width */}
+          <div className="mb-10 w-full">
+            <div className="grid w-full max-w-[min(100%,22rem)] grid-cols-1 gap-3 sm:max-w-[min(100%,36rem)] sm:grid-cols-2 md:gap-4">
+              <EspaPdfBanner
+                compact
+                imageUrl={HOME_ESPA_BANNER_1.imageUrl}
+                pdfUrl={HOME_ESPA_BANNER_1.pdfUrl}
+                captionEl="Έγγραφο προγράμματος ΕΣΠΑ"
+                captionEn="ESPA programme document"
+                ariaLabelEl="Άνοιγμα εγγράφου προγράμματος PDF σε νέο παράθυρο"
+                ariaLabelEn="Open programme PDF in a new window"
+              />
+              <EspaPdfBanner
+                compact
+                imageUrl={HOME_ESPA_BANNER_2.imageUrl}
+                pdfUrl={HOME_ESPA_BANNER_2.pdfUrl}
+                captionEl="Έγγραφο προγράμματος ΕΣΠΑ II"
+                captionEn="ESPA programme document II"
+                ariaLabelEl="Άνοιγμα δεύτερου εγγράφου PDF σε νέο παράθυρο"
+                ariaLabelEn="Open second programme PDF in a new window"
+              />
+            </div>
+          </div>
 
           {/* Subheadline */}
           <motion.div
@@ -140,16 +169,9 @@ export default function Hero() {
               <span className="font-medium">Ζητήστε αξιολόγηση ψηφιακής ωριμότητας</span>
             </button>
           </motion.div>
-        </div>
 
-        {/* Stats Row */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="absolute bottom-12 left-6 md:left-12 right-6 md:right-12"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 pt-8 border-t border-white/10">
+          {/* Stats — after copy & CTAs */}
+          <div className="mt-12 grid w-full grid-cols-2 gap-6 border-t border-white/10 pt-10 md:grid-cols-4 md:gap-10">
             {[
               { number: "150+", label: "Projects Delivered" },
               { number: "10+", label: "Years Experience" },
@@ -157,32 +179,31 @@ export default function Hero() {
               { number: "25+", label: "Team Members" },
             ].map((stat, index) => (
               <div key={index} className="text-left">
-                <div className="text-3xl md:text-4xl font-bold text-white mb-1">
+                <div className="mb-1 text-3xl font-bold text-white md:text-4xl">
                   {stat.number}
                 </div>
                 <div className="text-sm text-monks-light">{stat.label}</div>
               </div>
             ))}
           </div>
-        </motion.div>
-      </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-2 text-monks-light"
-        >
-          <span className="text-xs tracking-widest uppercase">Scroll</span>
-          <ArrowDown className="w-4 h-4" />
-        </motion.div>
-      </motion.div>
+          {/* Scroll hint */}
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-center pb-6 pt-10"
+          >
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="flex flex-col items-center gap-2 text-monks-light"
+            >
+              <span className="text-xs uppercase tracking-widest">Scroll</span>
+              <ArrowDown className="h-4 w-4" />
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

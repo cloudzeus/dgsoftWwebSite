@@ -655,14 +655,16 @@ export async function syncKadAndLegalForAllMissing(): Promise<SyncKadLegalResult
     }
     const errors: string[] = []
     let synced = 0
-    for (const { id, AFM } of status.toSync) {
-        try {
-            await getKAD(id, AFM)
-            synced++
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : String(e)
-            errors.push(`${AFM}: ${msg}`)
-        }
+
+    // Run in parallel batches of 5 to avoid hammering vat.wwa.gr
+    for (const batch of chunk(status.toSync, 5)) {
+        await Promise.all(
+            batch.map(({ id, AFM }) =>
+                getKAD(id, AFM)
+                    .then(() => { synced++ })
+                    .catch((e: unknown) => { errors.push(`${AFM}: ${e instanceof Error ? e.message : String(e)}`) })
+            )
+        )
     }
     return {
         success: true,
@@ -711,6 +713,12 @@ function toDate(v: unknown): Date | null {
     return null
 }
 
+function chunk<T>(arr: T[], size: number): T[][] {
+    const out: T[][] = []
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+    return out
+}
+
 export type SyncCustomersResult = {
     success: boolean
     message?: string
@@ -744,136 +752,197 @@ export async function syncCustomersFromSoftOne(): Promise<SyncCustomersResult> {
     let updated = 0
 
     try {
-        // 1) Get all customers from SoftOne ERP (CUSTOMER / TRDR)
         console.log("[Sync Action] Calling getSoftOneTableData(CUSTOMER, TRDR)...")
         const result = await getSoftOneTableData(clientId, "CUSTOMER", "TRDR")
         if (!("rows" in result) || !result.success) {
             const msg = (result as { message?: string }).message ?? "Failed to get TRDR data from SoftOne"
-            console.log("[Sync Action] SoftOne error:", msg)
             return { success: false, message: msg, synced: 0, created: 0, updated: 0, errors: [] }
         }
 
         const rows = result.rows
-        console.log("[Sync Action] Got rows:", rows.length, "| Starting loop (vat.wwa.gr + DB upsert)...")
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i]
-            if (i > 0 && i % 500 === 0) console.log("[Sync Action] Progress:", i, "/", rows.length)
-            try {
-                const trdrNum = toInt(getRowVal(row, "TRDR"))
-                const code = toStr(getRowVal(row, "CODE"), 25) ?? (trdrNum != null ? `CMD-${trdrNum}` : null)
-                const name = toStr(getRowVal(row, "NAME"), 128)
-                const afm = toStr(getRowVal(row, "AFM"), 20)
-                // Only save customers with at least name and AFM
-                if (code == null || name == null) {
-                    errors.push(`Row missing CODE or NAME (TRDR=${trdrNum}), skipped`)
-                    continue
-                }
-                if (!afm || !afm.trim()) {
-                    errors.push(`Row missing AFM (TRDR=${trdrNum}), skipped`)
-                    continue
-                }
-                const countryCode = toInt(getRowVal(row, "COUNTRY"))
-                // 2) vat.wwa.gr is for Greek companies only: country must be Greece and AFM must be Greek (9 digits). Skip if CY/BG/etc or non-Greek country.
-                let vatInfo: Awaited<ReturnType<typeof getVatCompanyInfo>> = null
-                if (afm && countryCode === GREECE_COUNTRY_CODE && isGreekAfm(afm)) {
-                    vatInfo = await getVatCompanyInfo(afm)
-                }
-                const correctData = getVatCorrectData(vatInfo)
+        console.log("[Sync Action] Got", rows.length, "rows. Pre-loading DB maps...")
 
-                const softOneRow = {
-                    SODTYPE: toInt(getRowVal(row, "SODTYPE")) ?? 13,
-                    TRDR: trdrNum!,
-                    CODE: code,
-                    NAME: name,
-                    AFM: afm,
-                    COUNTRY: toInt(getRowVal(row, "COUNTRY")),
-                    SOCURRENCY: toInt(getRowVal(row, "SOCURRENCY")),
-                    ADDRESS: toStr(getRowVal(row, "ADDRESS"), 100),
-                    ZIP: toStr(getRowVal(row, "ZIP"), 10),
-                    DISTRICT: toStr(getRowVal(row, "DISTRICT"), 30),
-                    CITY: toStr(getRowVal(row, "CITY"), 30),
-                    AREAS: toInt(getRowVal(row, "AREAS")),
-                    PHONE01: toStr(getRowVal(row, "PHONE01"), 20),
-                    PHONE02: toStr(getRowVal(row, "PHONE02"), 20),
-                    JOBTYPE: toInt(getRowVal(row, "JOBTYPE")),
-                    JOBTYPETRD: toStr(getRowVal(row, "JOBTYPETRD"), 128),
-                    EMAIL: toStr(getRowVal(row, "EMAIL"), 128),
-                    EMAILACC: toStr(getRowVal(row, "EMAILACC"), 128),
-                    CCCEMAILMAR: toStr(getRowVal(row, "CCCEMAILMAR"), 255),
-                    TRDBUSINESS: toInt(getRowVal(row, "TRDBUSINESS")),
-                    SHIPMENT: toInt(getRowVal(row, "SHIPMENT")),
-                    PAYMENT: toInt(getRowVal(row, "PAYMENT")),
-                    SOCARRIER: toInt(getRowVal(row, "SOCARRIER")),
-                    IRSDATA: toStr(getRowVal(row, "IRSDATA"), 128),
-                    REMARKS: toStr(getRowVal(row, "REMARKS")),
-                    INSDATE: toDate(getRowVal(row, "INSDATE")),
-                    UPDDATE: toDate(getRowVal(row, "UPDDATE")),
-                    SOTITLE: toStr(getRowVal(row, "SOTITLE"), 64),
-                    ISACTIVE: toInt(getRowVal(row, "ISACTIVE")),
-                    ISPROSP: toInt(getRowVal(row, "ISPROSP")),
-                    LATITUDE: toFloat(getRowVal(row, "LATITUDE")),
-                    LONGITUDE: toFloat(getRowVal(row, "LONGITUDE")),
-                    OBTYPE: toInt(getRowVal(row, "OBTYPE")),
-                    TRDGROUP: toInt(getRowVal(row, "TRDGROUP")),
-                    TRDPGROUP: toInt(getRowVal(row, "TRDPGROUP")),
-                    WEBPAGE: toStr(getRowVal(row, "WEBPAGE"), 255),
-                    CONSENT: toInt(getRowVal(row, "CONSENT")),
-                    PRJCS: toInt(getRowVal(row, "PRJCS")),
-                    numEmployees: toInt(getRowVal(row, "numEmployees")) ?? toInt(getRowVal(row, "NUMEMPLOYEES")),
-                    legalStatus: null as string | null,
-                    registDate: null as Date | null,
-                }
+        // 1) Single query — build TRDR→id and AFM→id maps, eliminating N findUnique calls
+        const existingAll = await prisma.tRDR.findMany({ select: { id: true, TRDR: true, AFM: true } })
+        const byTrdr = new Map<number, string>()
+        const byAfm  = new Map<string, string>()
+        for (const r of existingAll) {
+            byTrdr.set(r.TRDR, r.id)
+            if (r.AFM?.trim()) byAfm.set(r.AFM.trim(), r.id)
+        }
+        console.log("[Sync Action] DB map:", byTrdr.size, "existing records")
 
-                // 3) Update the insertion: apply vat.wwa.gr correct data over SoftOne (official source wins)
-                const merged = { ...softOneRow }
-                if (correctData) {
-                    if (correctData.NAME) merged.NAME = correctData.NAME.slice(0, 128)
-                    if (correctData.ADDRESS) merged.ADDRESS = correctData.ADDRESS.slice(0, 100)
-                    if (correctData.CITY) merged.CITY = correctData.CITY.slice(0, 30)
-                    if (correctData.ZIP) merged.ZIP = correctData.ZIP.slice(0, 10)
-                    if (correctData.legalStatus) merged.legalStatus = correctData.legalStatus.slice(0, 128)
-                    if (correctData.registDate) merged.registDate = parseToDateOrNull(correctData.registDate)
-                }
+        // 2) Validate rows
+        const validRows: typeof rows = []
+        for (const row of rows) {
+            const trdrNum = toInt(getRowVal(row, "TRDR"))
+            const code    = toStr(getRowVal(row, "CODE"), 25) ?? (trdrNum != null ? `CMD-${trdrNum}` : null)
+            const name    = toStr(getRowVal(row, "NAME"), 128)
+            const afm     = toStr(getRowVal(row, "AFM"), 20)
+            if (code == null || name == null) { errors.push(`Row missing CODE or NAME (TRDR=${trdrNum}), skipped`); continue }
+            if (!afm?.trim())                  { errors.push(`Row missing AFM (TRDR=${trdrNum}), skipped`);         continue }
+            validRows.push(row)
+        }
 
-                const existingByTrdr = await prisma.tRDR.findUnique({ where: { TRDR: merged.TRDR } })
-                if (existingByTrdr) {
-                    const updatePayload: Record<string, unknown> = { ...merged }
-                    delete updatePayload.id
-                    delete (updatePayload as any).createdAt
-                    delete (updatePayload as any).updatedAt
-                    const kadsPayload = correctData?.kads?.length ? correctData.kads : undefined
-                    await prisma.tRDR.update({
-                        where: { id: existingByTrdr.id },
-                        data: {
-                            ...(updatePayload as any),
-                            ...(kadsPayload != null
-                                ? { kads: { deleteMany: {}, create: kadsPayload } }
-                                : {}),
-                        },
-                    })
-                    updated++
-                } else {
-                    // Skip create if another customer with same AFM already exists (avoid duplicate by AFM)
-                    if (merged.AFM?.toString().trim()) {
-                        const existingByAfm = await prisma.tRDR.findFirst({
-                            where: { AFM: merged.AFM.toString().trim() },
-                        })
-                        if (existingByAfm) {
-                            errors.push(`Skipped duplicate AFM ${merged.AFM} (TRDR ${merged.TRDR} already exists as id ${existingByAfm.id})`)
-                            continue
+        // 3) Process vat.wwa.gr calls in parallel batches of 10 (was fully sequential)
+        type ProcessedRow = {
+            merged: Record<string, unknown>
+            kadsPayload: unknown[] | undefined
+            isNew: boolean
+            existingId?: string
+        }
+        const processed: ProcessedRow[] = []
+
+        for (const batch of chunk(validRows, 10)) {
+            const batchResults = await Promise.all(
+                batch.map(async (row): Promise<ProcessedRow | null> => {
+                    try {
+                        const trdrNum     = toInt(getRowVal(row, "TRDR"))!
+                        const code        = toStr(getRowVal(row, "CODE"), 25) ?? `CMD-${trdrNum}`
+                        const name        = toStr(getRowVal(row, "NAME"), 128)!
+                        const afm         = toStr(getRowVal(row, "AFM"), 20)!
+                        const countryCode = toInt(getRowVal(row, "COUNTRY"))
+
+                        let vatInfo: Awaited<ReturnType<typeof getVatCompanyInfo>> = null
+                        if (countryCode === GREECE_COUNTRY_CODE && isGreekAfm(afm)) {
+                            vatInfo = await getVatCompanyInfo(afm)
                         }
+                        const correctData = getVatCorrectData(vatInfo)
+
+                        const softOneRow = {
+                            SODTYPE: toInt(getRowVal(row, "SODTYPE")) ?? 13,
+                            TRDR: trdrNum,
+                            CODE: code,
+                            NAME: name,
+                            AFM: afm,
+                            COUNTRY: toInt(getRowVal(row, "COUNTRY")),
+                            SOCURRENCY: toInt(getRowVal(row, "SOCURRENCY")),
+                            ADDRESS: toStr(getRowVal(row, "ADDRESS"), 100),
+                            ZIP: toStr(getRowVal(row, "ZIP"), 10),
+                            DISTRICT: toStr(getRowVal(row, "DISTRICT"), 30),
+                            CITY: toStr(getRowVal(row, "CITY"), 30),
+                            AREAS: toInt(getRowVal(row, "AREAS")),
+                            PHONE01: toStr(getRowVal(row, "PHONE01"), 20),
+                            PHONE02: toStr(getRowVal(row, "PHONE02"), 20),
+                            JOBTYPE: toInt(getRowVal(row, "JOBTYPE")),
+                            JOBTYPETRD: toStr(getRowVal(row, "JOBTYPETRD"), 128),
+                            EMAIL:       toStr(getRowVal(row, "EMAIL"), 128),
+                            EMAILACC:    toStr(getRowVal(row, "EMAILACC"), 128),
+                            CCCEMAILMAR: toStr(getRowVal(row, "CCCEMAILMAR"), 255),
+                            TRDBUSINESS: toInt(getRowVal(row, "TRDBUSINESS")),
+                            SHIPMENT:    toInt(getRowVal(row, "SHIPMENT")),
+                            PAYMENT:     toInt(getRowVal(row, "PAYMENT")),
+                            SOCARRIER:   toInt(getRowVal(row, "SOCARRIER")),
+                            IRSDATA:     toStr(getRowVal(row, "IRSDATA"), 128),
+                            REMARKS:     toStr(getRowVal(row, "REMARKS")),
+                            INSDATE:     toDate(getRowVal(row, "INSDATE")),
+                            UPDDATE:     toDate(getRowVal(row, "UPDDATE")),
+                            SOTITLE:     toStr(getRowVal(row, "SOTITLE"), 64),
+                            ISACTIVE:    toInt(getRowVal(row, "ISACTIVE")),
+                            ISPROSP:     toInt(getRowVal(row, "ISPROSP")),
+                            LATITUDE:    toFloat(getRowVal(row, "LATITUDE")),
+                            LONGITUDE:   toFloat(getRowVal(row, "LONGITUDE")),
+                            OBTYPE:      toInt(getRowVal(row, "OBTYPE")),
+                            TRDGROUP:    toInt(getRowVal(row, "TRDGROUP")),
+                            TRDPGROUP:   toInt(getRowVal(row, "TRDPGROUP")),
+                            WEBPAGE:     toStr(getRowVal(row, "WEBPAGE"), 255),
+                            CONSENT:     toInt(getRowVal(row, "CONSENT")),
+                            PRJCS:       toInt(getRowVal(row, "PRJCS")),
+                            numEmployees: toInt(getRowVal(row, "numEmployees")) ?? toInt(getRowVal(row, "NUMEMPLOYEES")),
+                            legalStatus:  null as string | null,
+                            registDate:   null as Date | null,
+                        }
+
+                        // Apply vat.wwa.gr data over SoftOne (official source wins)
+                        const merged = { ...softOneRow }
+                        if (correctData) {
+                            if (correctData.NAME)        merged.NAME        = correctData.NAME.slice(0, 128)
+                            if (correctData.ADDRESS)     merged.ADDRESS     = correctData.ADDRESS.slice(0, 100)
+                            if (correctData.CITY)        merged.CITY        = correctData.CITY.slice(0, 30)
+                            if (correctData.ZIP)         merged.ZIP         = correctData.ZIP.slice(0, 10)
+                            if (correctData.legalStatus) merged.legalStatus = correctData.legalStatus.slice(0, 128)
+                            if (correctData.registDate)  merged.registDate  = parseToDateOrNull(correctData.registDate)
+                        }
+
+                        const kadsPayload = correctData?.kads?.length ? correctData.kads : undefined
+                        const existingId  = byTrdr.get(trdrNum)
+                        return { merged, kadsPayload, isNew: !existingId, existingId }
+                    } catch (e: any) {
+                        errors.push(`TRDR row ${getRowVal(row, "TRDR")}: ${e?.message ?? String(e)}`)
+                        return null
                     }
-                    const kadsPayload = correctData?.kads?.length ? correctData.kads : undefined
-                    await prisma.tRDR.create({
-                        data: {
-                            ...(merged as any),
-                            ...(kadsPayload != null ? { kads: { create: kadsPayload } } : {}),
-                        },
-                    })
-                    created++
+                })
+            )
+            for (const r of batchResults) if (r) processed.push(r)
+            console.log("[Sync Action] Processed:", processed.length, "/", validRows.length)
+        }
+
+        // 4) Deduplicate new records by AFM (guard against AFM collisions within the sync batch)
+        const seenAfms = new Set<string>(byAfm.keys())
+        const toCreate: ProcessedRow[] = []
+        const toUpdate: ProcessedRow[] = processed.filter(p => !p.isNew)
+
+        for (const p of processed.filter(p => p.isNew)) {
+            const afm = (p.merged.AFM as string)?.trim()
+            if (afm && seenAfms.has(afm)) {
+                errors.push(`Skipped duplicate AFM ${afm} (TRDR ${p.merged.TRDR})`)
+                continue
+            }
+            if (afm) seenAfms.add(afm)
+            toCreate.push(p)
+        }
+
+        console.log("[Sync Action] DB writes: create", toCreate.length, "update", toUpdate.length)
+
+        // 5) Batch creates — createMany for records without kads (single INSERT), individual for those with kads
+        const simpleCreates = toCreate.filter(p => !p.kadsPayload?.length)
+        const complexCreates = toCreate.filter(p =>  p.kadsPayload?.length)
+
+        for (const batch of chunk(simpleCreates, 200)) {
+            try {
+                await prisma.tRDR.createMany({ data: batch.map(p => p.merged) as any[], skipDuplicates: true })
+                created += batch.length
+            } catch (e: any) {
+                // Fallback: individual creates to preserve per-row error tracking
+                for (const p of batch) {
+                    try { await prisma.tRDR.create({ data: p.merged as any }); created++ }
+                    catch (err: any) { errors.push(`TRDR ${p.merged.TRDR}: ${err?.message}`) }
                 }
-            } catch (rowErr: any) {
-                errors.push(`TRDR row ${getRowVal(row, "TRDR")}: ${rowErr?.message ?? String(rowErr)}`)
+            }
+        }
+        for (const p of complexCreates) {
+            try {
+                await prisma.tRDR.create({ data: { ...(p.merged as any), kads: { create: p.kadsPayload as any } } })
+                created++
+            } catch (e: any) { errors.push(`TRDR ${p.merged.TRDR}: ${e?.message}`) }
+        }
+
+        // 6) Batch updates — $transaction per chunk, fallback to individual on error
+        for (const batch of chunk(toUpdate, 50)) {
+            try {
+                await prisma.$transaction(
+                    batch.map(p => prisma.tRDR.update({
+                        where: { id: p.existingId! },
+                        data: {
+                            ...(p.merged as any),
+                            ...(p.kadsPayload != null ? { kads: { deleteMany: {}, create: p.kadsPayload as any } } : {}),
+                        },
+                    }))
+                )
+                updated += batch.length
+            } catch {
+                for (const p of batch) {
+                    try {
+                        await prisma.tRDR.update({
+                            where: { id: p.existingId! },
+                            data: {
+                                ...(p.merged as any),
+                                ...(p.kadsPayload != null ? { kads: { deleteMany: {}, create: p.kadsPayload as any } } : {}),
+                            },
+                        })
+                        updated++
+                    } catch (err: any) { errors.push(`TRDR ${p.merged.TRDR}: ${err?.message}`) }
+                }
             }
         }
 
@@ -888,14 +957,7 @@ export async function syncCustomersFromSoftOne(): Promise<SyncCustomersResult> {
         }
     } catch (err: any) {
         console.error("[Sync Action] Exception:", err)
-        return {
-            success: false,
-            message: err?.message ?? "Sync failed",
-            synced: 0,
-            created: 0,
-            updated: 0,
-            errors: [err?.message ?? String(err)],
-        }
+        return { success: false, message: err?.message ?? "Sync failed", synced: 0, created: 0, updated: 0, errors: [err?.message ?? String(err)] }
     }
 }
 
@@ -978,24 +1040,34 @@ export async function syncEmailAccFromSoftOne(): Promise<SyncEmailAccResult> {
             return { success: false, updated: 0, message: msg }
         }
 
-        let updated = 0
-        for (const row of result.rows) {
-            const trdrNum = toInt(getRowVal(row, "TRDR"))
-            if (trdrNum == null) continue
-            const emailAcc = toStr(getRowVal(row, "EMAILACC"), 128)
-            const cccEmailMar = toStr(getRowVal(row, "CCCEMAILMAR"), 255)
-            const existing = await prisma.tRDR.findUnique({ where: { TRDR: trdrNum }, select: { id: true } })
-            if (!existing) continue
-            await prisma.tRDR.update({
-                where: { id: existing.id },
-                data: {
-                    EMAILACC: emailAcc ?? null,
-                    CCCEMAILMAR: cccEmailMar ?? null,
-                },
+        // Pre-load TRDR→id map — 1 query instead of N findUnique calls
+        const existing = await prisma.tRDR.findMany({ select: { id: true, TRDR: true } })
+        const byTrdr = new Map<number, string>()
+        for (const r of existing) byTrdr.set(r.TRDR, r.id)
+
+        // Build all update operations upfront
+        const ops = result.rows
+            .map(row => {
+                const trdrNum = toInt(getRowVal(row, "TRDR"))
+                if (trdrNum == null) return null
+                const id = byTrdr.get(trdrNum)
+                if (!id) return null
+                return prisma.tRDR.update({
+                    where: { id },
+                    data: {
+                        EMAILACC:    toStr(getRowVal(row, "EMAILACC"), 128) ?? null,
+                        CCCEMAILMAR: toStr(getRowVal(row, "CCCEMAILMAR"), 255) ?? null,
+                    },
+                })
             })
-            updated++
+            .filter((op): op is NonNullable<typeof op> => op != null)
+
+        // Execute in batched transactions of 100
+        for (const batch of chunk(ops, 100)) {
+            await prisma.$transaction(batch)
         }
-        return { success: true, updated }
+
+        return { success: true, updated: ops.length }
     } catch (err: any) {
         console.error("[Sync email fields From SoftOne]", err)
         return { success: false, updated: 0, message: err?.message ?? "Sync failed" }
@@ -1029,43 +1101,37 @@ export async function syncSoftOneLookups(): Promise<SyncLookupsResult> {
                 console.warn("[Sync Lookups]", tableName, (result as { message?: string }).message)
                 continue
             }
-            for (const row of result.rows) {
-                if (tableName === "COUNTRY") {
-                    const code = toInt(getRowVal(row, "COUNTRY"))
-                    const name = toStr(getRowVal(row, "NAME"), 128)
-                    if (code != null) {
-                        await prisma.softOneCountry.upsert({
-                            where: { code },
-                            create: { code, name },
-                            update: { name },
-                        })
-                        countryCount++
-                    }
-                } else if (tableName === "TRDPGROUP") {
-                    const code = toInt(getRowVal(row, "TRDPGROUP"))
-                    const shortCode = toStr(getRowVal(row, "CODE"), 25)
-                    const name = toStr(getRowVal(row, "NAME"), 255)
-                    if (code != null) {
-                        await prisma.softOneTrdpGroup.upsert({
-                            where: { code },
-                            create: { code, shortCode, name },
-                            update: { shortCode, name },
-                        })
-                        trdpGroupCount++
-                    }
-                } else if (tableName === "TRDBUSINESS") {
-                    const code = toInt(getRowVal(row, "TRDBUSINESS"))
-                    const shortCode = toStr(getRowVal(row, "CODE"), 25)
-                    const name = toStr(getRowVal(row, "NAME"), 255)
-                    if (code != null) {
-                        await prisma.softOneTrdBusiness.upsert({
-                            where: { code },
-                            create: { code, shortCode, name },
-                            update: { shortCode, name },
-                        })
-                        trdBusinessCount++
-                    }
+
+            if (tableName === "COUNTRY") {
+                const upserts = result.rows
+                    .map(row => ({ code: toInt(getRowVal(row, "COUNTRY")), name: toStr(getRowVal(row, "NAME"), 128) }))
+                    .filter((r): r is { code: number; name: string | null } => r.code != null)
+                for (const batch of chunk(upserts, 100)) {
+                    await prisma.$transaction(batch.map(r =>
+                        prisma.softOneCountry.upsert({ where: { code: r.code }, create: r, update: { name: r.name } })
+                    ))
                 }
+                countryCount = upserts.length
+            } else if (tableName === "TRDPGROUP") {
+                const upserts = result.rows
+                    .map(row => ({ code: toInt(getRowVal(row, "TRDPGROUP")), shortCode: toStr(getRowVal(row, "CODE"), 25), name: toStr(getRowVal(row, "NAME"), 255) }))
+                    .filter((r): r is { code: number; shortCode: string | null; name: string | null } => r.code != null)
+                for (const batch of chunk(upserts, 100)) {
+                    await prisma.$transaction(batch.map(r =>
+                        prisma.softOneTrdpGroup.upsert({ where: { code: r.code }, create: r, update: { shortCode: r.shortCode, name: r.name } })
+                    ))
+                }
+                trdpGroupCount = upserts.length
+            } else if (tableName === "TRDBUSINESS") {
+                const upserts = result.rows
+                    .map(row => ({ code: toInt(getRowVal(row, "TRDBUSINESS")), shortCode: toStr(getRowVal(row, "CODE"), 25), name: toStr(getRowVal(row, "NAME"), 255) }))
+                    .filter((r): r is { code: number; shortCode: string | null; name: string | null } => r.code != null)
+                for (const batch of chunk(upserts, 100)) {
+                    await prisma.$transaction(batch.map(r =>
+                        prisma.softOneTrdBusiness.upsert({ where: { code: r.code }, create: r, update: { shortCode: r.shortCode, name: r.name } })
+                    ))
+                }
+                trdBusinessCount = upserts.length
             }
         }
 
@@ -1100,25 +1166,29 @@ export async function syncGeodataForCustomers(): Promise<SyncGeodataResult> {
             select: { id: true, TRDR: true, NAME: true, ADDRESS: true, CITY: true, ZIP: true, LATITUDE: true, LONGITUDE: true },
         })
 
-        for (const c of customers) {
-            const parts = [c.ADDRESS, c.CITY, c.ZIP].filter((s): s is string => !!s?.trim())
-            if (parts.length === 0) continue
-            const baseQuery = parts.join(", ")
-            const query = `${baseQuery}, Greece`
-
-            try {
-                const coords = await getCoordinates(query)
-                if (coords && Number.isFinite(coords.latitude) && Number.isFinite(coords.longitude)) {
-                    await prisma.tRDR.update({
-                        where: { id: c.id },
-                        data: { LATITUDE: coords.latitude, LONGITUDE: coords.longitude },
-                    })
-                    updated++
-                }
-                await new Promise((r) => setTimeout(r, 400))
-            } catch (e: any) {
-                errors.push(`TRDR ${c.TRDR}: ${e?.message ?? String(e)}`)
-            }
+        // Run in parallel batches of 5; 400ms delay between batches (not per item) for rate limiting
+        const addressable = customers.filter(c =>
+            [c.ADDRESS, c.CITY, c.ZIP].some(s => s?.trim())
+        )
+        for (const batch of chunk(addressable, 5)) {
+            await Promise.all(
+                batch.map(async c => {
+                    const parts = [c.ADDRESS, c.CITY, c.ZIP].filter((s): s is string => !!s?.trim())
+                    try {
+                        const coords = await getCoordinates(`${parts.join(", ")}, Greece`)
+                        if (coords && Number.isFinite(coords.latitude) && Number.isFinite(coords.longitude)) {
+                            await prisma.tRDR.update({
+                                where: { id: c.id },
+                                data: { LATITUDE: coords.latitude, LONGITUDE: coords.longitude },
+                            })
+                            updated++
+                        }
+                    } catch (e: any) {
+                        errors.push(`TRDR ${c.TRDR}: ${e?.message ?? String(e)}`)
+                    }
+                })
+            )
+            await new Promise(r => setTimeout(r, 400))
         }
 
         return { success: errors.length === 0, message: errors.length > 0 ? `${errors.length} failed` : undefined, updated, errors }

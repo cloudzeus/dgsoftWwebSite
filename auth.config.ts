@@ -1,4 +1,26 @@
 import type { NextAuthConfig, DefaultSession } from 'next-auth';
+import { AuthError, JWTSessionError } from '@auth/core/errors';
+
+function logAuthError(error: Error) {
+    const red = '\x1b[31m';
+    const reset = '\x1b[0m';
+    const name = error instanceof AuthError ? error.type : error.name;
+    console.error(`${red}[auth][error]${reset} ${name}: ${error.message}`);
+    if (
+        error.cause &&
+        typeof error.cause === 'object' &&
+        'err' in error.cause &&
+        (error.cause as { err?: unknown }).err instanceof Error
+    ) {
+        const { err, ...data } = error.cause as { err: Error; [k: string]: unknown };
+        console.error(`${red}[auth][cause]${reset}:`, err.stack);
+        if (Object.keys(data).length) {
+            console.error(`${red}[auth][details]${reset}:`, JSON.stringify(data, null, 2));
+        }
+    } else if (error.stack) {
+        console.error(error.stack.replace(/.*/, '').substring(1));
+    }
+}
 
 declare module 'next-auth' {
     interface Session {
@@ -16,6 +38,18 @@ export const authConfig = {
     providers: [],
     session: { strategy: "jwt" },
     trustHost: true,
+    /** Quieter logs for expected stale cookies after AUTH_SECRET rotation; other errors use full detail. */
+    logger: {
+        error(error) {
+            if (error instanceof JWTSessionError) {
+                console.warn(
+                    '[auth] Session cookie could not be decrypted (invalid or stale). Cookie cleared. Set a stable AUTH_SECRET in .env and sign in again.'
+                );
+                return;
+            }
+            logAuthError(error);
+        },
+    },
     callbacks: {
         jwt({ token, user }) {
             if (user) {

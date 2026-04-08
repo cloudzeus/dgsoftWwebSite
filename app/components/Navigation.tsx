@@ -11,6 +11,7 @@ const navLinksConfig = {
   el: [
     { name: "Αρχική", href: "/" },
     { name: "Λύσεις", href: "/services" },
+    { name: "Αριάδνη", href: "/ariadni" },
     { name: "Έργα", href: "/works" },
     { name: "Ευρωπαϊκά", href: "/eu-programs" },
     { name: "Καριέρα", href: "/careers" },
@@ -20,6 +21,7 @@ const navLinksConfig = {
   en: [
     { name: "Home", href: "/" },
     { name: "Solutions", href: "/services" },
+    { name: "Ariadne", href: "/ariadni" },
     { name: "Work", href: "/works" },
     { name: "EU Grants", href: "/eu-programs" },
     { name: "Careers", href: "/careers" },

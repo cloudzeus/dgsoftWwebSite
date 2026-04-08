@@ -6,10 +6,10 @@ import { ArrowUpRight, Linkedin, Twitter, Instagram, Github, Facebook } from "lu
 
 const footerLinks = {
   solutions: [
+    { name: "Ariadne Service Hub", href: "/ariadni" },
     { name: "SaaS Platforms", href: "/services" },
     { name: "Digital Transformation", href: "/services" },
     { name: "Enterprise ERP", href: "/services" },
-    { name: "AI Integration", href: "/services" },
   ],
   company: [
     { name: "About Us", href: "/#about" },

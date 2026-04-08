@@ -74,6 +74,11 @@ const navData = {
       icon: WrenchIcon,
     },
     {
+      title: "Ariadne page",
+      url: "/admin/ariadni",
+      icon: PlugIcon,
+    },
+    {
       title: "Downloads",
       url: "/admin/downloads",
       icon: FolderIcon,

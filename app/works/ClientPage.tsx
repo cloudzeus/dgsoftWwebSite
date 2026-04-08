@@ -27,16 +27,16 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
     const Icon = work.icon;
 
     return (
-        <div ref={container} className="h-screen flex items-center justify-center sticky top-0 min-h-[700px]">
+        <div ref={container} className="h-screen flex items-center justify-center sticky top-0 min-h-[min(100vh,920px)]">
             <motion.div
                 style={{ scale, top: `calc(-5vh + ${i * 25}px)` }}
-                className="relative flex flex-col w-full max-w-[1200px] h-[600px] lg:h-[650px] max-h-[85vh] rounded-[3rem] p-8 md:p-10 lg:p-16 border border-white/5 overflow-hidden origin-top hover:border-monks-accent/50 transition-colors duration-500 shadow-2xl"
+                className="relative flex flex-col w-full max-w-[1200px] min-h-[680px] h-[min(800px,88vh)] lg:h-[min(860px,90vh)] max-h-[92vh] rounded-[3rem] p-7 md:p-9 lg:p-12 border border-white/5 overflow-hidden origin-top hover:border-monks-accent/50 transition-colors duration-500 shadow-2xl"
             >
                 <div className={`absolute inset-0 bg-gradient-to-br ${work.color}`} />
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:64px_64px]" />
 
                 <div className="relative z-10 flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-12">
+                    <div className="flex justify-between items-start mb-6 shrink-0">
                         <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md">
                             <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
                         </div>
@@ -46,20 +46,20 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
                         </Link>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm font-bold tracking-wider mb-6">
+                    <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm font-bold tracking-wider mb-4 shrink-0">
                         <span className="text-monks-accent bg-monks-accent/10 px-4 py-2 rounded-full border border-monks-accent/20">{work.category}</span>
                         <span className="text-monks-light bg-white/5 px-4 py-2 rounded-full border border-white/10">{work.year}</span>
                     </div>
 
-                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[1.1]">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-snug">
                         {work.title}
                     </h2>
 
-                    <p className="text-xl md:text-2xl text-monks-light mb-12 flex-grow">
+                    <p className="text-lg md:text-xl text-monks-light mb-6 flex-shrink-0">
                         {locale === "el" ? "Πελάτης" : "Client"}: <span className="text-white font-medium">{work.client}</span>
                     </p>
 
-                    <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mt-auto pt-8 border-t border-white/10">
+                    <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mt-auto pt-6 border-t border-white/10 min-h-0">
                         <div className="flex-1">
                             <span className="text-xs text-monks-light tracking-widest mb-4 block">{locale === "el" ? "Τεχνολογικό Stack" : "Tech Stack"}</span>
                             <div className="flex flex-wrap gap-2">
@@ -71,7 +71,7 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
 
                         <div className="lg:text-right">
                             <span className="text-xs text-monks-light tracking-widest mb-2 block">{locale === "el" ? "Κύριο Αποτέλεσμα" : "Key Result"}</span>
-                            <span className="text-3xl lg:text-5xl font-black text-white block">
+                            <span className="text-2xl md:text-3xl lg:text-4xl font-black text-white block leading-tight">
                                 {work.metric}
                             </span>
                         </div>
@@ -125,7 +125,7 @@ export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                 >
                     <span className="text-monks-accent font-medium tracking-widest mb-6 block">{locale === "el" ? "Μελέτες Περίπτωσης" : "Case Studies"}</span>
-                    <h1 className="text-[clamp(3rem,5vw,5rem)] font-black text-white capitalize mb-8 leading-[1.1] max-w-4xl">
+                    <h1 className="text-[clamp(1.75rem,3.5vw,2.75rem)] md:text-[clamp(2rem,4vw,3.25rem)] font-black text-white capitalize mb-6 leading-[1.15] max-w-4xl">
                         {locale === "el" ? <>Ιστορίες <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-monks-light to-white/30">Επιτυχίας</span> & <span className="gradient-text">Τεχνολογίας</span></> : <>Success & <span className="gradient-text">Technology</span> Stories</>}
                     </h1>
                     <p className="text-xl md:text-2xl text-monks-light max-w-3xl leading-relaxed text-justify">

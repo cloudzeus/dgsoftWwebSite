@@ -2,8 +2,8 @@
 const nextConfig = {
   images: { unoptimized: true },
   experimental: {
-    // Allow larger multipart payloads from admin PDF uploads.
-    middlewareClientMaxBodySize: "25mb",
+    // Allow larger multipart payloads from admin PDF uploads (proxy / middleware).
+    proxyClientMaxBodySize: "25mb",
     serverActions: {
       bodySizeLimit: "25mb",
     },

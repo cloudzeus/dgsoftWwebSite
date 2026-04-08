@@ -1,10 +1,6 @@
-import NextAuth from "next-auth"
-import { authConfig } from "./auth.config"
+import { auth } from "@/auth"
 
-// Use the edge-compatible authConfig (JWT only, no Prisma adapter)
-const { auth } = NextAuth(authConfig)
-
-
+/** Same NextAuth instance as API routes — avoids JWT decode mismatch with a second NextAuth(authConfig). */
 export default auth
 
 export const config = {
