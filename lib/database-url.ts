@@ -1,34 +1,46 @@
 /**
- * Single source of truth: `process.env.DATABASE_URL` (same value for Next.js, `prisma db push`,
- * and maintenance scripts). Pooling params are optional Prisma MySQL extensions on that same URL.
+ * Single source of truth: `process.env.DATABASE_URL`. Prisma MySQL pool size is controlled via the
+ * `connection_limit` query param (see Prisma docs).
  *
- * MySQL `max_user_connections` is **per MySQL user** (e.g. `root`). Next.js runs **many processes**
- * during `next build` (one worker per CPU) and may run multiple Node processes in production; each
- * process has its **own** Prisma pool. Default pool **5 × N processes** exhausts small limits fast.
- * Default here is **1** connection per process; raise `DATABASE_CONNECTION_LIMIT` only on a
- * dedicated DB with a high `max_user_connections`.
+ * We **always set** `connection_limit` on the URL (default `1`) so hosting panels that inject
+ * `connection_limit=5` or higher cannot exhaust MySQL `max_user_connections` for user `root`.
+ *
+ * - Set `DATABASE_CONNECTION_LIMIT=0` to **stop modifying** the URL (you manage the full string).
+ * - Raise `DATABASE_CONNECTION_LIMIT` only if MySQL allows it for this user.
+ *
+ * MySQL limit is server-side: `SHOW VARIABLES LIKE 'max_user_connections';` — raising it requires
+ * DBA access (`SET GLOBAL max_user_connections = …` or per-user `ALTER USER … WITH MAX_USER_CONNECTIONS …`).
  */
 
-function appendConnectionLimitIfMissing(raw: string): string {
-  if (/[?&]connection_limit=/i.test(raw)) return raw
+function applyPrismaConnectionLimit(raw: string): string {
+  if (process.env.DATABASE_CONNECTION_LIMIT === "0") {
+    return raw
+  }
   const limit = process.env.DATABASE_CONNECTION_LIMIT ?? "1"
-  const sep = raw.includes("?") ? "&" : "?"
-  return `${raw}${sep}connection_limit=${limit}`
+  try {
+    const u = new URL(raw)
+    u.searchParams.set("connection_limit", limit)
+    return u.href
+  } catch {
+    let s = raw.replace(/([?&])connection_limit=[^&]*/gi, "$1")
+    s = s.replace(/\?&/, "?").replace(/&&/g, "&")
+    if (s.endsWith("?") || s.endsWith("&")) s = s.slice(0, -1)
+    const sep = s.includes("?") ? "&" : "?"
+    return `${s}${sep}connection_limit=${encodeURIComponent(limit)}`
+  }
 }
 
 /**
- * URL passed to PrismaClient — matches `schema.prisma` datasource when `DATABASE_URL` already
- * includes `connection_limit`, otherwise appends it (shared MySQL connection caps).
+ * URL passed to PrismaClient — `connection_limit` is forced unless `DATABASE_CONNECTION_LIMIT=0`.
  */
 export function getPrismaDatabaseUrl(): string | undefined {
   const raw = process.env.DATABASE_URL
   if (!raw) return undefined
-  return appendConnectionLimitIfMissing(raw)
+  return applyPrismaConnectionLimit(raw)
 }
 
 /**
- * `mysql2` rejects Prisma-specific query params (`connection_limit`, `pool_timeout`). Strip them
- * while keeping the same host, user, password, database, and SSL options.
+ * `mysql2` rejects Prisma-specific query params — strip them for raw mysql2 connections.
  */
 export function getMysql2DatabaseUrl(): string {
   const raw = process.env.DATABASE_URL

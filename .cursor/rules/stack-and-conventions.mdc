@@ -19,7 +19,7 @@ Follow these in all new and modified code.
 
 - **Prisma ORM** — Use Prisma for all database access. Do not use raw SQL or another ORM.
 - **MySQL** — Use MySQL as the database. Set `provider = "mysql"` in `schema.prisma` and use `DATABASE_URL` in `.env`. Prefer `prisma db push` for schema changes (per project preference over migrations).
-- **Connections** — Prisma appends `connection_limit` (default **1** per Node process) to avoid `max_user_connections` on shared MySQL; Next.js uses many workers during build, each with its own pool. Increase `DATABASE_CONNECTION_LIMIT` only if the DB user’s limit allows it. Prefer a non-root DB user with its own quota for the app.
+- **Connections** — The app **sets** `connection_limit` on `DATABASE_URL` (default **1**) so panel-injected `connection_limit=5` cannot exhaust MySQL `max_user_connections`. Use `DATABASE_CONNECTION_LIMIT=0` only if you set the full URL yourself. Raising the limit requires MySQL admin (`max_user_connections` / per-user quota); prefer a dedicated DB user instead of `root`.
 - **Deployment** — The `prisma` CLI is a **runtime dependency** so installs that omit devDependencies still get `prisma generate`. `postinstall` runs `prisma generate`; `build` runs `prisma generate && next build`. After deploy, apply the schema with `npm run db:push` (requires `DATABASE_URL`). In non-interactive CI, if Prisma refuses a change that implies data loss, use `npm run db:push:accept-data-loss` only when you accept that risk. Do not use `prisma migrate` for this project.
 
 ## Forms & UI
