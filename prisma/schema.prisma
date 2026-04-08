@@ -698,6 +698,22 @@ model NewsletterTemplate {
   campaigns NewsletterCampaign[]
 }
 
+model NewsletterBaseTemplate {
+  id           String   @id @default(cuid())
+  name         String   @db.VarChar(255)
+  description  String?  @db.VarChar(512)
+  htmlDocument String   @db.LongText
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model NewsletterBaseSettings {
+  id        String   @id @default("default")
+  fields    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model NewsletterCampaign {
   id         String              @id @default(cuid())
   name       String              @db.VarChar(255)

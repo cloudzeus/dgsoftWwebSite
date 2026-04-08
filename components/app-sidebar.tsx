@@ -26,6 +26,7 @@ import {
   SendIcon,
   LayoutTemplateIcon,
   CalendarDaysIcon,
+  FileCode2Icon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -124,6 +125,11 @@ const navData = {
       title: "Templates",
       url: "/admin/newsletter/templates",
       icon: LayoutTemplateIcon,
+    },
+    {
+      title: "Base Templates",
+      url: "/admin/newsletter/base-templates",
+      icon: FileCode2Icon,
     },
     {
       title: "Campaigns",
