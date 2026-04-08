@@ -1,11 +1,17 @@
 /**
  * Single source of truth: `process.env.DATABASE_URL` (same value for Next.js, `prisma db push`,
  * and maintenance scripts). Pooling params are optional Prisma MySQL extensions on that same URL.
+ *
+ * MySQL `max_user_connections` is **per MySQL user** (e.g. `root`). Next.js runs **many processes**
+ * during `next build` (one worker per CPU) and may run multiple Node processes in production; each
+ * process has its **own** Prisma pool. Default pool **5 × N processes** exhausts small limits fast.
+ * Default here is **1** connection per process; raise `DATABASE_CONNECTION_LIMIT` only on a
+ * dedicated DB with a high `max_user_connections`.
  */
 
 function appendConnectionLimitIfMissing(raw: string): string {
   if (/[?&]connection_limit=/i.test(raw)) return raw
-  const limit = process.env.DATABASE_CONNECTION_LIMIT ?? "5"
+  const limit = process.env.DATABASE_CONNECTION_LIMIT ?? "1"
   const sep = raw.includes("?") ? "&" : "?"
   return `${raw}${sep}connection_limit=${limit}`
 }

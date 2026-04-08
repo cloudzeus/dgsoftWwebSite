@@ -2,8 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import { getPrismaDatabaseUrl } from "@/lib/database-url";
 
 /**
- * MySQL: same `DATABASE_URL` as `prisma db push` / CI; optional `connection_limit` on that URL
- * (or appended here) to avoid max_user_connections. See `lib/database-url.ts`.
+ * MySQL: same `DATABASE_URL` as `prisma db push` / CI. Pool size defaults to 1 per process — see
+ * `lib/database-url.ts` (set `DATABASE_CONNECTION_LIMIT` higher only if the server allows it).
  */
 const prismaClientSingleton = () => {
   const url = getPrismaDatabaseUrl();
