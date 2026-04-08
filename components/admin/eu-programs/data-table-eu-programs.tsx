@@ -456,9 +456,13 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
             accessorKey: "nameEL",
             header: "Program Name",
             cell: ({ row }) => (
-                <div className="flex flex-col">
-                    <span className="font-bold text-sm lg:text-base">{row.original.nameEL}</span>
-                    {row.original.nameEN && <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{row.original.nameEN}</span>}
+                <div className="flex max-w-xl flex-col gap-0.5">
+                    <span className="text-[13px] font-semibold leading-snug tracking-tight text-foreground line-clamp-2">
+                        {row.original.nameEL}
+                    </span>
+                    {row.original.nameEN ? (
+                        <span className="line-clamp-1 text-[10px] leading-tight text-muted-foreground">{row.original.nameEN}</span>
+                    ) : null}
                 </div>
             )
         },

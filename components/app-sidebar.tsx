@@ -140,6 +140,11 @@ const navData = {
       url: "/admin/newsletter/eu-lists",
       icon: ListIcon,
     },
+    {
+      title: "Reports",
+      url: "/admin/newsletter/reports",
+      icon: BarChartIcon,
+    },
   ],
   navFunding: [
     {

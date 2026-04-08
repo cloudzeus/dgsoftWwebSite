@@ -20,14 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
   type DistinctAddressRow,
@@ -60,14 +53,6 @@ export function AddressMappingClient({
   const [suggestingKey, setSuggestingKey] = React.useState<string | null>(null);
   const [savingKey, setSavingKey] = React.useState<string | null>(null);
   const [selectedPeriferia, setSelectedPeriferia] = React.useState<Record<string, string>>({});
-  const [bulkProgress, setBulkProgress] = React.useState<{
-    show: boolean;
-    current: number;
-    total: number;
-    batchIndex: number;
-    batchTotal: number;
-    phase: "suggesting" | "saving" | "done";
-  } | null>(null);
 
   const handleSuggest = async (row: DistinctAddressRow) => {
     setSuggestingKey(row.addressKey);
@@ -180,72 +165,90 @@ export function AddressMappingClient({
   };
 
   return (
-    <div className="flex flex-col gap-4 min-h-0">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex min-h-0 flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/10 bg-gradient-to-r from-violet-500/5 via-transparent to-emerald-500/5 px-3 py-2.5 shadow-sm">
         <Button
           size="sm"
           variant="outline"
           onClick={handleSuggestAll}
-          className="gap-2 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+          className="h-8 gap-1.5 border-emerald-500/25 bg-gradient-to-r from-emerald-500/12 to-teal-500/8 text-[11px] font-medium text-emerald-900 hover:from-emerald-500/18 hover:to-teal-500/12 dark:text-emerald-100 dark:from-emerald-500/15 dark:to-teal-500/10"
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="h-3.5 w-3.5" />
           Suggest all with AI
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => router.refresh()} className="gap-2">
-          <RefreshCw className="w-4 h-4" />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => router.refresh()}
+          className="h-8 gap-1.5 text-[11px] border-slate-200/80 bg-background/80 hover:bg-muted/50 dark:border-slate-700"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
           Refresh
         </Button>
+        <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">
+          {addresses.length} distinct address{addresses.length !== 1 ? "es" : ""}
+        </span>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-auto space-y-3">
+      <div className="min-h-0 flex-1 space-y-3 overflow-auto pb-4">
         {addresses.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground text-sm">
-              No distinct addresses found. Sync customers from ERP first.
+          <Card className="overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-slate-50/80 via-card to-violet-50/20 dark:from-slate-950 dark:via-card dark:to-violet-950/15 shadow-md">
+            <div className="h-0.5 w-full bg-gradient-to-r from-violet-400/60 to-emerald-400/60" aria-hidden />
+            <CardContent className="flex flex-col items-center gap-2 py-14 text-center">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/80 text-muted-foreground ring-1 ring-border">
+                <MapPin className="h-5 w-5" />
+              </span>
+              <p className="text-[13px] font-medium text-foreground">No distinct addresses</p>
+              <p className="max-w-sm text-[11px] leading-relaxed text-muted-foreground">
+                Sync customers from ERP first, then return here to map regions.
+              </p>
             </CardContent>
           </Card>
         ) : (
           addresses.map((row) => (
-            <Card key={row.addressKey} className="overflow-hidden">
-              <CardHeader className="py-3 px-4 bg-zinc-50 dark:bg-zinc-900/50 border-b">
+            <Card
+              key={row.addressKey}
+              className="group overflow-hidden rounded-2xl border border-primary/12 bg-card/80 shadow-md shadow-primary/5 transition-all hover:border-primary/20 hover:shadow-lg"
+            >
+              <div
+                className="h-0.5 w-full shrink-0 bg-gradient-to-r from-sky-400/70 via-violet-500/60 to-emerald-400/70"
+                aria-hidden
+              />
+              <CardHeader className="border-b border-border/60 bg-gradient-to-r from-slate-50/90 via-card to-violet-50/20 py-3 pl-4 pr-3 dark:from-slate-900/60 dark:via-card dark:to-violet-950/20">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <MapPin className="w-4 h-4 text-zinc-500 shrink-0" />
-                    <span className="font-medium text-sm">
-                      {[row.rawAddress, row.rawCity, row.rawZip]
-                        .filter(Boolean)
-                        .join(", ") || "(no address)"}
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15 transition-transform group-hover:scale-[1.02]">
+                      <MapPin className="h-4 w-4" />
                     </span>
-                    <Badge variant="secondary" className="text-[10px]">
+                    <span className="text-[13px] font-semibold leading-snug tracking-tight text-foreground">
+                      {[row.rawAddress, row.rawCity, row.rawZip].filter(Boolean).join(", ") || "(no address)"}
+                    </span>
+                    <Badge className="h-6 shrink-0 gap-1 border-0 bg-gradient-to-r from-emerald-600 to-teal-600 px-2 text-[10px] font-medium text-white shadow-sm ring-1 ring-emerald-700/30">
                       {row.customerCount} customer{row.customerCount !== 1 ? "s" : ""}
                     </Badge>
                     {(row.latitude != null || row.longitude != null) && (
-                      <span className="text-[10px] text-zinc-500 font-mono">
+                      <span className="text-[10px] font-mono text-muted-foreground">
                         {row.latitude?.toFixed(4)}, {row.longitude?.toFixed(4)}
                       </span>
                     )}
                   </div>
                   {row.confirmed && (
-                    <Badge className="bg-emerald-600 text-[10px] gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Confirmed
+                    <Badge className="h-6 shrink-0 gap-1 border-0 bg-gradient-to-r from-emerald-600 to-teal-600 text-[10px] text-white shadow-sm">
+                      <CheckCircle2 className="h-3 w-3" /> Confirmed
                     </Badge>
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="py-3 px-4">
+              <CardContent className="px-4 py-3">
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex-1 min-w-[200px] space-y-1">
-                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">
+                  <div className="min-w-[200px] flex-1 space-y-1.5">
+                    <Label className="text-[10px] font-bold uppercase tracking-wider text-violet-700/80 dark:text-violet-300/90">
                       Region (Περιφέρεια → Νομός → Δήμος)
                     </Label>
                     {editingKey === row.addressKey ? (
                       <div className="flex flex-wrap items-center gap-2">
                         <Select
-                          value={
-                            selectedPeriferia[row.addressKey] ??
-                            row.periferiaId ??
-                            ""
-                          }
+                          value={selectedPeriferia[row.addressKey] ?? row.periferiaId ?? ""}
                           onValueChange={(v) =>
                             setSelectedPeriferia((prev) => ({
                               ...prev,
@@ -253,12 +256,12 @@ export function AddressMappingClient({
                             }))
                           }
                         >
-                          <SelectTrigger className="h-8 text-sm w-[280px] max-w-full">
+                          <SelectTrigger className="h-8 w-[280px] max-w-full text-[12px]">
                             <SelectValue placeholder="Select Δήμος…" />
                           </SelectTrigger>
                           <SelectContent>
                             {periferiesOptions.map((p) => (
-                              <SelectItem key={p.id} value={p.id}>
+                              <SelectItem key={p.id} value={p.id} className="text-xs">
                                 {p.path}
                               </SelectItem>
                             ))}
@@ -266,35 +269,27 @@ export function AddressMappingClient({
                         </Select>
                         <Button
                           size="sm"
-                          className="h-8 gap-1"
+                          className="h-8 gap-1 text-[11px]"
                           disabled={savingKey === row.addressKey}
                           onClick={() => {
-                            const pid =
-                              selectedPeriferia[row.addressKey] ?? row.periferiaId;
+                            const pid = selectedPeriferia[row.addressKey] ?? row.periferiaId;
                             if (pid) handleSave(row, pid);
                           }}
                         >
                           {savingKey === row.addressKey ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <Save className="w-3.5 h-3.5" />
+                            <Save className="h-3.5 w-3.5" />
                           )}
                           Save
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8"
-                          onClick={() => setEditingKey(null)}
-                        >
+                        <Button size="sm" variant="ghost" className="h-8 text-[11px]" onClick={() => setEditingKey(null)}>
                           Cancel
                         </Button>
                       </div>
                     ) : (
-                      <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                        {row.periferiaPath ?? (
-                          <span className="italic text-zinc-500">Not mapped</span>
-                        )}
+                      <p className="text-[12px] leading-relaxed text-foreground/90">
+                        {row.periferiaPath ?? <span className="italic text-muted-foreground">Not mapped</span>}
                       </p>
                     )}
                   </div>
@@ -304,7 +299,7 @@ export function AddressMappingClient({
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-8 gap-1 text-xs"
+                          className="h-8 gap-1 border-slate-200/90 text-[11px] dark:border-slate-700"
                           onClick={() => {
                             setEditingKey(row.addressKey);
                             if (row.periferiaId)
@@ -314,20 +309,20 @@ export function AddressMappingClient({
                               }));
                           }}
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          <Edit3 className="h-3.5 w-3.5" />
                           Edit
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-8 gap-1 text-xs"
+                          className="h-8 gap-1 border-violet-500/25 bg-violet-500/8 text-[11px] font-medium text-violet-900 hover:bg-violet-500/14 dark:text-violet-100 dark:bg-violet-500/12"
                           disabled={suggestingKey !== null}
                           onClick={() => handleSuggest(row)}
                         >
                           {suggestingKey === row.addressKey ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <Sparkles className="w-3.5 h-3.5" />
+                            <Sparkles className="h-3.5 w-3.5" />
                           )}
                           Suggest with AI
                         </Button>
@@ -335,12 +330,10 @@ export function AddressMappingClient({
                           <Button
                             size="sm"
                             variant={row.confirmed ? "secondary" : "default"}
-                            className="h-8 gap-1 text-xs"
-                            onClick={() =>
-                              handleConfirm(row, !row.confirmed)
-                            }
+                            className={`h-8 gap-1 text-[11px] ${!row.confirmed ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-600 border-0" : ""}`}
+                            onClick={() => handleConfirm(row, !row.confirmed)}
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <CheckCircle2 className="h-3.5 w-3.5" />
                             {row.confirmed ? "Unconfirm" : "Confirm"}
                           </Button>
                         )}

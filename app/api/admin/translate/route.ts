@@ -34,7 +34,7 @@ async function callDeepSeekTranslate(prompt: string): Promise<string> {
         body: JSON.stringify({
             model: "deepseek-chat",
             messages: [{ role: "user", content: prompt }],
-            temperature: 0.1,
+            temperature: 0.05,
         }),
     });
     if (!res.ok) {
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
         const session = await auth();
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const { text, targetLang } = await req.json();
+        const { text, targetLang, preferDeepSeek } = await req.json();
 
         if (!text) {
             return NextResponse.json({ error: "Missing text" }, { status: 400 });
@@ -65,31 +65,72 @@ export async function POST(req: Request) {
         }
 
         const targetLangLabel = targetLang === "en" || targetLang?.toLowerCase() === "english" ? "English" : "Greek";
-        const prompt = `You are a professional translator. Translate the following text into ${targetLangLabel}. Always preserve HTML and rich text formatting precisely. Do not add any extra text or conversational response before or after the translation. Just reply with the raw translated string.
+
+        const englishQualityBlock =
+            targetLangLabel === "English"
+                ? `
+
+Strict rules for English output (follow exactly):
+- Write natural, professional English suitable for EU funding announcements, corporate sites, and public-sector readers. Avoid a stiff word-for-word or “translationese” tone.
+- Prefer clear, idiomatic wording; do not mirror Greek sentence structure when English would normally phrase it differently.
+- Preserve meaning, numbers, dates, percentages, currency, KAD codes, legal references, and programmatic constraints exactly.
+- Keep widely used acronyms in their standard English/EU form where applicable (e.g. SME, EU, ERP). For Greek-specific names (ministries, funds, places), use an accurate English or established transliteration; do not invent abbreviations.
+- If the source mixes Greek and English, unify the English parts and translate only what is Greek unless a phrase is a fixed official title—then keep official naming consistent.
+- Do not add introductions (“Here is the translation”), notes, or alternatives. Output only the translated text.
+`
+                : "";
+
+        const prompt = `You are an expert translator for Greek↔English business and EU programme content. Translate the following into ${targetLangLabel}. Preserve any HTML or rich-text tags exactly (same tags and structure; translate only visible text).${englishQualityBlock}
+
+Do not add any text before or after the translation. Reply with the raw translated string only.
 
 Text:
 ${text}
 `;
 
         let translatedContent: string;
-        try {
-            translatedContent = await callOpenAITranslate(prompt);
-        } catch (openAiError) {
-            if (deepseekKey) {
-                try {
-                    translatedContent = await callDeepSeekTranslate(prompt);
-                } catch (deepseekError) {
-                    console.error("Translate: OpenAI failed", openAiError);
-                    console.error("Translate: DeepSeek fallback failed", deepseekError);
-                    return NextResponse.json({
-                        error: "OpenAI failed and DeepSeek fallback failed. Check your API keys.",
-                    }, { status: 502 });
+        const tryOpenAiThenDeepSeek = async () => {
+            try {
+                return await callOpenAITranslate(prompt);
+            } catch (openAiError) {
+                if (deepseekKey) {
+                    try {
+                        return await callDeepSeekTranslate(prompt);
+                    } catch (deepseekError) {
+                        console.error("Translate: OpenAI failed", openAiError);
+                        console.error("Translate: DeepSeek fallback failed", deepseekError);
+                        throw new Error("OpenAI failed and DeepSeek fallback failed. Check your API keys.");
+                    }
                 }
-            } else {
-                return NextResponse.json({
-                    error: openAiError instanceof Error ? openAiError.message : "Translation failed",
-                }, { status: 502 });
+                throw openAiError;
             }
+        };
+
+        const tryDeepSeekThenOpenAi = async () => {
+            if (!deepseekKey) return tryOpenAiThenDeepSeek();
+            try {
+                return await callDeepSeekTranslate(prompt);
+            } catch (deepseekError) {
+                if (openAiKey) {
+                    try {
+                        return await callOpenAITranslate(prompt);
+                    } catch (openAiError) {
+                        console.error("Translate: DeepSeek failed", deepseekError);
+                        console.error("Translate: OpenAI fallback failed", openAiError);
+                        throw new Error("DeepSeek failed and OpenAI fallback failed. Check your API keys.");
+                    }
+                }
+                throw deepseekError;
+            }
+        };
+
+        try {
+            translatedContent =
+                preferDeepSeek === true && deepseekKey ? await tryDeepSeekThenOpenAi() : await tryOpenAiThenDeepSeek();
+        } catch (err) {
+            return NextResponse.json({
+                error: err instanceof Error ? err.message : "Translation failed",
+            }, { status: 502 });
         }
 
         return NextResponse.json({ translated: translatedContent, text: translatedContent });

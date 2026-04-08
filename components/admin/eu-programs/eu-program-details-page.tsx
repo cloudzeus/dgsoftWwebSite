@@ -14,6 +14,8 @@ import {
     FileCode,
     ImagePlus,
     Loader2,
+    Sparkles,
+    Languages,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -78,6 +80,38 @@ export function EuProgramDetailsPage({ program: initialProgram }: { program: Non
     const [addingKads, setAddingKads] = React.useState(false)
     const [newMediaUrl, setNewMediaUrl] = React.useState("")
     const [addingMedia, setAddingMedia] = React.useState(false)
+    const [translatingEN, setTranslatingEN] = React.useState<null | "name" | "short" | "description">(null)
+
+    const translateElToEn = React.useCallback(
+        async (sourceText: string, field: "nameEN" | "shortDescriptionEN" | "descriptionEN") => {
+            const raw = sourceText?.trim()
+            if (!raw) {
+                toast.error("Nothing to translate from the Greek field.")
+                return
+            }
+            const key = field === "nameEN" ? "name" : field === "shortDescriptionEN" ? "short" : "description"
+            setTranslatingEN(key)
+            const tid = toast.loading("Translating to English…")
+            try {
+                const res = await fetch("/api/admin/translate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: raw, targetLang: "en", preferDeepSeek: true }),
+                })
+                const data = await res.json()
+                if (!res.ok) throw new Error(data.error || "Translation failed")
+                const translated = String(data.translated ?? "").trim()
+                if (!translated) throw new Error("Empty translation")
+                setProgram((p: Program) => ({ ...p, [field]: translated }))
+                toast.success("English updated — review and save when ready.", { id: tid })
+            } catch (e: unknown) {
+                toast.error(e instanceof Error ? e.message : "Translation failed", { id: tid })
+            } finally {
+                setTranslatingEN(null)
+            }
+        },
+        []
+    )
 
     React.useEffect(() => {
         getAllPeriferies().then((p: { id: string; nameEL: string; children?: unknown[] }[] | null) => setPeriferies(p || []))
@@ -188,69 +222,164 @@ export function EuProgramDetailsPage({ program: initialProgram }: { program: Non
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-foreground">{program.nameEL || "Program details"}</h1>
-                <Badge variant={program.active ? "default" : "secondary"}>{program.active ? "Active" : "Inactive"}</Badge>
+            <div className="overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-slate-50/90 via-card to-violet-50/35 dark:from-slate-950 dark:via-card dark:to-violet-950/25 shadow-md shadow-primary/5">
+                <div className="h-1 w-full shrink-0 bg-gradient-to-r from-amber-400 via-violet-500 to-emerald-500" aria-hidden />
+                <div className="flex flex-wrap items-start justify-between gap-4 p-4 sm:p-5">
+                    <div className="flex min-w-0 flex-1 gap-3">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary/18 to-violet-500/18 text-primary ring-1 ring-primary/20">
+                            <Sparkles className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0 space-y-1">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">EU program</p>
+                            <h1 className="text-[13px] font-semibold leading-snug tracking-tight text-foreground line-clamp-4">
+                                {program.nameEL || "Program details"}
+                            </h1>
+                            {program.nameEN ? (
+                                <p className="text-[11px] leading-snug text-muted-foreground line-clamp-2">{program.nameEN}</p>
+                            ) : null}
+                        </div>
+                    </div>
+                    <Badge
+                        className={
+                            program.active
+                                ? "shrink-0 border-0 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm ring-1 ring-emerald-700/30 hover:from-emerald-600 hover:to-teal-600"
+                                : "shrink-0"
+                        }
+                        variant={program.active ? "default" : "secondary"}
+                    >
+                        {program.active ? "Active" : "Inactive"}
+                    </Badge>
+                </div>
             </div>
 
             {/* General — names & descriptions */}
-            <Card>
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" /> General</CardTitle>
+            <Card className="overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-slate-50/80 via-card to-violet-50/25 dark:from-slate-950 dark:via-card dark:to-violet-950/20 shadow-md shadow-primary/5">
+                <div className="h-0.5 w-full bg-gradient-to-r from-primary/40 via-violet-500/50 to-emerald-500/40" aria-hidden />
+                <CardHeader className="pb-2 pt-4">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" /> General
+                    </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 text-sm">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Name (EL)</Label>
+                            <Label className="text-xs">Name (EL)</Label>
                             <Input
+                                className="text-sm h-9"
                                 value={program.nameEL ?? ""}
                                 onChange={(e) => setProgram((p: Program) => ({ ...p, nameEL: e.target.value }))}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Name (EN)</Label>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label className="text-xs">Name (EN)</Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 gap-1 border-violet-500/25 bg-violet-500/8 text-[10px] font-medium text-violet-900 hover:bg-violet-500/15 dark:text-violet-100 dark:bg-violet-500/12"
+                                    title="Calls /api/admin/translate with an English-quality prompt (OpenAI first; DeepSeek if configured and OpenAI fails)."
+                                    disabled={translatingEN !== null || !(program.nameEL ?? "").trim()}
+                                    onClick={() => translateElToEn(program.nameEL ?? "", "nameEN")}
+                                >
+                                    {translatingEN === "name" ? (
+                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                        <Languages className="h-3 w-3" />
+                                    )}
+                                    Translate to EN
+                                </Button>
+                            </div>
                             <Input
+                                className="text-sm h-9"
                                 value={program.nameEN ?? ""}
                                 onChange={(e) => setProgram((p: Program) => ({ ...p, nameEN: e.target.value }))}
+                                placeholder="Translate from Greek or type manually"
                             />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Short description (EL)</Label>
+                            <Label className="text-xs">Short description (EL)</Label>
                             <Textarea
+                                className="text-sm min-h-[72px]"
                                 value={program.shortDescriptionEL ?? ""}
                                 onChange={(e) => setProgram((p: Program) => ({ ...p, shortDescriptionEL: e.target.value }))}
                                 rows={2}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Short description (EN)</Label>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label className="text-xs">Short description (EN)</Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 gap-1 border-violet-500/25 bg-violet-500/8 text-[10px] font-medium text-violet-900 hover:bg-violet-500/15 dark:text-violet-100 dark:bg-violet-500/12"
+                                    title="Same translate API with EU / funding English instructions."
+                                    disabled={translatingEN !== null || !(program.shortDescriptionEL ?? "").trim()}
+                                    onClick={() => translateElToEn(program.shortDescriptionEL ?? "", "shortDescriptionEN")}
+                                >
+                                    {translatingEN === "short" ? (
+                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                        <Languages className="h-3 w-3" />
+                                    )}
+                                    Translate to EN
+                                </Button>
+                            </div>
                             <Textarea
+                                className="text-sm min-h-[72px]"
                                 value={program.shortDescriptionEN ?? ""}
                                 onChange={(e) => setProgram((p: Program) => ({ ...p, shortDescriptionEN: e.target.value }))}
                                 rows={2}
+                                placeholder="Professional English (EU / funding tone)"
                             />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Description (EL)</Label>
+                            <Label className="text-xs">Description (EL)</Label>
                             <Textarea
+                                className="text-sm"
                                 value={program.descriptionEL ?? ""}
                                 onChange={(e) => setProgram((p: Program) => ({ ...p, descriptionEL: e.target.value }))}
                                 rows={4}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Description (EN)</Label>
+                            <div className="flex items-center justify-between gap-2">
+                                <Label className="text-xs">Description (EN)</Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 gap-1 border-violet-500/25 bg-violet-500/8 text-[10px] font-medium text-violet-900 hover:bg-violet-500/15 dark:text-violet-100 dark:bg-violet-500/12"
+                                    title="Same translate API; preserves HTML tags in body copy."
+                                    disabled={translatingEN !== null || !(program.descriptionEL ?? "").trim()}
+                                    onClick={() => translateElToEn(program.descriptionEL ?? "", "descriptionEN")}
+                                >
+                                    {translatingEN === "description" ? (
+                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                        <Languages className="h-3 w-3" />
+                                    )}
+                                    Translate to EN
+                                </Button>
+                            </div>
                             <Textarea
+                                className="text-sm"
                                 value={program.descriptionEN ?? ""}
                                 onChange={(e) => setProgram((p: Program) => ({ ...p, descriptionEN: e.target.value }))}
                                 rows={4}
+                                placeholder="Preserves HTML from Greek when present"
                             />
                         </div>
                     </div>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        English uses the admin translate API with a careful EU/funding English prompt. DeepSeek runs first when{" "}
+                        <code className="rounded bg-muted px-1">DEEPSEEK_API_KEY</code> is set; OpenAI is used as fallback.
+                    </p>
                     <Button
                         onClick={() => saveScalar("general", {
                             nameEL: program.nameEL,

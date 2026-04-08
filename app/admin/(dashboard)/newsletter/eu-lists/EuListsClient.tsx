@@ -50,6 +50,22 @@ import {
   type EuProgramRecipientListSummary,
 } from "@/app/lib/actions/eu-program-recipient-list";
 
+/** Fixed locale + timezone so SSR and the browser emit the same string (avoids hydration mismatch). */
+const EU_LIST_DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: "Europe/Athens",
+});
+
+function formatEuListDate(value: Date | string): string {
+  const d = value instanceof Date ? value : new Date(value);
+  return EU_LIST_DATE_FMT.format(d);
+}
+
 function CriteriaPanel({ criteria }: { criteria: EuListCriteriaSummary }) {
   return (
     <div className="rounded-2xl overflow-hidden border border-primary/15 bg-gradient-to-br from-slate-50 via-white to-violet-50/80 dark:from-slate-950 dark:via-card dark:to-violet-950/40 shadow-md shadow-primary/5">
@@ -429,10 +445,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                         variant="outline"
                         className="h-6 border-slate-200/80 bg-white/50 px-2 text-[10px] font-normal text-muted-foreground dark:border-slate-700 dark:bg-slate-900/40"
                       >
-                        {new Date(list.createdAt).toLocaleString(undefined, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
+                        {formatEuListDate(list.createdAt)}
                       </Badge>
                     </div>
                   </div>

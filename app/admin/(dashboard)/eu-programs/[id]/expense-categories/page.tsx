@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, ClipboardList, Euro, Layers } from "lucide-react"
+import { ArrowLeft, ClipboardList, Euro, Layers, Sparkles } from "lucide-react"
 import { getEuProgramById, getExpenseCategories } from "@/app/lib/actions/eu-program"
 import {
   Table,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = { title: "Expense Categories | Admin Dashboard" }
@@ -41,77 +41,101 @@ export default async function ProgramExpenseCategoriesPage({ params }: Props) {
   const categories = await getExpenseCategories(id)
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      <Button variant="ghost" size="sm" className="-ml-2 h-8 w-fit" asChild>
-        <Link href="/admin/eu-programs/expense-categories" className="gap-2 text-muted-foreground">
-          <ArrowLeft className="h-4 w-4" /> All programs
+    <div className="flex min-h-0 flex-1 flex-col gap-6 p-4 md:p-6">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-2 h-8 w-fit gap-1.5 text-[11px] text-muted-foreground hover:text-foreground"
+        asChild
+      >
+        <Link href="/admin/eu-programs/expense-categories">
+          <ArrowLeft className="h-3.5 w-3.5" /> All programs
         </Link>
       </Button>
 
-      <Card className="overflow-hidden border-border/80 shadow-sm">
-        <CardHeader className="border-b bg-muted/30 px-4 py-5 md:px-6 md:py-6 space-y-4">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Layers className="h-4 w-4 shrink-0" aria-hidden />
-                <span className="text-xs font-medium uppercase tracking-wide">EU program</span>
-              </div>
-              <CardTitle className="text-xl md:text-2xl font-semibold tracking-tight">
+      <div className="overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-slate-50/90 via-card to-emerald-50/25 dark:from-slate-950 dark:via-card dark:to-emerald-950/15 shadow-md shadow-primary/5">
+        <div
+          className="h-1 w-full shrink-0 bg-gradient-to-r from-amber-400 via-violet-500 to-emerald-500"
+          aria-hidden
+        />
+        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:p-5">
+          <div className="flex min-w-0 flex-1 gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/18 to-emerald-500/18 text-primary ring-1 ring-primary/20">
+              <Layers className="h-5 w-5" />
+            </span>
+            <div className="min-w-0 space-y-2">
+              <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+                EU program · OPSKE
+              </p>
+              <h1 className="text-[15px] font-semibold leading-snug tracking-tight text-foreground sm:text-base">
                 Expense categories (OPSKE)
-              </CardTitle>
-              <CardDescription className="text-base text-foreground/80 font-medium">
-                {program.nameEL}
-              </CardDescription>
+              </h1>
+              <p className="text-[13px] font-semibold leading-snug text-foreground line-clamp-3">{program.nameEL}</p>
               {program.nameEN ? (
-                <p className="text-sm text-muted-foreground">{program.nameEN}</p>
+                <p className="line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">{program.nameEN}</p>
               ) : null}
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" size="sm" className="shadow-sm" asChild>
-                <Link href={`/admin/eu-programs/${id}`}>Program details</Link>
-              </Button>
-              <Button variant="secondary" size="sm" className="shadow-sm" asChild>
-                <Link href="/admin/eu-programs/expense-limits">
-                  <ClipboardList className="mr-1.5 h-4 w-4" />
-                  All expense limits
-                </Link>
-              </Button>
+              <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 to-teal-500/8 px-2.5 py-1 text-[10px] font-medium text-emerald-900 dark:text-emerald-100">
+                <span className="text-muted-foreground dark:text-emerald-200/80">Categories</span>
+                <span className="tabular-nums font-semibold">{categories.length}</span>
+              </div>
             </div>
           </div>
-          <div className="flex flex-wrap gap-3 pt-1">
-            <div className="inline-flex items-center gap-2 rounded-lg border bg-background/80 px-3 py-2 text-sm shadow-sm">
-              <span className="text-muted-foreground">Categories</span>
-              <span className="font-semibold tabular-nums">{categories.length}</span>
-            </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 border-primary/20 bg-primary/[0.04] text-[11px] text-primary hover:bg-primary/[0.08]"
+              asChild
+            >
+              <Link href={`/admin/eu-programs/${id}`}>Program details</Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 border-violet-500/25 bg-violet-500/8 text-[11px] font-medium text-violet-900 hover:bg-violet-500/14 dark:text-violet-100 dark:bg-violet-500/12"
+              asChild
+            >
+              <Link href="/admin/eu-programs/expense-limits">
+                <ClipboardList className="mr-1.5 h-3.5 w-3.5" />
+                All expense limits
+              </Link>
+            </Button>
           </div>
-        </CardHeader>
+        </div>
+      </div>
 
+      <Card className="overflow-hidden rounded-2xl border border-primary/12 bg-card/80 shadow-md shadow-primary/5">
+        <div
+          className="h-0.5 w-full shrink-0 bg-gradient-to-r from-sky-400/70 via-violet-500/60 to-emerald-400/70"
+          aria-hidden
+        />
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="border-b bg-muted/40 hover:bg-muted/40">
-                <TableHead className="h-11 min-w-[100px] pl-4 md:pl-6 font-semibold text-foreground">
+              <TableRow className="border-b border-border/60 hover:bg-transparent bg-gradient-to-r from-slate-50/95 to-violet-50/35 dark:from-slate-900/80 dark:to-violet-950/25">
+                <TableHead className="h-10 min-w-[100px] pl-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground md:pl-6">
                   Code
                 </TableHead>
-                <TableHead className="h-11 min-w-[200px] font-semibold text-foreground">
+                <TableHead className="h-10 min-w-[200px] text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Description (EL)
                 </TableHead>
-                <TableHead className="h-11 min-w-[120px] font-semibold text-foreground">
+                <TableHead className="h-10 min-w-[120px] text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Sub-category
                 </TableHead>
-                <TableHead className="h-11 w-[88px] text-right font-semibold text-foreground">
+                <TableHead className="h-10 w-[88px] text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Min %
                 </TableHead>
-                <TableHead className="h-11 w-[88px] text-right font-semibold text-foreground">
+                <TableHead className="h-10 w-[88px] text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Max %
                 </TableHead>
-                <TableHead className="h-11 min-w-[120px] text-right font-semibold text-foreground">
+                <TableHead className="h-10 min-w-[120px] text-right text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   <span className="inline-flex items-center justify-end gap-1">
-                    <Euro className="h-3.5 w-3.5 opacity-70" aria-hidden />
+                    <Euro className="h-3 w-3 opacity-70" aria-hidden />
                     Max amount
                   </span>
                 </TableHead>
-                <TableHead className="h-11 w-[96px] text-center font-semibold text-foreground">
+                <TableHead className="h-10 w-[96px] text-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   Required
                 </TableHead>
               </TableRow>
@@ -139,41 +163,43 @@ export default async function ProgramExpenseCategoriesPage({ params }: Props) {
                       <TableCell className="pl-4 md:pl-6 align-middle">
                         <span
                           className={cn(
-                            "inline-flex max-w-full rounded-md border border-border/80 bg-muted/60 px-2.5 py-1",
-                            "font-mono text-xs font-medium tracking-tight text-foreground",
-                            "dark:bg-muted/40"
+                            "inline-flex max-w-full rounded-md border border-violet-500/20 bg-violet-500/8 px-2 py-0.5",
+                            "font-mono text-[11px] font-semibold tracking-tight text-foreground",
+                            "dark:bg-violet-500/12"
                           )}
                         >
                           {row.code}
                         </span>
                       </TableCell>
-                      <TableCell className="max-w-[min(28rem,55vw)] text-sm leading-snug text-foreground">
+                      <TableCell className="max-w-[min(28rem,55vw)] text-[12px] leading-snug text-foreground">
                         {row.descriptionEL}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {row.subCategoryEL || (
-                          <span className="text-muted-foreground/50">—</span>
-                        )}
+                      <TableCell className="text-[11px] text-muted-foreground">
+                        {row.subCategoryEL || <span className="text-muted-foreground/50">—</span>}
                       </TableCell>
-                      <TableCell className="text-right text-sm tabular-nums text-foreground">
+                      <TableCell className="text-right text-[11px] tabular-nums text-foreground">
                         {toPct(lim?.minPercentage ?? null)}
                       </TableCell>
-                      <TableCell className="text-right text-sm tabular-nums text-foreground">
+                      <TableCell className="text-right text-[11px] tabular-nums text-foreground">
                         {toPct(lim?.maxPercentage ?? null)}
                       </TableCell>
-                      <TableCell className="text-right text-sm tabular-nums text-foreground">
+                      <TableCell className="text-right text-[11px] tabular-nums text-foreground">
                         {toMoney(lim?.maxAmount ?? null)}
                       </TableCell>
-                      <TableCell className="text-center pr-4 md:pr-6">
+                      <TableCell className="pr-4 text-center md:pr-6">
                         {lim ? (
                           <Badge
                             variant={lim.isMandatory ? "default" : "secondary"}
-                            className="font-medium"
+                            className={cn(
+                              "text-[10px] font-medium",
+                              lim.isMandatory &&
+                                "border-0 bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-600"
+                            )}
                           >
                             {lim.isMandatory ? "Yes" : "No"}
                           </Badge>
                         ) : (
-                          <span className="text-sm text-muted-foreground/60">—</span>
+                          <span className="text-[11px] text-muted-foreground/60">—</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -182,12 +208,8 @@ export default async function ProgramExpenseCategoriesPage({ params }: Props) {
               )}
               {categories.length === 0 && (
                 <TableRow className="hover:bg-transparent">
-                  <TableCell
-                    colSpan={7}
-                    className="py-14 text-center text-sm text-muted-foreground"
-                  >
-                    No expense categories for this program yet. Add limits in program details or import
-                    a PDF.
+                  <TableCell colSpan={7} className="py-14 text-center text-[11px] text-muted-foreground">
+                    No expense categories for this program yet. Add limits in program details or import a PDF.
                   </TableCell>
                 </TableRow>
               )}
