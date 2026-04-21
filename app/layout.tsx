@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScroll from "./components/SmoothScroll";
 import LocaleProviderWrapper from "./components/LocaleProviderWrapper";
+import { FooterProvider } from "./context/FooterContext";
+import { getPublicFooter } from "./lib/actions/footer";
 
 const FAVICON_URL = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
 
@@ -15,18 +17,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const footer = await getPublicFooter();
   return (
     <html lang="el" suppressHydrationWarning>
       <body className="antialiased bg-monks-black text-white">
         <LocaleProviderWrapper>
-          <SmoothScroll>
-            {children}
-          </SmoothScroll>
+          <FooterProvider
+            contentEL={footer.contentEL}
+            contentEN={footer.contentEN}
+          >
+            <SmoothScroll>
+              {children}
+            </SmoothScroll>
+          </FooterProvider>
         </LocaleProviderWrapper>
       </body>
     </html>

@@ -13,24 +13,33 @@ import { getPublicLocations } from "./lib/actions/location";
 import { getPublicWorks } from "./lib/queries/work";
 import { getPublicServices } from "./lib/queries/public-services";
 import { getPublicCustomersForCarousel } from "./lib/actions/trdr";
+import { getPublicHomePage } from "./lib/actions/home";
 
 export default async function Home() {
-  const [locations, works, services, carouselCustomers] = await Promise.all([
-    getPublicLocations(),
-    getPublicWorks(),
-    getPublicServices(),
-    getPublicCustomersForCarousel(),
-  ]);
+  const [locations, works, services, carouselCustomers, homeContent] =
+    await Promise.all([
+      getPublicLocations(),
+      getPublicWorks(),
+      getPublicServices(),
+      getPublicCustomersForCarousel(),
+      getPublicHomePage(),
+    ]);
 
   return (
     <main className="min-h-screen bg-monks-black">
       <Navigation />
-      <Hero />
+      <Hero
+        contentEL={homeContent.contentEL}
+        contentEN={homeContent.contentEN}
+      />
       <Customers data={carouselCustomers} />
       <Solutions services={services.slice(0, 4)} />
       <Work initialWorks={works} />
       <Locations data={locations} />
-      <About />
+      <About
+        contentEL={homeContent.contentEL}
+        contentEN={homeContent.contentEN}
+      />
       <LatestInsights />
       <Contact />
       <Footer />

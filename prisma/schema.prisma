@@ -762,3 +762,23 @@ model AriadniPage {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
+
+/// Bilingual hero copy + stats for the public home page (/).
+model HomePage {
+  id String @id @default("home")
+  /// Hero eyebrow, title, paragraphs, CTAs, 4 stat cards — shape in lib/home-content.ts
+  contentEL Json?
+  contentEN Json?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+/// Bilingual site-wide footer — brand, social links, 3 link columns, bottom bar.
+model SiteFooter {
+  id String @id @default("footer")
+  /// See lib/footer-content.ts for JSON shape
+  contentEL Json?
+  contentEN Json?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}

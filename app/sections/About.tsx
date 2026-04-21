@@ -2,40 +2,42 @@
 
 import { motion } from "framer-motion";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
-import { Award, Users, Globe, Zap, ArrowUpRight } from "lucide-react";
+import {
+  Award,
+  Users,
+  Globe,
+  Zap,
+  ArrowUpRight,
+  Clock,
+  Shield,
+  Star,
+  Check,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "../context/LocaleContext";
+import type { AboutValueIcon, HomeLocaleContent } from "@/lib/home-content";
 
-const awards = [
-  { title: "SoftOne Gold Partner", org: "2018-2024" },
-  { title: "Best Cloud Implementations", org: "Partner Awards" },
-  { title: "Customer Success 360", org: "DGSOFT Quality" },
-];
+const ICON_MAP: Record<AboutValueIcon, LucideIcon> = {
+  zap: Zap,
+  users: Users,
+  globe: Globe,
+  award: Award,
+  clock: Clock,
+  shield: Shield,
+  star: Star,
+  check: Check,
+};
 
-const values = [
-  {
-    icon: Zap,
-    title: "15+ Χρόνια Εμπειρίας",
-    description: "Δίπλα στις επιχειρήσεις ως εξιδεικευμένος συνεργάτης από το 2006."
-  },
-  {
-    icon: Users,
-    title: "Επίσημος Συνεργάτης SoftOne",
-    description: "Πιστοποιημένη τεχνογνωσία σε κάθε πτυχή λογισμικού."
-  },
-  {
-    icon: Globe,
-    title: "Εθνική & Κυπριακή Εμβέλεια",
-    description: "Υποστήριξη σε Αθήνα, Θεσσαλονίκη, Ιωάννινα, Βόλο, και Κύπρο."
-  },
-  {
-    icon: Award,
-    title: "SLA-Based Υποστήριξη",
-    description: "Η τεχνολογία έχει αξία μόνο όταν υποστηρίζεται και είμαστε δίπλα σας."
-  }
-];
+type AboutProps = {
+  contentEL: HomeLocaleContent;
+  contentEN: HomeLocaleContent;
+};
 
-export default function About() {
+export default function About({ contentEL, contentEN }: AboutProps) {
   const { ref, isVisible } = useScrollAnimation(0.1);
+  const locale = useLocale();
+  const a = (locale === "en" ? contentEN : contentEL).about;
 
   return (
     <section id="about" className="py-32 bg-monks-black relative overflow-hidden">
@@ -55,20 +57,27 @@ export default function About() {
           transition={{ duration: 0.8 }}
           className="mb-32"
         >
-          <span className="section-number">Ποιοι Ειμαστε</span>
+          <span className="section-number">{a.sectionLabel}</span>
           <h2 className="text-display-lg font-bold text-white max-w-5xl mb-12">
-            Από το 2006, σταθερά δίπλα στην <span className="gradient-text">επιχείρησή σας</span>.
+            {a.headingPrefix}
+            <span className="gradient-text">{a.headingHighlight}</span>
+            {a.headingSuffix}
           </h2>
           <div className="grid md:grid-cols-2 gap-12 max-w-4xl">
             <p className="text-xl text-monks-light leading-relaxed">
-              Η DGSOFT είναι μια δυναμικά εξελισσόμενη εταιρεία πληροφορικής, με στενή και επίσημη συνεργασία με τη SoftOne. Εξειδικευόμαστε στη διάθεση και υλοποίηση πρωτοποριακών μηχανογραφικών λύσεων λογισμικού (ERP – CRM), βοηθώντας εκατοντάδες εταιρείες να οργανώσουν και να αυτοματοποιήσουν την καθημερινή τους λειτουργία.
+              {a.paragraphs[0]}
             </p>
             <div className="flex flex-col items-start gap-8">
-              <p className="text-xl text-monks-light leading-relaxed">
-                Συνδυάζουμε τεχνογνωσία σε ERP, CRM και CTI για επιχειρήσεις και εμπόριο. Η ομάδα μας αποτελείται από έμπειρους επαγγελματίες και τεχνικούς, ώστε το έργο σας να ολοκληρώνεται με συνέπεια και μετρήσιμα αποτελέσματα.
-              </p>
-              <Link href="/careers" className="inline-flex items-center gap-2 px-8 py-4 bg-white text-monks-black font-semibold rounded-full hover:bg-monks-accent hover:text-white transition-all duration-300 group">
-                Join Our Team
+              {a.paragraphs.slice(1).map((p, i) => (
+                <p key={i} className="text-xl text-monks-light leading-relaxed">
+                  {p}
+                </p>
+              ))}
+              <Link
+                href={a.joinCta.href}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-monks-black font-semibold rounded-full hover:bg-monks-accent hover:text-white transition-all duration-300 group"
+              >
+                {a.joinCta.label}
                 <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
@@ -83,10 +92,10 @@ export default function About() {
           className="mb-32"
         >
           <h3 className="text-sm font-medium text-monks-light mb-12 tracking-widest uppercase">
-            Διακρισεις
+            {a.awardsHeading}
           </h3>
           <div className="grid md:grid-cols-3 gap-8">
-            {awards.map((award, index) => (
+            {a.awards.map((award, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -111,22 +120,25 @@ export default function About() {
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           <h3 className="text-sm font-medium text-monks-light mb-12 tracking-widest uppercase">
-            Η Προσεγγιση Μας
+            {a.approachHeading}
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                className="group p-6 rounded-2xl bg-monks-gray/30 border border-white/5 hover:border-monks-accent/30 transition-all duration-300"
-              >
-                <value.icon className="w-8 h-8 text-monks-accent mb-4" />
-                <h4 className="text-lg font-bold text-white mb-2">{value.title}</h4>
-                <p className="text-sm text-monks-light">{value.description}</p>
-              </motion.div>
-            ))}
+            {a.values.map((value, index) => {
+              const Icon = ICON_MAP[value.icon] ?? Zap;
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                  className="group p-6 rounded-2xl bg-monks-gray/30 border border-white/5 hover:border-monks-accent/30 transition-all duration-300"
+                >
+                  <Icon className="w-8 h-8 text-monks-accent mb-4" />
+                  <h4 className="text-lg font-bold text-white mb-2">{value.title}</h4>
+                  <p className="text-sm text-monks-light">{value.description}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
 
@@ -138,12 +150,7 @@ export default function About() {
           className="mt-32 pt-12 border-t border-white/10"
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { value: "2006", label: "Έτος Ίδρυσης" },
-              { value: "3K+", label: "Άδειες" },
-              { value: "5", label: "Κόμβοι (GR, CY)" },
-              { value: "100%", label: "Εστίαση Πελάτη" },
-            ].map((stat, index) => (
+            {a.stats.map((stat, index) => (
               <div key={index} className="text-center md:text-left">
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2">{stat.value}</div>
                 <div className="text-monks-light text-sm">{stat.label}</div>

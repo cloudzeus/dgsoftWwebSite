@@ -8,8 +8,9 @@ import {
   HOME_ESPA_BANNER_1,
   HOME_ESPA_BANNER_2,
 } from "@/lib/home-espa-banners";
+import { useLocale } from "@/app/context/LocaleContext";
+import type { HomeLocaleContent } from "@/lib/home-content";
 
-const titleText = "Business Forward";
 const textVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: {
@@ -32,7 +33,18 @@ const containerVariants = {
   }
 };
 
-export default function Hero() {
+type HeroProps = {
+  contentEL: HomeLocaleContent;
+  contentEN: HomeLocaleContent;
+};
+
+export default function Hero({ contentEL, contentEN }: HeroProps) {
+  const locale = useLocale();
+  const c = locale === "en" ? contentEN : contentEL;
+
+  const prefixChars = c.titlePrefix.split("");
+  const highlightChars = c.titleHighlight.split("");
+
   return (
     <section className="relative flex min-h-screen flex-col overflow-hidden bg-monks-black">
       {/* Background Gradient Orbs */}
@@ -77,7 +89,7 @@ export default function Hero() {
             className="flex items-center gap-4 mb-8"
           >
             <div className="w-12 h-[1px] bg-monks-accent" />
-            Από το ERP στο ολοκληρωμένο ψηφιακό σου οικοσύστημα
+            {c.eyebrow}
           </motion.div>
 
           <motion.h1
@@ -86,13 +98,22 @@ export default function Hero() {
             animate="visible"
             className="text-display-md font-bold text-white mb-10 leading-[1.1] flex flex-wrap"
           >
-            {titleText.split("").map((char, index) => (
+            {prefixChars.map((char, index) => (
               <motion.span
-                key={index}
+                key={`p-${index}`}
                 variants={textVariants}
-                className={index >= 9 ? "gradient-text inline-block" : "inline-block"}
+                className="inline-block"
               >
-                {char === " " ? "\u00A0" : char}
+                {char === " " ? " " : char}
+              </motion.span>
+            ))}
+            {highlightChars.map((char, index) => (
+              <motion.span
+                key={`h-${index}`}
+                variants={textVariants}
+                className="gradient-text inline-block"
+              >
+                {char === " " ? " " : char}
               </motion.span>
             ))}
           </motion.h1>
@@ -128,18 +149,9 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-lg md:text-xl text-monks-light max-w-4xl mb-12 leading-relaxed space-y-4 text-justify"
           >
-            <p>
-              <strong>DGSOFT</strong>, επίσημος και πιστοποιημένος συνεργάτης της ENTERSOFTONE, είναι ένας δυναμικά αναπτυσσόμενος όμιλος τεχνολογίας με παρουσία στην ελληνική αγορά από το 2006.
-            </p>
-            <p>
-              Προσφέρουμε προηγμένες λύσεις Business Software, Web & Mobile εφαρμογών, AI & IoT, καθώς και συμβουλευτική ψηφιακού μετασχηματισμού, ειδικά σχεδιασμένες για τις ανάγκες μικρομεσαίων και μεγάλων επιχειρήσεων σε Ελλάδα και Κύπρο.
-            </p>
-            <p>
-              Με έμφαση στην ποιότητα, την ταχύτητα υλοποίησης και την προσαρμοστικότητα, βοηθάμε τις εταιρείες να αυτοματοποιήσουν καθημερινές διαδικασίες, να μειώσουν κόστος και να επιταχύνουν την ανάπτυξή τους.
-            </p>
-            <p>
-              Η έμπειρη ομάδα μας, με βαθιά γνώση της αγοράς πληροφορικής, αναλαμβάνει από τον σχεδιασμό μέχρι και την υποστήριξη κάθε έργου, ώστε οι συνεργάτες μας να έχουν έναν αξιόπιστο τεχνολογικό σύμμαχο στην πορεία τους.
-            </p>
+            {c.paragraphs.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
           </motion.div>
 
           {/* CTA Buttons */}
@@ -150,10 +162,10 @@ export default function Hero() {
             className="flex flex-wrap items-center gap-6"
           >
             <Link
-              href="#contact"
+              href={c.primaryCta.href}
               className="group px-8 py-4 bg-white text-monks-black font-semibold rounded-full hover:bg-monks-accent hover:text-white transition-all duration-300 flex items-center gap-3"
             >
-              Κλείσε Παρουσίαση
+              {c.primaryCta.label}
               <motion.span
                 animate={{ x: [0, 4, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
@@ -162,22 +174,20 @@ export default function Hero() {
               </motion.span>
             </Link>
 
-            <button className="group flex items-center gap-3 text-white hover:text-monks-accent transition-colors">
+            <Link
+              href={c.secondaryCta.href}
+              className="group flex items-center gap-3 text-white hover:text-monks-accent transition-colors"
+            >
               <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center group-hover:border-monks-accent transition-colors">
                 <ArrowDown className="w-5 h-5" />
               </div>
-              <span className="font-medium">Ζητήστε αξιολόγηση ψηφιακής ωριμότητας</span>
-            </button>
+              <span className="font-medium">{c.secondaryCta.label}</span>
+            </Link>
           </motion.div>
 
           {/* Stats — after copy & CTAs */}
           <div className="mt-12 grid w-full grid-cols-2 gap-6 border-t border-white/10 pt-10 md:grid-cols-4 md:gap-10">
-            {[
-              { number: "150+", label: "Projects Delivered" },
-              { number: "10+", label: "Years Experience" },
-              { number: "50+", label: "Global Clients" },
-              { number: "25+", label: "Team Members" },
-            ].map((stat, index) => (
+            {c.stats.map((stat, index) => (
               <div key={index} className="text-left">
                 <div className="mb-1 text-3xl font-bold text-white md:text-4xl">
                   {stat.number}

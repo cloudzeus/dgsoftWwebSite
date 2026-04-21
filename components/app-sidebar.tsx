@@ -27,6 +27,8 @@ import {
   LayoutTemplateIcon,
   CalendarDaysIcon,
   FileCode2Icon,
+  HomeIcon,
+  PanelBottomIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -57,6 +59,16 @@ const navData = {
       title: "Dashboard",
       url: "/admin/dashboard",
       icon: LayoutDashboardIcon,
+    },
+    {
+      title: "First page",
+      url: "/admin/first-page",
+      icon: HomeIcon,
+    },
+    {
+      title: "Footer",
+      url: "/admin/footer",
+      icon: PanelBottomIcon,
     },
 
     {
