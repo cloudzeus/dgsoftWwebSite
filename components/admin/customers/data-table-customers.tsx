@@ -21,7 +21,6 @@ import {
     ExternalLink,
     Zap,
     RefreshCcw,
-    BadgeCheck,
     Image,
     Link,
     Hash,
@@ -35,7 +34,6 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -49,7 +47,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -139,7 +136,6 @@ const LEGAL_FORM_OPTIONS = [
     { value: "ΑΤΟΜΙΚΗ", label: "Ατομική Επιχείρηση" },
 ]
 
-/** Parse numeric coordinate from customer (may be number or string from JSON). */
 function parseLatLng(value: unknown): number | null {
     if (value == null || value === "") return null;
     const n = typeof value === "string" ? parseFloat(value) : Number(value);
@@ -174,7 +170,6 @@ function legalFormLabel(value: string | null | undefined): string {
     return match?.label ?? value
 }
 
-/** Build a single-line address string from ADDRESS, ZIP, CITY for geocoding. */
 function buildAddressQuery(customer: Customer): string {
     return [customer.ADDRESS, customer.ZIP, customer.CITY]
         .filter((v): v is string => v != null && typeof v === "string" && v.trim() !== "")
@@ -183,7 +178,6 @@ function buildAddressQuery(customer: Customer): string {
         .trim()
 }
 
-/** Map tab content: interactive OpenStreetMap. Uses LAT/LNG if present, otherwise geocodes ADDRESS + ZIP + CITY. */
 function CustomerMapTab({ customer }: { customer: Customer }) {
     const raw = customer as Record<string, unknown>
     const lat = parseLatLng(raw.LATITUDE ?? raw.latitude)
@@ -195,7 +189,6 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
     const [geocodeLoading, setGeocodeLoading] = React.useState(false)
     const [geocodeError, setGeocodeError] = React.useState<string | null>(null)
 
-    // When no stored coords but we have address text, geocode on mount
     React.useEffect(() => {
         if (hasCoords || !addressQuery) return
         let cancelled = false
@@ -216,40 +209,34 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
         return () => { cancelled = true }
     }, [hasCoords, addressQuery])
 
-    // Use stored coords if present
     if (hasCoords) {
-        const latNum = Number(lat)
-        const lngNum = Number(lng)
-        const addressLine = addressQuery || undefined
         return (
             <CustomerMapOSM
-                lat={latNum}
-                lng={lngNum}
+                lat={Number(lat)}
+                lng={Number(lng)}
                 name={customer.NAME ?? undefined}
-                address={addressLine}
+                address={addressQuery || undefined}
             />
         )
     }
 
-    // Use geocoded coords when we had address and got a result
     if (geocoded) {
-        const addressLine = addressQuery || undefined
         return (
             <CustomerMapOSM
                 lat={geocoded.lat}
                 lng={geocoded.lng}
                 name={customer.NAME ?? undefined}
-                address={addressLine}
+                address={addressQuery || undefined}
             />
         )
     }
 
     if (geocodeLoading) {
         return (
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
-                <Loader2 className="w-8 h-8 mx-auto text-zinc-400 animate-spin mb-2" />
-                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Looking up location…</p>
-                <p className="text-[10px] text-zinc-400 mt-1">{addressQuery}</p>
+            <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
+                <Loader2 className="w-6 h-6 mx-auto text-[#A19F9D] animate-spin mb-2" />
+                <p className="text-xs font-medium text-[#605E5C]">Looking up location…</p>
+                <p className="text-[10px] text-[#A19F9D] mt-1">{addressQuery}</p>
             </div>
         )
     }
@@ -257,12 +244,12 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
     if (geocodeError) {
         const searchUrl = `https://www.openstreetmap.org/search?query=${encodeURIComponent(addressQuery)}`
         return (
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
-                <MapPin className="w-8 h-8 mx-auto text-zinc-400 mb-2" />
-                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Could not find location</p>
-                <p className="text-[10px] text-zinc-400 mt-1">{geocodeError}</p>
+            <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
+                <MapPin className="w-6 h-6 mx-auto text-[#A19F9D] mb-2" />
+                <p className="text-xs font-medium text-[#605E5C]">Could not find location</p>
+                <p className="text-[10px] text-[#A19F9D] mt-1">{geocodeError}</p>
                 {addressQuery && (
-                    <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-primary underline">
+                    <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-[#0078D4] underline">
                         Search on OpenStreetMap
                     </a>
                 )}
@@ -270,25 +257,23 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
         )
     }
 
-    // No coords and no address to geocode
     if (!addressQuery) {
         return (
-            <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
-                <MapPin className="w-8 h-8 mx-auto text-zinc-300 dark:text-zinc-600 mb-2" />
-                <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">No coordinates or address</p>
-                <p className="text-[10px] text-zinc-400 mt-1">Add address, ZIP, or city, or use &quot;Get coordinates&quot; in row actions.</p>
+            <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
+                <MapPin className="w-6 h-6 mx-auto text-[#C8C6C4] mb-2" />
+                <p className="text-xs font-medium text-[#605E5C]">No coordinates or address</p>
+                <p className="text-[10px] text-[#A19F9D] mt-1">Add address, ZIP, or city, or use &quot;Get coordinates&quot; in row actions.</p>
             </div>
         )
     }
 
-    // Address was sent but no result (geocode returned null)
     const searchUrl = `https://www.openstreetmap.org/search?query=${encodeURIComponent(addressQuery)}`
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border shadow-sm p-6 text-center">
-            <MapPin className="w-8 h-8 mx-auto text-zinc-400 mb-2" />
-            <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Location not found for this address</p>
-            <p className="text-[10px] text-zinc-400 mt-1">{addressQuery}</p>
-            <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-primary underline">
+        <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
+            <MapPin className="w-6 h-6 mx-auto text-[#A19F9D] mb-2" />
+            <p className="text-xs font-medium text-[#605E5C]">Location not found for this address</p>
+            <p className="text-[10px] text-[#A19F9D] mt-1">{addressQuery}</p>
+            <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-[#0078D4] underline">
                 Search on OpenStreetMap
             </a>
         </div>
@@ -300,7 +285,6 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
     const [isPendingSyncAll, startTransitionSyncAll] = useTransition()
     const [data, setData] = React.useState<Customer[]>(initialData)
     const [isMounted, setIsMounted] = React.useState(false)
-    // Filters: when a key is true, only show customers that have that field set. Default: show all (filters off).
     const [filters, setFilters] = React.useState<Record<CustomerFilter, boolean>>({
         avatar: false,
         webpage: false,
@@ -308,13 +292,8 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         afm: false,
     })
 
-    React.useEffect(() => {
-        setIsMounted(true)
-    }, [])
-
-    React.useEffect(() => {
-        setData(initialData)
-    }, [initialData])
+    React.useEffect(() => { setIsMounted(true) }, [])
+    React.useEffect(() => { setData(initialData) }, [initialData])
 
     const filteredData = React.useMemo(() => {
         return data.filter((c) => {
@@ -328,73 +307,26 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
 
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [editingCustomer, setEditingCustomer] = React.useState<Customer | null>(null)
-    /** Controlled tab for expanded row so the map mounts only when Map tab is visible (Leaflet needs a visible container). */
     const [expandedRowTab, setExpandedRowTab] = React.useState<"stats" | "map" | "kads">("stats")
 
     const [formData, setFormData] = React.useState({
-        SODTYPE: 13,
-        TRDR: 0,
-        CODE: "",
-        NAME: "",
-        AFM: "",
-        ADDRESS: "",
-        ZIP: "",
-        CITY: "",
-        PHONE01: "",
-        PHONE02: "",
-        EMAIL: "",
-        EMAILACC: "",
-        CCCEMAILMAR: "",
-        website: "",
-        registDate: "",
-        legalStatus: "",
-        legalForm: "",
-        isFranchise: false,
-        isHomeAddress: false,
-        numEmployees: "",
-        displayAtCarousel: false,
-        removeBackgroundLogo: true,
-        logo: "",
+        SODTYPE: 13, TRDR: 0, CODE: "", NAME: "", AFM: "", ADDRESS: "", ZIP: "", CITY: "",
+        PHONE01: "", PHONE02: "", EMAIL: "", EMAILACC: "", CCCEMAILMAR: "", website: "",
+        registDate: "", legalStatus: "", legalForm: "", isFranchise: false, isHomeAddress: false,
+        numEmployees: "", displayAtCarousel: false, removeBackgroundLogo: true, logo: "",
         kads: [] as any[],
         financials: [] as Array<{ year: string; turnover: string; ebitda: string; netProfit: string; eme: string; assets: string; equity: string; totalDeMinimis3Years: string }>,
-        COUNTRY: "" as string,
-        TRDPGROUP: "" as string,
-        TRDBUSINESS: "" as string,
-        latitude: "",
-        longitude: "",
+        COUNTRY: "" as string, TRDPGROUP: "" as string, TRDBUSINESS: "" as string,
+        latitude: "", longitude: "",
     })
 
     const emptyFormData = (): typeof formData => ({
-        SODTYPE: 13,
-        TRDR: 0,
-        CODE: "",
-        NAME: "",
-        AFM: "",
-        ADDRESS: "",
-        ZIP: "",
-        CITY: "",
-        PHONE01: "",
-        PHONE02: "",
-        EMAIL: "",
-        EMAILACC: "",
-        CCCEMAILMAR: "",
-        website: "",
-        registDate: "",
-        legalStatus: "",
-        legalForm: "",
-        isFranchise: false,
-        isHomeAddress: false,
-        numEmployees: "",
-        displayAtCarousel: false,
-        removeBackgroundLogo: true,
-        logo: "",
-        kads: [],
-        financials: [],
-        COUNTRY: "",
-        TRDPGROUP: "",
-        TRDBUSINESS: "",
-        latitude: "",
-        longitude: "",
+        SODTYPE: 13, TRDR: 0, CODE: "", NAME: "", AFM: "", ADDRESS: "", ZIP: "", CITY: "",
+        PHONE01: "", PHONE02: "", EMAIL: "", EMAILACC: "", CCCEMAILMAR: "", website: "",
+        registDate: "", legalStatus: "", legalForm: "", isFranchise: false, isHomeAddress: false,
+        numEmployees: "", displayAtCarousel: false, removeBackgroundLogo: true, logo: "",
+        kads: [], financials: [], COUNTRY: "", TRDPGROUP: "", TRDBUSINESS: "",
+        latitude: "", longitude: "",
     })
 
     const [isUploading, setIsUploading] = React.useState(false)
@@ -422,7 +354,6 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                     firm_act_descr: String(k.firm_act_descr || ""),
                     firm_act_kind: k.firm_act_kind === "1"
                 }))
-
                 const str = (v: unknown) => (v != null && typeof v === "string" ? v : "")
                 setFormData(prev => ({
                     ...prev,
@@ -591,7 +522,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 const logo = row.original.logo?.trim()
                 const fallbackSrc = "https://ui-avatars.com/api/?name=" + encodeURIComponent(row.original.NAME ?? "")
                 return (
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border shadow-sm p-1.5 flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-lg overflow-hidden bg-[#F3F2F1] border border-[#EDEBE9] shrink-0 flex items-center justify-center p-1">
                         <img
                             src={logo || fallbackSrc}
                             alt=""
@@ -601,44 +532,44 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                     </div>
                 )
             },
-            size: 60
+            size: 50
         },
         {
             accessorKey: "NAME",
-            header: "Company",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Company</span>,
             cell: ({ row }) => {
                 const kadCount = row.original.kads?.length ?? 0
                 return (
                     <div className="flex flex-col gap-0.5">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{row.original.NAME}</span>
-                            <Badge variant="secondary" className="text-[8px] font-bold px-1.5 py-0 h-4 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                            <span className="text-sm font-semibold text-[#201F1E]">{row.original.NAME}</span>
+                            <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0 h-4 bg-[#EFF6FC] text-[#0078D4] border border-[#C7E0F4]">
                                 {kadCount} KAD{kadCount !== 1 ? "s" : ""}
                             </Badge>
                         </div>
-                        <span className="text-[10px] uppercase tracking-wide text-zinc-400 font-mono">{row.original.AFM}</span>
+                        <span className="text-[11px] text-[#A19F9D] font-mono">{row.original.AFM}</span>
                     </div>
                 )
             }
         },
         {
             accessorKey: "CODE",
-            header: "Code",
-            cell: ({ row }) => <code className="text-xs font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">{row.original.CODE}</code>
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Code</span>,
+            cell: ({ row }) => <code className="text-xs font-mono bg-[#F3F2F1] border border-[#EDEBE9] px-1.5 py-0.5 rounded text-[#605E5C]">{row.original.CODE}</code>
         },
         {
             id: "COUNTRY",
             accessorKey: "COUNTRY",
-            header: "Country",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Country</span>,
             cell: ({ row }) => {
                 const code = (row.original as Customer).COUNTRY
                 const name = code != null ? lookups.countries[code] : null
-                return <span className="text-xs text-zinc-600 dark:text-zinc-400">{name ?? (code != null ? String(code) : "—")}</span>
+                return <span className="text-xs text-[#605E5C]">{name ?? (code != null ? String(code) : "—")}</span>
             }
         },
         {
             accessorKey: "displayAtCarousel",
-            header: "Homepage",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Homepage</span>,
             cell: ({ row }) => {
                 const c = row.original
                 const hasLogo = !!(c.logo?.trim())
@@ -676,74 +607,79 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             accessorKey: "PHONE02",
-            header: "Τηλ.2",
-            cell: ({ row }) => <span className="text-xs font-mono">{(row.original as Customer).PHONE02 ?? "—"}</span>
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Τηλ.2</span>,
+            cell: ({ row }) => <span className="text-xs font-mono text-[#605E5C]">{(row.original as Customer).PHONE02 ?? "—"}</span>
         },
         {
             accessorKey: "EMAILACC",
-            header: "Email Λογ.",
-            cell: ({ row }) => <span className="text-xs truncate max-w-[120px] block" title={(row.original as Customer).EMAILACC ?? undefined}>{(row.original as Customer).EMAILACC ?? "—"}</span>
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Email Λογ.</span>,
+            cell: ({ row }) => <span className="text-xs truncate max-w-[120px] block text-[#605E5C]" title={(row.original as Customer).EMAILACC ?? undefined}>{(row.original as Customer).EMAILACC ?? "—"}</span>
         },
         {
             accessorKey: "CCCEMAILMAR",
-            header: "Email Μαρ.",
-            cell: ({ row }) => <span className="text-xs truncate max-w-[120px] block" title={(row.original as Customer).CCCEMAILMAR ?? undefined}>{(row.original as Customer).CCCEMAILMAR ?? "—"}</span>
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Email Μαρ.</span>,
+            cell: ({ row }) => <span className="text-xs truncate max-w-[120px] block text-[#605E5C]" title={(row.original as Customer).CCCEMAILMAR ?? undefined}>{(row.original as Customer).CCCEMAILMAR ?? "—"}</span>
         },
         {
             accessorKey: "website",
-            header: "Web",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Web</span>,
             cell: ({ row }) => {
                 const url = row.original.website ?? (row.original as Customer).WEBPAGE
-                return url ? <a href={url.startsWith("http") ? url : `https://${url}`} target="_blank" rel="noopener noreferrer" className="text-xs text-sky-600 hover:underline truncate max-w-[100px] block" title={url}>{url.replace(/^https?:\/\//, "").slice(0, 20)}{url.length > 20 ? "…" : ""}</a> : <span className="text-zinc-400">—</span>
+                return url ? <a href={url.startsWith("http") ? url : `https://${url}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0078D4] hover:underline truncate max-w-[100px] block" title={url}>{url.replace(/^https?:\/\//, "").slice(0, 20)}{url.length > 20 ? "…" : ""}</a> : <span className="text-[#A19F9D]">—</span>
             }
         },
         {
             accessorKey: "ISACTIVE",
-            header: "Ενεργός",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Ενεργός</span>,
             cell: ({ row }) => {
                 const v = (row.original as Customer).ISACTIVE
-                return v == null ? <span className="text-zinc-400 text-xs">—</span> : <Badge variant={v ? "default" : "secondary"} className="text-xs">{v ? "Ναι" : "Όχι"}</Badge>
+                return v == null ? <span className="text-[#A19F9D] text-xs">—</span> : (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${v ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${v ? 'bg-emerald-500' : 'bg-[#C8C6C4]'}`} />
+                        {v ? "Ναι" : "Όχι"}
+                    </span>
+                )
             }
         },
         {
             accessorKey: "ISPROSP",
-            header: "Υποψήφιος",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Υποψήφιος</span>,
             cell: ({ row }) => {
                 const v = (row.original as Customer).ISPROSP
-                return v == null ? <span className="text-zinc-400">—</span> : <span className="text-xs">{v ? "Ναι" : "Όχι"}</span>
+                return v == null ? <span className="text-[#A19F9D]">—</span> : <span className="text-xs text-[#605E5C]">{v ? "Ναι" : "Όχι"}</span>
             }
         },
         {
             accessorKey: "numEmployees",
-            header: "Εργαζόμενοι",
-            cell: ({ row }) => <span className="text-xs font-medium">{row.original.numEmployees ?? "—"}</span>
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Εργαζόμενοι</span>,
+            cell: ({ row }) => <span className="text-xs font-medium text-[#605E5C]">{row.original.numEmployees ?? "—"}</span>
         },
         {
             id: "TRDPGROUP",
             accessorKey: "TRDPGROUP",
-            header: "Τρ.Όμιλος",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Τρ.Όμιλος</span>,
             cell: ({ row }) => {
                 const code = (row.original as Customer).TRDPGROUP
                 const name = code != null ? lookups.trdpGroups[code] : null
-                return <span className="text-xs text-zinc-600 dark:text-zinc-400">{name ?? (code != null ? String(code) : "—")}</span>
+                return <span className="text-xs text-[#605E5C]">{name ?? (code != null ? String(code) : "—")}</span>
             }
         },
         {
             id: "TRDBUSINESS",
             accessorKey: "TRDBUSINESS",
-            header: "Επιχείρηση",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Επιχείρηση</span>,
             cell: ({ row }) => {
                 const code = (row.original as Customer).TRDBUSINESS
                 const name = code != null ? lookups.trdBusinesses[code] : null
-                return <span className="text-xs text-zinc-600 dark:text-zinc-400">{name ?? (code != null ? String(code) : "—")}</span>
+                return <span className="text-xs text-[#605E5C]">{name ?? (code != null ? String(code) : "—")}</span>
             }
         },
         {
             accessorKey: "REMARKS",
-            header: "Παρατηρήσεις",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Παρατηρήσεις</span>,
             cell: ({ row }) => {
                 const r = (row.original as Customer).REMARKS
-                return r ? <span className="text-xs text-zinc-500 max-w-[140px] truncate block" title={r}>{r}</span> : <span className="text-zinc-400">—</span>
+                return r ? <span className="text-xs text-[#A19F9D] max-w-[140px] truncate block" title={r}>{r}</span> : <span className="text-[#A19F9D]">—</span>
             }
         },
         {
@@ -751,11 +687,11 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="h-7 text-xs bg-zinc-800 text-white border-none font-semibold hover:bg-zinc-700 rounded-lg px-2.5">
-                            Actions <ChevronDown className="h-3 w-3 ml-1" />
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded gap-1">
+                            Actions <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[160px] text-xs">
+                    <DropdownMenuContent align="end" className="w-[180px] text-xs">
                         <DropdownMenuItem onClick={() => {
                             const c = row.original as Customer;
                             setEditingCustomer(c);
@@ -793,7 +729,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 })),
                             } as any);
                             setIsDialogOpen(true);
-                        }}><Edit3 className="w-4 h-4 mr-2" /> Modify Profile</DropdownMenuItem>
+                        }}><Edit3 className="w-4 h-4 mr-2 text-[#0078D4]" /> Edit Profile</DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -810,7 +746,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                     error: (err) => err?.message ?? "Sync failed",
                                 });
                             }}
-                            className="text-indigo-600"
+                            className="text-[#0078D4]"
                         >
                             <Zap className="w-4 h-4 mr-2" /> Sync KADs
                         </DropdownMenuItem>
@@ -844,7 +780,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 await deleteCustomer(row.original.id);
                                 setData(data.filter(c => c.id !== row.original.id));
                             }
-                        }} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Expunge Client</DropdownMenuItem>
+                        }} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Delete Client</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -856,94 +792,99 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         const trdpGroupName = customer.TRDPGROUP != null ? lookups.trdpGroups[customer.TRDPGROUP] : null
         const trdBusinessName = customer.TRDBUSINESS != null ? lookups.trdBusinesses[customer.TRDBUSINESS] : null
         return (
-        <div className="py-4 px-4 bg-[#f8fafc] dark:bg-zinc-950/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-inner">
-            <Tabs value={expandedRowTab} onValueChange={(v) => setExpandedRowTab(v as "stats" | "map" | "kads")}>
-                <TabsList className="mb-4 bg-white dark:bg-zinc-900 p-1 h-8 rounded-lg border shadow-sm w-fit gap-1">
-                    <TabsTrigger value="stats" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">Market Intelligence</TabsTrigger>
-                    <TabsTrigger value="kads" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">KAD ({customer.kads?.length || 0})</TabsTrigger>
-                    <TabsTrigger value="map" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white font-semibold text-xs uppercase tracking-wide px-4 rounded-md h-6">Map</TabsTrigger>
-                </TabsList>
+            <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
+                <Tabs value={expandedRowTab} onValueChange={(v) => setExpandedRowTab(v as "stats" | "map" | "kads")}>
+                    <div className="px-4 pt-3">
+                        <TabsList className="mb-0 bg-white border border-[#EDEBE9] p-0.5 h-8 rounded gap-0.5 w-fit">
+                            <TabsTrigger value="stats" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Intel</TabsTrigger>
+                            <TabsTrigger value="kads" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">KAD ({customer.kads?.length || 0})</TabsTrigger>
+                            <TabsTrigger value="map" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Map</TabsTrigger>
+                        </TabsList>
+                    </div>
 
-                <TabsContent value="stats" className="animate-in fade-in duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border shadow-sm">
-                            <h5 className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-2"><Users2 className="w-3 h-3" /> Workforce</h5>
-                            <div className="flex items-baseline gap-1">
-                                <span className="text-xl font-bold text-zinc-800 dark:text-zinc-100">{customer.numEmployees ?? "0"}</span>
-                                <span className="text-xs text-zinc-400">FTEs</span>
-                            </div>
-                        </div>
-                        <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border shadow-sm">
-                            <h5 className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-2"><Calendar className="w-3 h-3" /> Established</h5>
-                            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{toDateInputValue(customer.registDate) || "—"}</span>
-                        </div>
-                        <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border shadow-sm">
-                            <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Country</h5>
-                            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{countryName ?? (customer.COUNTRY != null ? String(customer.COUNTRY) : "—")}</span>
-                        </div>
-                        <div className="bg-white dark:bg-zinc-900 p-3 rounded-xl border shadow-sm">
-                            <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Group / Business</h5>
-                            <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{trdpGroupName ?? "—"} {trdBusinessName ? ` · ${trdBusinessName}` : ""}</p>
-                        </div>
-                        <div className="md:col-span-2 bg-white dark:bg-zinc-900 p-3 rounded-xl border shadow-sm grid grid-cols-2 gap-3">
-                            <div>
-                                <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Location</h5>
-                                <p className="text-xs font-semibold flex items-center gap-1"><MapPin className="w-2.5 h-2.5 text-red-500 shrink-0" /> {[customer.ADDRESS, customer.CITY].map((v) => (v != null && typeof v === "string" ? v : "")).filter(Boolean).join(", ") || "—"}</p>
-                            </div>
-                            <div>
-                                <h5 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Legal</h5>
-                                <p className="text-xs font-semibold text-indigo-600">{customer.legalStatus != null && typeof customer.legalStatus === "string" ? customer.legalStatus : "—"}</p>
-                                <p className="text-[11px] text-zinc-500 mt-1">Form: {legalFormLabel((customer as any).legalForm)}</p>
-                            </div>
-                        </div>
-                        {addressRegionMap && (() => {
-                            const key = normalizeAddressKey(customer.ADDRESS, customer.CITY, customer.ZIP ?? null)
-                            const mapping = key && key !== "||" ? addressRegionMap[key] : null
-                            if (!mapping) return null
-                            return (
-                                <div className="md:col-span-2 bg-amber-50/50 dark:bg-amber-900/10 p-3 rounded-xl border border-amber-200/50 dark:border-amber-800/50 shadow-sm">
-                                    <h5 className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-1">Region (Περιφέρεια → Νομός → Δήμος)</h5>
-                                    <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">{mapping.path}</p>
+                    <TabsContent value="stats" className="animate-in fade-in duration-300 p-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#EDEBE9] rounded-lg overflow-hidden mb-3">
+                            <div className="bg-white px-3 py-2">
+                                <p className="flex items-center gap-1 text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1"><Users2 className="w-3 h-3" /> Workforce</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-sm font-bold text-[#201F1E]">{customer.numEmployees ?? "0"}</span>
+                                    <span className="text-[11px] text-[#A19F9D]">FTEs</span>
                                 </div>
-                            )
-                        })()}
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2 bg-zinc-800 p-3 rounded-xl text-white">
-                        <div className="flex items-center gap-2 px-2 text-xs"><Mail className="w-3 h-3 text-indigo-400 shrink-0" /><span className="font-medium">{customer.EMAIL ?? "—"}</span></div>
-                        <div className="flex items-center gap-2 px-2 border-l border-white/10 text-xs"><Phone className="w-3 h-3 text-emerald-400 shrink-0" /><span className="font-medium">{customer.PHONE01 ?? "—"}</span></div>
-                        <div className="flex items-center gap-2 px-2 border-l border-white/10 text-xs ml-auto"><Globe className="w-3 h-3 text-sky-400 shrink-0" /><a href={customer.website || "#"} target="_blank" rel="noopener noreferrer" className="font-medium underline decoration-sky-400/30 hover:text-sky-400">{customer.website ? "Web" : "—"}</a></div>
-                    </div>
-                </TabsContent>
+                            </div>
+                            <div className="bg-white px-3 py-2">
+                                <p className="flex items-center gap-1 text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1"><Calendar className="w-3 h-3" /> Established</p>
+                                <span className="text-sm font-semibold text-[#201F1E]">{toDateInputValue(customer.registDate) || "—"}</span>
+                            </div>
+                            <div className="bg-white px-3 py-2">
+                                <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Country</p>
+                                <span className="text-xs font-semibold text-[#605E5C]">{countryName ?? (customer.COUNTRY != null ? String(customer.COUNTRY) : "—")}</span>
+                            </div>
+                            <div className="bg-white px-3 py-2">
+                                <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Group / Business</p>
+                                <p className="text-xs font-semibold text-[#605E5C]">{trdpGroupName ?? "—"}{trdBusinessName ? ` · ${trdBusinessName}` : ""}</p>
+                            </div>
+                            <div className="md:col-span-2 bg-white px-3 py-2 grid grid-cols-2 gap-3">
+                                <div>
+                                    <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Location</p>
+                                    <p className="text-xs font-semibold text-[#605E5C] flex items-center gap-1"><MapPin className="w-2.5 h-2.5 text-red-400 shrink-0" />{[customer.ADDRESS, customer.CITY].map((v) => (v != null && typeof v === "string" ? v : "")).filter(Boolean).join(", ") || "—"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Legal</p>
+                                    <p className="text-xs font-semibold text-[#0078D4]">{customer.legalStatus != null && typeof customer.legalStatus === "string" ? customer.legalStatus : "—"}</p>
+                                    <p className="text-[11px] text-[#A19F9D] mt-0.5">Form: {legalFormLabel((customer as any).legalForm)}</p>
+                                </div>
+                            </div>
+                            {addressRegionMap && (() => {
+                                const key = normalizeAddressKey(customer.ADDRESS, customer.CITY, customer.ZIP ?? null)
+                                const mapping = key && key !== "||" ? addressRegionMap[key] : null
+                                if (!mapping) return null
+                                return (
+                                    <div className="md:col-span-2 bg-amber-50/50 px-3 py-2 border-l-2 border-amber-300">
+                                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">Region</p>
+                                        <p className="text-xs font-semibold text-amber-800">{mapping.path}</p>
+                                    </div>
+                                )
+                            })()}
+                        </div>
+                        <div className="flex flex-wrap gap-0 bg-[#201F1E] rounded-lg overflow-hidden">
+                            <div className="flex items-center gap-2 px-3 py-2 text-xs border-r border-white/10"><Mail className="w-3 h-3 text-[#C7E0F4] shrink-0" /><span className="font-medium text-white">{customer.EMAIL ?? "—"}</span></div>
+                            <div className="flex items-center gap-2 px-3 py-2 border-r border-white/10 text-xs"><Phone className="w-3 h-3 text-emerald-400 shrink-0" /><span className="font-medium text-white">{customer.PHONE01 ?? "—"}</span></div>
+                            <div className="flex items-center gap-2 px-3 py-2 text-xs ml-auto"><Globe className="w-3 h-3 text-sky-400 shrink-0" /><a href={customer.website || "#"} target="_blank" rel="noopener noreferrer" className="font-medium text-white underline decoration-sky-400/30 hover:text-sky-400">{customer.website ? "Web" : "—"}</a></div>
+                        </div>
+                    </TabsContent>
 
-                <TabsContent value="map" className="mt-0 min-h-[250px]">
-                    {expandedRowTab === "map" && <CustomerMapTab customer={customer} />}
-                </TabsContent>
+                    <TabsContent value="map" className="mt-0 p-4 min-h-[250px]">
+                        {expandedRowTab === "map" && <CustomerMapTab customer={customer} />}
+                    </TabsContent>
 
-                <TabsContent value="kads">
-                    <div className="bg-white dark:bg-zinc-900 rounded-xl border overflow-hidden shadow-sm">
-                        <table className="w-full text-xs">
-                            <thead className="bg-zinc-50 border-b">
-                                <tr>
-                                    <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-zinc-400">Code</th>
-                                    <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-zinc-400">Description</th>
-                                    <th className="px-4 py-2 text-right text-[10px] font-bold uppercase text-zinc-400">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {customer.kads?.map((k, i) => (
-                                    <tr key={i} className="hover:bg-zinc-50/50">
-                                        <td className="px-4 py-2 font-mono text-xs font-semibold text-indigo-600">{k.firm_act_code}</td>
-                                        <td className="px-4 py-2 text-xs text-zinc-600">{k.firm_act_descr}</td>
-                                        <td className="px-4 py-2 text-right">{k.firm_act_kind ? <Badge className="bg-emerald-500/10 text-emerald-600 border-none rounded-full h-5 px-2 text-[10px]">Primary</Badge> : <Badge variant="outline" className="rounded-full h-5 px-2 text-[10px] text-zinc-400">Secondary</Badge>}</td>
+                    <TabsContent value="kads" className="p-4">
+                        <div className="bg-white rounded-lg border border-[#EDEBE9] overflow-hidden">
+                            <table className="w-full text-xs">
+                                <thead className="bg-[#F3F2F1] border-b border-[#EDEBE9]">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Code</th>
+                                        <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Description</th>
+                                        <th className="px-4 py-2 text-right text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {customer.kads?.length === 0 && <div className="p-6 text-center text-zinc-400 text-xs font-semibold uppercase tracking-wide">No KAD activities.</div>}
-                    </div>
-                </TabsContent>
-            </Tabs>
-        </div>
+                                </thead>
+                                <tbody className="divide-y divide-[#EDEBE9]">
+                                    {customer.kads?.map((k, i) => (
+                                        <tr key={i} className="hover:bg-[#F3F2F1]/50">
+                                            <td className="px-4 py-2 font-mono text-xs font-semibold text-[#0078D4]">{k.firm_act_code}</td>
+                                            <td className="px-4 py-2 text-xs text-[#605E5C]">{k.firm_act_descr}</td>
+                                            <td className="px-4 py-2 text-right">{k.firm_act_kind
+                                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />Primary</span>
+                                                : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]"><span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />Secondary</span>
+                                            }</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {customer.kads?.length === 0 && <div className="p-4 text-center text-[#A19F9D] text-xs font-semibold uppercase tracking-wide">No KAD activities.</div>}
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            </div>
         )
     }
 
@@ -953,322 +894,360 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
 
     return (
         <div className="flex flex-col min-h-0 flex-1 gap-3">
+            {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-2 text-xs shrink-0">
-                <span className="font-semibold text-muted-foreground mr-1">Show:</span>
-                <Button variant={filters.avatar ? "default" : "outline"} size="sm" className="h-6 px-2 text-xs" onClick={() => toggleFilter("avatar")}>
-                    <Image className="w-3 h-3 mr-1" /> Avatar
-                </Button>
-                <Button variant={filters.webpage ? "default" : "outline"} size="sm" className="h-6 px-2 text-xs" onClick={() => toggleFilter("webpage")}>
-                    <Link className="w-3 h-3 mr-1" /> Webpage
-                </Button>
-                <Button variant={filters.email ? "default" : "outline"} size="sm" className="h-6 px-2 text-xs" onClick={() => toggleFilter("email")}>
-                    <Mail className="w-3 h-3 mr-1" /> Email
-                </Button>
-                <Button variant={filters.afm ? "default" : "outline"} size="sm" className="h-6 px-2 text-xs" onClick={() => toggleFilter("afm")}>
-                    <Hash className="w-3 h-3 mr-1" /> AFM
-                </Button>
-                <span className="text-muted-foreground ml-1">({filteredData.length} of {data.length})</span>
-            </div>
-            <div className="min-h-0 flex-1 flex flex-col">
-            <GenericDataTable
-                columns={columns} data={filteredData} searchPlaceholder="Search clients by name or AFM..." searchColumn="NAME"
-                onAddClick={() => { setEditingCustomer(null); setFormData(emptyFormData()); setIsDialogOpen(true); }}
-                addButtonLabel="Onboard Client"
-                renderExpandedRow={renderExpandedRow}
-            />
+                <span className="text-[11px] font-semibold text-[#605E5C] mr-1">Show only with:</span>
+                {([
+                    { key: "avatar" as CustomerFilter, icon: <Image className="w-3 h-3 mr-1" />, label: "Avatar" },
+                    { key: "webpage" as CustomerFilter, icon: <Link className="w-3 h-3 mr-1" />, label: "Webpage" },
+                    { key: "email" as CustomerFilter, icon: <Mail className="w-3 h-3 mr-1" />, label: "Email" },
+                    { key: "afm" as CustomerFilter, icon: <Hash className="w-3 h-3 mr-1" />, label: "AFM" },
+                ] as { key: CustomerFilter; icon: React.ReactNode; label: string }[]).map(({ key, icon, label }) => (
+                    <Button
+                        key={key}
+                        variant={filters[key] ? "default" : "outline"}
+                        size="sm"
+                        className={`h-7 px-2.5 text-[11px] font-semibold rounded border ${filters[key] ? 'bg-[#0078D4] text-white border-[#0078D4]' : 'text-[#605E5C] border-[#C8C6C4] hover:bg-[#EDEBE9]'}`}
+                        onClick={() => toggleFilter(key)}
+                    >
+                        {icon} {label}
+                    </Button>
+                ))}
+                <span className="text-[#A19F9D] ml-1 text-[11px]">({filteredData.length} of {data.length})</span>
             </div>
 
+            <div className="min-h-0 flex-1 flex flex-col">
+                <GenericDataTable
+                    columns={columns} data={filteredData} searchPlaceholder="Search clients by name or AFM..." searchColumn="NAME"
+                    onAddClick={() => { setEditingCustomer(null); setFormData(emptyFormData()); setIsDialogOpen(true); }}
+                    addButtonLabel="New Client"
+                    renderExpandedRow={renderExpandedRow}
+                />
+            </div>
+
+            {/* Customer Edit Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-lg">
-                    <DialogHeader className="bg-zinc-800/95 px-6 py-4 border-b border-zinc-700">
-                        <DialogTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                            <Building2 className="w-5 h-5 text-indigo-400" />
-                            {editingCustomer ? "Edit customer" : "New customer"}
-                        </DialogTitle>
-                        <DialogDescription className="text-zinc-400 text-xs">Save: database only. Save & ERP: also update SoftOne with current fields.</DialogDescription>
+                <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <Building2 className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                                    {editingCustomer ? "Edit customer" : "New customer"}
+                                </DialogTitle>
+                                <DialogDescription className="text-[11px] text-[#A19F9D]">Save: database only. Save & ERP: also update SoftOne with current fields.</DialogDescription>
+                            </div>
+                        </div>
                     </DialogHeader>
 
                     <Tabs defaultValue="identity" className="w-full">
-                        <TabsList className="w-full justify-start rounded-none border-b bg-zinc-100 dark:bg-zinc-900/50 px-4 gap-0 h-9">
-                            <TabsTrigger value="identity" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Identity</TabsTrigger>
-                            <TabsTrigger value="contact" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Contact</TabsTrigger>
-                            <TabsTrigger value="address" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Address & map</TabsTrigger>
-                            <TabsTrigger value="financials" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Financials</TabsTrigger>
-                            <TabsTrigger value="branding" className="text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent h-9 px-3">Branding</TabsTrigger>
-                        </TabsList>
+                        <div className="bg-white border-b border-[#EDEBE9] px-4">
+                            <TabsList className="w-full justify-start rounded-none bg-transparent p-0 gap-0 h-9">
+                                {[
+                                    { value: "identity", label: "Identity" },
+                                    { value: "contact", label: "Contact" },
+                                    { value: "address", label: "Address & map" },
+                                    { value: "financials", label: "Financials" },
+                                    { value: "branding", label: "Branding" },
+                                ].map(tab => (
+                                    <TabsTrigger key={tab.value} value={tab.value} className="text-[11px] font-semibold rounded-none border-b-2 border-transparent data-[state=active]:border-[#0078D4] data-[state=active]:bg-transparent data-[state=active]:text-[#0078D4] h-9 px-3 text-[#605E5C]">
+                                        {tab.label}
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
+                        </div>
 
-                        <div className="max-h-[55vh] overflow-y-auto p-4 bg-[#f8fafc] dark:bg-zinc-950">
-                            <TabsContent value="identity" className="mt-0 space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Company name</Label>
-                                        <Input className="h-8 text-sm rounded-md" value={formData.NAME ?? ""} onChange={e => setFormData({ ...formData, NAME: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">ERP code</Label>
-                                        <Input className="h-8 text-sm rounded-md font-mono" value={formData.CODE ?? ""} onChange={e => setFormData({ ...formData, CODE: e.target.value })} />
-                                    </div>
-                                </div>
-                                <div className="flex gap-2 items-end">
-                                    <div className="flex-1 space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">AFM (VAT)</Label>
-                                        <Input className="h-8 text-sm rounded-md font-mono" value={formData.AFM ?? ""} onChange={e => setFormData({ ...formData, AFM: e.target.value })} placeholder="801946016" />
-                                    </div>
-                                    <Button type="button" size="sm" disabled={isSearchingVat || !formData.AFM?.trim()} onClick={handleFetchVat} className="h-8 px-3 text-xs bg-indigo-600 hover:bg-indigo-700">
-                                        {isSearchingVat ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
-                                    </Button>
-                                </div>
-                                <p className="text-[10px] text-zinc-400">Fetch name/address from VAT API (Greek AFM).</p>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Country</Label>
-                                        <Select value={formData.COUNTRY && String(formData.COUNTRY).trim() ? String(formData.COUNTRY) : "none"} onValueChange={(v) => setFormData({ ...formData, COUNTRY: v === "none" ? "" : v })}>
-                                            <SelectTrigger className="h-8 text-sm rounded-md"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">—</SelectItem>
-                                                {formData.COUNTRY && String(formData.COUNTRY).trim() && lookups.countries[Number(formData.COUNTRY)] === undefined && (
-                                                    <SelectItem value={String(formData.COUNTRY)}>{`Code ${formData.COUNTRY}`}</SelectItem>
-                                                )}
-                                                {Object.entries(lookups.countries).sort(([, a], [, b]) => (a || "").localeCompare(b || "")).map(([code, name]) => (
-                                                    <SelectItem key={code} value={code}>{name || code}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">TRDPGROUP</Label>
-                                        <Select value={formData.TRDPGROUP && String(formData.TRDPGROUP).trim() ? String(formData.TRDPGROUP) : "none"} onValueChange={(v) => setFormData({ ...formData, TRDPGROUP: v === "none" ? "" : v })}>
-                                            <SelectTrigger className="h-8 text-sm rounded-md"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">—</SelectItem>
-                                                {formData.TRDPGROUP && String(formData.TRDPGROUP).trim() && lookups.trdpGroups[Number(formData.TRDPGROUP)] === undefined && (
-                                                    <SelectItem value={String(formData.TRDPGROUP)}>{`Code ${formData.TRDPGROUP}`}</SelectItem>
-                                                )}
-                                                {Object.entries(lookups.trdpGroups).sort(([, a], [, b]) => (a || "").localeCompare(b || "")).map(([code, name]) => (
-                                                    <SelectItem key={code} value={code}>{name || code}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">TRDBUSINESS</Label>
-                                        <Select value={formData.TRDBUSINESS && String(formData.TRDBUSINESS).trim() ? String(formData.TRDBUSINESS) : "none"} onValueChange={(v) => setFormData({ ...formData, TRDBUSINESS: v === "none" ? "" : v })}>
-                                            <SelectTrigger className="h-8 text-sm rounded-md"><SelectValue placeholder="Select…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">—</SelectItem>
-                                                {formData.TRDBUSINESS && String(formData.TRDBUSINESS).trim() && lookups.trdBusinesses[Number(formData.TRDBUSINESS)] === undefined && (
-                                                    <SelectItem value={String(formData.TRDBUSINESS)}>{`Code ${formData.TRDBUSINESS}`}</SelectItem>
-                                                )}
-                                                {Object.entries(lookups.trdBusinesses).sort(([, a], [, b]) => (a || "").localeCompare(b || "")).map(([code, name]) => (
-                                                    <SelectItem key={code} value={code}>{name || code}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">Headcount</Label>
-                                    <Input type="number" className="h-8 text-sm rounded-md w-24" value={formData.numEmployees ?? ""} onChange={e => setFormData({ ...formData, numEmployees: e.target.value })} />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Registration date</Label>
-                                        <Input type="date" className="h-8 text-sm rounded-md" value={formData.registDate ?? ""} onChange={e => setFormData({ ...formData, registDate: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Legal status</Label>
-                                        <Input className="h-8 text-sm rounded-md" value={formData.legalStatus ?? ""} onChange={e => setFormData({ ...formData, legalStatus: e.target.value })} />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Legal form</Label>
-                                        <Select value={(formData.legalForm && String(formData.legalForm).trim()) ? String(formData.legalForm) : "none"} onValueChange={(v) => setFormData({ ...formData, legalForm: v === "none" ? "" : v })}>
-                                            <SelectTrigger className="h-8 text-sm rounded-md"><SelectValue placeholder="Select legal form…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">—</SelectItem>
-                                                {LEGAL_FORM_OPTIONS.map((item) => (
-                                                    <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Franchise</Label>
-                                        <div className="h-8 px-2 rounded-md border bg-white dark:bg-zinc-900 flex items-center">
-                                            <Switch checked={!!formData.isFranchise} onCheckedChange={(v) => setFormData({ ...formData, isFranchise: !!v })} />
+                        <div className="max-h-[55vh] overflow-y-auto bg-[#F3F2F1] px-4 py-4 space-y-3">
+                            <TabsContent value="identity" className="mt-0 space-y-3">
+                                {/* Company */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Company</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Company name</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.NAME ?? ""} onChange={e => setFormData({ ...formData, NAME: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">ERP code</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.CODE ?? ""} onChange={e => setFormData({ ...formData, CODE: e.target.value })} />
                                         </div>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Home address</Label>
-                                        <div className="h-8 px-2 rounded-md border bg-white dark:bg-zinc-900 flex items-center">
-                                            <Switch checked={!!formData.isHomeAddress} onCheckedChange={(v) => setFormData({ ...formData, isHomeAddress: !!v })} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="contact" className="mt-0 space-y-4">
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">Email</Label>
-                                    <Input type="text" className="h-8 text-sm rounded-md" value={formData.EMAIL ?? ""} onChange={e => setFormData({ ...formData, EMAIL: e.target.value })} placeholder="Multiple with ;" />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">Email (account)</Label>
-                                    <Input type="text" className="h-8 text-sm rounded-md" value={formData.EMAILACC ?? ""} onChange={e => setFormData({ ...formData, EMAILACC: e.target.value })} placeholder="Λογ. email (multiple with ;)" />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">CCCEMAILMAR</Label>
-                                    <Input type="text" className="h-8 text-sm rounded-md" value={formData.CCCEMAILMAR ?? ""} onChange={e => setFormData({ ...formData, CCCEMAILMAR: e.target.value })} placeholder="Email Μαρ. (multiple with ;)" />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Phone 1</Label>
-                                        <Input className="h-8 text-sm rounded-md" value={formData.PHONE01 ?? ""} onChange={e => setFormData({ ...formData, PHONE01: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Phone 2</Label>
-                                        <Input className="h-8 text-sm rounded-md" value={formData.PHONE02 ?? ""} onChange={e => setFormData({ ...formData, PHONE02: e.target.value })} />
-                                    </div>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">Website</Label>
-                                    <Input className="h-8 text-sm rounded-md" value={formData.website ?? ""} onChange={e => setFormData({ ...formData, website: e.target.value })} placeholder="https://…" />
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="address" className="mt-0 space-y-4">
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-semibold uppercase text-zinc-500">Address</Label>
-                                    <Input className="h-8 text-sm rounded-md" value={formData.ADDRESS ?? ""} onChange={e => setFormData({ ...formData, ADDRESS: e.target.value })} />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">ZIP</Label>
-                                        <Input className="h-8 text-sm rounded-md" value={formData.ZIP ?? ""} onChange={e => setFormData({ ...formData, ZIP: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">City</Label>
-                                        <Input className="h-8 text-sm rounded-md" value={formData.CITY ?? ""} onChange={e => setFormData({ ...formData, CITY: e.target.value })} />
-                                    </div>
-                                </div>
-                                <div className="flex gap-2 items-end flex-wrap">
-                                    <div className="space-y-1.5 flex-1 min-w-[120px]">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Latitude</Label>
-                                        <Input className="h-8 text-sm rounded-md font-mono" value={formData.latitude ?? ""} onChange={e => setFormData({ ...formData, latitude: e.target.value })} placeholder="e.g. 37.9838" />
-                                    </div>
-                                    <div className="space-y-1.5 flex-1 min-w-[120px]">
-                                        <Label className="text-[10px] font-semibold uppercase text-zinc-500">Longitude</Label>
-                                        <Input className="h-8 text-sm rounded-md font-mono" value={formData.longitude ?? ""} onChange={e => setFormData({ ...formData, longitude: e.target.value })} placeholder="e.g. 23.7275" />
-                                    </div>
-                                    <Button type="button" size="sm" disabled={isResolvingCoords} onClick={handleGetCoordinates} className="h-8 px-3 text-xs gap-1.5">
-                                        {isResolvingCoords ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
-                                        Get coordinates
-                                    </Button>
-                                </div>
-                                <p className="text-[10px] text-zinc-400">Uses address/city/ZIP to resolve lat/long via geocode API.</p>
-                            </TabsContent>
-
-                            <TabsContent value="financials" className="mt-0 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <p className="text-xs text-zinc-500">Add annual figures used by the eligibility engine.</p>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-8 text-xs"
-                                        onClick={() =>
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                financials: [
-                                                    ...prev.financials,
-                                                    { year: String(new Date().getFullYear() - 1), turnover: "", ebitda: "", netProfit: "", eme: "", assets: "", equity: "", totalDeMinimis3Years: "" },
-                                                ],
-                                            }))
-                                        }
-                                    >
-                                        <Plus className="w-3.5 h-3.5 mr-1" /> Add year
-                                    </Button>
-                                </div>
-                                <div className="space-y-2">
-                                    {formData.financials.map((f, index) => (
-                                        <div key={`${f.year}-${index}`} className="grid grid-cols-14 gap-2 p-3 bg-white dark:bg-zinc-900 rounded-lg border">
-                                            <Input
-                                                type="number"
-                                                className="col-span-2 h-8 text-xs"
-                                                placeholder="Year"
-                                                value={f.year}
-                                                onChange={(e) =>
-                                                    setFormData((prev) => {
-                                                        const next = [...prev.financials]
-                                                        next[index] = { ...next[index], year: e.target.value }
-                                                        return { ...prev, financials: next }
-                                                    })
-                                                }
-                                            />
-                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Turnover" value={f.turnover} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], turnover: e.target.value }; return { ...prev, financials: next } })} />
-                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="EBITDA" value={f.ebitda} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], ebitda: e.target.value }; return { ...prev, financials: next } })} />
-                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Net profit" value={f.netProfit} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], netProfit: e.target.value }; return { ...prev, financials: next } })} />
-                                            <Input type="number" className="col-span-1 h-8 text-xs" placeholder="EME" value={f.eme} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], eme: e.target.value }; return { ...prev, financials: next } })} />
-                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Assets" value={f.assets} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], assets: e.target.value }; return { ...prev, financials: next } })} />
-                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="Equity" value={f.equity} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], equity: e.target.value }; return { ...prev, financials: next } })} />
-                                            <Input type="number" className="col-span-2 h-8 text-xs" placeholder="De Minimis 3y" value={f.totalDeMinimis3Years} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], totalDeMinimis3Years: e.target.value }; return { ...prev, financials: next } })} />
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="col-span-1 h-8 w-8"
-                                                onClick={() =>
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        financials: prev.financials.filter((_, i) => i !== index),
-                                                    }))
-                                                }
-                                            >
-                                                <Trash2 className="w-4 h-4 text-red-500" />
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">AFM (VAT)</Label>
+                                        <div className="flex gap-2 items-center">
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono flex-1" value={formData.AFM ?? ""} onChange={e => setFormData({ ...formData, AFM: e.target.value })} placeholder="801946016" />
+                                            <Button type="button" size="sm" disabled={isSearchingVat || !formData.AFM?.trim()} onClick={handleFetchVat} className="h-9 px-3 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded">
+                                                {isSearchingVat ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
                                             </Button>
                                         </div>
-                                    ))}
-                                    {formData.financials.length === 0 && (
-                                        <div className="text-xs text-zinc-500 bg-white dark:bg-zinc-900 border rounded-lg p-3">No financial years added yet.</div>
-                                    )}
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="branding" className="mt-0 space-y-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-lg border bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden p-1.5">
-                                        {formData.logo ? <img src={formData.logo} alt="" className="w-full h-full object-contain" /> : <Building2 className="w-6 h-6 text-zinc-400" />}
+                                        <p className="text-[10px] text-[#A19F9D]">Fetch name/address from VAT API (Greek AFM).</p>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label className="inline-flex h-7 items-center justify-center rounded-md bg-zinc-700 px-2.5 text-[10px] font-medium text-white cursor-pointer hover:bg-zinc-600">
-                                            Choose logo
-                                            <input type="file" className="hidden" accept="image/*" onChange={handleUploadLogo} disabled={isUploading} />
-                                        </Label>
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox id="rmbg" checked={formData.removeBackgroundLogo} onCheckedChange={v => setFormData({ ...formData, removeBackgroundLogo: !!v })} />
-                                            <Label htmlFor="rmbg" className="text-[10px] text-zinc-500 cursor-pointer">Remove background</Label>
+                                </div>
+                                {/* Classification */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Classification</p>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Country</Label>
+                                            <Select value={formData.COUNTRY && String(formData.COUNTRY).trim() ? String(formData.COUNTRY) : "none"} onValueChange={(v) => setFormData({ ...formData, COUNTRY: v === "none" ? "" : v })}>
+                                                <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">—</SelectItem>
+                                                    {formData.COUNTRY && String(formData.COUNTRY).trim() && lookups.countries[Number(formData.COUNTRY)] === undefined && (
+                                                        <SelectItem value={String(formData.COUNTRY)}>{`Code ${formData.COUNTRY}`}</SelectItem>
+                                                    )}
+                                                    {Object.entries(lookups.countries).sort(([, a], [, b]) => (a || "").localeCompare(b || "")).map(([code, name]) => (
+                                                        <SelectItem key={code} value={code}>{name || code}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">TRDPGROUP</Label>
+                                            <Select value={formData.TRDPGROUP && String(formData.TRDPGROUP).trim() ? String(formData.TRDPGROUP) : "none"} onValueChange={(v) => setFormData({ ...formData, TRDPGROUP: v === "none" ? "" : v })}>
+                                                <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">—</SelectItem>
+                                                    {formData.TRDPGROUP && String(formData.TRDPGROUP).trim() && lookups.trdpGroups[Number(formData.TRDPGROUP)] === undefined && (
+                                                        <SelectItem value={String(formData.TRDPGROUP)}>{`Code ${formData.TRDPGROUP}`}</SelectItem>
+                                                    )}
+                                                    {Object.entries(lookups.trdpGroups).sort(([, a], [, b]) => (a || "").localeCompare(b || "")).map(([code, name]) => (
+                                                        <SelectItem key={code} value={code}>{name || code}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">TRDBUSINESS</Label>
+                                            <Select value={formData.TRDBUSINESS && String(formData.TRDBUSINESS).trim() ? String(formData.TRDBUSINESS) : "none"} onValueChange={(v) => setFormData({ ...formData, TRDBUSINESS: v === "none" ? "" : v })}>
+                                                <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">—</SelectItem>
+                                                    {formData.TRDBUSINESS && String(formData.TRDBUSINESS).trim() && lookups.trdBusinesses[Number(formData.TRDBUSINESS)] === undefined && (
+                                                        <SelectItem value={String(formData.TRDBUSINESS)}>{`Code ${formData.TRDBUSINESS}`}</SelectItem>
+                                                    )}
+                                                    {Object.entries(lookups.trdBusinesses).sort(([, a], [, b]) => (a || "").localeCompare(b || "")).map(([code, name]) => (
+                                                        <SelectItem key={code} value={code}>{name || code}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Headcount</Label>
+                                            <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm w-24" value={formData.numEmployees ?? ""} onChange={e => setFormData({ ...formData, numEmployees: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Registration date</Label>
+                                            <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.registDate ?? ""} onChange={e => setFormData({ ...formData, registDate: e.target.value })} />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-between py-2 border-t border-zinc-200 dark:border-zinc-800">
-                                    <div>
-                                        <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Show on homepage scroller</p>
-                                        <p className="text-[10px] text-zinc-400">Feature logo on first page (requires logo).</p>
+                                {/* Legal */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Legal</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Legal status</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.legalStatus ?? ""} onChange={e => setFormData({ ...formData, legalStatus: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Legal form</Label>
+                                            <Select value={(formData.legalForm && String(formData.legalForm).trim()) ? String(formData.legalForm) : "none"} onValueChange={(v) => setFormData({ ...formData, legalForm: v === "none" ? "" : v })}>
+                                                <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm"><SelectValue placeholder="Select legal form…" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">—</SelectItem>
+                                                    {LEGAL_FORM_OPTIONS.map((item) => (
+                                                        <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
-                                    <Switch checked={formData.displayAtCarousel} onCheckedChange={v => setFormData({ ...formData, displayAtCarousel: v })} />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="flex items-center justify-between py-2 px-3 bg-[#F3F2F1] rounded-lg">
+                                            <div>
+                                                <Label className="text-[11px] font-semibold text-[#605E5C]">Franchise</Label>
+                                                <p className="text-[10px] text-[#A19F9D]">Franchise operation</p>
+                                            </div>
+                                            <Switch checked={!!formData.isFranchise} onCheckedChange={(v) => setFormData({ ...formData, isFranchise: !!v })} className="data-[state=checked]:bg-[#0078D4]" />
+                                        </div>
+                                        <div className="flex items-center justify-between py-2 px-3 bg-[#F3F2F1] rounded-lg">
+                                            <div>
+                                                <Label className="text-[11px] font-semibold text-[#605E5C]">Home address</Label>
+                                                <p className="text-[10px] text-[#A19F9D]">Residential address</p>
+                                            </div>
+                                            <Switch checked={!!formData.isHomeAddress} onCheckedChange={(v) => setFormData({ ...formData, isHomeAddress: !!v })} className="data-[state=checked]:bg-[#0078D4]" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="contact" className="mt-0 space-y-3">
+                                {/* Email Addresses */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Email Addresses</p>
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Email</Label>
+                                        <Input type="text" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.EMAIL ?? ""} onChange={e => setFormData({ ...formData, EMAIL: e.target.value })} placeholder="Multiple with ;" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Email (account)</Label>
+                                        <Input type="text" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.EMAILACC ?? ""} onChange={e => setFormData({ ...formData, EMAILACC: e.target.value })} placeholder="Λογ. email (multiple with ;)" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">CCCEMAILMAR</Label>
+                                        <Input type="text" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.CCCEMAILMAR ?? ""} onChange={e => setFormData({ ...formData, CCCEMAILMAR: e.target.value })} placeholder="Email Μαρ. (multiple with ;)" />
+                                    </div>
+                                </div>
+                                {/* Phone & Web */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Phone & Web</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Phone 1</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.PHONE01 ?? ""} onChange={e => setFormData({ ...formData, PHONE01: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Phone 2</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.PHONE02 ?? ""} onChange={e => setFormData({ ...formData, PHONE02: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Website</Label>
+                                        <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.website ?? ""} onChange={e => setFormData({ ...formData, website: e.target.value })} placeholder="https://…" />
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="address" className="mt-0 space-y-3">
+                                {/* Address */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Address</p>
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Street address</Label>
+                                        <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.ADDRESS ?? ""} onChange={e => setFormData({ ...formData, ADDRESS: e.target.value })} />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">ZIP</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.ZIP ?? ""} onChange={e => setFormData({ ...formData, ZIP: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">City</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.CITY ?? ""} onChange={e => setFormData({ ...formData, CITY: e.target.value })} />
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Coordinates */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Coordinates</p>
+                                    <div className="flex gap-3 items-end flex-wrap">
+                                        <div className="space-y-1 flex-1 min-w-[120px]">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Latitude</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.latitude ?? ""} onChange={e => setFormData({ ...formData, latitude: e.target.value })} placeholder="e.g. 37.9838" />
+                                        </div>
+                                        <div className="space-y-1 flex-1 min-w-[120px]">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Longitude</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.longitude ?? ""} onChange={e => setFormData({ ...formData, longitude: e.target.value })} placeholder="e.g. 23.7275" />
+                                        </div>
+                                        <Button type="button" size="sm" disabled={isResolvingCoords} onClick={handleGetCoordinates} className="h-9 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded border gap-1.5">
+                                            {isResolvingCoords ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
+                                            Get coordinates
+                                        </Button>
+                                    </div>
+                                    <p className="text-[10px] text-[#A19F9D]">Uses address/city/ZIP to resolve lat/long via geocode API.</p>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="financials" className="mt-0 space-y-3">
+                                {/* Annual Figures */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Annual Figures</p>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded"
+                                            onClick={() => setFormData((prev) => ({
+                                                ...prev,
+                                                financials: [...prev.financials, { year: String(new Date().getFullYear() - 1), turnover: "", ebitda: "", netProfit: "", eme: "", assets: "", equity: "", totalDeMinimis3Years: "" }],
+                                            }))}
+                                        >
+                                            <Plus className="w-3 h-3 mr-1" /> Add year
+                                        </Button>
+                                    </div>
+                                    <p className="text-[11px] text-[#605E5C]">Annual figures used by the eligibility engine.</p>
+                                    <div className="space-y-2">
+                                        {formData.financials.map((f, index) => (
+                                            <div key={`${f.year}-${index}`} className="grid grid-cols-14 gap-2 px-3 py-2 bg-[#F3F2F1] rounded-lg border border-[#EDEBE9]">
+                                                <Input type="number" className="col-span-2 h-8 text-xs rounded border-[#C8C6C4]" placeholder="Year" value={f.year} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], year: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Input type="number" className="col-span-2 h-8 text-xs rounded border-[#C8C6C4]" placeholder="Turnover" value={f.turnover} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], turnover: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Input type="number" className="col-span-2 h-8 text-xs rounded border-[#C8C6C4]" placeholder="EBITDA" value={f.ebitda} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], ebitda: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Input type="number" className="col-span-2 h-8 text-xs rounded border-[#C8C6C4]" placeholder="Net profit" value={f.netProfit} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], netProfit: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Input type="number" className="col-span-1 h-8 text-xs rounded border-[#C8C6C4]" placeholder="EME" value={f.eme} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], eme: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Input type="number" className="col-span-2 h-8 text-xs rounded border-[#C8C6C4]" placeholder="Assets" value={f.assets} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], assets: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Input type="number" className="col-span-2 h-8 text-xs rounded border-[#C8C6C4]" placeholder="Equity" value={f.equity} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], equity: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Input type="number" className="col-span-2 h-8 text-xs rounded border-[#C8C6C4]" placeholder="De Minimis 3y" value={f.totalDeMinimis3Years} onChange={(e) => setFormData((prev) => { const next = [...prev.financials]; next[index] = { ...next[index], totalDeMinimis3Years: e.target.value }; return { ...prev, financials: next } })} />
+                                                <Button type="button" variant="ghost" size="icon" className="col-span-1 h-8 w-8" onClick={() => setFormData((prev) => ({ ...prev, financials: prev.financials.filter((_, i) => i !== index) }))}>
+                                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                        {formData.financials.length === 0 && (
+                                            <div className="text-xs text-[#A19F9D] bg-[#F3F2F1] border border-[#EDEBE9] rounded-lg p-3">No financial years added yet.</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="branding" className="mt-0 space-y-3">
+                                {/* Logo */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Logo</p>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-16 h-16 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] flex items-center justify-center overflow-hidden p-1.5">
+                                            {formData.logo ? <img src={formData.logo} alt="" className="w-full h-full object-contain" /> : <Building2 className="w-6 h-6 text-[#C8C6C4]" />}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="inline-flex h-8 items-center justify-center rounded bg-[#0078D4] hover:bg-[#106EBE] px-4 text-[12px] font-semibold text-white cursor-pointer active:scale-95 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                                                Choose logo
+                                                <input type="file" className="hidden" accept="image/*" onChange={handleUploadLogo} disabled={isUploading} />
+                                            </Label>
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox id="rmbg" checked={formData.removeBackgroundLogo} onCheckedChange={v => setFormData({ ...formData, removeBackgroundLogo: !!v })} />
+                                                <Label htmlFor="rmbg" className="text-[11px] text-[#605E5C] cursor-pointer">Remove background</Label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Homepage */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Homepage</p>
+                                    <div className="flex items-center justify-between py-2 px-3 bg-[#F3F2F1] rounded-lg">
+                                        <div>
+                                            <p className="text-[11px] font-semibold text-[#201F1E]">Show on homepage scroller</p>
+                                            <p className="text-[10px] text-[#A19F9D]">Feature logo on first page (requires logo).</p>
+                                        </div>
+                                        <Switch checked={formData.displayAtCarousel} onCheckedChange={v => setFormData({ ...formData, displayAtCarousel: v })} className="data-[state=checked]:bg-emerald-500" />
+                                    </div>
                                 </div>
                             </TabsContent>
                         </div>
                     </Tabs>
 
-                    <div className="px-4 py-3 border-t bg-white dark:bg-zinc-900 flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => setIsDialogOpen(false)} className="h-8 text-xs text-zinc-500">Cancel</Button>
-                        <Button size="sm" disabled={isSaving || isUploading} onClick={() => handleSave(false)} className="h-8 px-4 text-xs bg-zinc-700 hover:bg-zinc-600">
+                    {/* Dialog Footer */}
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button size="sm" disabled={isSaving || isUploading} onClick={() => handleSave(false)} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95">
                             {isSaving ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : editingCustomer ? "Save" : "Create"}
                         </Button>
                         {editingCustomer && (
-                            <Button size="sm" disabled={isSaving || isUploading} onClick={() => handleSave(true)} className="h-8 px-4 text-xs bg-indigo-600 hover:bg-indigo-700">
+                            <Button size="sm" disabled={isSaving || isUploading} onClick={() => handleSave(true)} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95">
                                 {isSaving ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : "Save & ERP"}
                             </Button>
                         )}

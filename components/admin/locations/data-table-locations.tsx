@@ -328,16 +328,17 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
                     </DialogHeader>
 
                     {/* Body */}
-                    <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto">
-                        <div className="grid grid-cols-[220px_1fr] gap-px bg-[#EDEBE9]">
+                    <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto px-5 py-4">
+                        <div className="grid grid-cols-[220px_1fr] gap-4">
 
                             {/* Left sidebar */}
-                            <div className="bg-[#F3F2F1] p-4 space-y-3">
+                            <div className="space-y-3">
                                 {/* Logo */}
-                                <div className="bg-white rounded border border-[#EDEBE9] p-3 text-center">
-                                    <div className="w-14 h-14 rounded bg-[#F3F2F1] flex items-center justify-center mx-auto mb-2 border border-[#EDEBE9]">
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-3 text-center">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-2">Logo</p>
+                                    <div className="w-14 h-14 rounded-lg bg-[#F3F2F1] flex items-center justify-center mx-auto mb-2 border border-[#EDEBE9]">
                                         {formData.logo
-                                            ? <img src={formData.logo} className="w-full h-full object-contain p-1 rounded" />
+                                            ? <img src={formData.logo} className="w-full h-full object-contain p-1 rounded-lg" />
                                             : <Home className="w-5 h-5 text-[#C8C6C4]" />}
                                     </div>
                                     <Label className="inline-flex h-7 items-center justify-center rounded border border-[#C8C6C4] bg-white px-3 text-[11px] font-medium text-[#201F1E] cursor-pointer hover:bg-[#EDEBE9] transition-colors">
@@ -347,8 +348,8 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
                                 </div>
 
                                 {/* Geocode */}
-                                <div className="bg-white rounded border border-[#EDEBE9] p-3 space-y-2.5">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#0078D4] flex items-center gap-1">
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-3 space-y-2.5">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1">
                                         <Compass className="w-3 h-3" /> Geolocation
                                     </p>
                                     <div className="space-y-1">
@@ -373,7 +374,7 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
                                 </div>
 
                                 {/* Status */}
-                                <div className="bg-white rounded border border-[#EDEBE9] px-3 py-2.5 flex items-center justify-between">
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg px-3 py-2.5 flex items-center justify-between">
                                     <div>
                                         <p className="text-[12px] font-semibold text-[#201F1E]">Published</p>
                                         <p className="text-[10px] text-[#A19F9D]">Visible on public maps</p>
@@ -388,10 +389,10 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
                             </div>
 
                             {/* Right form area */}
-                            <div className="bg-white p-4 space-y-4">
-                                {/* Name row */}
-                                <div className="space-y-1.5">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Identity</p>
+                            <div className="space-y-3">
+                                {/* Identity */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Identity</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα (ΕΛ) <span className="text-red-500">*</span></Label>
@@ -405,8 +406,8 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
                                 </div>
 
                                 {/* Address */}
-                                <div className="space-y-1.5">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Address</p>
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Address</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Διεύθυνση (ΕΛ)</Label>
@@ -442,8 +443,8 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
                                 </div>
 
                                 {/* Contact */}
-                                <div className="space-y-1.5">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Contact</p>
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Contact</p>
                                     <div className="grid grid-cols-3 gap-2">
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Phone</Label>

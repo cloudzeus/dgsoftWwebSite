@@ -1,17 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -114,92 +113,143 @@ export function GenerateEuProgramEmailListModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-2 shrink-0">
-          <DialogTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
-            Generate email list
-          </DialogTitle>
-          <DialogDescription>
-            {program ? (
-              <>
-                Matches use the same KAD prefix rules as program validation and the program&apos;s linked regions
-                (address → region mapping). All matching clients are pre-selected; uncheck any row before saving.
-                <span className="block mt-1 font-medium text-foreground">{program.nameEL}</span>
-              </>
-            ) : null}
-          </DialogDescription>
+      <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+
+        {/* Header */}
+        <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+              <Mail className="w-4 h-4 text-[#0078D4]" />
+            </div>
+            <div>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                Generate Email List
+              </DialogTitle>
+              <DialogDescription className="text-[11px] text-[#A19F9D]">
+                {program ? program.nameEL : "Select a program to continue"}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="px-6 flex items-center justify-between gap-2 border-b border-border pb-3 shrink-0">
-          <p className="text-sm text-muted-foreground">
-            {loading ? "Loading…" : `${selected.size} of ${rows.length} selected`}
-          </p>
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={selectAll} disabled={loading || rows.length === 0}>
-              Select all
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={selectNone} disabled={loading || rows.length === 0}>
-              Clear
-            </Button>
+        {/* Body — canvas */}
+        <div className="bg-[#F3F2F1] px-4 py-4 max-h-[70vh] overflow-y-auto space-y-3">
+
+          {/* Info card */}
+          {program && (
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">MATCHING RULES</p>
+              <p className="text-[11px] text-[#605E5C] leading-relaxed">
+                Matches use the same KAD prefix rules as program validation and the program&apos;s linked regions
+                (address → region mapping). All matching clients are pre-selected — uncheck any row before saving.
+              </p>
+            </div>
+          )}
+
+          {/* Selection controls card */}
+          <div className="bg-white border border-[#EDEBE9] rounded-lg px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="w-3.5 h-3.5 text-[#A19F9D]" />
+                <span className="text-[11px] font-semibold text-[#605E5C]">
+                  {loading ? "Loading recipients…" : `${selected.size} of ${rows.length} selected`}
+                </span>
+              </div>
+              <div className="flex gap-1.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={selectAll}
+                  disabled={loading || rows.length === 0}
+                  className="h-7 px-3 text-[11px] font-semibold text-[#0078D4] hover:bg-[#EFF6FC]"
+                >
+                  Select all
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={selectNone}
+                  disabled={loading || rows.length === 0}
+                  className="h-7 px-3 text-[11px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9]"
+                >
+                  Clear
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Recipients list card */}
+          <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] px-4 pt-3 pb-2">RECIPIENTS</p>
+            {loading ? (
+              <div className="flex items-center justify-center py-12 text-[#A19F9D] gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="text-[11px] font-semibold">Building recipient list…</span>
+              </div>
+            ) : rows.length === 0 ? (
+              <p className="py-10 text-center text-[11px] text-[#A19F9D] px-4">
+                No customers match this program&apos;s KADs and regions (with a known email and address mapping where
+                regions apply).
+              </p>
+            ) : (
+              <div className="divide-y divide-[#EDEBE9]">
+                {rows.map((r) => {
+                  const k = rowKey(r);
+                  const isOn = selected.has(k);
+                  return (
+                    <div
+                      key={k}
+                      className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${isOn ? "bg-white" : "bg-[#FAFAF9]"} hover:bg-[#F3F2F1]`}
+                    >
+                      <Checkbox
+                        id={k}
+                        checked={isOn}
+                        onCheckedChange={(c) => toggle(k, c === true)}
+                        className="border-[#C8C6C4] data-[state=checked]:bg-[#0078D4] data-[state=checked]:border-[#0078D4]"
+                      />
+                      <Label htmlFor={k} className="flex-1 cursor-pointer font-normal leading-snug">
+                        <span className="font-semibold text-[12px] text-[#201F1E]">{r.customerName}</span>
+                        <span className="text-[#A19F9D] text-[11px] ml-2 font-mono">{r.customerCode}</span>
+                        <br />
+                        <span className="text-[11px] text-[#0078D4]">{r.email}</span>
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="flex-1 min-h-[240px] max-h-[50vh] overflow-y-auto px-6">
-          {loading ? (
-            <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Building recipient list…
-            </div>
-          ) : rows.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
-              No customers match this program&apos;s KADs and regions (with a known email and address mapping where
-              regions apply).
-            </p>
-          ) : (
-            <div className="space-y-0 pr-1">
-              {rows.map((r) => {
-                const k = rowKey(r);
-                const isOn = selected.has(k);
-                return (
-                  <div
-                    key={k}
-                    className="flex items-start gap-3 py-2.5 border-b border-border/60 last:border-0"
-                  >
-                    <Checkbox
-                      id={k}
-                      checked={isOn}
-                      onCheckedChange={(c) => toggle(k, c === true)}
-                      className="mt-1"
-                    />
-                    <Label htmlFor={k} className="flex-1 cursor-pointer font-normal leading-snug">
-                      <span className="font-medium text-foreground">{r.customerName}</span>
-                      <span className="text-muted-foreground text-xs ml-2 font-mono">{r.customerCode}</span>
-                      <br />
-                      <span className="text-sm text-primary">{r.email}</span>
-                    </Label>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <DialogFooter className="p-6 pt-4 border-t border-border shrink-0">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={saving}
+            className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded"
+          >
             Cancel
           </Button>
-          <Button type="button" onClick={handleSave} disabled={saving || loading || selected.size === 0}>
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={saving || loading || selected.size === 0}
+            className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95"
+          >
             {saving ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
                 Saving…
               </>
             ) : (
-              "Save list"
+              `Save list${selected.size > 0 ? ` (${selected.size})` : ""}`
             )}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

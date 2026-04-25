@@ -345,84 +345,110 @@ export function NewsletterCampaignsClient({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Edit campaign" : "New campaign"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid gap-2">
-              <Label>Campaign name</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Q1 2025 Newsletter"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Email subject</Label>
-              <Input
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="Subject line"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Template</Label>
-              <Select value={templateId} onValueChange={setTemplateId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select template" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[240px] overflow-y-scroll">
-                  {templates.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <CustomerMultiSelect
-              selected={selectedCustomers}
-              onChange={(next) => {
-                setSelectedCustomers(next);
-                setFilters((prev) => ({ ...prev, manualTrdrIds: next.map((c) => c.id) }));
-              }}
-              placeholder="Search and add customers…"
-            />
-
-            <div className="flex flex-wrap items-end gap-2 rounded-lg border bg-muted/30 p-3">
-              <div className="min-w-[200px] flex-1 space-y-1.5">
-                <Label className="text-xs">Test campaign (preview)</Label>
-                <Input
-                  type="email"
-                  value={testEmail}
-                  onChange={(e) => setTestEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  className="h-9"
-                />
+        <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+          <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                <MailIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={handleTestCampaign}
-                disabled={testSending || !testEmail.trim()}
-                className="gap-1.5"
-              >
-                {testSending ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <MailIcon className="h-4 w-4" />}
-                Send test email
-              </Button>
+              <div>
+                <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                  {editingId ? "Edit campaign" : "New campaign"}
+                </DialogTitle>
+                <p className="text-[11px] text-[#A19F9D]">Configure recipients and template</p>
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto px-5 py-4 space-y-3">
+            {/* Basic details */}
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Campaign Details</p>
+              <div className="grid gap-3">
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Campaign name</Label>
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Q1 2025 Newsletter"
+                    className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Email subject</Label>
+                  <Input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Subject line"
+                    className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Template</Label>
+                  <Select value={templateId} onValueChange={setTemplateId}>
+                    <SelectTrigger className="h-9 rounded border-[#C8C6C4] focus:ring-[#0078D4] text-sm">
+                      <SelectValue placeholder="Select template" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[240px] overflow-y-scroll">
+                      {templates.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
-            <div className="border-t pt-4">
-              <Label className="mb-3 block">Email fields to use per customer</Label>
-              <p className="text-xs text-muted-foreground mb-2">
+            {/* Manual customers */}
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Manual Recipients</p>
+              <CustomerMultiSelect
+                selected={selectedCustomers}
+                onChange={(next) => {
+                  setSelectedCustomers(next);
+                  setFilters((prev) => ({ ...prev, manualTrdrIds: next.map((c) => c.id) }));
+                }}
+                placeholder="Search and add customers…"
+              />
+            </div>
+
+            {/* Test send */}
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Test Email</p>
+              <div className="flex flex-wrap items-end gap-2">
+                <div className="min-w-[200px] flex-1 space-y-1">
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Send preview to</Label>
+                  <Input
+                    type="email"
+                    value={testEmail}
+                    onChange={(e) => setTestEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleTestCampaign}
+                  disabled={testSending || !testEmail.trim()}
+                  className="h-9 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded gap-1.5"
+                >
+                  {testSending ? <Loader2Icon className="h-3.5 w-3.5 animate-spin" /> : <MailIcon className="h-3.5 w-3.5" />}
+                  Send test
+                </Button>
+              </div>
+            </div>
+
+            {/* Email fields */}
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Email Fields</p>
+              <p className="text-[11px] text-[#A19F9D]">
                 Choose which customer email field(s) to send to. Multiple addresses in one field (separated by ;) are all used.
               </p>
-              <div className="flex flex-wrap gap-4 mb-4">
+              <div className="flex flex-wrap gap-4">
                 {(["EMAIL", "EMAILACC", "CCCEMAILMAR"] as EmailFieldKey[]).map((field) => {
                   const selected = (filters.emailFields?.length ? filters.emailFields : ["EMAIL", "EMAILACC", "CCCEMAILMAR"]).includes(field);
                   return (
-                    <label key={field} className="flex items-center gap-2 cursor-pointer text-sm">
+                    <label key={field} className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-[#605E5C]">
                       <Checkbox
                         checked={selected}
                         onCheckedChange={(checked) => {
@@ -436,8 +462,12 @@ export function NewsletterCampaignsClient({
                   );
                 })}
               </div>
-              <Label className="mb-3 block">Recipient filters (optional)</Label>
-              <p className="text-xs text-muted-foreground mb-3">
+            </div>
+
+            {/* Recipient filters */}
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Recipient Filters</p>
+              <p className="text-[11px] text-[#A19F9D]">
                 Select regions, cities, legal status, KAD, TRDPGROUP, TRDBUSINESS to build the list. Then use &quot;Build list&quot; on the campaign card.
               </p>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -492,12 +522,12 @@ export function NewsletterCampaignsClient({
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>
+          <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+            <Button onClick={handleSave} disabled={saving} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
               {saving ? "Saving…" : editingId ? "Update" : "Create"}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

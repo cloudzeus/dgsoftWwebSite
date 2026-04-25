@@ -54,49 +54,62 @@ export function NewsletterMediaPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[85vh] max-w-3xl flex-col gap-4">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5" />
-            {title ?? "Newsletter media gallery"}
-          </DialogTitle>
-          <DialogDescription>
-            Choose an image from the media library. Upload more under Newsletter → Media gallery.
-          </DialogDescription>
+      <DialogContent className="flex max-h-[85vh] max-w-3xl flex-col gap-0 overflow-hidden p-0 rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+        <DialogHeader className="shrink-0 px-5 py-4 border-b border-[#EDEBE9] bg-white">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+              <ImageIcon className="w-4 h-4 text-[#0078D4]" />
+            </div>
+            <div>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                {title ?? "Newsletter media gallery"}
+              </DialogTitle>
+              <DialogDescription className="text-[11px] text-[#A19F9D]">
+                Choose an image from the media library. Upload more under Newsletter → Media gallery.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
-        <Input placeholder="Filter by name or URL…" value={query} onChange={(e) => setQuery(e.target.value)} className="text-sm" />
-        <div className="min-h-[200px] flex-1 overflow-y-auto rounded-md border bg-muted/20 p-3">
-          {loading ? (
-            <div className="flex items-center justify-center py-16 text-muted-foreground">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          ) : filtered.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">No media matches. Upload images in the media gallery.</p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-              {filtered.map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  className="group flex flex-col overflow-hidden rounded-md border bg-background text-left shadow-sm transition hover:border-primary/50 hover:ring-1 hover:ring-primary/20"
-                  onClick={() => {
-                    onSelect(m.url);
-                    onOpenChange(false);
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={m.url} alt="" className="aspect-square w-full object-cover" />
-                  <span className="line-clamp-1 px-1 py-1 text-[10px] text-muted-foreground group-hover:text-foreground">
-                    {m.name ?? m.url.slice(-20)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="bg-[#F3F2F1] min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-3">
+          <div className="bg-white border border-[#EDEBE9] rounded-lg p-3">
+            <Input placeholder="Filter by name or URL…" value={query} onChange={(e) => setQuery(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+          </div>
+          <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden min-h-[200px]">
+            {loading ? (
+              <div className="flex items-center justify-center py-16 text-[#A19F9D] gap-2">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <span className="text-[11px] font-semibold">Loading media…</span>
+              </div>
+            ) : filtered.length === 0 ? (
+              <p className="py-12 text-center text-[11px] text-[#A19F9D]">No media matches. Upload images in the media gallery.</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 p-3">
+                {filtered.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className="group flex flex-col overflow-hidden rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] text-left transition hover:border-[#0078D4] hover:ring-1 hover:ring-[#0078D4]/20"
+                    onClick={() => {
+                      onSelect(m.url);
+                      onOpenChange(false);
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={m.url} alt="" className="aspect-square w-full object-cover" />
+                    <span className="line-clamp-1 px-1 py-1 text-[10px] text-[#A19F9D] group-hover:text-[#201F1E]">
+                      {m.name ?? m.url.slice(-20)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-          Cancel
-        </Button>
+        <div className="shrink-0 px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end">
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
+            Cancel
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

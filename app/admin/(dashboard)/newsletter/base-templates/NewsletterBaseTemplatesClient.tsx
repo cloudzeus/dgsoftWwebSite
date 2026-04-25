@@ -378,37 +378,45 @@ export function NewsletterBaseTemplatesClient({
       </Dialog>
 
       <Dialog open={dupOpen} onOpenChange={setDupOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Duplicate base template</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="dup-name">New name</Label>
-              <Input id="dup-name" value={dupName} onChange={(e) => setDupName(e.target.value)} />
+        <DialogContent className="max-w-md p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+          <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                <Copy className="w-4 h-4 text-[#0078D4]" />
+              </div>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">Duplicate base template</DialogTitle>
             </div>
-            <div className="flex items-start gap-2 space-y-0">
-              <Checkbox id="dup-bake" checked={dupBake} onCheckedChange={(c) => setDupBake(c === true)} className="mt-1" />
-              <div className="grid gap-1 leading-none">
-                <Label htmlFor="dup-bake" className="text-sm font-medium leading-snug">
-                  Bake links into HTML
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Applies effective global + this template&apos;s overrides into the HTML.{" "}
-                  <code className="rounded bg-muted px-1">{"{{dynamic_content}}"}</code> stays for the campaign body.
-                </p>
+          </DialogHeader>
+          <div className="bg-[#F3F2F1] px-5 py-4 space-y-3">
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Copy Details</p>
+              <div className="space-y-1">
+                <Label htmlFor="dup-name" className="text-[11px] font-semibold text-[#605E5C]">New name</Label>
+                <Input id="dup-name" value={dupName} onChange={(e) => setDupName(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+              </div>
+              <div className="flex items-start gap-2.5 pt-1">
+                <Checkbox id="dup-bake" checked={dupBake} onCheckedChange={(c) => setDupBake(c === true)} className="mt-0.5" />
+                <div className="space-y-0.5">
+                  <Label htmlFor="dup-bake" className="text-[11px] font-semibold text-[#605E5C] leading-snug">
+                    Bake links into HTML
+                  </Label>
+                  <p className="text-[11px] text-[#A19F9D]">
+                    Applies effective global + this template&apos;s overrides into the HTML.{" "}
+                    <code className="rounded bg-[#F3F2F1] px-1 text-[10px]">{"{{dynamic_content}}"}</code> stays for the campaign body.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDupOpen(false)}>
+          <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setDupOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
               Cancel
             </Button>
-            <Button disabled={dupSaving || !dupName.trim()} onClick={() => void confirmDuplicate()}>
-              {dupSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <Button disabled={dupSaving || !dupName.trim()} onClick={() => void confirmDuplicate()} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+              {dupSaving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
               Save copy
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -432,88 +440,107 @@ export function NewsletterBaseTemplatesClient({
       />
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="flex max-h-[96vh] max-w-6xl flex-col gap-0 overflow-hidden p-0">
-          <DialogHeader className="shrink-0 border-b px-6 py-4">
-            <DialogTitle>{editingId ? "Edit" : "Create"} base template</DialogTitle>
+        <DialogContent className="flex max-h-[96vh] max-w-6xl flex-col gap-0 overflow-hidden p-0 rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+          <DialogHeader className="shrink-0 px-5 py-4 border-b border-[#EDEBE9] bg-white">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                <MailIcon className="w-4 h-4 text-[#0078D4]" />
+              </div>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Edit" : "Create"} base template</DialogTitle>
+            </div>
           </DialogHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-[#F3F2F1] px-5 py-4">
             <Tabs defaultValue="presets">
-              <TabsList className="w-full flex-wrap justify-start">
-                <TabsTrigger value="presets">Presets</TabsTrigger>
-                <TabsTrigger value="overrides">This template</TabsTrigger>
-                <TabsTrigger value="html">HTML</TabsTrigger>
-                <TabsTrigger value="preview">Preview</TabsTrigger>
+              <TabsList className="h-8 mb-4 gap-0.5 bg-white border border-[#EDEBE9] p-0.5 rounded w-full flex-wrap justify-start">
+                <TabsTrigger value="presets" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">Presets</TabsTrigger>
+                <TabsTrigger value="overrides" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">This template</TabsTrigger>
+                <TabsTrigger value="html" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">HTML</TabsTrigger>
+                <TabsTrigger value="preview" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">Preview</TabsTrigger>
               </TabsList>
-              <TabsContent value="presets" className="mt-3">
-                <div className="grid gap-3 md:grid-cols-3">
-                  {NEWSLETTER_BASE_TEMPLATE_PRESETS.map((p) => (
-                    <button
-                      key={p.key}
-                      className="rounded border p-2 text-left transition hover:border-primary/60"
-                      onClick={() => {
-                        setName(p.name);
-                        setDescription(p.description);
-                        setHtmlDocument(p.htmlDocument);
-                      }}
-                    >
-                      <p className="text-xs font-medium">{p.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{p.description}</p>
-                    </button>
-                  ))}
+              <TabsContent value="presets" className="mt-0">
+                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Choose a starting template</p>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {NEWSLETTER_BASE_TEMPLATE_PRESETS.map((p) => (
+                      <button
+                        key={p.key}
+                        className="rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] p-3 text-left transition hover:border-[#0078D4] hover:bg-[#EFF6FC]"
+                        onClick={() => {
+                          setName(p.name);
+                          setDescription(p.description);
+                          setHtmlDocument(p.htmlDocument);
+                        }}
+                      >
+                        <p className="text-[11px] font-semibold text-[#201F1E]">{p.name}</p>
+                        <p className="text-[10px] text-[#A19F9D] mt-0.5">{p.description}</p>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </TabsContent>
-              <TabsContent value="overrides" className="mt-3 space-y-3">
-                <p className="text-xs text-muted-foreground">
-                  Values here apply <strong className="text-foreground">only to this template</strong>. Leave a field equal to the global default to
-                  clear the override. Use Gallery to pick from the media library.
-                </p>
-                <div className="grid gap-3 md:grid-cols-2">
-                  {FIELD_META.map(({ key, label, mediaGallery }) => (
-                    <div key={key} className="space-y-1">
-                      <Label htmlFor={`ov-${key}`}>{label}</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id={`ov-${key}`}
-                          className="text-sm"
-                          value={effectiveEditor[key]}
-                          onChange={(e) => setTemplateField(key, e.target.value)}
-                        />
-                        {mediaGallery ? (
-                          <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => setMediaPickerTarget({ context: "template", key })}>
-                            Gallery
-                          </Button>
+              <TabsContent value="overrides" className="mt-0 space-y-3">
+                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1">Template Overrides</p>
+                  <p className="text-[11px] text-[#A19F9D]">
+                    Values here apply <strong className="text-[#605E5C]">only to this template</strong>. Leave a field equal to the global default to
+                    clear the override. Use Gallery to pick from the media library.
+                  </p>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {FIELD_META.map(({ key, label, mediaGallery }) => (
+                      <div key={key} className="space-y-1">
+                        <Label htmlFor={`ov-${key}`} className="text-[11px] font-semibold text-[#605E5C]">{label}</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id={`ov-${key}`}
+                            className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+                            value={effectiveEditor[key]}
+                            onChange={(e) => setTemplateField(key, e.target.value)}
+                          />
+                          {mediaGallery ? (
+                            <Button type="button" variant="outline" size="sm" className="h-9 shrink-0 border-[#C8C6C4] hover:bg-[#EDEBE9] rounded" onClick={() => setMediaPickerTarget({ context: "template", key })}>
+                              Gallery
+                            </Button>
+                          ) : null}
+                        </div>
+                        {templateOverrides[key] !== undefined && templateOverrides[key] !== globalFields[key] ? (
+                          <p className="text-[10px] text-[#0078D4]">Override active (differs from global)</p>
                         ) : null}
                       </div>
-                      {templateOverrides[key] !== undefined && templateOverrides[key] !== globalFields[key] ? (
-                        <p className="text-[10px] text-primary">Override active (differs from global)</p>
-                      ) : null}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </TabsContent>
-              <TabsContent value="html" className="mt-3 space-y-2">
-                <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-                <Input placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-                <Textarea className="min-h-[360px] font-mono text-xs" value={htmlDocument} spellCheck={false} onChange={(e) => setHtmlDocument(e.target.value)} />
+              <TabsContent value="html" className="mt-0">
+                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">HTML Document</p>
+                  <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+                  <Input placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+                  <Textarea className="min-h-[360px] font-mono text-xs rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]" value={htmlDocument} spellCheck={false} onChange={(e) => setHtmlDocument(e.target.value)} />
+                </div>
               </TabsContent>
-              <TabsContent value="preview" className="mt-3">
-                <div className="max-h-[min(80vh,900px)] overflow-y-auto rounded-md border bg-muted/30">
-                  <div className="mx-auto max-w-[600px] bg-white">
-                    <iframe title="Editor preview" className="min-h-[1200px] w-full border-0" srcDoc={previewSrcDoc} sandbox="allow-scripts allow-same-origin" />
+              <TabsContent value="preview" className="mt-0">
+                <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden">
+                  <div className="px-4 py-2 border-b border-[#EDEBE9]">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Email Preview (~600px width)</p>
+                  </div>
+                  <div className="max-h-[min(80vh,900px)] overflow-y-auto bg-[#F3F2F1]">
+                    <div className="mx-auto max-w-[600px] bg-white">
+                      <iframe title="Editor preview" className="min-h-[1200px] w-full border-0" srcDoc={previewSrcDoc} sandbox="allow-scripts allow-same-origin" />
+                    </div>
                   </div>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
-          <DialogFooter className="shrink-0 border-t px-6 py-4">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          <div className="shrink-0 px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
               Cancel
             </Button>
-            <Button onClick={() => void saveTemplate()} disabled={saving}>
-              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <Button onClick={() => void saveTemplate()} disabled={saving} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+              {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
               Save
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

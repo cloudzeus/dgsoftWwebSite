@@ -110,7 +110,7 @@ export function DataTableKads({
         if (!selectedProgramId) return toast.error("Select a program")
         const selectedIndices = Object.keys(rowSelection).filter(k => rowSelection[k])
         // Since GenericDataTable handles its own filtering/sorting, rowSelection indices refer to the current visible rows in the table instance.
-        // This is a limitation if we use index-based selection. 
+        // This is a limitation if we use index-based selection.
         // Better to use rowIdKey="id" in GenericDataTable so rowSelection uses IDs as keys.
         const kadIds = selectedIndices;
 
@@ -152,8 +152,8 @@ export function DataTableKads({
             header: "KAD Code",
             cell: ({ row }) => (
                 <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="font-mono bg-zinc-50 dark:bg-zinc-800 text-primary border-primary/20">{row.original.code}</Badge>
-                    {row.original.dotcode && <span className="text-[10px] text-muted-foreground italic">({row.original.dotcode})</span>}
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold font-mono bg-[#EFF6FC] text-[#0078D4] border border-[#C7E0F4]">{row.original.code}</span>
+                    {row.original.dotcode && <span className="text-[10px] text-[#A19F9D] italic">({row.original.dotcode})</span>}
                 </div>
             )
         },
@@ -162,9 +162,9 @@ export function DataTableKads({
             header: "KAD Description",
             cell: ({ row }) => (
                 <div className="min-w-[200px] max-w-[500px] space-y-0.5" title={row.original.nameEL || ""}>
-                    <p className="text-sm text-foreground line-clamp-2 leading-snug">{row.original.nameEL || "—"}</p>
+                    <p className="text-sm font-semibold text-[#201F1E] line-clamp-2 leading-snug">{row.original.nameEL || "—"}</p>
                     {row.original.nameEN && (
-                        <p className="text-xs text-muted-foreground line-clamp-1 italic">{row.original.nameEN}</p>
+                        <p className="text-[11px] text-[#A19F9D] line-clamp-1 italic">{row.original.nameEN}</p>
                     )}
                 </div>
             ),
@@ -175,7 +175,7 @@ export function DataTableKads({
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="h-8 bg-zinc-700 text-white border-none font-bold">
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
                             Actions <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -202,12 +202,12 @@ export function DataTableKads({
             <div className="flex justify-between items-center gap-2">
                 <div className="flex items-center gap-2">
                     <input ref={fileInputRef} type="file" className="hidden" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} />
-                    <Button variant="outline" className="bg-emerald-600 hover:bg-emerald-700 text-white border-none font-bold h-10 shadow-lg" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                        <FileCode className="w-4 h-4 mr-2" /> Bulk Upload (Excel)
+                    <Button variant="outline" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                        <FileCode className="w-3 h-3 mr-2" /> Bulk Upload (Excel)
                     </Button>
                     {selectedCount > 0 && (
-                        <Button variant="default" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 shadow-xl" onClick={() => setIsAssignOpen(true)}>
-                            <Link2 className="w-4 h-4 mr-2" /> Assign {selectedCount} to Program
+                        <Button className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]" onClick={() => setIsAssignOpen(true)}>
+                            <Link2 className="w-3 h-3 mr-2" /> Assign {selectedCount} to Program
                         </Button>
                     )}
                 </div>
@@ -225,68 +225,93 @@ export function DataTableKads({
                 rowSelection={rowSelection}
                 onRowSelectionChange={setRowSelection}
                 renderExpandedRow={(kad) => (
-                    <div className="py-6 px-4 bg-sky-50/50 dark:bg-sky-950/20 rounded-2xl border border-sky-200/60 dark:border-sky-800/50 shadow-inner grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-2">
-                            <h5 className="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest flex items-center gap-2"><Type className="w-3 h-3" /> Full Description (Greek)</h5>
-                            <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{kad.nameEL || "No description provided."}</p>
-                        </div>
-                        <div className="space-y-2">
-                            <h5 className="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest flex items-center gap-2"><CheckCircle2 className="w-3 h-3" /> English Metadata</h5>
-                            <p className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{kad.nameEN || "Translation not available."}</p>
+                    <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
+                        <div className="grid grid-cols-2 divide-x divide-[#EDEBE9]">
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Type className="w-3 h-3" /> Full Description (Greek)</p>
+                                <p className="text-sm leading-relaxed text-[#201F1E]">{kad.nameEL || "No description provided."}</p>
+                            </div>
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><CheckCircle2 className="w-3 h-3" /> English Metadata</p>
+                                <p className="text-sm leading-relaxed text-[#201F1E]">{kad.nameEN || "Translation not available."}</p>
+                            </div>
                         </div>
                     </div>
                 )}
             />
 
+            {/* Edit / Create KAD dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl">
-                    <DialogHeader className="bg-zinc-800 p-8">
-                        <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2"><FileCode className="w-6 h-6 text-indigo-400" /> {editingItem ? "Edit KAD" : "Create KAD"}</DialogTitle>
+                <DialogContent className="max-w-xl p-0 overflow-hidden rounded-lg">
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <FileCode className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingItem ? "Edit KAD" : "Create KAD"}</DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">{editingItem ? `Code: ${editingItem.code}` : "Add a new KAD code to the registry"}</p>
+                            </div>
+                        </div>
                     </DialogHeader>
-                    <div className="p-8 space-y-6 bg-zinc-50 dark:bg-zinc-950">
-                        <div className="space-y-2">
-                            <Label className="font-bold text-xs uppercase tracking-wider text-zinc-500">Government Code</Label>
-                            <Input className="font-mono h-12 text-lg focus:ring-indigo-500" placeholder="62.01" value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value })} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="font-bold text-xs uppercase tracking-wider text-zinc-500">Description (Greek)</Label>
-                            <Textarea className="min-h-[100px] text-sm" placeholder="Δραστηριότητες προγραμματισμού..." value={formData.nameEL} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="font-bold text-xs uppercase tracking-wider text-zinc-500">Description (English)</Label>
-                            <Textarea className="min-h-[100px] text-sm" placeholder="Computer programming activities..." value={formData.nameEN} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} />
+                    <div className="bg-[#F3F2F1] p-4">
+                        <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
+                            <div className="space-y-1">
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Government Code</Label>
+                                <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" placeholder="62.01" value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value })} />
+                            </div>
+                            <div className="space-y-1">
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Description (Greek)</Label>
+                                <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm min-h-[90px]" placeholder="Δραστηριότητες προγραμματισμού..." value={formData.nameEL} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} />
+                            </div>
+                            <div className="space-y-1">
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Description (English)</Label>
+                                <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm min-h-[90px]" placeholder="Computer programming activities..." value={formData.nameEN} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} />
+                            </div>
                         </div>
                     </div>
-                    <div className="p-8 border-t bg-white dark:bg-zinc-950 flex justify-end gap-3">
-                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-black text-xs uppercase">Cancel</Button>
-                        <Button disabled={isSaving} onClick={handleSave} className="bg-zinc-800 text-white font-bold h-12 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all">
-                            {isSaving ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : "Save KAD"}
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                            {isSaving ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
+                            {isSaving ? "Saving..." : "Save KAD"}
                         </Button>
                     </div>
                 </DialogContent>
             </Dialog>
 
+            {/* Assign to program dialog */}
             <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
-                <DialogContent className="max-w-lg p-0 overflow-hidden rounded-xl">
-                    <DialogHeader className="bg-indigo-600 p-8 text-white">
-                        <DialogTitle className="text-2xl font-bold">Assign to Program</DialogTitle>
-                        <DialogDescription className="text-indigo-100 opacity-90">Link {selectedCount} selected KAD codes to an EU Program.</DialogDescription>
+                <DialogContent className="max-w-lg p-0 overflow-hidden rounded-lg">
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <Link2 className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Assign to Program</DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">Link {selectedCount} selected KAD codes to an EU Program.</p>
+                            </div>
+                        </div>
                     </DialogHeader>
-                    <div className="p-8 bg-zinc-50 dark:bg-zinc-950">
-                        <Label className="font-bold text-xs uppercase tracking-wider text-zinc-500 mb-2 block">Choose EU Program</Label>
-                        <Select value={selectedProgramId} onValueChange={setSelectedProgramId}>
-                            <SelectTrigger className="h-14 rounded-2xl border-2 focus:ring-indigo-500">
-                                <SelectValue placeholder="Search target program..." />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl shadow-2xl">
-                                {programs.map(p => <SelectItem key={p.id} value={p.id} className="h-12">{p.nameEL || p.id}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                    <div className="bg-[#F3F2F1] p-4">
+                        <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-2">
+                            <Label className="text-[11px] font-semibold text-[#605E5C]">Choose EU Program</Label>
+                            <Select value={selectedProgramId} onValueChange={setSelectedProgramId}>
+                                <SelectTrigger className="h-9 rounded border-[#C8C6C4] focus:ring-[#0078D4] text-sm">
+                                    <SelectValue placeholder="Search target program..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {programs.map(p => <SelectItem key={p.id} value={p.id}>{p.nameEL || p.id}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                    <div className="p-8 border-t bg-white dark:bg-zinc-950 flex justify-end gap-3">
-                        <Button variant="ghost" onClick={() => setIsAssignOpen(false)} className="font-black text-xs uppercase">Cancel</Button>
-                        <Button disabled={isAssigning || !selectedProgramId} onClick={handleBulkAssign} className="bg-indigo-600 text-white font-bold h-12 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all">
-                            {isAssigning ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : "Link KADs Now"}
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setIsAssignOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button disabled={isAssigning || !selectedProgramId} onClick={handleBulkAssign} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                            {isAssigning ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
+                            {isAssigning ? "Linking..." : "Link KADs Now"}
                         </Button>
                     </div>
                 </DialogContent>

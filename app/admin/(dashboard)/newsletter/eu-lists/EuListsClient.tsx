@@ -507,27 +507,26 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
           }
         }}
       >
-        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden rounded-2xl border border-primary/20 shadow-2xl shadow-primary/10 bg-card">
-          <div className="h-1.5 w-full shrink-0 bg-gradient-to-r from-amber-400 via-violet-500 to-emerald-500" aria-hidden />
-          <DialogHeader className="p-5 pb-4 shrink-0 space-y-3 bg-gradient-to-br from-primary/[0.07] via-transparent to-violet-500/[0.06] border-b border-border/80">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 text-primary ring-1 ring-primary/20">
-                <Sparkles className="h-5 w-5" />
-              </span>
-              <div className="min-w-0 flex-1 space-y-1">
-                <DialogTitle className="text-base font-bold tracking-tight sm:text-lg bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+          <DialogHeader className="px-5 py-4 shrink-0 border-b border-[#EDEBE9] bg-white">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                <Users className="w-4 h-4 text-[#0078D4]" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-sm font-bold text-[#201F1E]">
                   Companies &amp; matching criteria
                 </DialogTitle>
                 <DialogDescription asChild>
-                  <div className="space-y-1.5">
-                    <p className="text-[12px] leading-snug text-foreground/85 line-clamp-3 font-medium">
+                  <div className="flex items-center gap-3 mt-0.5">
+                    <p className="text-[11px] text-[#A19F9D] line-clamp-1">
                       {viewDetail?.programNameSnapshot ?? "…"}
                     </p>
                     {viewDetail ? (
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
-                        className="h-7 text-[10px] gap-1 border-primary/25 bg-primary/5 hover:bg-primary/10 text-primary"
+                        className="h-6 px-2 text-[10px] gap-1 text-[#0078D4] hover:bg-[#EFF6FC] shrink-0"
                         asChild
                       >
                         <Link href={`/admin/eu-programs/${viewDetail.euProgramId}`}>
@@ -542,11 +541,11 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
             </div>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3.5 min-h-0">
+          <div className="flex-1 overflow-y-auto bg-[#F3F2F1] px-5 py-4 space-y-3 min-h-0">
             {viewLoading ? (
-              <div className="flex flex-col items-center justify-center py-14 text-muted-foreground gap-2">
-                <Loader2 className="h-6 w-6 animate-spin text-violet-500" />
-                <span className="text-xs">Loading companies…</span>
+              <div className="flex flex-col items-center justify-center py-14 text-[#A19F9D] gap-2">
+                <Loader2 className="h-6 w-6 animate-spin text-[#0078D4]" />
+                <span className="text-[11px] font-semibold">Loading companies…</span>
               </div>
             ) : viewDetail ? (
               <>
@@ -554,7 +553,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                 <RecipientsModalTable data={viewDetail.rows} />
               </>
             ) : (
-              <p className="text-center text-muted-foreground py-8 text-sm">Nothing to show.</p>
+              <p className="text-center text-[#A19F9D] py-8 text-[11px]">Nothing to show.</p>
             )}
           </div>
         </DialogContent>

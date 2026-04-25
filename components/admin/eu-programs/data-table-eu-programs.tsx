@@ -454,31 +454,31 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
     const columns: ColumnDef<EuProgramType>[] = [
         {
             accessorKey: "nameEL",
-            header: "Program Name",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Program Name</span>,
             cell: ({ row }) => (
                 <div className="flex max-w-xl flex-col gap-0.5">
-                    <span className="text-[13px] font-semibold leading-snug tracking-tight text-foreground line-clamp-2">
+                    <span className="text-sm font-semibold text-[#201F1E] line-clamp-2">
                         {row.original.nameEL}
                     </span>
                     {row.original.nameEN ? (
-                        <span className="line-clamp-1 text-[10px] leading-tight text-muted-foreground">{row.original.nameEN}</span>
+                        <span className="line-clamp-1 text-[11px] text-[#A19F9D]">{row.original.nameEN}</span>
                     ) : null}
                 </div>
             )
         },
         {
             accessorKey: "maxBudget",
-            header: "Max Budget",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Max Budget</span>,
             cell: ({ row }) => budgetToNumber(row.original.maxBudget) ? (
-                <div className="flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-1 font-bold text-emerald-600">
                     <Euro className="w-3 h-3" />
                     {budgetToNumber(row.original.maxBudget)?.toLocaleString()}
                 </div>
-            ) : "—"
+            ) : <span className="text-[#A19F9D]">—</span>
         },
         {
             id: "stats",
-            header: "Mapping",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Mapping</span>,
             cell: ({ row }) => {
                 const summary = parseSummaryByProgram[row.original.id]
                 const requirementsCount = summary?.requirements ?? (row.original.requirements?.length || 0)
@@ -487,23 +487,27 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 const isParsed = requirementsCount > 0 || expenseLimitsCount > 0 || kadsCount > 0
                 return (
                     <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className="text-[10px] h-5 bg-zinc-100 dark:bg-zinc-800">{kadsCount} KADs</Badge>
-                        <Badge variant="outline" className="text-[10px] h-5 bg-zinc-100 dark:bg-zinc-800">{row.original.periferies?.length || 0} Regions</Badge>
-                        <Badge variant="outline" className="text-[10px] h-5 bg-zinc-100 dark:bg-zinc-800">{requirementsCount} Requirements</Badge>
-                        <Badge variant="outline" className="text-[10px] h-5 bg-zinc-100 dark:bg-zinc-800">{row.original.criteria?.length || 0} Rules</Badge>
-                        <Badge variant="outline" className="text-[10px] h-5 bg-zinc-100 dark:bg-zinc-800">{expenseLimitsCount} Expense Limits</Badge>
-                        <Badge variant={isParsed ? "default" : "secondary"} className="text-[10px] h-5">{isParsed ? "AI Parsed" : "Not Parsed"}</Badge>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{kadsCount} KADs</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{row.original.periferies?.length || 0} Regions</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{requirementsCount} Requirements</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{row.original.criteria?.length || 0} Rules</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{expenseLimitsCount} Expense Limits</span>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${isParsed ? "bg-[#DFF6DD] text-[#107C10]" : "bg-[#F3F2F1] text-[#A19F9D]"}`}>{isParsed ? "AI Parsed" : "Not Parsed"}</span>
                     </div>
                 )
             }
         },
         {
             accessorKey: "active",
-            header: "Status",
-            cell: ({ row }) => (
-                <Badge variant={row.original.active ? "default" : "destructive"} className="text-[10px] font-bold">
-                    {row.original.active ? "ACTIVE" : "CLOSED"}
-                </Badge>
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
+            cell: ({ row }) => row.original.active ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /> Active
+                </span>
+            ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" /> Closed
+                </span>
             )
         },
         {
@@ -511,7 +515,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="bg-zinc-700 text-white border-none font-bold h-8">
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
                             Actions <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -562,86 +566,48 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 onAddClick={() => openEdit()}
                 addButtonLabel="Add EU Program"
                 renderExpandedRow={(program) => (
-                    <div className="space-y-4 py-4 px-2">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-white dark:bg-zinc-950 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                                <h5 className="text-[10px] font-black text-zinc-400 uppercase mb-3 flex items-center gap-2"><FileText className="w-3 h-3" /> Program Overview</h5>
-                                <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">{program.shortDescriptionEL || "No description provided."}</p>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    {program.submissionDate && <Badge variant="secondary" className="text-[10px]"><Calendar className="w-3 h-3 mr-1" /> Ends: {new Date(program.submissionDate).toLocaleDateString()}</Badge>}
-                                    {program.percentageOfFinance && <Badge variant="secondary" className="text-[10px]">{program.percentageOfFinance} Finance</Badge>}
-                                    {budgetToNumber(program.minBudget) != null && <Badge variant="secondary" className="text-[10px]">Min: {budgetToNumber(program.minBudget)?.toLocaleString()} EUR</Badge>}
-                                    {budgetToNumber(program.maxBudget) != null && <Badge variant="secondary" className="text-[10px]">Max: {budgetToNumber(program.maxBudget)?.toLocaleString()} EUR</Badge>}
+                    <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
+                        <div className="grid grid-cols-2 divide-x divide-[#EDEBE9]">
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><FileText className="w-3 h-3" /> Program Overview</p>
+                                <p className="text-xs leading-relaxed text-[#605E5C]">{program.shortDescriptionEL || "No description provided."}</p>
+                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                    {program.submissionDate && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]"><Calendar className="w-3 h-3" /> Ends: {new Date(program.submissionDate).toLocaleDateString()}</span>}
+                                    {program.percentageOfFinance && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">{program.percentageOfFinance} Finance</span>}
+                                    {budgetToNumber(program.minBudget) != null && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">Min: {budgetToNumber(program.minBudget)?.toLocaleString()} EUR</span>}
+                                    {budgetToNumber(program.maxBudget) != null && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">Max: {budgetToNumber(program.maxBudget)?.toLocaleString()} EUR</span>}
                                 </div>
                             </div>
-                            <div className="bg-white dark:bg-zinc-950 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                                <h5 className="text-[10px] font-black text-zinc-400 uppercase mb-3 flex items-center gap-2"><Map className="w-3 h-3" /> Active Regions</h5>
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Map className="w-3 h-3" /> Active Regions</p>
                                 <div className="flex flex-wrap gap-1">
-                                    {program.periferies?.map(p => <Badge key={p.periferia.id} variant="outline" className="text-[9px]">{p.periferia.nameEL}</Badge>) || <span className="text-[10px] italic text-zinc-500">None linked</span>}
-                                </div>
-                            </div>
-                            <div className="bg-white dark:bg-zinc-950 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                                <h5 className="text-[10px] font-black text-zinc-400 uppercase mb-3 flex items-center gap-2"><FileCode className="w-3 h-3" /> Top Linked KADs</h5>
-                                <div className="grid grid-cols-2 gap-1">
-                                    {program.kads?.slice(0, 10).map(k => <div key={k.kad.id} className="text-[10px] font-mono text-zinc-500 truncate">{k.kad.code}</div>) || <span className="text-[10px] italic text-zinc-500">None linked</span>}
-                                    {program.kads && program.kads.length > 10 && <div className="text-[10px] font-bold text-zinc-400">+{program.kads.length - 10} more</div>}
+                                    {program.periferies?.map(p => <span key={p.periferia.id} className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">{p.periferia.nameEL}</span>) || <span className="text-[11px] italic text-[#A19F9D]">None linked</span>}
                                 </div>
                             </div>
                         </div>
-                        {/* Captured from PDF — confirm what was parsed and saved */}
-                        <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-800 shadow-sm">
-                            <h5 className="text-[10px] font-black text-amber-700 dark:text-amber-400 uppercase mb-3 flex items-center gap-2">Captured from PDF (confirm)</h5>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-[10px]">
-                                <div>
-                                    <div className="font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Requirements</div>
-                                    {program.requirements?.length ? (
-                                        <ul className="space-y-1 max-h-32 overflow-y-auto">
-                                            {program.requirements.map((r) => (
-                                                <li key={r.id} className="font-mono text-zinc-600 dark:text-zinc-400">
-                                                    {r.type} {r.operator} {r.value}
-                                                    {r.errorMessageEL && <span className="block text-zinc-500 truncate" title={r.errorMessageEL}>{r.errorMessageEL}</span>}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : <span className="italic text-zinc-500">None</span>}
+                        <div className="border-t border-[#EDEBE9] grid grid-cols-2 divide-x divide-[#EDEBE9]">
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><FileCode className="w-3 h-3" /> Top Linked KADs</p>
+                                <div className="grid grid-cols-2 gap-1">
+                                    {program.kads?.slice(0, 10).map(k => <div key={k.kad.id} className="text-[10px] font-mono text-[#605E5C] truncate">{k.kad.code}</div>) || <span className="text-[11px] italic text-[#A19F9D]">None linked</span>}
+                                    {program.kads && program.kads.length > 10 && <div className="text-[10px] font-bold text-[#A19F9D]">+{program.kads.length - 10} more</div>}
                                 </div>
-                                <div>
-                                    <div className="font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Expense limits (OPSKE)</div>
-                                    {program.expenseLimits?.length ? (
-                                        <ul className="space-y-1 max-h-32 overflow-y-auto">
-                                            {program.expenseLimits.map((e) => (
-                                                <li key={e.id} className="text-zinc-600 dark:text-zinc-400">
-                                                    <span className="font-mono">{e.expenseCategory.code}</span> — {e.expenseCategory.descriptionEL}
-                                                    {(e.maxPercentage != null || e.minPercentage != null || e.maxAmount) && (
-                                                        <span className="block text-zinc-500">max% {e.maxPercentage ?? "—"} min% {e.minPercentage ?? "—"} max€ {e.maxAmount ?? "—"}</span>
-                                                    )}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : <span className="italic text-zinc-500">None</span>}
-                                </div>
-                                <div>
-                                    <div className="font-semibold text-zinc-600 dark:text-zinc-400 mb-1">KADs (code + description)</div>
-                                    {program.kads?.length ? (
-                                        <ul className="space-y-0.5 max-h-32 overflow-y-auto">
-                                            {program.kads.map((k) => (
-                                                <li key={k.kad.id} className="text-zinc-600 dark:text-zinc-400">
-                                                    <span className="font-mono">{k.kad.dotcode ?? k.kad.code}</span>
-                                                    {k.kad.nameEL ? ` — ${k.kad.nameEL}` : ""}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : <span className="italic text-zinc-500">None</span>}
-                                </div>
-                                <div>
-                                    <div className="font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Regions</div>
-                                    {program.periferies?.length ? (
-                                        <ul className="space-y-0.5 max-h-32 overflow-y-auto">
-                                            {program.periferies.map((p) => (
-                                                <li key={p.periferia.id} className="text-zinc-600 dark:text-zinc-400">{p.periferia.nameEL}</li>
-                                            ))}
-                                        </ul>
-                                    ) : <span className="italic text-zinc-500">None</span>}
+                            </div>
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Captured from PDF</p>
+                                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                                    <div>
+                                        <div className="font-semibold text-[#605E5C] mb-1">Requirements ({program.requirements?.length || 0})</div>
+                                        {program.requirements?.slice(0, 3).map((r) => (
+                                            <div key={r.id} className="font-mono text-[#A19F9D] truncate">{r.type} {r.operator} {r.value}</div>
+                                        ))}
+                                    </div>
+                                    <div>
+                                        <div className="font-semibold text-[#605E5C] mb-1">Expense Limits ({program.expenseLimits?.length || 0})</div>
+                                        {program.expenseLimits?.slice(0, 3).map((e) => (
+                                            <div key={e.id} className="text-[#A19F9D] truncate"><span className="font-mono">{e.expenseCategory.code}</span></div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -649,23 +615,38 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 )}
             />
 
+            {/* Main wizard dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl">
-                    <DialogHeader className="bg-zinc-800 p-8">
-                        <DialogTitle className="text-2xl font-bold text-white">{editingProgram ? "Program Settings" : "New EU Program"}</DialogTitle>
+                <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-lg">
+                    {/* DG Header */}
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <Settings className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                                    {editingProgram ? "Program Settings" : "New EU Program"}
+                                </DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">
+                                    {editingProgram ? `Editing: ${editingProgram.nameEL}` : "Complete all steps to create a new EU program"}
+                                </p>
+                            </div>
+                        </div>
                     </DialogHeader>
 
                     <Tabs value={currentStep} onValueChange={(v) => setCurrentStep(v as WizardStepValue)} className="flex-1 overflow-hidden flex flex-col">
-                        <div className="px-8 pt-4 pb-0 bg-white dark:bg-zinc-950 border-b">
-                            <div className="text-[11px] font-semibold text-zinc-500 mb-2">
-                                {`Step ${currentStepIndex + 1} of ${WIZARD_STEPS.length}`}
+                        {/* Step tabs — DG text tabs */}
+                        <div className="px-5 bg-white border-b border-[#EDEBE9]">
+                            <div className="text-[11px] text-[#A19F9D] pt-3 pb-1">
+                                Step {currentStepIndex + 1} of {WIZARD_STEPS.length}
                             </div>
-                            <TabsList className="bg-zinc-100 dark:bg-zinc-900 p-1 min-h-12 rounded-2xl border mb-4 w-full flex flex-wrap gap-1">
-                                {WIZARD_STEPS.map((s, i) => (
+                            <TabsList className="bg-transparent p-0 h-auto flex flex-wrap gap-0 rounded-none border-0 w-full">
+                                {WIZARD_STEPS.map((s) => (
                                     <TabsTrigger
                                         key={s.value}
                                         value={s.value}
-                                        className="rounded-xl font-bold text-[10px] uppercase px-2 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+                                        className="rounded-none border-b-2 border-transparent px-3 py-2 text-[11px] font-semibold text-[#605E5C] data-[state=active]:border-[#0078D4] data-[state=active]:text-[#0078D4] data-[state=active]:bg-transparent bg-transparent shadow-none"
                                     >
                                         {s.label}
                                     </TabsTrigger>
@@ -673,60 +654,110 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                             </TabsList>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-8 bg-zinc-50 dark:bg-zinc-950">
-                            <TabsContent value="general" className="m-0 space-y-6">
-                                <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/10 p-4 rounded-2xl border border-blue-100 dark:border-blue-800">
-                                    <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">Automatic translation is available for Greek content.</span>
-                                    <Button size="sm" onClick={handleTranslate} disabled={isTranslating} className="bg-zinc-800 text-white font-bold h-9">
-                                        {isTranslating ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : <Languages className="w-4 h-4 mr-2" />} Translate to English
+                        {/* Body */}
+                        <div className="flex-1 overflow-y-auto bg-[#F3F2F1] p-4">
+                            <TabsContent value="general" className="m-0 space-y-3">
+                                <div className="flex items-center justify-between bg-white rounded-lg border border-[#EDEBE9] p-3">
+                                    <span className="text-[11px] text-[#605E5C]">Automatic translation available for Greek content.</span>
+                                    <Button size="sm" onClick={handleTranslate} disabled={isTranslating} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                                        {isTranslating ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <Languages className="w-3 h-3 mr-2" />} Translate to English
                                     </Button>
                                 </div>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-4">
-                                        <div><Label>Name (GR)</Label><Input value={formData.nameEL} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} /></div>
-                                        <div><Label>Short Description (GR)</Label><Textarea value={formData.shortDescriptionEL} onChange={e => setFormData({ ...formData, shortDescriptionEL: e.target.value })} /></div>
-                                        <div><Label>Description (GR)</Label><Textarea className="h-32" value={formData.descriptionEL} onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })} /></div>
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Name (GR)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEL} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Name (EN)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEN} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Short Description (GR)</Label>
+                                            <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.shortDescriptionEL} onChange={e => setFormData({ ...formData, shortDescriptionEL: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Short Description (EN)</Label>
+                                            <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.shortDescriptionEN} onChange={e => setFormData({ ...formData, shortDescriptionEN: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Description (GR)</Label>
+                                            <Textarea className="h-28 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.descriptionEL} onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Description (EN)</Label>
+                                            <Textarea className="h-28 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.descriptionEN} onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })} />
+                                        </div>
                                     </div>
-                                    <div className="space-y-4">
-                                        <div><Label>Name (EN)</Label><Input value={formData.nameEN} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} /></div>
-                                        <div><Label>Short Description (EN)</Label><Textarea value={formData.shortDescriptionEN} onChange={e => setFormData({ ...formData, shortDescriptionEN: e.target.value })} /></div>
-                                        <div><Label>Description (EN)</Label><Textarea className="h-32" value={formData.descriptionEN} onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })} /></div>
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="dates" className="m-0">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#A19F9D]">Deadlines & Status</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Announced Date</Label>
+                                            <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.announcedDate || ""} onChange={e => setFormData({ ...formData, announcedDate: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Submission Date</Label>
+                                            <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.submissionDate} onChange={e => setFormData({ ...formData, submissionDate: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">End Date</Label>
+                                            <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.endDate || ""} onChange={e => setFormData({ ...formData, endDate: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox checked={formData.active} onCheckedChange={c => setFormData({ ...formData, active: !!c })} />
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Program is Active</Label>
                                     </div>
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="dates" className="m-0 space-y-6">
-                                <p className="text-xs text-zinc-500">Set deadlines and active status.</p>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><Label>Announced Date</Label><Input type="date" value={formData.announcedDate || ""} onChange={e => setFormData({ ...formData, announcedDate: e.target.value })} /></div>
-                                    <div><Label>Submission Date</Label><Input type="date" value={formData.submissionDate} onChange={e => setFormData({ ...formData, submissionDate: e.target.value })} /></div>
-                                    <div><Label>End Date</Label><Input type="date" value={formData.endDate || ""} onChange={e => setFormData({ ...formData, endDate: e.target.value })} /></div>
+                            <TabsContent value="financials" className="m-0">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#A19F9D]">Budget & Finance</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Min Budget (€)</Label>
+                                            <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.minBudget} onChange={e => setFormData({ ...formData, minBudget: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Max Budget (€)</Label>
+                                            <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.maxBudget} onChange={e => setFormData({ ...formData, maxBudget: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Finance %</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.percentageOfFinance} onChange={e => setFormData({ ...formData, percentageOfFinance: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Indirect Cost %</Label>
+                                            <Input type="number" step="0.01" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.indirectCostPercentage} onChange={e => setFormData({ ...formData, indirectCostPercentage: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Minimum company years</Label>
+                                            <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.minimumCompanyYears || ""} onChange={e => setFormData({ ...formData, minimumCompanyYears: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Minimum employees</Label>
+                                            <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.minimumEmployees || ""} onChange={e => setFormData({ ...formData, minimumEmployees: e.target.value })} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2"><Checkbox checked={formData.active} onCheckedChange={c => setFormData({ ...formData, active: !!c })} /><Label className="font-bold">Program is Active</Label></div>
                             </TabsContent>
 
-                            <TabsContent value="financials" className="m-0 space-y-6">
-                                <p className="text-xs text-zinc-500">Budget and finance percentage.</p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><Label>Min Budget (€)</Label><Input type="number" value={formData.minBudget} onChange={e => setFormData({ ...formData, minBudget: e.target.value })} /></div>
-                                    <div><Label>Max Budget (€)</Label><Input type="number" value={formData.maxBudget} onChange={e => setFormData({ ...formData, maxBudget: e.target.value })} /></div>
-                                    <div><Label>Finance %</Label><Input value={formData.percentageOfFinance} onChange={e => setFormData({ ...formData, percentageOfFinance: e.target.value })} /></div>
-                                    <div><Label>Indirect Cost %</Label><Input type="number" step="0.01" value={formData.indirectCostPercentage} onChange={e => setFormData({ ...formData, indirectCostPercentage: e.target.value })} /></div>
-                                    <div><Label>Minimum company years</Label><Input type="number" value={formData.minimumCompanyYears || ""} onChange={e => setFormData({ ...formData, minimumCompanyYears: e.target.value })} /></div>
-                                    <div><Label>Minimum employees</Label><Input type="number" value={formData.minimumEmployees || ""} onChange={e => setFormData({ ...formData, minimumEmployees: e.target.value })} /></div>
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="criteria" className="m-0 space-y-6">
-                                <p className="text-xs text-zinc-500">Custom eligibility rules (key, operator, value).</p>
-                                <div className="space-y-3">
+                            <TabsContent value="criteria" className="m-0">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="font-bold text-zinc-400 uppercase text-[10px] tracking-widest">Eligibility Rules</h4>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Eligibility Rules</p>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             size="sm"
-                                            className="h-8"
+                                            className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded"
                                             onClick={() =>
                                                 setFormData((prev) => ({
                                                     ...prev,
@@ -742,88 +773,32 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                     </div>
                                     <div className="space-y-2">
                                         {formData.criteria.map((criterion, idx) => (
-                                            <div key={`${criterion.key}-${idx}`} className="grid grid-cols-12 gap-2 bg-white dark:bg-zinc-900 border rounded-xl p-3">
-                                                <Input
-                                                    className="col-span-3"
-                                                    placeholder="AVERAGE_TURNOVER"
-                                                    value={criterion.key}
-                                                    onChange={(e) =>
-                                                        setFormData((prev) => {
-                                                            const next = [...prev.criteria]
-                                                            next[idx] = { ...next[idx], key: e.target.value }
-                                                            return { ...prev, criteria: next }
-                                                        })
-                                                    }
-                                                />
-                                                <Input
-                                                    className="col-span-2"
-                                                    placeholder=">="
-                                                    value={criterion.operator}
-                                                    onChange={(e) =>
-                                                        setFormData((prev) => {
-                                                            const next = [...prev.criteria]
-                                                            next[idx] = { ...next[idx], operator: e.target.value }
-                                                            return { ...prev, criteria: next }
-                                                        })
-                                                    }
-                                                />
-                                                <Input
-                                                    className="col-span-3"
-                                                    placeholder="10000"
-                                                    value={criterion.targetValue}
-                                                    onChange={(e) =>
-                                                        setFormData((prev) => {
-                                                            const next = [...prev.criteria]
-                                                            next[idx] = { ...next[idx], targetValue: e.target.value }
-                                                            return { ...prev, criteria: next }
-                                                        })
-                                                    }
-                                                />
-                                                <Input
-                                                    className="col-span-3"
-                                                    placeholder="Error message"
-                                                    value={criterion.errorMessage}
-                                                    onChange={(e) =>
-                                                        setFormData((prev) => {
-                                                            const next = [...prev.criteria]
-                                                            next[idx] = { ...next[idx], errorMessage: e.target.value }
-                                                            return { ...prev, criteria: next }
-                                                        })
-                                                    }
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="col-span-1"
-                                                    onClick={() =>
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            criteria: prev.criteria.filter((_, index) => index !== idx),
-                                                        }))
-                                                    }
-                                                >
+                                            <div key={`${criterion.key}-${idx}`} className="grid grid-cols-12 gap-2 bg-[#F3F2F1] border border-[#EDEBE9] rounded p-3">
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="AVERAGE_TURNOVER" value={criterion.key} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], key: e.target.value }; return { ...prev, criteria: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder=">=" value={criterion.operator} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], operator: e.target.value }; return { ...prev, criteria: next } })} />
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="10000" value={criterion.targetValue} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], targetValue: e.target.value }; return { ...prev, criteria: next } })} />
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="Error message" value={criterion.errorMessage} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], errorMessage: e.target.value }; return { ...prev, criteria: next } })} />
+                                                <Button type="button" variant="ghost" size="icon" className="col-span-1 h-9 w-9" onClick={() => setFormData((prev) => ({ ...prev, criteria: prev.criteria.filter((_, index) => index !== idx) }))}>
                                                     <Trash2 className="w-4 h-4 text-red-500" />
                                                 </Button>
                                             </div>
                                         ))}
                                         {formData.criteria.length === 0 && (
-                                            <p className="text-xs text-zinc-500">No custom rules added yet.</p>
+                                            <p className="text-[11px] text-[#A19F9D]">No custom rules added yet.</p>
                                         )}
                                     </div>
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="requirements" className="m-0 space-y-6">
-                                <p className="text-xs text-zinc-500">Validator requirements (type, key, operator, value).</p>
-                                <div className="space-y-3">
+                            <TabsContent value="requirements" className="m-0">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="font-bold text-zinc-400 uppercase text-[10px] tracking-widest">Program Requirements</h4>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Program Requirements</p>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             size="sm"
-                                            className="h-8"
+                                            className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded"
                                             onClick={() =>
                                                 setFormData((prev) => ({
                                                     ...prev,
@@ -839,48 +814,36 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                     </div>
                                     <div className="space-y-2">
                                         {formData.requirements.map((req, idx) => (
-                                            <div key={`${req.key}-${idx}`} className="grid grid-cols-12 gap-2 bg-white dark:bg-zinc-900 border rounded-xl p-3">
-                                                <Input className="col-span-2" placeholder="TYPE" value={req.type} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], type: e.target.value.toUpperCase() }; return { ...prev, requirements: next } })} />
-                                                <Input className="col-span-2" placeholder="key" value={req.key} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], key: e.target.value }; return { ...prev, requirements: next } })} />
-                                                <Input className="col-span-2" placeholder="operator" value={req.operator} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], operator: e.target.value.toUpperCase() }; return { ...prev, requirements: next } })} />
-                                                <Input className="col-span-2" placeholder="value" value={req.value} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], value: e.target.value }; return { ...prev, requirements: next } })} />
-                                                <Input className="col-span-3" placeholder="error message (EL)" value={req.errorMessageEL} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], errorMessageEL: e.target.value }; return { ...prev, requirements: next } })} />
-                                                <div className="col-span-1 flex items-center justify-center">
+                                            <div key={`${req.key}-${idx}`} className="grid grid-cols-12 gap-2 bg-[#F3F2F1] border border-[#EDEBE9] rounded p-3">
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="TYPE" value={req.type} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], type: e.target.value.toUpperCase() }; return { ...prev, requirements: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="key" value={req.key} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], key: e.target.value }; return { ...prev, requirements: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="operator" value={req.operator} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], operator: e.target.value.toUpperCase() }; return { ...prev, requirements: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="value" value={req.value} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], value: e.target.value }; return { ...prev, requirements: next } })} />
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="error message (EL)" value={req.errorMessageEL} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], errorMessageEL: e.target.value }; return { ...prev, requirements: next } })} />
+                                                <div className="col-span-1 flex items-center justify-center gap-1">
                                                     <Checkbox checked={req.isMandatory} onCheckedChange={(v) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], isMandatory: !!v }; return { ...prev, requirements: next } })} />
+                                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setFormData((prev) => ({ ...prev, requirements: prev.requirements.filter((_, index) => index !== idx) }))}>
+                                                        <Trash2 className="w-3 h-3 text-red-500" />
+                                                    </Button>
                                                 </div>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="col-span-1"
-                                                    onClick={() =>
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            requirements: prev.requirements.filter((_, index) => index !== idx),
-                                                        }))
-                                                    }
-                                                >
-                                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                                </Button>
                                             </div>
                                         ))}
                                         {formData.requirements.length === 0 && (
-                                            <p className="text-xs text-zinc-500">No validator requirements yet.</p>
+                                            <p className="text-[11px] text-[#A19F9D]">No validator requirements yet.</p>
                                         )}
                                     </div>
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="expenseLimits" className="m-0 space-y-6">
-                                <p className="text-xs text-zinc-500">Expense category limits (OPSKE codes and caps).</p>
-                                <div className="space-y-3">
+                            <TabsContent value="expenseLimits" className="m-0">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="font-bold text-zinc-400 uppercase text-[10px] tracking-widest">Expense Limits (OPSKE)</h4>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Expense Limits (OPSKE)</p>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             size="sm"
-                                            className="h-8"
+                                            className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded"
                                             onClick={() =>
                                                 setFormData((prev) => ({
                                                     ...prev,
@@ -896,129 +859,127 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                     </div>
                                     <div className="space-y-2">
                                         {formData.expenseLimits.map((limit, idx) => (
-                                            <div key={`${limit.code}-${idx}`} className="grid grid-cols-12 gap-2 bg-white dark:bg-zinc-900 border rounded-xl p-3">
-                                                <Input className="col-span-2" placeholder="OPSKE code" value={limit.code} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], code: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-3" placeholder="description" value={limit.description} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], description: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-2" placeholder="max %" value={limit.maxPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-2" placeholder="min %" value={limit.minPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], minPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-2" placeholder="max amount" value={limit.maxAmount} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxAmount: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <div className="col-span-1 flex items-center justify-center">
+                                            <div key={`${limit.code}-${idx}`} className="grid grid-cols-12 gap-2 bg-[#F3F2F1] border border-[#EDEBE9] rounded p-3">
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="OPSKE code" value={limit.code} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], code: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="description" value={limit.description} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], description: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="max %" value={limit.maxPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="min %" value={limit.minPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], minPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="max amount" value={limit.maxAmount} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxAmount: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <div className="col-span-1 flex items-center justify-center gap-1">
                                                     <Checkbox checked={limit.isMandatory} onCheckedChange={(v) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], isMandatory: !!v }; return { ...prev, expenseLimits: next } })} />
+                                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setFormData((prev) => ({ ...prev, expenseLimits: prev.expenseLimits.filter((_, index) => index !== idx) }))}>
+                                                        <Trash2 className="w-3 h-3 text-red-500" />
+                                                    </Button>
                                                 </div>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="col-span-1"
-                                                    onClick={() =>
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            expenseLimits: prev.expenseLimits.filter((_, index) => index !== idx),
-                                                        }))
-                                                    }
-                                                >
-                                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                                </Button>
                                             </div>
                                         ))}
                                         {formData.expenseLimits.length === 0 && (
-                                            <p className="text-xs text-zinc-500">No expense limits added yet.</p>
+                                            <p className="text-[11px] text-[#A19F9D]">No expense limits added yet.</p>
                                         )}
                                     </div>
                                 </div>
                             </TabsContent>
 
                             <TabsContent value="regions" className="m-0">
-                                <div className="grid grid-cols-3 gap-3">
-                                    {allPeriferies.map(p => (
-                                        <div key={p.id} className={`p-4 rounded-2xl border flex items-center gap-3 transition-all cursor-pointer ${selectedPeriferies.has(p.id) ? 'bg-amber-50 border-amber-300 dark:bg-amber-900/20' : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800'}`} onClick={() => {
-                                            const next = new Set(selectedPeriferies);
-                                            if (next.has(p.id)) next.delete(p.id); else next.add(p.id);
-                                            setSelectedPeriferies(next);
-                                        }}>
-                                            <Checkbox checked={selectedPeriferies.has(p.id)} onCheckedChange={() => { }} />
-                                            <span className="text-xs font-bold">{p.nameEL}</span>
-                                        </div>
-                                    ))}
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Select Active Regions</p>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {allPeriferies.map(p => (
+                                            <div
+                                                key={p.id}
+                                                className={`p-3 rounded border flex items-center gap-2 cursor-pointer transition-colors ${selectedPeriferies.has(p.id) ? 'bg-[#EFF6FC] border-[#C7E0F4]' : 'bg-white border-[#EDEBE9] hover:bg-[#F3F2F1]'}`}
+                                                onClick={() => {
+                                                    const next = new Set(selectedPeriferies);
+                                                    if (next.has(p.id)) next.delete(p.id); else next.add(p.id);
+                                                    setSelectedPeriferies(next);
+                                                }}
+                                            >
+                                                <Checkbox checked={selectedPeriferies.has(p.id)} onCheckedChange={() => { }} />
+                                                <span className="text-[11px] font-semibold text-[#201F1E]">{p.nameEL}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="kads" className="m-0 space-y-6">
-                                <div className="bg-emerald-600 p-6 rounded-3xl text-white flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-2xl">
-                                    <div>
-                                        <h3 className="text-lg font-bold">Step 4 - KADs & Program PDF</h3>
-                                        <p className="text-sm opacity-90 mt-1">Parse requirements, expense limits, and KADs from PDF, or insert KADs manually from prompt text.</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Label className="bg-white text-emerald-700 px-4 py-2 rounded-xl font-bold text-xs cursor-pointer shadow-lg">
-                                            Choose PDF
-                                            <input
-                                                type="file"
-                                                className="hidden"
-                                                accept="application/pdf"
-                                                onChange={(e) => setProgramDetailsFile(e.target.files?.[0] || null)}
-                                            />
-                                        </Label>
-                                        <Button
-                                            onClick={handleUploadProgramDetails}
-                                            disabled={isProcessingProgramDetails || !programDetailsFile || !editingProgram}
-                                            className="bg-zinc-900 text-white font-bold hover:bg-zinc-800"
-                                        >
-                                            {isProcessingProgramDetails ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : null}
-                                            {isProcessingProgramDetails ? "Processing..." : "Parse & Save"}
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="bg-white dark:bg-zinc-900 border rounded-2xl p-4 space-y-3">
+                            <TabsContent value="kads" className="m-0 space-y-3">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-xs font-black uppercase tracking-widest text-zinc-500">Manual KAD Input</h4>
-                                        {!editingProgram ? (
-                                            <Badge variant="outline" className="text-[10px]">Save first to create new codes</Badge>
-                                        ) : null}
+                                        <div>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">KADs & Program PDF</p>
+                                            <p className="text-[11px] text-[#605E5C] mt-0.5">Parse requirements, expense limits, and KADs from PDF, or insert KADs manually.</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Label className="h-8 px-3 text-[12px] font-semibold border border-[#C8C6C4] hover:bg-[#EDEBE9] rounded flex items-center cursor-pointer">
+                                                Choose PDF
+                                                <input type="file" className="hidden" accept="application/pdf" onChange={(e) => setProgramDetailsFile(e.target.files?.[0] || null)} />
+                                            </Label>
+                                            <Button
+                                                onClick={handleUploadProgramDetails}
+                                                disabled={isProcessingProgramDetails || !programDetailsFile || !editingProgram}
+                                                className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]"
+                                            >
+                                                {isProcessingProgramDetails ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
+                                                {isProcessingProgramDetails ? "Processing..." : "Parse & Save"}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    {programDetailsFile && <p className="text-[11px] text-[#0078D4]">Selected: {programDetailsFile.name}</p>}
+                                </div>
+
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Manual KAD Input</p>
+                                        {!editingProgram && <span className="text-[11px] text-[#A19F9D] italic">Save first to create new codes</span>}
                                     </div>
                                     <Textarea
                                         value={manualKadInput}
                                         onChange={(e) => setManualKadInput(e.target.value)}
                                         placeholder="Paste text from prompt or PDF appendix. Example: 46.11, 56.10, 62.01"
-                                        className="min-h-[90px]"
+                                        className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm min-h-[80px]"
                                     />
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[11px] text-zinc-500">The importer auto-detects patterns like 46.11 and links them to this program.</p>
+                                        <p className="text-[11px] text-[#A19F9D]">Auto-detects patterns like 46.11 and links them to this program.</p>
                                         <Button
                                             onClick={handleImportManualKads}
                                             disabled={isImportingManualKads || !manualKadInput.trim()}
-                                            className="bg-zinc-800 text-white font-bold"
+                                            className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]"
                                         >
-                                            {isImportingManualKads ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : null}
+                                            {isImportingManualKads ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
                                             {isImportingManualKads ? "Importing..." : "Import KADs"}
                                         </Button>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-6 h-[400px]">
-                                    <div className="bg-white dark:bg-zinc-900 border rounded-2xl overflow-hidden flex flex-col pt-4">
-                                        <div className="px-4 pb-4 border-b flex justify-between items-center"><span className="text-xs font-black uppercase tracking-widest text-zinc-400">Linked KADs ({selectedKads.size})</span></div>
-                                        <div className="flex-1 overflow-y-auto p-4 space-y-1">
+
+                                <div className="grid grid-cols-2 gap-3 h-[360px]">
+                                    <div className="bg-white rounded-lg border border-[#EDEBE9] overflow-hidden flex flex-col">
+                                        <div className="px-4 py-2 border-b border-[#EDEBE9]">
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Linked KADs ({selectedKads.size})</span>
+                                        </div>
+                                        <div className="flex-1 overflow-y-auto p-3 space-y-1">
                                             {allKads.filter(k => selectedKads.has(k.id)).map(k => (
-                                                <div key={k.id} className="flex items-center gap-2 p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
-                                                    <span className="font-mono font-bold text-xs">{k.code}</span>
-                                                    <span className="text-[10px] text-zinc-500 truncate">{k.nameEL}</span>
+                                                <div key={k.id} className="flex items-center gap-2 p-2 bg-[#F3F2F1] rounded">
+                                                    <span className="font-mono font-bold text-[11px] text-[#201F1E]">{k.code}</span>
+                                                    <span className="text-[10px] text-[#A19F9D] truncate">{k.nameEL}</span>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="bg-white dark:bg-zinc-900 border rounded-2xl overflow-hidden flex flex-col">
-                                        <div className="p-4 border-b"><Input placeholder="Search KAD codes..." value={kadSearch} onChange={e => setKadSearch(e.target.value)} className="h-9 text-xs" /></div>
-                                        <div className="flex-1 overflow-y-auto p-4 space-y-1">
+                                    <div className="bg-white rounded-lg border border-[#EDEBE9] overflow-hidden flex flex-col">
+                                        <div className="p-3 border-b border-[#EDEBE9]">
+                                            <Input placeholder="Search KAD codes..." value={kadSearch} onChange={e => setKadSearch(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+                                        </div>
+                                        <div className="flex-1 overflow-y-auto p-3 space-y-1">
                                             {allKads.filter(k => !kadSearch || k.code.includes(kadSearch) || k.nameEL.toLowerCase().includes(kadSearch.toLowerCase())).slice(0, 50).map(kad => (
-                                                <div key={kad.id} className="flex items-center gap-3 p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg cursor-pointer" onClick={() => {
+                                                <div key={kad.id} className="flex items-center gap-2 p-2 hover:bg-[#F3F2F1] rounded cursor-pointer" onClick={() => {
                                                     const next = new Set(selectedKads);
                                                     if (next.has(kad.id)) next.delete(kad.id); else next.add(kad.id);
                                                     setSelectedKads(next);
                                                 }}>
                                                     <Checkbox checked={selectedKads.has(kad.id)} onCheckedChange={() => { }} />
                                                     <div className="flex flex-col">
-                                                        <span className="font-bold text-xs">{kad.code}</span>
-                                                        <span className="text-[9px] text-zinc-500 truncate w-40">{kad.nameEL}</span>
+                                                        <span className="font-bold text-[11px] text-[#201F1E]">{kad.code}</span>
+                                                        <span className="text-[10px] text-[#A19F9D] truncate w-40">{kad.nameEL}</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -1027,38 +988,35 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="media" className="m-0 space-y-6">
-                                <p className="text-xs text-zinc-500">Program image and publication file URLs. For multiple media items use the Program details page.</p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Image URL</Label>
-                                        <Input
-                                            value={formData.image || ""}
-                                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                            placeholder="https://..."
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Publication file URL</Label>
-                                        <Input
-                                            value={formData.publicationFile || ""}
-                                            onChange={(e) => setFormData({ ...formData, publicationFile: e.target.value })}
-                                            placeholder="https://..."
-                                        />
+                            <TabsContent value="media" className="m-0">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Media & Files</p>
+                                    <p className="text-[11px] text-[#A19F9D]">Program image and publication file URLs. For multiple media items use the Program details page.</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Image URL</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.image || ""} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Publication file URL</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.publicationFile || ""} onChange={(e) => setFormData({ ...formData, publicationFile: e.target.value })} placeholder="https://..." />
+                                        </div>
                                     </div>
                                 </div>
                             </TabsContent>
                         </div>
 
-                        <div className="p-8 border-t bg-white dark:bg-zinc-950 flex items-center justify-between gap-3 rounded-b-3xl">
+                        {/* Footer */}
+                        <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                                <Button variant="outline" onClick={goToPreviousStep} disabled={isFirstStep} className="font-bold uppercase tracking-widest text-xs">Back</Button>
-                                <Button variant="outline" onClick={goToNextStep} disabled={isLastStep} className="font-bold uppercase tracking-widest text-xs">Next</Button>
+                                <Button variant="ghost" onClick={goToPreviousStep} disabled={isFirstStep} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Back</Button>
+                                <Button variant="ghost" onClick={goToNextStep} disabled={isLastStep} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Next</Button>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold uppercase tracking-widest text-xs">Cancel</Button>
-                                <Button disabled={isSaving} onClick={handleSave} className="bg-zinc-800 text-white font-bold h-12 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all">
-                                {isSaving ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : "Save Changes"}
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                                <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                                    {isSaving ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
+                                    {isSaving ? "Saving..." : "Save Changes"}
                                 </Button>
                             </div>
                         </div>
@@ -1066,77 +1024,81 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 </DialogContent>
             </Dialog>
 
-            <Dialog
-                open={isRowUploadModalOpen}
-                onOpenChange={(open) => {
-                    if (deepSeekStatus === "processing") return
-                    setIsRowUploadModalOpen(open)
-                }}
-            >
-                <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>Upload Entire Program PDF</DialogTitle>
-                        <DialogDescription>
-                            {rowUploadProgram ? `Program: ${rowUploadProgram.nameEL}` : "Select a program PDF to parse."}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <Input
-                            type="file"
-                            accept="application/pdf"
-                            onChange={(e) => setRowUploadFile(e.target.files?.[0] || null)}
-                        />
-                        <div className="flex justify-end gap-2">
-                            <Button variant="outline" onClick={() => setIsRowUploadModalOpen(false)} disabled={deepSeekStatus === "processing"}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleRowUploadSubmit} disabled={!rowUploadFile || deepSeekStatus === "processing"}>
-                                <Upload className="w-4 h-4 mr-2" />
-                                Parse & Save
-                            </Button>
+            {/* Row upload modal */}
+            <Dialog open={isRowUploadModalOpen} onOpenChange={(open) => { if (deepSeekStatus === "processing") return; setIsRowUploadModalOpen(open) }}>
+                <DialogContent className="max-w-lg p-0 overflow-hidden rounded-lg">
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <Upload className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Upload Entire Program PDF</DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">{rowUploadProgram ? rowUploadProgram.nameEL : "Select a program PDF to parse."}</p>
+                            </div>
                         </div>
+                    </DialogHeader>
+                    <div className="bg-[#F3F2F1] p-4">
+                        <div className="bg-white rounded-lg border border-[#EDEBE9] p-4">
+                            <Input type="file" accept="application/pdf" className="h-9 rounded border-[#C8C6C4] text-sm" onChange={(e) => setRowUploadFile(e.target.files?.[0] || null)} />
+                        </div>
+                    </div>
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setIsRowUploadModalOpen(false)} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button onClick={handleRowUploadSubmit} disabled={!rowUploadFile || deepSeekStatus === "processing"} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                            <Upload className="w-3 h-3 mr-2" /> Parse & Save
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>
 
+            {/* DeepSeek progress modal */}
             <Dialog open={deepSeekModalOpen} onOpenChange={closeDeepSeekModal}>
-                <DialogContent className="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {deepSeekStatus === "processing" ? "DeepSeek Processing" : deepSeekStatus === "success" ? "Parsing Completed" : "Parsing Failed"}
-                        </DialogTitle>
-                        <DialogDescription>{deepSeekMessage}</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        {deepSeekStatus === "processing" ? (
-                            <div className="flex items-center gap-3 rounded-lg border p-4 bg-zinc-50 dark:bg-zinc-900">
-                                <RefreshCcw className="w-5 h-5 animate-spin text-emerald-600" />
-                                <p className="text-sm">Please wait while requirements, expense limits, and KADs are extracted...</p>
+                <DialogContent className="max-w-md p-0 overflow-hidden rounded-lg">
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                {deepSeekStatus === "processing" ? <RefreshCcw className="w-4 h-4 text-[#0078D4] animate-spin" /> : deepSeekStatus === "success" ? <Check className="w-4 h-4 text-[#107C10]" /> : <Trash2 className="w-4 h-4 text-[#A4262C]" />}
                             </div>
-                        ) : null}
-                        {deepSeekStatus === "success" && deepSeekResult ? (
-                            <div className="grid grid-cols-3 gap-2">
-                                <Badge className="justify-center py-2">{deepSeekResult.requirements} Requirements</Badge>
-                                <Badge className="justify-center py-2">{deepSeekResult.expenseLimits} Limits</Badge>
-                                <Badge className="justify-center py-2">{deepSeekResult.kads} KADs</Badge>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                                    {deepSeekStatus === "processing" ? "DeepSeek Processing" : deepSeekStatus === "success" ? "Parsing Completed" : "Parsing Failed"}
+                                </DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">{deepSeekMessage}</p>
                             </div>
-                        ) : null}
-                        <div className="flex justify-end gap-2">
-                            <Button variant="outline" onClick={closeDeepSeekModal} disabled={deepSeekStatus === "processing"}>
-                                Close
-                            </Button>
-                            {deepSeekStatus !== "processing" ? (
-                                <Button
-                                    onClick={() => {
-                                        setDeepSeekModalOpen(false)
-                                        setIsRowUploadModalOpen(false)
-                                        window.location.reload()
-                                    }}
-                                >
-                                    Refresh Data
-                                </Button>
-                            ) : null}
                         </div>
+                    </DialogHeader>
+                    <div className="bg-[#F3F2F1] p-4 space-y-3">
+                        {deepSeekStatus === "processing" && (
+                            <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 flex items-center gap-3">
+                                <RefreshCcw className="w-4 h-4 animate-spin text-[#0078D4]" />
+                                <p className="text-[11px] text-[#605E5C]">Extracting requirements, expense limits, and KADs...</p>
+                            </div>
+                        )}
+                        {deepSeekStatus === "success" && deepSeekResult && (
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
+                                    <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.requirements}</div>
+                                    <div className="text-[11px] text-[#A19F9D]">Requirements</div>
+                                </div>
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
+                                    <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.expenseLimits}</div>
+                                    <div className="text-[11px] text-[#A19F9D]">Limits</div>
+                                </div>
+                                <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
+                                    <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.kads}</div>
+                                    <div className="text-[11px] text-[#A19F9D]">KADs</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" onClick={closeDeepSeekModal} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Close</Button>
+                        {deepSeekStatus !== "processing" && (
+                            <Button onClick={() => { setDeepSeekModalOpen(false); setIsRowUploadModalOpen(false); window.location.reload() }} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                                Refresh Data
+                            </Button>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>

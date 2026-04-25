@@ -19,6 +19,11 @@ import {
   Twitter,
   Youtube,
   type LucideIcon,
+  Star,
+  AlignLeft,
+  Share2,
+  Columns,
+  CopyCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,9 +99,9 @@ export function FooterPageEditor({ initialEL, initialEN }: Props) {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col bg-[#F3F2F1] -m-4 md:-m-6 p-4 md:p-6 min-h-screen">
       {/* Sticky save bar */}
-      <div className="sticky top-0 z-10 -mx-4 md:-mx-6 mb-6 border-b border-border bg-background/95 px-4 md:px-6 py-3 backdrop-blur">
+      <div className="sticky top-0 z-10 -mx-4 md:-mx-6 mb-6 border-b border-[#EDEBE9] bg-white/95 px-4 md:px-6 py-3 backdrop-blur">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-bold tracking-tight">Footer</h1>
@@ -179,8 +184,8 @@ function FooterFields({
   onChange: (patch: Partial<FooterLocaleContent>) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <Card title="Brand" subtitle="The logo at the top of the footer">
+    <div className="space-y-4">
+      <Card title="Brand" subtitle="The logo at the top of the footer" icon={<Star className="w-3 h-3" />}>
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Plain prefix (white)">
             <Input
@@ -205,7 +210,7 @@ function FooterFields({
         </div>
       </Card>
 
-      <Card title="Tagline" subtitle="Short paragraph under the logo">
+      <Card title="Tagline" subtitle="Short paragraph under the logo" icon={<AlignLeft className="w-3 h-3" />}>
         <Textarea
           value={c.tagline}
           onChange={(e) => onChange({ tagline: e.target.value })}
@@ -216,6 +221,7 @@ function FooterFields({
       <Card
         title="Social links"
         subtitle="URLs starting with http/mailto/tel automatically open in a new tab"
+        icon={<Share2 className="w-3 h-3" />}
         actions={
           <Button
             type="button"
@@ -269,6 +275,7 @@ function FooterFields({
       <Card
         title="Link columns"
         subtitle="The footer shows exactly 3 columns of links"
+        icon={<Columns className="w-3 h-3" />}
       >
         <div className="grid md:grid-cols-3 gap-4">
           {c.columns.map((col, colIdx) => (
@@ -286,7 +293,7 @@ function FooterFields({
         </div>
       </Card>
 
-      <Card title="Bottom bar">
+      <Card title="Bottom bar" icon={<CopyCheck className="w-3 h-3" />}>
         <div className="space-y-4">
           <Field label="Copyright">
             <Input
@@ -333,8 +340,8 @@ function SocialRow({
   const external = social.href && isExternal(social.href);
 
   return (
-    <div className="grid items-center gap-2 rounded-md border border-border bg-card/50 p-2 md:grid-cols-[auto_10rem_minmax(0,2fr)_minmax(0,1fr)_auto]">
-      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-muted text-foreground">
+    <div className="grid items-center gap-2 rounded-md border border-[#EDEBE9] bg-[#F9F8F7] p-2 md:grid-cols-[auto_10rem_minmax(0,2fr)_minmax(0,1fr)_auto]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#EDEBE9] text-[#605E5C]">
         <Icon className="w-4 h-4" />
       </div>
       <select
@@ -410,9 +417,9 @@ function ColumnCard({
     onChange({ ...column, links });
 
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+    <div className="rounded-lg border border-[#EDEBE9] bg-[#F9F8F7] p-3 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">
           Column {index + 1}
         </span>
         <Button
@@ -438,7 +445,7 @@ function ColumnCard({
       )}
       <div className="space-y-2">
         {column.links.map((link, i) => (
-          <div key={i} className="rounded-md border border-border bg-card/60 p-2 space-y-2">
+          <div key={i} className="rounded-md border border-[#EDEBE9] bg-white p-2 space-y-2">
             <Input
               value={link.name}
               onChange={(e) => {
@@ -565,21 +572,25 @@ function FooterPreview({ content: c }: { content: FooterLocaleContent }) {
 function Card({
   title,
   subtitle,
+  icon,
   actions,
   children,
 }: {
   title: string;
   subtitle?: string;
+  icon?: React.ReactNode;
   actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-border bg-card p-4">
-      <header className="mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+    <section className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+      <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold">{title}</h3>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1 flex items-center gap-1.5">
+            {icon}{title}
+          </p>
           {subtitle && (
-            <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+            <p className="text-[11px] text-[#A19F9D]">{subtitle}</p>
           )}
         </div>
         {actions}
@@ -598,7 +609,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-foreground text-xs">{label}</Label>
+      <Label className="text-[11px] font-semibold text-[#605E5C]">{label}</Label>
       {children}
     </div>
   );

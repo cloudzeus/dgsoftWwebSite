@@ -156,9 +156,9 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                 const meta = LEVEL_META[row.original.level] || LEVEL_META[6]
                 const Icon = meta.icon
                 return (
-                    <Badge variant="outline" className={`text-[10px] font-black uppercase tracking-widest ${meta.color} bg-white dark:bg-zinc-900 border-current/20`}>
-                        <Icon className="w-3 h-3 mr-1" /> {meta.label}
-                    </Badge>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${meta.color} bg-white border border-current/20`}>
+                        <Icon className="w-3 h-3" /> {meta.label}
+                    </span>
                 )
             }
         },
@@ -166,23 +166,23 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
             accessorKey: "nameEL",
             header: "Region Name",
             cell: ({ row }) => (
-                <div className="flex flex-col">
-                    <span className="font-bold text-sm">{row.original.nameEL}</span>
-                    {row.original.nameEN && <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{row.original.nameEN}</span>}
+                <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-semibold text-[#201F1E]">{row.original.nameEL}</span>
+                    {row.original.nameEN && <span className="text-[11px] text-[#A19F9D]">{row.original.nameEN}</span>}
                 </div>
             )
         },
         {
             accessorKey: "code",
             header: "Kallikratis ID",
-            cell: ({ row }) => <code className="text-[10px] font-mono bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">{row.original.code}</code>
+            cell: ({ row }) => <code className="text-[10px] font-mono bg-[#F3F2F1] px-2 py-0.5 rounded text-[#605E5C]">{row.original.code}</code>
         },
         {
             id: "actions",
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="h-8 bg-zinc-700 text-white border-none font-bold">
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
                             Actions <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -199,20 +199,21 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50 p-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm mb-4">
-                <div className="flex gap-2">
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white rounded-lg border border-[#EDEBE9]">
+                <div className="flex flex-wrap gap-2">
                     {Object.entries(LEVEL_META).map(([lvl, meta]) => (
-                        <div key={lvl} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${meta.color} font-bold text-[10px] uppercase tracking-widest bg-white dark:bg-zinc-900 shadow-sm`}>
+                        <div key={lvl} className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-semibold ${meta.color} border border-current/20 bg-white`}>
                             <meta.icon className="w-3 h-3" /> {meta.label}
                         </div>
                     ))}
                 </div>
-                <div className="flex gap-3">
-                    <Button variant="outline" size="sm" onClick={handleTranslateAll} disabled={isTranslating} className="border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-50 rounded-xl h-10 px-4">
-                        {isTranslating ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : <Globe className="w-4 h-4 mr-2" />} Translate All
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={handleTranslateAll} disabled={isTranslating} className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
+                        {isTranslating ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <Globe className="w-3 h-3 mr-2" />} Translate All
                     </Button>
-                    <Button size="sm" onClick={handleImport} disabled={isImporting} className="bg-zinc-800 text-white font-bold h-10 px-4 rounded-xl shadow-lg transition-transform active:scale-95">
-                        {isImporting ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : <DownloadCloud className="w-4 h-4 mr-2" />} Sync Kallikratis
+                    <Button size="sm" onClick={handleImport} disabled={isImporting} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                        {isImporting ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <DownloadCloud className="w-3 h-3 mr-2" />} Sync Kallikratis
                     </Button>
                     <GeocodePeriferiesButton />
                 </div>
@@ -228,25 +229,30 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                 getSubRows={row => row.children}
                 getRowClassName={row => LEVEL_META[row.level]?.bg || ""}
                 renderExpandedRow={(region) => (
-                    <div className="py-6 px-4">
-                        <div className="bg-white dark:bg-zinc-950 p-6 rounded-3xl border shadow-inner max-w-2xl">
-                            <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Layers className="w-3 h-3" /> Regional Metadata</h5>
-                            <div className="grid grid-cols-2 gap-8 text-sm">
-                                <div>
-                                    <Label className="text-zinc-400 font-bold block mb-1">Hierarchy Path</Label>
-                                    <p className="font-mono text-xs">{region.parentCode ? `${region.parentCode} → ${region.code}` : region.code}</p>
+                    <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
+                        <div className="grid grid-cols-2 divide-x divide-[#EDEBE9]">
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Layers className="w-3 h-3" /> Regional Metadata</p>
+                                <div className="space-y-2 text-sm">
+                                    <div>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Hierarchy Path</Label>
+                                        <p className="font-mono text-[11px] text-[#201F1E]">{region.parentCode ? `${region.parentCode} → ${region.code}` : region.code}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Coordinates</Label>
+                                        <p className="font-mono text-[11px] text-[#201F1E]">
+                                            {region.latitude != null && region.longitude != null
+                                                ? `${region.latitude.toFixed(4)}, ${region.longitude.toFixed(4)}`
+                                                : "—"}
+                                        </p>
+                                    </div>
                                 </div>
+                            </div>
+                            <div className="p-4 space-y-2">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Sub-regions</p>
                                 <div>
-                                    <Label className="text-zinc-400 font-bold block mb-1">Total Sub-regions</Label>
-                                    <p className="font-bold text-indigo-600">{region.children?.length || 0} Children</p>
-                                </div>
-                                <div>
-                                    <Label className="text-zinc-400 font-bold block mb-1">Coordinates</Label>
-                                    <p className="font-mono text-xs">
-                                        {region.latitude != null && region.longitude != null
-                                            ? `${region.latitude.toFixed(4)}, ${region.longitude.toFixed(4)}`
-                                            : "—"}
-                                    </p>
+                                    <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Total Children</Label>
+                                    <p className="text-sm font-bold text-[#0078D4]">{region.children?.length || 0} Children</p>
                                 </div>
                             </div>
                         </div>
@@ -254,49 +260,63 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                 )}
             />
 
+            {/* Edit / Create dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl">
-                    <DialogHeader className="bg-zinc-800 p-8">
-                        <DialogTitle className="text-2xl font-bold text-white">
-                            {editingItem ? `Edit: ${editingItem.nameEL}` : addingToParent ? `Add sub-region under ${addingToParent.nameEL}` : "Create Root Region"}
-                        </DialogTitle>
+                <DialogContent className="max-w-xl p-0 overflow-hidden rounded-lg">
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <MapPin className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                                    {editingItem ? `Edit: ${editingItem.nameEL}` : addingToParent ? `Add sub-region under ${addingToParent.nameEL}` : "Create Root Region"}
+                                </DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">
+                                    {editingItem ? "Update region details" : addingToParent ? `Parent code: ${addingToParent.code}` : "Add a top-level region"}
+                                </p>
+                            </div>
+                        </div>
                     </DialogHeader>
 
-                    <div className="p-8 space-y-6 bg-zinc-50 dark:bg-zinc-950">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-zinc-500">Government Code</Label>
-                                <Input className="h-12 font-mono" value={formData.code} onChange={e => setFormData(f => ({ ...f, code: e.target.value }))} />
+                    <div className="bg-[#F3F2F1] p-4">
+                        <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Government Code</Label>
+                                    <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.code} onChange={e => setFormData(f => ({ ...f, code: e.target.value }))} />
+                                </div>
+                                <div className="space-y-1">
+                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Regional Level</Label>
+                                    <Select value={String(formData.level)} onValueChange={v => setFormData(f => ({ ...f, level: parseInt(v) }))}>
+                                        <SelectTrigger className="h-9 rounded border-[#C8C6C4] focus:ring-[#0078D4] text-sm">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="3">Περιφέρεια</SelectItem>
+                                            <SelectItem value="4">Νομός / Ενότητα</SelectItem>
+                                            <SelectItem value="5">Δήμος</SelectItem>
+                                            <SelectItem value="6">Περιοχή</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase text-zinc-500">Regional Level</Label>
-                                <Select value={String(formData.level)} onValueChange={v => setFormData(f => ({ ...f, level: parseInt(v) }))}>
-                                    <SelectTrigger className="h-12 rounded-xl">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="3">Περιφέρεια</SelectItem>
-                                        <SelectItem value="4">Νομός / Ενότητα</SelectItem>
-                                        <SelectItem value="5">Δήμος</SelectItem>
-                                        <SelectItem value="6">Περιοχή</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="space-y-1">
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Full Name (Greek)</Label>
+                                <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEL} onChange={e => setFormData(f => ({ ...f, nameEL: e.target.value }))} />
                             </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-zinc-500">Full Name (Greek)</Label>
-                            <Input className="h-12 font-bold" value={formData.nameEL} onChange={e => setFormData(f => ({ ...f, nameEL: e.target.value }))} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase text-zinc-500">Full Name (English)</Label>
-                            <Input className="h-12" value={formData.nameEN} onChange={e => setFormData(f => ({ ...f, nameEN: e.target.value }))} />
+                            <div className="space-y-1">
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Full Name (English)</Label>
+                                <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEN} onChange={e => setFormData(f => ({ ...f, nameEN: e.target.value }))} />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="p-8 border-t bg-white dark:bg-zinc-950 flex justify-end gap-3 rounded-b-3xl">
-                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-bold uppercase tracking-widest text-xs">Cancel</Button>
-                        <Button disabled={isSaving} onClick={handleSave} className="bg-zinc-800 text-white font-bold h-12 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all">
-                            {isSaving ? <RefreshCcw className="w-4 h-4 animate-spin mr-2" /> : "Save Region"}
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                            {isSaving ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
+                            {isSaving ? "Saving..." : "Save Region"}
                         </Button>
                     </div>
                 </DialogContent>

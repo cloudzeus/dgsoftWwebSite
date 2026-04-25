@@ -7,7 +7,6 @@ import {
     Plus,
     GripVertical,
     Trash2,
-    Wand2,
     Sparkles,
     Image as ImageIcon,
     Star,
@@ -24,15 +23,10 @@ import {
     Award,
     RefreshCcw,
     ExternalLink,
-    Calendar,
-    Briefcase,
     Layout,
-    Layers,
-    Rocket,
-    CheckCircle2
 } from "lucide-react"
 
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core"
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 
@@ -81,33 +75,44 @@ const ICON_MAP: Record<string, React.ElementType> = {
     TrendingUp, Clock, Users, CheckCircle, BarChart2, Database, Zap, Shield, Globe, Award
 }
 
-const MediaSortableItem = ({ item, isFeatured, onSetFeatured, onDelete }: { item: WorkMedia, isFeatured: boolean, onSetFeatured: () => void, onDelete: (id: string) => void }) => {
+const MediaSortableItem = ({ item, isFeatured, onSetFeatured, onDelete }: {
+    item: WorkMedia
+    isFeatured: boolean
+    onSetFeatured: () => void
+    onDelete: (id: string) => void
+}) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id || item.url })
     const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }
     return (
-        <div ref={setNodeRef} style={style} className="flex items-center gap-4 p-4 border rounded-[24px] bg-white dark:bg-zinc-900 mb-3 group hover:shadow-lg transition-all border-zinc-200 dark:border-zinc-800">
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl">
-                <GripVertical className="h-4 w-4 text-zinc-400" />
+        <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-3 border border-[#EDEBE9] rounded-lg bg-white mb-2 group hover:border-[#C7E0F4] transition-all">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-[#F3F2F1] rounded">
+                <GripVertical className="h-4 w-4 text-[#A19F9D]" />
             </div>
-            <div className="relative w-24 h-24 rounded-2xl overflow-hidden shadow-inner bg-zinc-50 border border-zinc-100 p-1">
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-[#F3F2F1] border border-[#EDEBE9] shrink-0">
                 {item.type === "IMAGE" ? (
-                    <img src={item.url} alt="media" className="w-full h-full object-cover rounded-xl" />
+                    <img src={item.url} alt="media" className="w-full h-full object-cover" />
                 ) : (
-                    <video src={item.url} className="w-full h-full object-cover rounded-xl" muted />
+                    <video src={item.url} className="w-full h-full object-cover" muted />
                 )}
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-mono text-zinc-400 truncate tracking-tighter">{item.url.split('/').pop()}</p>
-                <div className="mt-3 flex items-center gap-2">
-                    <Badge variant="outline" className="text-[10px] uppercase font-black text-zinc-400 border-zinc-200">{item.type}</Badge>
-                    {isFeatured && <Badge className="bg-amber-500 text-white border-none text-[10px] font-black uppercase tracking-widest px-3 shadow-lg shadow-amber-500/20"><Star className="w-3 h-3 mr-1 fill-white" /> Featured / Κεντρικό</Badge>}
+                <p className="text-[10px] font-mono text-[#A19F9D] truncate">{item.url.split('/').pop()}</p>
+                <div className="mt-1.5 flex items-center gap-2">
+                    <Badge variant="outline" className="text-[10px] uppercase font-semibold text-[#605E5C] border-[#C8C6C4]">{item.type}</Badge>
+                    {isFeatured && (
+                        <Badge className="bg-amber-500/10 text-amber-600 border-none text-[10px] font-semibold px-2">
+                            <Star className="w-3 h-3 mr-1 fill-amber-500" /> Featured
+                        </Badge>
+                    )}
                 </div>
             </div>
             <div className="flex items-center gap-2">
                 {!isFeatured && (
-                    <Button size="sm" variant="ghost" onClick={onSetFeatured} className="h-9 px-4 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 hover:text-amber-500">Set Main / Ορισμός κεντρικού</Button>
+                    <Button size="sm" variant="ghost" onClick={onSetFeatured} className="h-8 px-3 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
+                        Set Main
+                    </Button>
                 )}
-                <Button size="icon" variant="ghost" onClick={() => onDelete(item.id || item.url)} className="text-zinc-300 hover:text-red-500 h-9 w-9 hover:bg-red-50 dark:hover:bg-red-900/20">
+                <Button size="icon" variant="ghost" onClick={() => onDelete(item.id || item.url)} className="text-[#A19F9D] hover:text-red-500 h-8 w-8 hover:bg-red-50 rounded">
                     <Trash2 className="h-4 w-4" />
                 </Button>
             </div>
@@ -115,7 +120,11 @@ const MediaSortableItem = ({ item, isFeatured, onSetFeatured, onDelete }: { item
     )
 }
 
-export function DataTableWorks({ data: initialData, allCustomers, allServices }: { data: Work[], allCustomers: WorkCustomer[], allServices: WorkService[] }) {
+export function DataTableWorks({ data: initialData, allCustomers, allServices }: {
+    data: Work[]
+    allCustomers: WorkCustomer[]
+    allServices: WorkService[]
+}) {
     const [data, setData] = React.useState<Work[]>(initialData || [])
     const [isMounted, setIsMounted] = React.useState(false)
 
@@ -152,8 +161,10 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
         if (work) {
             setEditingWork(work)
             setFormData({
-                slug: work.slug, titleEL: work.titleEL, titleEN: work.titleEN || "", challengeEL: work.challengeEL || "", challengeEN: work.challengeEN || "",
-                completionDate: work.completionDate || "", customerId: work.customerId || "", servicesUsed: (work.servicesUsed as string[]) || [],
+                slug: work.slug, titleEL: work.titleEL, titleEN: work.titleEN || "",
+                challengeEL: work.challengeEL || "", challengeEN: work.challengeEN || "",
+                completionDate: work.completionDate || "", customerId: work.customerId || "",
+                servicesUsed: (work.servicesUsed as string[]) || [],
                 stepsEL: (work.stepsEL as string[]) || [], stepsEN: (work.stepsEN as string[]) || [],
                 stats: (work.stats as WorkStat[])?.length > 0 ? work.stats as WorkStat[] : [
                     { icon: "TrendingUp", value: "", textEL: "", textEN: "" },
@@ -166,8 +177,9 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
         } else {
             setEditingWork(null)
             setFormData({
-                slug: "", titleEL: "", titleEN: "", challengeEL: "", challengeEN: "", completionDate: "", customerId: "",
-                servicesUsed: [], stepsEL: [], stepsEN: [], stats: [], published: false, media: []
+                slug: "", titleEL: "", titleEN: "", challengeEL: "", challengeEN: "",
+                completionDate: "", customerId: "", servicesUsed: [], stepsEL: [], stepsEN: [],
+                stats: [], published: false, media: []
             })
         }
         setIsDialogOpen(true)
@@ -240,54 +252,65 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
     }
 
     const columns: ColumnDef<Work>[] = [
-        { id: "drag", header: "", cell: () => <GripVertical className="h-4 w-4 text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity" />, size: 40 },
+        {
+            id: "drag",
+            header: "",
+            cell: () => <GripVertical className="h-4 w-4 text-[#C8C6C4] opacity-0 group-hover:opacity-100 transition-opacity" />,
+            size: 40
+        },
         {
             id: "hero",
-            header: "Media / Μέσα",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Media</span>,
             cell: ({ row }) => {
                 const media = row.original.media || []
                 const hero = media.find((m: WorkMedia) => m.featured) || media[0]
                 return (
-                    <div className="relative w-16 h-10 rounded-lg overflow-hidden border bg-zinc-50 shadow-sm flex items-center justify-center p-1">
+                    <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-[#EDEBE9] bg-[#F3F2F1] shrink-0 flex items-center justify-center">
                         {hero ? (
                             (hero.type || "IMAGE").toUpperCase() === "VIDEO" ? (
-                                <video src={hero.url} className="w-full h-full object-cover rounded" muted playsInline />
+                                <video src={hero.url} className="w-full h-full object-cover" muted playsInline />
                             ) : (
-                                <img src={hero.url} alt="" className="w-full h-full object-cover rounded" referrerPolicy="no-referrer" />
+                                <img src={hero.url} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             )
                         ) : (
-                            <span title={media.length ? `${media.length} items` : "No media"} className="inline-flex">
-                                <ImageIcon className="w-4 h-4 text-zinc-300" />
-                            </span>
+                            <ImageIcon className="w-4 h-4 text-[#C8C6C4]" />
                         )}
                         {media.length > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-zinc-800 text-white text-[9px] font-bold h-4 min-w-4 rounded-full flex items-center justify-center px-1">
+                            <span className="absolute -top-1 -right-1 bg-[#605E5C] text-white text-[9px] font-bold h-4 min-w-4 rounded-full flex items-center justify-center px-1">
                                 {media.length}
                             </span>
                         )}
                     </div>
                 )
             },
-            size: 80
+            size: 60
         },
         {
             accessorKey: "titleEL",
-            header: "Case Study / Μελέτη",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Case Study</span>,
             cell: ({ row }) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{row.original.titleEL}</span>
-                    {row.original.titleEN && <span className="text-[10px] text-zinc-500 dark:text-zinc-400 italic">{row.original.titleEN}</span>}
-                    <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-mono mt-0.5">Client: {row.original.customer?.NAME || "Independent Project"}</span>
+                    <span className="text-sm font-semibold text-[#201F1E]">{row.original.titleEL}</span>
+                    {row.original.titleEN && <span className="text-[11px] text-[#A19F9D] italic">{row.original.titleEN}</span>}
+                    <span className="text-[11px] text-[#A19F9D] mt-0.5">
+                        {row.original.customer?.NAME || "Independent Project"}
+                    </span>
                 </div>
             )
         },
         {
             accessorKey: "published",
-            header: "Status / Κατάσταση",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
             cell: ({ row }) => row.original.published ? (
-                <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[10px] font-black uppercase tracking-widest px-3 py-1">Public / Δημοσίο</Badge>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    Public
+                </span>
             ) : (
-                <Badge variant="outline" className="text-zinc-300 border-zinc-200 text-[10px] font-black uppercase tracking-widest px-3 py-1">Draft / Πρόχειρο</Badge>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />
+                    Draft
+                </span>
             )
         },
         {
@@ -295,20 +318,26 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="h-9 bg-zinc-800 text-white border-none font-bold hover:bg-zinc-700 rounded-xl">
-                            Actions <ChevronDown className="h-4 w-4 ml-1" />
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
+                            Actions <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[180px]">
-                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Layout className="w-4 h-4 mr-2" /> Modify / Τροποποίηση</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => window.open(`/works/${row.original.slug}`, "_blank")}><ExternalLink className="w-4 h-4 mr-2" /> Preview / Προεπισκόπηση</DropdownMenuItem>
+                    <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onClick={() => openEdit(row.original)} className="text-sm">
+                            <Layout className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => window.open(`/works/${row.original.slug}`, "_blank")} className="text-sm">
+                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> Preview
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-500" onClick={async () => {
-                            if (confirm("Decommission this case study? / Απόσυρση μελέτης περίπτωσης;")) {
-                                await deleteWork(row.original.id);
-                                setData(data.filter(d => d.id !== row.original.id));
+                        <DropdownMenuItem className="text-red-500 text-sm" onClick={async () => {
+                            if (confirm("Archive this case study?")) {
+                                await deleteWork(row.original.id)
+                                setData(data.filter(d => d.id !== row.original.id))
                             }
-                        }}><Trash2 className="w-4 h-4 mr-2" /> Archive / Απόθεμα</DropdownMenuItem>
+                        }}>
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -316,107 +345,120 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
     ]
 
     const renderExpandedRow = (work: Work) => (
-        <div className="py-10 px-8 bg-[#f8fafc] dark:bg-zinc-950/50 rounded-[40px] border border-zinc-200 dark:border-zinc-800 shadow-inner">
+        <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
             <Tabs defaultValue="highlights">
-                <TabsList className="mb-8 bg-white dark:bg-zinc-900 p-1.5 h-12 rounded-[24px] border shadow-sm w-fit gap-2">
-                    <TabsTrigger value="highlights" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl h-9 transition-all">Outcome Matrix / Αποτελέσματα</TabsTrigger>
-                    <TabsTrigger value="media" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl h-9 transition-all">Media Gallery / Μέσα ({(work.media || []).length})</TabsTrigger>
-                </TabsList>
+                <div className="px-4 pt-3 pb-0">
+                    <TabsList className="mb-0 bg-white border border-[#EDEBE9] p-0.5 h-8 rounded gap-0.5 w-fit">
+                        <TabsTrigger value="highlights" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
+                            Highlights
+                        </TabsTrigger>
+                        <TabsTrigger value="media" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
+                            Media ({(work.media || []).length})
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
 
-                <TabsContent value="highlights" className="animate-in fade-in duration-500 space-y-10">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        {work.stats?.map((stat, i) => {
-                            const Icon = ICON_MAP[stat.icon] || TrendingUp
-                            return (
-                                <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm flex flex-col items-center text-center group hover:border-indigo-200 transition-all">
-                                    <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <Icon className="w-6 h-6 text-indigo-500" />
+                <TabsContent value="highlights" className="animate-in fade-in duration-300 p-4 space-y-4">
+                    {work.stats && work.stats.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#EDEBE9] rounded-lg overflow-hidden">
+                            {work.stats.map((stat, i) => {
+                                const Icon = ICON_MAP[stat.icon] || TrendingUp
+                                return (
+                                    <div key={i} className="bg-white px-3 py-3 flex flex-col items-center text-center">
+                                        <div className="w-8 h-8 bg-[#EFF6FC] border border-[#C7E0F4] rounded flex items-center justify-center mb-2">
+                                            <Icon className="w-4 h-4 text-[#0078D4]" />
+                                        </div>
+                                        <span className="text-sm font-bold text-[#201F1E]">{stat.value}</span>
+                                        <span className="text-[10px] font-semibold uppercase text-[#605E5C] tracking-wide">{stat.textEL || "—"}</span>
+                                        {stat.textEN && <span className="text-[10px] text-[#A19F9D] italic">({stat.textEN})</span>}
                                     </div>
-                                    <span className="text-2xl font-black text-zinc-800 dark:text-zinc-100 mb-1">{stat.value}</span>
-                                    <span className="text-[10px] font-black uppercase text-zinc-600 dark:text-zinc-300 tracking-widest">{stat.textEL || "—"}</span>
-                                    {stat.textEN && <span className="text-[10px] text-zinc-400 italic block mt-0.5">({stat.textEN})</span>}
-                                </div>
-                            )
-                        })}
-                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div className="space-y-6">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-3"><Rocket className="w-4 h-4" /> Strategic Challenge (EL / EN)</h4>
-                            <p className="text-sm leading-[1.8] font-medium text-zinc-600 dark:text-zinc-400 bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm italic">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#EDEBE9] rounded-lg overflow-hidden">
+                        <div className="bg-white p-4 space-y-2">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Strategic Challenge</p>
+                            <p className="text-sm leading-relaxed text-[#605E5C] italic">
                                 &quot;{work.challengeEL || "Challenge briefing not yet defined."}&quot;
                             </p>
-                            {work.challengeEN && <p className="text-sm leading-[1.8] font-medium text-zinc-500 dark:bg-zinc-900/50 p-6 rounded-2xl border border-zinc-100 mt-2 italic">EN: &quot;{work.challengeEN}&quot;</p>}
+                            {work.challengeEN && <p className="text-[11px] text-[#A19F9D] italic">EN: &quot;{work.challengeEN}&quot;</p>}
                         </div>
-                        <div className="space-y-6">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-3"><Layers className="w-4 h-4" /> Ecosystem Components / Υπηρεσίες</h4>
-                            <div className="flex flex-wrap gap-2">
+                        <div className="bg-white p-4 space-y-2">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Services Used</p>
+                            <div className="flex flex-wrap gap-1.5">
                                 {work.servicesUsed?.map(sid => {
-                                    const s = allServices.find(x => x.id === sid);
-                                    return s ? <Badge key={sid} variant="secondary" className="bg-zinc-100 text-zinc-700 border-none rounded-xl py-2 px-4 text-xs font-bold">{s.nameEL}{s.nameEN ? ` / ${s.nameEN}` : ""}</Badge> : null;
+                                    const s = allServices.find(x => x.id === sid)
+                                    return s ? (
+                                        <Badge key={sid} variant="secondary" className="bg-[#F3F2F1] text-[#605E5C] border-none rounded text-xs font-semibold">
+                                            {s.nameEL}{s.nameEN ? ` / ${s.nameEN}` : ""}
+                                        </Badge>
+                                    ) : null
                                 })}
                             </div>
-                            <div className="pt-6 border-t border-zinc-100 flex items-center gap-4">
-                                <div className="flex -space-x-3">
+                            <div className="pt-3 border-t border-[#EDEBE9] flex items-center gap-3">
+                                <div className="flex -space-x-2">
                                     {(work.media || []).slice(0, 3).map((m, i) => (
-                                        <div key={m.id || m.url || i} className="w-10 h-10 rounded-full border-2 border-white dark:border-zinc-900 overflow-hidden bg-zinc-100 shadow-md">
-                                            {m.type === "VIDEO" ? <video src={m.url} className="w-full h-full object-cover" muted /> : <img src={m.url} alt="" className="w-full h-full object-cover" />}
+                                        <div key={m.id || m.url || i} className="w-8 h-8 rounded-lg border border-[#EDEBE9] overflow-hidden bg-[#F3F2F1]">
+                                            {m.type === "VIDEO"
+                                                ? <video src={m.url} className="w-full h-full object-cover" muted />
+                                                : <img src={m.url} alt="" className="w-full h-full object-cover" />}
                                         </div>
                                     ))}
                                 </div>
-                                <span className="text-[10px] font-black uppercase text-zinc-400">{(work.media || []).length} media</span>
+                                <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">{(work.media || []).length} media assets</span>
                             </div>
                         </div>
                     </div>
                 </TabsContent>
 
-                <TabsContent value="media" className="animate-in fade-in duration-500">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-xl font-black text-zinc-800 dark:text-zinc-200 tracking-tighter">Production Assets / Ανέβασμα μέσων ({(work.media || []).length})</h3>
-                        <Label className="cursor-pointer bg-emerald-600 shadow-xl shadow-emerald-500/20 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center gap-2">
-                            <Plus className="w-4 h-4" /> Add Evidence / Προσθήκη μέσου
+                <TabsContent value="media" className="animate-in fade-in duration-300 p-4">
+                    <div className="flex justify-between items-center mb-3">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Production Assets ({(work.media || []).length})</p>
+                        <Label className="cursor-pointer h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded inline-flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                            <Plus className="w-3.5 h-3.5" /> Add Media
                             <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={e => handleMediaUpload(e.target.files, work.id)} />
                         </Label>
                     </div>
-                    <div className="grid grid-cols-1 gap-1 max-w-4xl">
+                    <div className="space-y-1">
                         {(work.media || []).length === 0 ? (
-                            <div className="py-16 text-center rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
-                                <ImageIcon className="w-12 h-12 mx-auto text-zinc-300 mb-4" />
-                                <p className="text-sm font-medium text-zinc-500">No media yet. Use &quot;Add Evidence&quot; above to upload images or videos.</p>
-                                <p className="text-xs text-zinc-400 mt-1">Δεν υπάρχουν μέσα. Χρησιμοποιήστε το κουμπί για ανέβασμα.</p>
+                            <div className="py-8 text-center rounded-lg border border-dashed border-[#EDEBE9] bg-white">
+                                <ImageIcon className="w-8 h-8 mx-auto text-[#C8C6C4] mb-2" />
+                                <p className="text-sm font-medium text-[#A19F9D]">No media yet. Upload images or videos.</p>
                             </div>
                         ) : (
-                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => {
-                            const { active, over } = e;
-                            if (active.id !== over?.id) {
-                                const mediaList = work.media || []
-                                const oldIdx = mediaList.findIndex(i => (i.id || i.url) === active.id)
-                                const newIdx = mediaList.findIndex(i => (i.id || i.url) === over?.id)
-                                const newMediaList = arrayMove(mediaList, oldIdx, newIdx)
-                                updateWork(work.id, { ...work, media: newMediaList }).then(res => setData(data.map(w => w.id === res.id ? res as any : w)));
-                            }
-                        }}>
-                            <SortableContext items={(work.media || []).map(m => m.id || m.url)} strategy={verticalListSortingStrategy}>
-                                {(work.media || []).map(m => (
-                                    <MediaSortableItem
-                                        key={m.id || m.url} item={m} isFeatured={m.featured}
-                                        onDelete={async (id) => {
-                                            if (confirm("Purge asset? / Διαγραφή μέσου;")) {
+                            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => {
+                                const { active, over } = e
+                                if (active.id !== over?.id) {
+                                    const mediaList = work.media || []
+                                    const oldIdx = mediaList.findIndex(i => (i.id || i.url) === active.id)
+                                    const newIdx = mediaList.findIndex(i => (i.id || i.url) === over?.id)
+                                    const newMediaList = arrayMove(mediaList, oldIdx, newIdx)
+                                    updateWork(work.id, { ...work, media: newMediaList }).then(res => setData(data.map(w => w.id === res.id ? res as any : w)))
+                                }
+                            }}>
+                                <SortableContext items={(work.media || []).map(m => m.id || m.url)} strategy={verticalListSortingStrategy}>
+                                    {(work.media || []).map(m => (
+                                        <MediaSortableItem
+                                            key={m.id || m.url} item={m} isFeatured={m.featured}
+                                            onDelete={async (id) => {
+                                                if (confirm("Delete asset?")) {
+                                                    const mediaList = work.media || []
+                                                    const upd = await updateWork(work.id, { ...work, media: mediaList.filter(x => (x.id || x.url) !== id) })
+                                                    setData(data.map(w => w.id === upd.id ? upd as any : w))
+                                                }
+                                            }}
+                                            onSetFeatured={async () => {
                                                 const mediaList = work.media || []
-                                                const upd = await updateWork(work.id, { ...work, media: mediaList.filter(x => (x.id || x.url) !== id) });
-                                                setData(data.map(w => w.id === upd.id ? upd as any : w));
-                                            }
-                                        }}
-                                        onSetFeatured={async () => {
-                                            const mediaList = work.media || []
-                                            const upd = await updateWork(work.id, { ...work, media: mediaList.map(x => ({ ...x, featured: x.url === m.url })) });
-                                            setData(data.map(w => w.id === upd.id ? upd as any : w));
-                                            toast.success("Featured / Κεντρικό μέσο ενημερώθηκε");
-                                        }}
-                                    />
-                                ))}
-                            </SortableContext>
-                        </DndContext>
+                                                const upd = await updateWork(work.id, { ...work, media: mediaList.map(x => ({ ...x, featured: x.url === m.url })) })
+                                                setData(data.map(w => w.id === upd.id ? upd as any : w))
+                                                toast.success("Featured media updated")
+                                            }}
+                                        />
+                                    ))}
+                                </SortableContext>
+                            </DndContext>
                         )}
                     </div>
                 </TabsContent>
@@ -429,197 +471,259 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
     return (
         <div className="space-y-4">
             <GenericDataTable
-                columns={columns} data={data} searchPlaceholder="Αναζήτηση έργου... / Locate success story..." searchColumn="titleEL"
-                onAddClick={() => openEdit()} addButtonLabel="Νέο Έργο / Document Success"
+                columns={columns} data={data} searchPlaceholder="Αναζήτηση έργου..." searchColumn="titleEL"
+                onAddClick={() => openEdit()} addButtonLabel="Νέο Έργο"
                 isSortable={true} rowIdKey="id" onReorder={handleReorder}
                 renderExpandedRow={renderExpandedRow}
             />
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-6xl p-0 overflow-hidden rounded-xl">
-                    <DialogHeader className="bg-zinc-800 p-10">
+                <DialogContent className="max-w-6xl p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+                    {/* Dialog Header */}
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
                         <div className="flex justify-between items-center">
-                            <div>
-                                <DialogTitle className="text-3xl font-black text-white tracking-tighter mb-2">{editingWork ? 'Ενημέρωση Μελέτης / Update Success Narrative' : 'Νέα Μελέτη / Initialize Outcome Study'}</DialogTitle>
-                                <DialogDescription className="text-zinc-400 font-medium">Δημιουργία μελετών αντικτύπου με μετρήσεις απόδοσης. Engineer high-impact case studies with automated performance metrics.</DialogDescription>
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 rounded-lg bg-[#EFF6FC] border border-[#C7E0F4] p-1 flex items-center justify-center shrink-0">
+                                    <Layout className="w-4 h-4 text-[#0078D4]" />
+                                </div>
+                                <div>
+                                    <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                                        {editingWork ? 'Ενημέρωση Μελέτης' : 'Νέα Μελέτη Περίπτωσης'}
+                                    </DialogTitle>
+                                    <DialogDescription className="text-[11px] text-[#A19F9D]">
+                                        Δημιουργία μελετών αντικτύπου με μετρήσεις απόδοσης.
+                                    </DialogDescription>
+                                </div>
                             </div>
-                            <Button size="lg" onClick={handleGenerate} disabled={isGenerating} className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] px-10 rounded-2xl h-14 shadow-xl shadow-indigo-600/20">
-                                {isGenerating ? <RefreshCcw className="w-5 h-5 animate-spin mr-3" /> : <Sparkles className="w-5 h-5 mr-3" />} Forge with AI / Δημιουργία με AI
+                            <Button size="sm" onClick={handleGenerate} disabled={isGenerating} className="h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95">
+                                {isGenerating ? <RefreshCcw className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
+                                Forge with AI
                             </Button>
                         </div>
                     </DialogHeader>
 
-                    <div className="p-10 bg-[#f8fafc] dark:bg-zinc-950 max-h-[70vh] overflow-y-auto scrollbar-hide">
+                    {/* Dialog Body */}
+                    <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto">
                         <Tabs defaultValue="base">
-                            <TabsList className="bg-zinc-200/50 dark:bg-zinc-800/50 p-1.5 h-12 rounded-[24px] mb-10 w-fit gap-2 border">
-                                <TabsTrigger value="base" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl">Strategy Core / Πυρήνας</TabsTrigger>
-                                <TabsTrigger value="impact" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl">Execution Steps / Βήματα</TabsTrigger>
-                                <TabsTrigger value="metrics" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl">Outcome Data / Αποτελέσματα</TabsTrigger>
-                                <TabsTrigger value="media" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-900 font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl">Evidence Vault / Μέσα</TabsTrigger>
-                            </TabsList>
+                            <div className="px-5 pt-4 pb-0 bg-white border-b border-[#EDEBE9]">
+                                <TabsList className="bg-[#F3F2F1] p-0.5 h-8 rounded gap-0.5 w-fit border border-[#EDEBE9]">
+                                    <TabsTrigger value="base" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Core</TabsTrigger>
+                                    <TabsTrigger value="impact" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Steps</TabsTrigger>
+                                    <TabsTrigger value="metrics" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Metrics</TabsTrigger>
+                                    <TabsTrigger value="media" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Media</TabsTrigger>
+                                </TabsList>
+                            </div>
 
-                            <TabsContent value="base" className="animate-in fade-in duration-300 space-y-8">
-                                <div className="grid grid-cols-2 gap-10">
-                                    <div className="space-y-4">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Τίτλος (Ελληνικά) / Primary Identifier (Greek)</Label>
-                                        <Input className="h-14 rounded-2xl text-lg font-bold border-zinc-200 shadow-sm" placeholder="Περιγραφή έργου..." value={formData.titleEL} onChange={e => setFormData({ ...formData, titleEL: e.target.value })} />
+                            <TabsContent value="base" className="animate-in fade-in duration-300 p-4 space-y-3">
+                                {/* Identity */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Ταυτότητα</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τίτλος (Ελληνικά)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="Περιγραφή έργου..." value={formData.titleEL} onChange={e => setFormData({ ...formData, titleEL: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τίτλος (English)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="Project name in English..." value={formData.titleEN} onChange={e => setFormData({ ...formData, titleEN: e.target.value })} />
+                                        </div>
                                     </div>
-                                    <div className="space-y-4">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Τίτλος (English) / Global Identifier (English)</Label>
-                                        <Input className="h-14 rounded-2xl border-zinc-200 shadow-sm" placeholder="Project name in English..." value={formData.titleEN} onChange={e => setFormData({ ...formData, titleEN: e.target.value })} />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Slug</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] font-mono text-xs text-[#0078D4]" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Έτος Ολοκλήρωσης</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="2024" value={formData.completionDate} onChange={e => setFormData({ ...formData, completionDate: e.target.value })} maxLength={10} />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-10">
-                                    <div className="space-y-4">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Slug / Σύντομο αναγνωριστικό</Label>
-                                        <Input className="h-12 rounded-xl font-mono text-xs text-indigo-600 border-zinc-200" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-4">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Έτος ολοκλήρωσης / Year of completion</Label>
-                                        <Input className="h-12 rounded-xl border-zinc-200 font-bold" placeholder="2024" value={formData.completionDate} onChange={e => setFormData({ ...formData, completionDate: e.target.value })} maxLength={10} />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-10">
-                                    <div className="space-y-4">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Συνεργάτης / Strategic Partner (Customer)</Label>
+                                {/* Connection */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Σύνδεση</p>
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Συνεργάτης (Customer)</Label>
                                         <Select value={formData.customerId} onValueChange={v => setFormData({ ...formData, customerId: v })}>
-                                            <SelectTrigger className="h-12 rounded-xl border-zinc-200 font-bold">
-                                                <SelectValue placeholder="Επιλέξτε οργανισμό / Link Corporate Entity" />
+                                            <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm">
+                                                <SelectValue placeholder="Επιλέξτε οργανισμό..." />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-2xl">
-                                                {allCustomers.map(c => <SelectItem key={c.id} value={c.id} className="h-11">{c.NAME}</SelectItem>)}
+                                            <SelectContent>
+                                                {allCustomers.map(c => <SelectItem key={c.id} value={c.id}>{c.NAME}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
                                     </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Υπηρεσίες</Label>
+                                        <MultiSelectCombobox
+                                            options={allServices.map(s => ({ value: s.id, label: s.nameEL }))}
+                                            selectedValues={formData.servicesUsed}
+                                            onSelect={(values) => setFormData(prev => ({ ...prev, servicesUsed: values }))}
+                                            placeholder="Επιλέξτε υπηρεσίες..."
+                                            searchPlaceholder="Αναζήτηση..."
+                                            className="rounded border border-[#C8C6C4]"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Υπηρεσίες / Services used</Label>
-                                    <MultiSelectCombobox
-                                        options={allServices.map(s => ({ value: s.id, label: s.nameEL }))}
-                                        selectedValues={formData.servicesUsed}
-                                        onSelect={(values) => setFormData(prev => ({ ...prev, servicesUsed: values }))}
-                                        placeholder="Επιλέξτε υπηρεσίες... / Select one or more services..."
-                                        searchPlaceholder="Αναζήτηση... / Search services..."
-                                        className="rounded-xl border border-border"
-                                    />
-                                </div>
-                                <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Πρόκληση (Ελληνικά) / Strategic Challenge (Greek)</Label>
-                                    <Textarea className="min-h-[160px] rounded-[32px] border-zinc-200 shadow-sm p-8 text-sm leading-relaxed" placeholder="Περιγράψτε το πρόβλημα που λύθηκε..." value={formData.challengeEL} onChange={e => setFormData({ ...formData, challengeEL: e.target.value })} />
-                                </div>
-                                <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Πρόκληση (English) / Strategic Challenge (English)</Label>
-                                    <Textarea className="min-h-[120px] rounded-2xl border-zinc-200 shadow-sm p-6 text-sm" placeholder="Outline the complex problems solved..." value={formData.challengeEN || ""} onChange={e => setFormData({ ...formData, challengeEN: e.target.value })} />
+                                {/* Challenge */}
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Πρόκληση</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Πρόκληση (Ελληνικά)</Label>
+                                            <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm p-2 min-h-[100px]" placeholder="Περιγράψτε το πρόβλημα που λύθηκε..." value={formData.challengeEL} onChange={e => setFormData({ ...formData, challengeEL: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Πρόκληση (English)</Label>
+                                            <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm p-2 min-h-[100px]" placeholder="Outline the complex problems solved..." value={formData.challengeEN || ""} onChange={e => setFormData({ ...formData, challengeEN: e.target.value })} />
+                                        </div>
+                                    </div>
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="impact" className="animate-in fade-in duration-300 space-y-4">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h4 className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Βήματα (Ελληνικά) / Procedural Benchmarks</h4>
-                                    <Button variant="outline" size="sm" className="rounded-xl border-dashed h-9 px-6 font-bold text-[10px] uppercase" onClick={() => setFormData(prev => ({ ...prev, stepsEL: [...prev.stepsEL, ""] }))}><Plus className="w-3 h-3 mr-2" /> Insert Milestone / Προσθήκη βήματος</Button>
-                                </div>
-                                <div className="space-y-3">
-                                    {formData.stepsEL.map((s, i) => (
-                                        <div key={i} className="flex gap-4 items-center group bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-100 shadow-sm hover:border-indigo-100 transition-all">
-                                            <div className="w-8 h-8 rounded-full bg-zinc-800 text-white flex items-center justify-center text-[10px] font-black">{i + 1}</div>
-                                            <Input className="flex-1 border-none bg-transparent shadow-none font-bold" placeholder="Στρατηγικό ορόσημο... / Define strategic milestone..." value={s} onChange={e => {
-                                                const arr = [...formData.stepsEL]; arr[i] = e.target.value; setFormData({ ...formData, stepsEL: arr });
-                                            }} />
-                                            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-zinc-300 hover:text-red-500 transition-all" onClick={() => setFormData(prev => ({ ...prev, stepsEL: prev.stepsEL.filter((_, idx) => idx !== i) }))}><X className="w-4 h-4" /></Button>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="flex justify-between items-center mb-6 mt-10">
-                                    <h4 className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Βήματα (English) / Execution Steps (English)</h4>
-                                    <Button variant="outline" size="sm" className="rounded-xl border-dashed h-9 px-6 font-bold text-[10px] uppercase" onClick={() => setFormData(prev => ({ ...prev, stepsEN: [...prev.stepsEN, ""] }))}><Plus className="w-3 h-3 mr-2" /> Add Step</Button>
-                                </div>
-                                <div className="space-y-3">
-                                    {formData.stepsEN.map((s, i) => (
-                                        <div key={i} className="flex gap-4 items-center group bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-100 shadow-sm hover:border-indigo-100 transition-all">
-                                            <div className="w-8 h-8 rounded-full bg-zinc-600 text-white flex items-center justify-center text-[10px] font-black">{i + 1}</div>
-                                            <Input className="flex-1 border-none bg-transparent shadow-none font-bold" placeholder="Strategic milestone in English..." value={s} onChange={e => {
-                                                const arr = [...formData.stepsEN]; arr[i] = e.target.value; setFormData({ ...formData, stepsEN: arr });
-                                            }} />
-                                            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-zinc-300 hover:text-red-500 transition-all" onClick={() => setFormData(prev => ({ ...prev, stepsEN: prev.stepsEN.filter((_, idx) => idx !== i) }))}><X className="w-4 h-4" /></Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="metrics" className="animate-in fade-in duration-300">
-                                <div className="grid grid-cols-2 gap-8">
-                                    {formData.stats.map((stat, i) => (
-                                        <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm space-y-6">
-                                            <div className="flex justify-between items-center">
-                                                <Select value={stat.icon} onValueChange={v => { const arr = [...formData.stats]; arr[i].icon = v; setFormData({ ...formData, stats: arr }); }}>
-                                                    <SelectTrigger className="w-[180px] h-10 rounded-xl border-zinc-100 text-[10px] font-black uppercase">
-                                                        <div className="flex items-center gap-2">{React.createElement(ICON_MAP[stat.icon] || TrendingUp, { className: "w-4 h-4" })} <SelectValue /></div>
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {Object.keys(ICON_MAP).map(k => <SelectItem key={k} value={k} className="h-10 text-xs font-bold uppercase">{k}</SelectItem>)}
-                                                    </SelectContent>
-                                                </Select>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-200 hover:text-red-500" onClick={() => setFormData(prev => ({ ...prev, stats: prev.stats.filter((_, idx) => idx !== i) }))}><Trash2 className="w-4 h-4" /></Button>
+                            <TabsContent value="impact" className="animate-in fade-in duration-300 p-4 space-y-4">
+                                <div className="bg-white p-4 rounded-lg border border-[#EDEBE9] space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Βήματα (Ελληνικά)</p>
+                                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded gap-1" onClick={() => setFormData(prev => ({ ...prev, stepsEL: [...prev.stepsEL, ""] }))}>
+                                            <Plus className="w-3 h-3" /> Προσθήκη
+                                        </Button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {formData.stepsEL.map((s, i) => (
+                                            <div key={i} className="flex gap-3 items-center group bg-[#F3F2F1] px-3 py-2 rounded border border-[#EDEBE9]">
+                                                <div className="w-6 h-6 rounded bg-[#EFF6FC] border border-[#C7E0F4] text-[#0078D4] flex items-center justify-center text-[10px] font-bold shrink-0">{i + 1}</div>
+                                                <Input className="flex-1 border-none bg-transparent shadow-none text-sm h-8 focus-visible:ring-0" placeholder="Στρατηγικό ορόσημο..." value={s} onChange={e => {
+                                                    const arr = [...formData.stepsEL]; arr[i] = e.target.value; setFormData({ ...formData, stepsEL: arr })
+                                                }} />
+                                                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-[#A19F9D] hover:text-red-500 h-7 w-7 transition-all" onClick={() => setFormData(prev => ({ ...prev, stepsEL: prev.stepsEL.filter((_, idx) => idx !== i) }))}>
+                                                    <X className="w-3.5 h-3.5" />
+                                                </Button>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <Label className="text-[10px] font-black uppercase text-zinc-400">KPI Value / Τιμή</Label>
-                                                    <Input className="h-12 rounded-xl font-black text-lg text-indigo-600" value={stat.value} onChange={e => { const arr = [...formData.stats]; arr[i].value = e.target.value; setFormData({ ...formData, stats: arr }); }} placeholder="e.g. +45%" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label className="text-[10px] font-black uppercase text-zinc-400">Ετικέτα (ΕΛ) / Performance Label (Greek)</Label>
-                                                    <Input className="h-12 rounded-xl font-bold" value={stat.textEL} onChange={e => { const arr = [...formData.stats]; arr[i].textEL = e.target.value; setFormData({ ...formData, stats: arr }); }} placeholder="Αύξηση ROI" />
-                                                </div>
-                                                <div className="space-y-2 col-span-2">
-                                                    <Label className="text-[10px] font-black uppercase text-zinc-400">Ετικέτα (EN) / Performance Label (English)</Label>
-                                                    <Input className="h-12 rounded-xl font-bold" value={stat.textEN || ""} onChange={e => { const arr = [...formData.stats]; arr[i].textEN = e.target.value; setFormData({ ...formData, stats: arr }); }} placeholder="ROI Growth" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                                <Button variant="outline" className="w-full mt-8 h-16 rounded-[24px] border-dashed border-2 hover:bg-zinc-50 font-black text-[10px] uppercase tracking-widest text-zinc-400" onClick={() => setFormData(prev => ({ ...prev, stats: [...prev.stats, { icon: "TrendingUp", value: "", textEL: "", textEN: "" }] }))}><Plus className="w-4 h-4 mr-2" /> Add Data Point / Προσθήκη μετρικής</Button>
-                            </TabsContent>
-
-                            <TabsContent value="media" className="animate-in fade-in duration-300">
-                                <div className="bg-white dark:bg-zinc-900 p-10 rounded-[40px] border shadow-sm text-center">
-                                    <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner"><ImageIcon className="w-10 h-10 text-indigo-500" /></div>
-                                    <h4 className="text-xl font-black text-zinc-800 dark:text-zinc-100 mb-2">Μέσα / Populate Media Library</h4>
-                                    <p className="text-xs text-zinc-400 font-medium mb-8">Επισυνάψτε εικόνες ή βίντεο και ορίστε κεντρική εικόνα. Attach visual evidence and set featured impact visuals.</p>
-                                    <Label className="inline-flex h-14 items-center justify-center rounded-[20px] bg-zinc-800 px-10 text-[10px] font-black uppercase text-white cursor-pointer hover:bg-zinc-900 shadow-2xl transition-all active:scale-95">
-                                        Bulk Resource Upload / Μαζικό ανέβασμα
-                                        <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={e => handleMediaUpload(e.target.files)} />
-                                    </Label>
-
-                                    <div className="mt-12 grid grid-cols-4 gap-4">
-                                        {formData.media.map((m, i) => (
-                                            <div key={i} className={`relative aspect-square rounded-[24px] overflow-hidden border-2 shadow-sm ${m.featured ? 'border-amber-400 ring-4 ring-amber-400/10' : 'border-zinc-100'}`}>
-                                                {m.type === "VIDEO" ? <video src={m.url} className="w-full h-full object-cover" muted /> : <img src={m.url} alt="" className="w-full h-full object-cover" />}
-                                                <button onClick={() => setFormData(prev => ({ ...prev, media: prev.media.map((x, idx) => ({ ...x, featured: idx === i })) }))} className={`absolute top-2 right-2 w-8 h-8 rounded-xl flex items-center justify-center shadow-lg transition-all ${m.featured ? 'bg-amber-400 text-white' : 'bg-white/90 text-zinc-400 hover:text-amber-400'}`}><Star className="w-4 h-4 fill-current" /></button>
-                                                <button onClick={() => setFormData(prev => ({ ...prev, media: prev.media.filter((_, idx) => idx !== i) }))} className="absolute bottom-2 right-2 w-8 h-8 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center text-white hover:bg-red-500 transition-all"><X className="w-4 h-4" /></button>
+                                <div className="bg-white p-4 rounded-lg border border-[#EDEBE9] space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Βήματα (English)</p>
+                                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded gap-1" onClick={() => setFormData(prev => ({ ...prev, stepsEN: [...prev.stepsEN, ""] }))}>
+                                            <Plus className="w-3 h-3" /> Add Step
+                                        </Button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {formData.stepsEN.map((s, i) => (
+                                            <div key={i} className="flex gap-3 items-center group bg-[#F3F2F1] px-3 py-2 rounded border border-[#EDEBE9]">
+                                                <div className="w-6 h-6 rounded bg-[#F3F2F1] border border-[#EDEBE9] text-[#605E5C] flex items-center justify-center text-[10px] font-bold shrink-0">{i + 1}</div>
+                                                <Input className="flex-1 border-none bg-transparent shadow-none text-sm h-8 focus-visible:ring-0" placeholder="Strategic milestone in English..." value={s} onChange={e => {
+                                                    const arr = [...formData.stepsEN]; arr[i] = e.target.value; setFormData({ ...formData, stepsEN: arr })
+                                                }} />
+                                                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-[#A19F9D] hover:text-red-500 h-7 w-7 transition-all" onClick={() => setFormData(prev => ({ ...prev, stepsEN: prev.stepsEN.filter((_, idx) => idx !== i) }))}>
+                                                    <X className="w-3.5 h-3.5" />
+                                                </Button>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             </TabsContent>
+
+                            <TabsContent value="metrics" className="animate-in fade-in duration-300 p-4">
+                                <div className="grid grid-cols-2 gap-3">
+                                    {formData.stats.map((stat, i) => (
+                                        <div key={i} className="bg-white px-3 py-3 rounded-lg border border-[#EDEBE9] space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <Select value={stat.icon} onValueChange={v => { const arr = [...formData.stats]; arr[i].icon = v; setFormData({ ...formData, stats: arr }) }}>
+                                                    <SelectTrigger className="w-[160px] h-8 rounded border-[#C8C6C4] text-[11px] font-semibold">
+                                                        <div className="flex items-center gap-2">
+                                                            {React.createElement(ICON_MAP[stat.icon] || TrendingUp, { className: "w-3.5 h-3.5" })}
+                                                            <SelectValue />
+                                                        </div>
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {Object.keys(ICON_MAP).map(k => <SelectItem key={k} value={k} className="text-xs font-semibold">{k}</SelectItem>)}
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-[#C8C6C4] hover:text-red-500 hover:bg-red-50" onClick={() => setFormData(prev => ({ ...prev, stats: prev.stats.filter((_, idx) => idx !== i) }))}>
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </Button>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="space-y-1">
+                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">KPI Value</Label>
+                                                    <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-bold text-[#0078D4]" value={stat.value} onChange={e => { const arr = [...formData.stats]; arr[i].value = e.target.value; setFormData({ ...formData, stats: arr }) }} placeholder="e.g. +45%" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Label (EL)</Label>
+                                                    <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={stat.textEL} onChange={e => { const arr = [...formData.stats]; arr[i].textEL = e.target.value; setFormData({ ...formData, stats: arr }) }} placeholder="Αύξηση ROI" />
+                                                </div>
+                                                <div className="space-y-1 col-span-2">
+                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Label (EN)</Label>
+                                                    <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={stat.textEN || ""} onChange={e => { const arr = [...formData.stats]; arr[i].textEN = e.target.value; setFormData({ ...formData, stats: arr }) }} placeholder="ROI Growth" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <Button variant="outline" className="w-full mt-3 h-9 rounded border-dashed border-[#C8C6C4] hover:bg-[#F3F2F1] text-[12px] font-semibold text-[#605E5C]" onClick={() => setFormData(prev => ({ ...prev, stats: [...prev.stats, { icon: "TrendingUp", value: "", textEL: "", textEN: "" }] }))}>
+                                    <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Data Point
+                                </Button>
+                            </TabsContent>
+
+                            <TabsContent value="media" className="animate-in fade-in duration-300 p-4">
+                                <div className="bg-white p-4 rounded-lg border border-[#EDEBE9] text-center space-y-3">
+                                    <div className="w-9 h-9 bg-[#EFF6FC] border border-[#C7E0F4] rounded-lg flex items-center justify-center mx-auto">
+                                        <ImageIcon className="w-4 h-4 text-[#0078D4]" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-[#201F1E]">Media Library</p>
+                                        <p className="text-[11px] text-[#A19F9D]">Attach images or videos and set a featured image.</p>
+                                    </div>
+                                    <Label className="inline-flex h-8 items-center justify-center rounded bg-[#0078D4] hover:bg-[#106EBE] px-4 text-[12px] font-semibold text-white cursor-pointer active:scale-95 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                                        Upload Files
+                                        <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={e => handleMediaUpload(e.target.files)} />
+                                    </Label>
+                                    {formData.media.length > 0 && (
+                                        <div className="mt-3 grid grid-cols-4 gap-3 text-left">
+                                            {formData.media.map((m, i) => (
+                                                <div key={i} className={`relative aspect-square rounded-lg overflow-hidden border ${m.featured ? 'border-amber-400 ring-2 ring-amber-400/20' : 'border-[#EDEBE9]'}`}>
+                                                    {m.type === "VIDEO"
+                                                        ? <video src={m.url} className="w-full h-full object-cover" muted />
+                                                        : <img src={m.url} alt="" className="w-full h-full object-cover" />}
+                                                    <button onClick={() => setFormData(prev => ({ ...prev, media: prev.media.map((x, idx) => ({ ...x, featured: idx === i })) }))} className={`absolute top-1.5 right-1.5 w-6 h-6 rounded flex items-center justify-center shadow transition-all ${m.featured ? 'bg-amber-400 text-white' : 'bg-white/90 text-[#A19F9D] hover:text-amber-400'}`}>
+                                                        <Star className="w-3 h-3 fill-current" />
+                                                    </button>
+                                                    <button onClick={() => setFormData(prev => ({ ...prev, media: prev.media.filter((_, idx) => idx !== i) }))} className="absolute bottom-1.5 right-1.5 w-6 h-6 bg-black/50 rounded flex items-center justify-center text-white hover:bg-red-500 transition-all">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </TabsContent>
                         </Tabs>
 
-                        <div className="mt-12 pt-8 border-t flex items-center justify-between">
-                            <div className="flex flex-col gap-1">
-                                <h4 className="text-xs font-black uppercase tracking-widest text-zinc-800 dark:text-zinc-200">Ορατότητα / Broadcast Visibility</h4>
-                                <p className="text-[10px] text-zinc-400 font-medium">Εμφάνιση σε δημόσιο ιστότοπο. Define if this case study is available to global stakeholders.</p>
+                        {/* Visibility toggle */}
+                        <div className="mx-4 mb-4 mt-3 bg-white rounded-lg border border-[#EDEBE9] px-4 py-3 flex items-center justify-between">
+                            <div>
+                                <p className="text-[11px] font-semibold text-[#201F1E]">Ορατότητα</p>
+                                <p className="text-[10px] text-[#A19F9D]">Εμφάνιση σε δημόσιο ιστότοπο.</p>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <span className={`text-[10px] font-black uppercase tracking-tighter ${formData.published ? 'text-emerald-500' : 'text-zinc-300'}`}>{formData.published ? 'Δημοσίο / Public Release' : 'Πρόχειρο / Confidential Draft'}</span>
-                                <Switch checked={formData.published} onCheckedChange={v => setFormData({ ...formData, published: v })} className="data-[state=checked]:bg-emerald-500 shadow-lg" />
+                            <div className="flex items-center gap-3">
+                                <span className={`text-[11px] font-semibold ${formData.published ? 'text-emerald-600' : 'text-[#A19F9D]'}`}>
+                                    {formData.published ? 'Δημοσίο' : 'Πρόχειρο'}
+                                </span>
+                                <Switch checked={formData.published} onCheckedChange={v => setFormData({ ...formData, published: v })} className="data-[state=checked]:bg-emerald-500" />
                             </div>
                         </div>
                     </div>
 
-                    <div className="p-10 border-t bg-white dark:bg-zinc-950 flex justify-end gap-4 rounded-b-[40px]">
-                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-black text-xs uppercase tracking-[0.2em] text-zinc-400">Abort / Ακύρωση</Button>
-                        <Button disabled={isSaving} onClick={handleSave} className="bg-zinc-800 text-white font-black text-xs uppercase tracking-[0.2em] h-14 px-12 rounded-[20px] shadow-2xl hover:bg-zinc-900 transition-all active:scale-95">
-                            {isSaving ? <RefreshCcw className="w-5 h-5 animate-spin" /> : "Αποθήκευση / Commit Case Study"}
+                    {/* Dialog Footer */}
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded">
+                            Ακύρωση
+                        </Button>
+                        <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95">
+                            {isSaving ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : "Αποθήκευση"}
                         </Button>
                     </div>
                 </DialogContent>

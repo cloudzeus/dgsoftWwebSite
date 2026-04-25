@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { updateLegalPageAction, type LegalPageData } from "@/app/lib/actions/legal";
 import { TiptapEditor } from "./tiptap-editor";
 import { toast } from "sonner";
-import { Loader2, Save, Languages } from "lucide-react";
+import { Loader2, Save, Languages, FileText, AlignLeft } from "lucide-react";
 
 type Props = {
   initial: LegalPageData;
@@ -102,14 +102,19 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
   const isTranslating = translating !== null;
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="bg-[#F3F2F1] p-5 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{pageLabel}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Bilingual rich-text content shown in a modal when users click the footer link.
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4 text-[#0078D4]" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-[#201F1E]">{pageLabel}</h1>
+            <p className="text-[#A19F9D] text-[11px] mt-0.5">
+              Bilingual rich-text content shown in a modal when users click the footer link.
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {/* Translate EL → EN */}
@@ -149,7 +154,11 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
           </Button>
 
           {/* Save */}
-          <Button onClick={onSave} disabled={saving || isTranslating}>
+          <Button
+            onClick={onSave}
+            disabled={saving || isTranslating}
+            className="bg-[#0078D4] hover:bg-[#106EBE] text-white"
+          >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
             ) : (
@@ -161,38 +170,62 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "el" | "en")}>
-        <TabsList>
+        <TabsList className="mb-4">
           <TabsTrigger value="el">🇬🇷 Ελληνικά</TabsTrigger>
           <TabsTrigger value="en">🇬🇧 English</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="el" className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label>Τίτλος</Label>
-            <Input value={titleEl} onChange={(e) => setTitleEl(e.target.value)} />
+        <TabsContent value="el" className="space-y-4 mt-0">
+          {/* Title */}
+          <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
+              <AlignLeft className="w-3 h-3" />ΤΙΤΛΟΣ
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-[#605E5C]">Τίτλος</Label>
+              <Input value={titleEl} onChange={(e) => setTitleEl(e.target.value)} />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label>Περιεχόμενο</Label>
-            <TiptapEditor
-              value={contentEl}
-              onChange={setContentEl}
-              placeholder="Γράψτε το κείμενο της πολιτικής εδώ..."
-            />
+          {/* Content */}
+          <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
+              <FileText className="w-3 h-3" />ΠΕΡΙΕΧΟΜΕΝΟ
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-[#605E5C]">Περιεχόμενο</Label>
+              <TiptapEditor
+                value={contentEl}
+                onChange={setContentEl}
+                placeholder="Γράψτε το κείμενο της πολιτικής εδώ..."
+              />
+            </div>
           </div>
         </TabsContent>
 
-        <TabsContent value="en" className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label>Title</Label>
-            <Input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
+        <TabsContent value="en" className="space-y-4 mt-0">
+          {/* Title */}
+          <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
+              <AlignLeft className="w-3 h-3" />TITLE
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-[#605E5C]">Title</Label>
+              <Input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label>Content</Label>
-            <TiptapEditor
-              value={contentEn}
-              onChange={setContentEn}
-              placeholder="Write the policy content here..."
-            />
+          {/* Content */}
+          <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
+              <FileText className="w-3 h-3" />CONTENT
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-semibold text-[#605E5C]">Content</Label>
+              <TiptapEditor
+                value={contentEn}
+                onChange={setContentEn}
+                placeholder="Write the policy content here..."
+              />
+            </div>
           </div>
         </TabsContent>
       </Tabs>

@@ -147,40 +147,50 @@ export function NewsletterTemplatesClient({
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Edit template" : "New template"}</DialogTitle>
+        <DialogContent className="flex max-h-[90vh] max-w-4xl flex-col gap-0 overflow-hidden p-0 rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+          <DialogHeader className="shrink-0 px-5 py-4 border-b border-[#EDEBE9] bg-white">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                <PlusIcon className="w-4 h-4 text-[#0078D4]" />
+              </div>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Edit template" : "New template"}</DialogTitle>
+            </div>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid gap-2">
-              <Label>Name</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Template name"
-              />
+          <div className="min-h-0 flex-1 overflow-y-auto bg-[#F3F2F1] px-5 py-4 space-y-3">
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Template Details</p>
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-[#605E5C]">Name</Label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Template name"
+                  className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-[#605E5C]">Description (optional)</Label>
+                <Input
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Short description"
+                  className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+                />
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label>Description (optional)</Label>
-              <Input
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Short description"
-              />
-            </div>
-            <div>
-              <Label className="mb-2 block">Content (visual designer)</Label>
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Content</p>
               <VisualDesigner value={content} onChange={setContent} />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          <div className="shrink-0 px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
               {saving ? "Saving…" : editingId ? "Update" : "Create"}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

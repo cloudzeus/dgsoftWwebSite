@@ -475,47 +475,69 @@ export function NewsletterMediaClient({
 
       {/* Create folder dialog */}
       <Dialog open={createFolderOpen} onOpenChange={setCreateFolderOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>New folder</DialogTitle>
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+          <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                <FolderPlusIcon className="w-4 h-4 text-[#0078D4]" />
+              </div>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">New folder</DialogTitle>
+            </div>
           </DialogHeader>
-          <Input
-            placeholder="Folder name"
-            value={newFolderName}
-            onChange={(e) => setNewFolderName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateFolderOpen(false)}>
+          <div className="bg-[#F3F2F1] px-5 py-4">
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Folder Name</p>
+              <Input
+                placeholder="Folder name"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
+                className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+              />
+            </div>
+          </div>
+          <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setCreateFolderOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
               Cancel
             </Button>
-            <Button onClick={handleCreateFolder} disabled={creatingFolder || !newFolderName.trim()}>
-              {creatingFolder ? <Loader2Icon className="h-4 w-4 animate-spin" /> : "Create"}
+            <Button onClick={handleCreateFolder} disabled={creatingFolder || !newFolderName.trim()} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+              {creatingFolder ? <Loader2Icon className="h-3.5 w-3.5 animate-spin" /> : "Create"}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Rename folder dialog */}
       <Dialog open={!!editingFolderId} onOpenChange={(open) => !open && setEditingFolderId(null)}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Rename folder</DialogTitle>
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+          <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                <PencilIcon className="w-4 h-4 text-[#0078D4]" />
+              </div>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">Rename folder</DialogTitle>
+            </div>
           </DialogHeader>
-          <Input
-            placeholder="Folder name"
-            value={editingFolderName}
-            onChange={(e) => setEditingFolderName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleRenameFolder()}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingFolderId(null)}>
+          <div className="bg-[#F3F2F1] px-5 py-4">
+            <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">New Name</p>
+              <Input
+                placeholder="Folder name"
+                value={editingFolderName}
+                onChange={(e) => setEditingFolderName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleRenameFolder()}
+                className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
+              />
+            </div>
+          </div>
+          <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setEditingFolderId(null)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
               Cancel
             </Button>
-            <Button onClick={handleRenameFolder} disabled={!editingFolderName.trim()}>
+            <Button onClick={handleRenameFolder} disabled={!editingFolderName.trim()} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
               Save
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

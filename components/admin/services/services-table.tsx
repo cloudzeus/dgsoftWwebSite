@@ -3,7 +3,6 @@
 import * as React from "react"
 import {
     Plus,
-    MoreHorizontal,
     Image as ImageIcon,
     Film,
     Trash2,
@@ -11,20 +10,11 @@ import {
     Layers,
     ChevronDown,
     Upload,
-    Check,
     Loader2,
-    Sparkles,
     GripVertical,
-    Briefcase,
     Zap,
     ExternalLink,
-    Search,
     RefreshCcw,
-    Shield,
-    Globe,
-    Rocket,
-    CheckCircle2,
-    Target
 } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Label } from "@/components/ui/label"
@@ -115,7 +105,10 @@ export type ServiceType = {
     media: ServiceMediaType[]
 }
 
-export function ServicesTable({ initialData, categories: initialCategories }: { initialData: ServiceType[], categories: ServiceCategoryType[] }) {
+export function ServicesTable({ initialData, categories: initialCategories }: {
+    initialData: ServiceType[]
+    categories: ServiceCategoryType[]
+}) {
     const [services, setServices] = React.useState(initialData)
     const [categories, setCategories] = React.useState(initialCategories)
     const [isServiceFormOpen, setIsServiceFormOpen] = React.useState(false)
@@ -158,31 +151,38 @@ export function ServicesTable({ initialData, categories: initialCategories }: { 
     }
 
     const columns: ColumnDef<ServiceType>[] = [
-        { id: "drag", header: "", cell: () => <GripVertical className="h-4 w-4 text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity" />, size: 40 },
+        {
+            id: "drag",
+            header: "",
+            cell: () => <GripVertical className="h-4 w-4 text-[#C8C6C4] opacity-0 group-hover:opacity-100 transition-opacity" />,
+            size: 40
+        },
         {
             id: "hero",
-            header: "Product Visual",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Visual</span>,
             cell: ({ row }) => (
-                <div className="w-16 h-10 rounded-lg overflow-hidden border bg-zinc-50 shadow-sm flex items-center justify-center p-1">
+                <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#EDEBE9] bg-[#F3F2F1] shrink-0 flex items-center justify-center">
                     {row.original.featureImage ? (
-                        row.original.featureImage.endsWith('.mp4') ? <Film className="w-4 h-4 text-indigo-500" /> : <img src={row.original.featureImage} className="w-full h-full object-cover rounded" />
-                    ) : <ImageIcon className="w-4 h-4 text-zinc-200" />}
+                        row.original.featureImage.endsWith('.mp4')
+                            ? <Film className="w-4 h-4 text-[#0078D4]" />
+                            : <img src={row.original.featureImage} className="w-full h-full object-cover" />
+                    ) : <ImageIcon className="w-4 h-4 text-[#C8C6C4]" />}
                 </div>
             ),
-            size: 80
+            size: 60
         },
         {
             accessorKey: "nameEL",
-            header: "Operational Service",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Service</span>,
             cell: ({ row }) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-zinc-800 dark:text-zinc-200">{row.original.nameEL}</span>
-                    <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="bg-zinc-800 text-white border-none rounded-xl text-[9px] font-black uppercase tracking-widest px-2 py-0.5">
+                    <span className="text-sm font-semibold text-[#201F1E]">{row.original.nameEL}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">
                             {row.original.category.nameEL}
-                        </Badge>
+                        </span>
                         {row.original.brandName && (
-                            <span className="text-[9px] font-black text-zinc-400 uppercase italic">/ {row.original.brandName}</span>
+                            <span className="text-[11px] text-[#A19F9D] italic">{row.original.brandName}</span>
                         )}
                     </div>
                 </div>
@@ -190,17 +190,17 @@ export function ServicesTable({ initialData, categories: initialCategories }: { 
         },
         {
             id: "payload",
-            header: "Capability Payload",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Payload</span>,
             cell: ({ row }) => (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                     <div className="flex flex-col items-center">
-                        <span className="text-xs font-black text-zinc-800 dark:text-zinc-200">{row.original.features?.length || 0}</span>
-                        <span className="text-[8px] font-black uppercase text-zinc-400">Features</span>
+                        <span className="text-xs font-bold text-[#201F1E]">{row.original.features?.length || 0}</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">Features</span>
                     </div>
-                    <div className="w-px h-6 bg-zinc-100 dark:bg-zinc-800" />
+                    <div className="w-px h-5 bg-[#EDEBE9]" />
                     <div className="flex flex-col items-center">
-                        <span className="text-xs font-black text-zinc-800 dark:text-zinc-200">{row.original.media?.length || 0}</span>
-                        <span className="text-[8px] font-black uppercase text-zinc-400">Assets</span>
+                        <span className="text-xs font-bold text-[#201F1E]">{row.original.media?.length || 0}</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">Assets</span>
                     </div>
                 </div>
             )
@@ -210,20 +210,20 @@ export function ServicesTable({ initialData, categories: initialCategories }: { 
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="h-9 bg-zinc-800 text-white border-none font-bold hover:bg-zinc-700 rounded-xl px-4">
-                            Actions <ChevronDown className="h-4 w-4 ml-1" />
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
+                            Actions <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[180px] rounded-2xl shadow-2xl p-2 border-zinc-100">
-                        <DropdownMenuItem className="h-12 rounded-xl flex items-center gap-3 cursor-pointer" onClick={() => openEditService(row.original)}>
-                            <Edit className="w-4 h-4 mr-2" /> Modify Scope
+                    <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onClick={() => openEditService(row.original)} className="text-sm">
+                            <Edit className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit Service
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="h-12 rounded-xl flex items-center gap-3 cursor-pointer" onClick={() => window.open(`/services/${row.original.slug}`, '_blank')}>
-                            <ExternalLink className="w-4 h-4 mr-2" /> View Public
+                        <DropdownMenuItem onClick={() => window.open(`/services/${row.original.slug}`, '_blank')} className="text-sm">
+                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> View Public
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleDeleteService(row.original.id)} className="h-12 rounded-xl text-red-500 focus:bg-red-50 focus:text-red-600 flex items-center gap-3 cursor-pointer">
-                            <Trash2 className="w-4 h-4 mr-2" /> Decommission
+                        <DropdownMenuItem onClick={() => handleDeleteService(row.original.id)} className="text-red-500 text-sm focus:bg-red-50 focus:text-red-600">
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -233,41 +233,54 @@ export function ServicesTable({ initialData, categories: initialCategories }: { 
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center bg-white dark:bg-zinc-950 p-6 rounded-[32px] border shadow-sm">
-                <div className="flex items-center gap-6">
+            {/* Stats bar */}
+            <div className="flex justify-between items-center bg-white px-5 py-3 rounded-lg border border-[#EDEBE9] shadow-sm">
+                <div className="flex items-center gap-4">
                     <div className="flex flex-col">
-                        <span className="text-2xl font-black text-zinc-800 dark:text-zinc-100 tracking-tighter">{services.length}</span>
-                        <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Active Services</span>
+                        <span className="text-sm font-bold text-[#201F1E]">{services.length}</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D] tracking-wide">Active Services</span>
                     </div>
-                    <div className="w-px h-10 bg-zinc-100" />
+                    <div className="w-px h-8 bg-[#EDEBE9]" />
                     <div className="flex flex-col">
-                        <span className="text-2xl font-black text-zinc-800 dark:text-zinc-100 tracking-tighter">{categories.length}</span>
-                        <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Global Domains</span>
+                        <span className="text-sm font-bold text-[#201F1E]">{categories.length}</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D] tracking-wide">Categories</span>
                     </div>
                 </div>
-                <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => setIsCategoryDialogOpen(true)} className="rounded-2xl border-zinc-200 font-bold h-12 px-8 text-xs hover:bg-zinc-50 transition-all shadow-sm">Manage Product Domains</Button>
-                </div>
+                <Button variant="outline" onClick={() => setIsCategoryDialogOpen(true)} className="h-8 px-4 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded">
+                    Manage Categories
+                </Button>
             </div>
 
             <GenericDataTable
-                columns={columns} data={services} searchPlaceholder="Locate service capability..." searchColumn="nameEL"
-                onAddClick={openAddService} addButtonLabel="Design Service"
+                columns={columns} data={services} searchPlaceholder="Αναζήτηση υπηρεσίας..." searchColumn="nameEL"
+                onAddClick={openAddService} addButtonLabel="Νέα Υπηρεσία"
                 isSortable={true} onReorder={handleReorder}
                 renderExpandedRow={(service) => <ServiceExpandedContent service={service} onRefresh={refreshData} />}
             />
 
+            {/* Service Form Dialog */}
             <Dialog open={isServiceFormOpen} onOpenChange={setIsServiceFormOpen}>
-                <DialogContent className="max-w-6xl p-0 overflow-hidden rounded-xl">
-                    <DialogHeader className="bg-zinc-800 p-10">
-                        <DialogTitle className="text-3xl font-black text-white tracking-tighter">{selectedService ? 'Refine Service Architecture' : 'Engineer New Capability'}</DialogTitle>
-                        <DialogDescription className="text-zinc-400 font-medium">Define high-impact service modules and strategic feature mapping.</DialogDescription>
+                <DialogContent className="max-w-6xl p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-lg bg-[#EFF6FC] border border-[#C7E0F4] p-1 flex items-center justify-center shrink-0">
+                                <Layers className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                                    {selectedService ? 'Επεξεργασία Υπηρεσίας' : 'Νέα Υπηρεσία'}
+                                </DialogTitle>
+                                <DialogDescription className="text-[11px] text-[#A19F9D]">
+                                    Define high-impact service modules and strategic feature mapping.
+                                </DialogDescription>
+                            </div>
+                        </div>
                     </DialogHeader>
-                    <div className="p-10 bg-[#f8fafc] dark:bg-zinc-950 max-h-[75vh] overflow-y-auto scrollbar-hide">
+                    <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto p-4">
                         <ServiceForm
                             service={selectedService}
                             categories={categories}
-                            onSuccess={() => { setIsServiceFormOpen(false); refreshData(); }}
+                            onSuccess={() => { setIsServiceFormOpen(false); refreshData() }}
                             onCancel={() => setIsServiceFormOpen(false)}
                         />
                     </div>
@@ -287,7 +300,6 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
     const [featureForm, setFeatureForm] = React.useState({ nameEL: "", nameEN: "", descriptionEL: "", descriptionEN: "" })
     const [isSavingFeature, setIsSavingFeature] = React.useState(false)
     const [isUploadingMedia, setIsUploadingMedia] = React.useState(false)
-    const [isTranslatingFeature, setIsTranslatingFeature] = React.useState<string | null>(null)
 
     const handleAddFeature = async () => {
         if (!featureForm.nameEL) return
@@ -295,7 +307,8 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
         try {
             await createServiceFeature({ ...featureForm, serviceId: service.id, order: service.features.length })
             setFeatureForm({ nameEL: "", nameEN: "", descriptionEL: "", descriptionEN: "" })
-            setIsAddingFeature(false); onRefresh()
+            setIsAddingFeature(false)
+            onRefresh()
             toast.success("Capability feature initialized")
         } catch (err: any) { toast.error(err.message) }
         finally { setIsSavingFeature(false) }
@@ -311,127 +324,175 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
             const data = await res.json()
             if (data.url) {
                 await createServiceMedia({ serviceId: service.id, url: data.url, mediaType: file.type.startsWith("video/") ? "VIDEO" : "IMAGE", order: service.media.length })
-                onRefresh(); toast.success("Asset integrated", { id: tid })
+                onRefresh()
+                toast.success("Asset integrated", { id: tid })
             }
         } catch (err: any) { toast.error(err.message, { id: tid }) }
         finally { setIsUploadingMedia(false) }
     }
 
     return (
-        <div className="py-10 px-10 bg-[#f8fafc] dark:bg-zinc-950/50 rounded-[40px] border border-zinc-200 dark:border-zinc-800 shadow-inner">
+        <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
             <Tabs defaultValue="details">
-                <TabsList className="mb-8 bg-white dark:bg-zinc-900 p-1.5 h-12 rounded-[24px] border shadow-sm w-fit gap-2">
-                    <TabsTrigger value="details" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl h-9 transition-all">Outcome Definition</TabsTrigger>
-                    <TabsTrigger value="features" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl h-9 transition-all">Capability Blocks ({service.features.length})</TabsTrigger>
-                    <TabsTrigger value="media" className="data-[state=active]:bg-amber-600 data-[state=active]:text-white font-black text-[10px] uppercase tracking-widest px-8 rounded-2xl h-9 transition-all">Visual Evidence ({service.media.length})</TabsTrigger>
-                </TabsList>
+                <div className="px-4 pt-3">
+                    <TabsList className="mb-0 bg-white border border-[#EDEBE9] p-0.5 h-8 rounded gap-0.5 w-fit">
+                        <TabsTrigger value="details" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
+                            Details
+                        </TabsTrigger>
+                        <TabsTrigger value="features" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
+                            Features ({service.features.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="media" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
+                            Media ({service.media.length})
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
 
-                <TabsContent value="details" className="animate-in fade-in duration-500">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div className="space-y-6">
-                            <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-3"><Briefcase className="w-4 h-4" /> Primary Proposition</h5>
-                            <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm min-h-[160px] flex flex-col justify-between">
-                                <p className="text-sm leading-[1.8] font-medium text-zinc-600 dark:text-zinc-400 italic">"{service.descriptionEL || "Service narrative pending."}"</p>
-                                {service.brandName && (
-                                    <div className="pt-6 border-t border-zinc-50 flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            {service.brandLogo && <div className="w-12 h-12 p-2 bg-zinc-50 rounded-xl border flex items-center justify-center"><img src={service.brandLogo} className="w-full h-full object-contain" /></div>}
-                                            <span className="font-black text-lg text-zinc-800 tracking-tighter">{service.brandName}</span>
+                <TabsContent value="details" className="animate-in fade-in duration-300 p-4 space-y-3">
+                    <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Primary Proposition</p>
+                        <p className="text-sm leading-relaxed text-[#605E5C] italic">
+                            &quot;{service.descriptionEL || "Service narrative pending."}&quot;
+                        </p>
+                        {service.brandName && (
+                            <div className="pt-3 border-t border-[#EDEBE9] flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    {service.brandLogo && (
+                                        <div className="w-9 h-9 p-1.5 bg-[#F3F2F1] rounded-lg border border-[#EDEBE9] flex items-center justify-center">
+                                            <img src={service.brandLogo} className="w-full h-full object-contain" />
                                         </div>
-                                        <Badge className="bg-zinc-100 text-zinc-500 border-none text-[8px] font-black uppercase tracking-[0.2em] px-3">Certified Partner</Badge>
-                                    </div>
-                                )}
+                                    )}
+                                    <span className="font-bold text-sm text-[#201F1E]">{service.brandName}</span>
+                                </div>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">
+                                    Certified Partner
+                                </span>
                             </div>
-                        </div>
-                        <div className="space-y-6">
-                            <h5 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-3"><Globe className="w-4 h-4" /> Global Localization</h5>
-                            <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm min-h-[160px] space-y-4">
-                                <p className="text-xl font-black text-zinc-800 dark:text-zinc-100 italic tracking-tighter">{service.nameEN || "Sync Required"}</p>
-                                <p className="text-sm font-medium leading-[1.8] text-zinc-400">{service.descriptionEN || "Global narrative draft pending synchronization."}</p>
-                            </div>
-                        </div>
+                        )}
+                    </div>
+                    <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Global Localization</p>
+                        <p className="text-sm font-bold text-[#201F1E]">{service.nameEN || "Sync Required"}</p>
+                        <p className="text-sm leading-relaxed text-[#A19F9D]">{service.descriptionEN || "Global narrative draft pending synchronization."}</p>
                     </div>
                 </TabsContent>
 
-                <TabsContent value="features" className="animate-in fade-in duration-500">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TabsContent value="features" className="animate-in fade-in duration-300 p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {service.features.map(f => (
-                            <div key={f.id} className="p-8 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[32px] relative group hover:shadow-xl hover:border-emerald-100 transition-all shadow-sm">
-                                <div className="flex items-center gap-4 mb-3">
-                                    <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
-                                    <h6 className="text-lg font-black text-zinc-800 dark:text-zinc-200 tracking-tighter">{f.nameEL}</h6>
+                            <div key={f.id} className="px-3 py-2.5 bg-white border border-[#EDEBE9] rounded-lg relative group hover:border-[#C7E0F4] transition-all">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                                    <p className="text-sm font-semibold text-[#201F1E]">{f.nameEL}</p>
                                 </div>
-                                <p className="text-sm font-medium text-zinc-400 leading-relaxed">{f.descriptionEL}</p>
-                                <Button variant="ghost" size="icon" onClick={() => deleteServiceFeature(f.id).then(() => onRefresh())} className="absolute top-4 right-4 h-10 w-10 text-zinc-200 hover:text-red-500 hover:bg-red-50 rounded-xl opacity-0 group-hover:opacity-100 transition-all">
-                                    <Trash2 className="w-5 h-5" />
+                                <p className="text-[11px] text-[#A19F9D] leading-relaxed">{f.descriptionEL}</p>
+                                <Button
+                                    variant="ghost" size="icon"
+                                    onClick={() => deleteServiceFeature(f.id).then(() => onRefresh())}
+                                    className="absolute top-2 right-2 h-7 w-7 text-[#C8C6C4] hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
                             </div>
                         ))}
-                        <Button variant="outline" onClick={() => setIsAddingFeature(true)} className="border-dashed border-2 h-auto min-h-[160px] rounded-[32px] bg-zinc-50 hover:bg-zinc-100 text-zinc-400 flex flex-col gap-3 transition-all">
-                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm"><Plus className="w-6 h-6" /></div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Extend Capabilities</span>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsAddingFeature(true)}
+                            className="border-dashed border-[#C8C6C4] h-auto min-h-[80px] rounded-lg bg-white hover:bg-[#F3F2F1] text-[#A19F9D] flex flex-col gap-2 transition-all"
+                        >
+                            <div className="w-8 h-8 bg-[#F3F2F1] border border-[#EDEBE9] rounded flex items-center justify-center">
+                                <Plus className="w-4 h-4" />
+                            </div>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide">Add Feature</span>
                         </Button>
                     </div>
 
+                    {/* Add Feature Dialog */}
                     <Dialog open={isAddingFeature} onOpenChange={setIsAddingFeature}>
-                        <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-xl">
-                            <DialogHeader className="bg-zinc-800 p-10">
-                                <DialogTitle className="text-2xl font-black text-white tracking-tighter">Forge New Feature Block</DialogTitle>
-                                <DialogDescription className="text-zinc-400 font-medium">Extend the service toolkit with modular characteristic blocks.</DialogDescription>
-                            </DialogHeader>
-                            <div className="p-10 bg-[#f8fafc] dark:bg-zinc-950 space-y-8">
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Block Identity (GR)</Label>
-                                        <Input className="h-14 rounded-2xl font-bold border-zinc-200" placeholder="e.g. Real-time Sync" value={featureForm.nameEL} onChange={e => setFeatureForm({ ...featureForm, nameEL: e.target.value })} />
+                        <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+                            <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-9 h-9 rounded-lg bg-[#EFF6FC] border border-[#C7E0F4] p-1 flex items-center justify-center shrink-0">
+                                        <Zap className="w-4 h-4 text-[#0078D4]" />
                                     </div>
-                                    <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Block Identity (EN)</Label>
-                                        <Input className="h-14 rounded-2xl border-zinc-200" placeholder="English mapping..." value={featureForm.nameEN} onChange={e => setFeatureForm({ ...featureForm, nameEN: e.target.value })} />
+                                    <div>
+                                        <DialogTitle className="text-sm font-bold text-[#201F1E]">Νέο Feature</DialogTitle>
+                                        <DialogDescription className="text-[11px] text-[#A19F9D]">
+                                            Extend the service toolkit with modular characteristic blocks.
+                                        </DialogDescription>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Outcome Narrative (GR)</Label>
-                                        <Textarea rows={4} className="rounded-[24px] border-zinc-200 p-6" placeholder="Describe the utility..." value={featureForm.descriptionEL} onChange={e => setFeatureForm({ ...featureForm, descriptionEL: e.target.value })} />
+                            </DialogHeader>
+                            <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto px-4 py-4 space-y-3">
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Names</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα (GR)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="e.g. Συγχρονισμός σε πραγματικό χρόνο" value={featureForm.nameEL} onChange={e => setFeatureForm({ ...featureForm, nameEL: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα (EN)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="e.g. Real-time Sync" value={featureForm.nameEN} onChange={e => setFeatureForm({ ...featureForm, nameEN: e.target.value })} />
+                                        </div>
                                     </div>
-                                    <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Outcome Narrative (EN)</Label>
-                                        <Textarea rows={4} className="rounded-[24px] border-zinc-200 p-6" placeholder="Localized narrative..." value={featureForm.descriptionEN} onChange={e => setFeatureForm({ ...featureForm, descriptionEN: e.target.value })} />
+                                </div>
+                                <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Descriptions</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (GR)</Label>
+                                            <Textarea rows={3} className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm p-2" placeholder="Describe the utility..." value={featureForm.descriptionEL} onChange={e => setFeatureForm({ ...featureForm, descriptionEL: e.target.value })} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (EN)</Label>
+                                            <Textarea rows={3} className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm p-2" placeholder="Localized narrative..." value={featureForm.descriptionEN} onChange={e => setFeatureForm({ ...featureForm, descriptionEN: e.target.value })} />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-8 border-t bg-white flex justify-end gap-3 rounded-b-[40px]">
-                                <Button variant="ghost" onClick={() => setIsAddingFeature(false)} className="font-black text-[10px] uppercase tracking-widest text-zinc-400">Abort</Button>
-                                <Button onClick={handleAddFeature} disabled={isSavingFeature} className="bg-zinc-800 text-white font-black text-[10px] uppercase tracking-widest px-10 h-14 rounded-2xl shadow-xl hover:bg-zinc-900 transition-all active:scale-95">
-                                    {isSavingFeature ? <RefreshCcw className="w-5 h-5 animate-spin" /> : "Deploy Feature"}
+                            <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                                <Button variant="ghost" onClick={() => setIsAddingFeature(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded">
+                                    Ακύρωση
+                                </Button>
+                                <Button onClick={handleAddFeature} disabled={isSavingFeature} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95">
+                                    {isSavingFeature ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : "Αποθήκευση"}
                                 </Button>
                             </div>
                         </DialogContent>
                     </Dialog>
                 </TabsContent>
 
-                <TabsContent value="media" className="animate-in fade-in duration-500">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-xl font-black text-zinc-800 dark:text-zinc-200 tracking-tighter">Product Evidence Vault</h3>
-                        <Label className={`cursor-pointer bg-amber-600 shadow-xl shadow-amber-500/20 text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-all flex items-center gap-3 ${isUploadingMedia ? 'opacity-50' : ''}`}>
-                            {isUploadingMedia ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
-                            Attach Visual Component
+                <TabsContent value="media" className="animate-in fade-in duration-300 p-4">
+                    <div className="flex justify-between items-center mb-3">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Product Media</p>
+                        <Label className={`cursor-pointer h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded inline-flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] ${isUploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
+                            {isUploadingMedia ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                            Upload
                             <input type="file" className="hidden" onChange={handleUploadMedia} accept="image/*,video/*" />
                         </Label>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {service.media.map(m => (
-                            <div key={m.id} className="relative aspect-[4/3] rounded-[32px] overflow-hidden border border-zinc-100 dark:border-zinc-800 group shadow-sm hover:shadow-2xl transition-all hover:-translate-y-1">
-                                {m.mediaType === 'VIDEO' ? <video src={m.url} className="w-full h-full object-cover" /> : <img src={m.url} className="w-full h-full object-cover" />}
-                                <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
-                                    <Button variant="destructive" size="icon" className="h-10 w-10 rounded-xl shadow-lg" onClick={() => deleteServiceMedia(m.id).then(() => onRefresh())}>
-                                        <Trash2 className="w-5 h-5" />
-                                    </Button>
+                    {service.media.length === 0 ? (
+                        <div className="py-8 text-center rounded-lg border border-dashed border-[#EDEBE9] bg-white">
+                            <ImageIcon className="w-8 h-8 mx-auto text-[#C8C6C4] mb-2" />
+                            <p className="text-sm font-medium text-[#A19F9D]">No media yet. Upload images or videos.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {service.media.map(m => (
+                                <div key={m.id} className="relative aspect-[4/3] rounded-lg overflow-hidden border border-[#EDEBE9] group hover:border-[#C7E0F4] transition-all">
+                                    {m.mediaType === 'VIDEO'
+                                        ? <video src={m.url} className="w-full h-full object-cover" />
+                                        : <img src={m.url} className="w-full h-full object-cover" />}
+                                    <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-end">
+                                        <Button variant="destructive" size="icon" className="h-7 w-7 rounded" onClick={() => deleteServiceMedia(m.id).then(() => onRefresh())}>
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </TabsContent>
             </Tabs>
         </div>
