@@ -72,6 +72,11 @@ export default function AriadniClientPage({
               <p className="text-lg sm:text-xl md:text-2xl text-monks-light max-w-2xl leading-relaxed">
                 {c.tagline}
               </p>
+              <p className="text-sm text-white/80 max-w-2xl leading-relaxed">
+                {locale === "el"
+                  ? "Το έργο υλοποιήθηκε στο πλαίσιο του προγράμματος «Ανάπτυξη Ψηφιακών Προϊόντων και Υπηρεσιών» του Ταμείου Ανάκαμψης και Ανθεκτικότητας «Ελλάδα 2.0» με τη χρηματοδότηση της Ευρωπαϊκής Ένωσης – NextGenerationEU."
+                  : "The project was implemented under the programme «Development of Digital Products and Services» of the Recovery and Resilience Fund «Greece 2.0», funded by the European Union – NextGenerationEU."}
+              </p>
             </div>
 
             {/* Single glass panel: logo + stats + ESPA banner (same width) */}
@@ -106,19 +111,15 @@ export default function AriadniClientPage({
                   ))}
                 </div>
 
-                <a
-                  href={espaPdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block overflow-hidden rounded-xl border border-white/10 bg-monks-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]"
-                  aria-label={
-                    locale === "el"
-                      ? "Άνοιγμα εγγράφου προγράμματος PDF σε νέο παράθυρο"
-                      : "Open programme PDF in a new window"
-                  }
-                >
-                  {/* Intrinsic image height — no fixed box; card matches image pixels */}
-                  <div className="bg-[#0c0e12]">
+                <div className="overflow-hidden rounded-xl border border-white/10 bg-monks-black/50">
+                  {/* Banner → opens digitalsme.gov.gr */}
+                  <a
+                    href="https://digitalsme.gov.gr/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block bg-[#0c0e12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent"
+                    aria-label={locale === "el" ? "Άνοιγμα digitalsme.gov.gr σε νέο παράθυρο" : "Open digitalsme.gov.gr in a new window"}
+                  >
                     {!bannerFailed ? (
                       // eslint-disable-next-line @next/next/no-img-element -- natural dimensions required for exact height
                       <img
@@ -130,30 +131,32 @@ export default function AriadniClientPage({
                       />
                     ) : (
                       <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 px-4 py-8 text-center">
-                        <ExternalLink
-                          className="w-7 h-7 text-monks-accent"
-                          aria-hidden
-                        />
+                        <ExternalLink className="w-7 h-7 text-monks-accent" aria-hidden />
                         <span className="text-sm font-medium text-monks-light">
-                          {locale === "el"
-                            ? "Έγγραφο προγράμματος (PDF)"
-                            : "Programme document (PDF)"}
+                          {locale === "el" ? "Έγγραφο προγράμματος (PDF)" : "Programme document (PDF)"}
                         </span>
                       </div>
                     )}
-                  </div>
-                  <div className="flex items-center justify-between gap-3 border-t border-white/10 bg-monks-black/70 px-4 py-3">
+                  </a>
+
+                  {/* PDF row → downloads the PDF */}
+                  <a
+                    href={espaPdfUrl}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between gap-3 border-t border-white/10 bg-monks-black/70 px-4 py-3 hover:bg-monks-black/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent"
+                    aria-label={locale === "el" ? "Λήψη εγγράφου ΕΣΠΑ (PDF)" : "Download ESPA document (PDF)"}
+                  >
                     <span className="text-[11px] sm:text-xs font-medium tracking-wide text-monks-light uppercase">
-                      {locale === "el"
-                        ? "Έγγραφο προγράμματος ΕΣΠΑ"
-                        : "ESPA programme document"}
+                      {locale === "el" ? "Έγγραφο προγράμματος ΕΣΠΑ" : "ESPA programme document"}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-monks-accent shrink-0">
                       PDF
                       <ExternalLink className="w-4 h-4" aria-hidden />
                     </span>
-                  </div>
-                </a>
+                  </a>
+                </div>
               </div>
             </div>
           </motion.div>

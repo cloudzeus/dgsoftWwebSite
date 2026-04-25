@@ -29,6 +29,8 @@ import {
   FileCode2Icon,
   HomeIcon,
   PanelBottomIcon,
+  ShieldIcon,
+  CookieIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -130,6 +132,16 @@ const navData = {
       title: "Teams Calendar",
       url: "/admin/teams-calendar",
       icon: CalendarDaysIcon,
+    },
+    {
+      title: "Privacy Policy",
+      url: "/admin/legal/privacy-policy",
+      icon: ShieldIcon,
+    },
+    {
+      title: "Cookie Policy",
+      url: "/admin/legal/cookie-policy",
+      icon: CookieIcon,
     },
   ],
   navNewsletter: [

@@ -147,43 +147,60 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
             id: "branding",
             header: "",
             cell: ({ row }) => (
-                <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border shadow-sm p-1.5 flex items-center justify-center">
-                    {row.original.logo ? <img src={row.original.logo} className="w-full h-full object-contain" /> : <Home className="w-5 h-5 text-zinc-300" />}
+                <div className="w-9 h-9 rounded-lg overflow-hidden bg-[#F3F2F1] border border-[#EDEBE9] p-1 flex items-center justify-center shrink-0">
+                    {row.original.logo
+                        ? <img src={row.original.logo} className="w-full h-full object-contain" />
+                        : <Home className="w-4 h-4 text-[#C8C6C4]" />}
                 </div>
             ),
-            size: 60
+            size: 48
         },
         {
             accessorKey: "nameEL",
             header: ({ column }) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="font-black text-[10px] uppercase tracking-widest p-0 h-auto hover:bg-transparent">
-                    Location Name <ArrowUpDown className="ml-2 h-3 w-3" />
-                </Button>
+                <button onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="flex items-center gap-1 text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide hover:text-[#201F1E]">
+                    Location <ArrowUpDown className="h-3 w-3" />
+                </button>
             ),
             cell: ({ row }) => (
-                <div className="flex flex-col">
-                    <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">{row.original.nameEL}</span>
-                    <span className="text-[10px] font-mono text-zinc-400 flex items-center gap-1 uppercase tracking-tighter"><MapPin className="w-2 h-2 text-red-400" /> {row.original.cityEL}, {row.original.countryEL}</span>
+                <div>
+                    <p className="font-semibold text-sm text-[#201F1E] leading-tight">{row.original.nameEL}</p>
+                    <p className="text-[11px] text-[#A19F9D] flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-2.5 h-2.5 text-[#E31E2A] shrink-0" />
+                        {[row.original.cityEL, row.original.countryEL].filter(Boolean).join(", ") || "—"}
+                    </p>
                 </div>
             )
         },
         {
             accessorKey: "phone",
-            header: "Contact Intelligence",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Contact</span>,
             cell: ({ row }) => (
-                <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 flex items-center gap-2"><Phone className="w-3 h-3" /> {row.original.phone || 'N/A'}</span>
-                    <span className="text-[10px] font-medium text-zinc-400 flex items-center gap-2"><Mail className="w-3 h-3" /> {row.original.email || 'N/A'}</span>
+                <div className="space-y-0.5">
+                    <p className="text-xs text-[#605E5C] flex items-center gap-1.5">
+                        <Phone className="w-3 h-3 text-[#A19F9D] shrink-0" />
+                        {row.original.phone || <span className="text-[#C8C6C4]">—</span>}
+                    </p>
+                    <p className="text-xs text-[#605E5C] flex items-center gap-1.5">
+                        <Mail className="w-3 h-3 text-[#A19F9D] shrink-0" />
+                        {row.original.email || <span className="text-[#C8C6C4]">—</span>}
+                    </p>
                 </div>
             )
         },
         {
             accessorKey: "published",
-            header: "Status",
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
             cell: ({ row }) => row.original.published ? (
-                <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[10px] font-black uppercase">Live Reach</Badge>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    Live
+                </span>
             ) : (
-                <Badge variant="outline" className="text-zinc-300 border-zinc-200 text-[10px] font-black uppercase">Internal Only</Badge>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />
+                    Off
+                </span>
             )
         },
         {
@@ -191,20 +208,26 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
             cell: ({ row }) => (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
-                        <Button variant="outline" size="sm" className="h-9 bg-zinc-800 text-white border-none font-bold hover:bg-zinc-700 rounded-xl">
-                            Actions <ChevronDown className="h-4 w-4 ml-1" />
+                        <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
+                            Actions <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[180px]">
-                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Navigation className="w-4 h-4 mr-2" /> Adjust Point</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => window.open(row.original.website || '#', '_blank')} disabled={!row.original.website}><ExternalLink className="w-4 h-4 mr-2" /> Explore Site</DropdownMenuItem>
+                    <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onClick={() => openEdit(row.original)} className="text-sm">
+                            <Navigation className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit location
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => window.open(row.original.website || '#', '_blank')} disabled={!row.original.website} className="text-sm">
+                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> Open website
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-500" onClick={async () => {
-                            if (confirm("Permanently archive this location?")) {
+                        <DropdownMenuItem className="text-red-500 text-sm" onClick={async () => {
+                            if (confirm("Delete this location?")) {
                                 await deleteLocation(row.original.id);
                                 setData(data.filter(d => d.id !== row.original.id));
                             }
-                        }}><Trash2 className="w-4 h-4 mr-2" /> Decommission</DropdownMenuItem>
+                        }}>
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -212,42 +235,66 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
     ]
 
     const renderExpandedRow = (location: Location) => (
-        <div className="py-8 px-8 bg-[#f8fafc] dark:bg-zinc-950/50 rounded-[40px] border border-zinc-200 dark:border-zinc-800 shadow-inner grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="space-y-6">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-3"><Compass className="w-4 h-4" /> Global Presence</h4>
-                <div className="bg-white dark:bg-zinc-900 p-6 rounded-[32px] border shadow-sm space-y-4">
-                    <div>
-                        <Label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Address (Greek)</Label>
-                        <p className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{location.addressEL || "—"}</p>
-                        <p className="text-xs text-zinc-500">{location.zip} {location.cityEL}, {location.countryEL}</p>
-                    </div>
-                    {(location.addressEN || location.cityEN || location.countryEN) && (
+        <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
+            <div className="grid grid-cols-3 divide-x divide-[#EDEBE9]">
+                {/* Address */}
+                <div className="p-4 space-y-3">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
+                        <Compass className="w-3 h-3" /> Address
+                    </p>
+                    <div className="space-y-2">
                         <div>
-                            <Label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Address (English)</Label>
-                            <p className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{location.addressEN || "—"}</p>
-                            <p className="text-xs text-zinc-500">{[location.cityEN, location.countryEN].filter(Boolean).join(", ") || "—"}</p>
+                            <p className="text-[10px] font-semibold text-[#A19F9D] mb-0.5">Ελληνικά</p>
+                            <p className="text-sm font-medium text-[#201F1E]">{location.addressEL || "—"}</p>
+                            <p className="text-xs text-[#605E5C]">{[location.zip, location.cityEL, location.countryEL].filter(Boolean).join(" ")}</p>
                         </div>
+                        {(location.addressEN || location.cityEN) && (
+                            <div>
+                                <p className="text-[10px] font-semibold text-[#A19F9D] mb-0.5">English</p>
+                                <p className="text-sm font-medium text-[#201F1E]">{location.addressEN || "—"}</p>
+                                <p className="text-xs text-[#605E5C]">{[location.cityEN, location.countryEN].filter(Boolean).join(", ")}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Geolocation */}
+                <div className="p-4 space-y-3">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
+                        <Navigation className="w-3 h-3" /> Coordinates
+                    </p>
+                    {location.latitude && location.longitude ? (
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <MapPin className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-mono font-semibold text-[#201F1E]">{location.latitude}</p>
+                                <p className="text-xs font-mono font-semibold text-[#201F1E]">{location.longitude}</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-xs text-[#A19F9D]">No coordinates set</p>
                     )}
                 </div>
-            </div>
-            <div className="space-y-6">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-3"><Navigation className="w-4 h-4" /> Geolocation Data</h4>
-                <div className="bg-white dark:bg-zinc-900 p-6 rounded-[32px] border shadow-sm flex flex-col items-center justify-center text-center gap-3">
-                    <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl">
-                        <MapPin className="w-8 h-8 text-indigo-500" />
+
+                {/* Contact */}
+                <div className="p-4 space-y-3">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
+                        <Globe className="w-3 h-3" /> Online
+                    </p>
+                    <div className="space-y-2">
+                        <p className="text-xs flex items-center gap-2 text-[#605E5C]">
+                            <Mail className="w-3.5 h-3.5 text-[#A19F9D] shrink-0" />
+                            {location.email || <span className="text-[#C8C6C4]">—</span>}
+                        </p>
+                        <p className="text-xs flex items-center gap-2 text-[#605E5C]">
+                            <Globe className="w-3.5 h-3.5 text-[#A19F9D] shrink-0" />
+                            {location.website
+                                ? <a href={location.website} target="_blank" rel="noopener noreferrer" className="text-[#0078D4] hover:underline truncate max-w-[160px]">{location.website}</a>
+                                : <span className="text-[#C8C6C4]">—</span>}
+                        </p>
                     </div>
-                    <div>
-                        <p className="text-[10px] font-mono text-zinc-400 uppercase">Latitude / Longitude</p>
-                        <p className="text-lg font-black text-indigo-600 font-mono leading-none mt-1">{location.latitude}, {location.longitude}</p>
-                    </div>
-                </div>
-            </div>
-            <div className="space-y-6">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-3"><Globe className="w-4 h-4" /> Digital Ecosystem</h4>
-                <div className="bg-white dark:bg-zinc-900 p-6 rounded-[32px] border shadow-sm space-y-4">
-                    <p className="text-xs font-bold flex items-center gap-2"><Mail className="w-3 h-3 text-zinc-300" /> {location.email || 'no-email@point.com'}</p>
-                    <p className="text-xs font-bold flex items-center gap-2"><Globe className="w-3 h-3 text-zinc-300" /> {location.website || 'corporate.web'}</p>
-                    <Badge variant="outline" className="text-[10px] font-black bg-zinc-50 dark:bg-zinc-800 border-none rounded-lg px-3 py-1 mt-2">Display Order: {location.order}</Badge>
                 </div>
             </div>
         </div>
@@ -262,114 +309,167 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
             />
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-xl">
-                    <DialogHeader className="bg-zinc-800 p-10">
-                        <DialogTitle className="text-3xl font-black text-white tracking-tighter flex items-center gap-3"><Map className="w-8 h-8 text-indigo-400" /> {editingLocation ? 'Modify Operational Node' : 'Initialize Geographic Node'}</DialogTitle>
-                        <DialogDescription className="text-zinc-400 font-medium text-base">Configure spatial identity and digital coordination parameters for this location.</DialogDescription>
+                <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.08)]">
+                    {/* Header */}
+                    <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
+                                <Map className="w-4 h-4 text-[#0078D4]" />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">
+                                    {editingLocation ? 'Edit Location' : 'New Location'}
+                                </DialogTitle>
+                                <DialogDescription className="text-[11px] text-[#A19F9D]">
+                                    {editingLocation ? editingLocation.nameEL : 'Add a new office or presence point'}
+                                </DialogDescription>
+                            </div>
+                        </div>
                     </DialogHeader>
 
-                    <div className="p-10 bg-[#f8fafc] dark:bg-zinc-950 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div className="space-y-8">
-                                <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border border-dashed border-indigo-200 shadow-sm text-center">
-                                    <div className="w-24 h-24 rounded-3xl bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-6 border shadow-inner">
-                                        {formData.logo ? <img src={formData.logo} className="w-full h-full object-contain p-2" /> : <Home className="w-8 h-8 text-zinc-300" />}
+                    {/* Body */}
+                    <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto">
+                        <div className="grid grid-cols-[220px_1fr] gap-px bg-[#EDEBE9]">
+
+                            {/* Left sidebar */}
+                            <div className="bg-[#F3F2F1] p-4 space-y-3">
+                                {/* Logo */}
+                                <div className="bg-white rounded border border-[#EDEBE9] p-3 text-center">
+                                    <div className="w-14 h-14 rounded bg-[#F3F2F1] flex items-center justify-center mx-auto mb-2 border border-[#EDEBE9]">
+                                        {formData.logo
+                                            ? <img src={formData.logo} className="w-full h-full object-contain p-1 rounded" />
+                                            : <Home className="w-5 h-5 text-[#C8C6C4]" />}
                                     </div>
-                                    <Label className="inline-flex h-10 items-center justify-center rounded-xl bg-zinc-800 px-6 text-[10px] font-black uppercase text-white cursor-pointer hover:bg-zinc-900 transition-all active:scale-95 shadow-lg">
-                                        Upload Point Icon
+                                    <Label className="inline-flex h-7 items-center justify-center rounded border border-[#C8C6C4] bg-white px-3 text-[11px] font-medium text-[#201F1E] cursor-pointer hover:bg-[#EDEBE9] transition-colors">
                                         <input type="file" className="hidden" accept="image/*" onChange={e => handleLogoUpload(e.target.files?.[0] || null)} />
+                                        Upload logo
                                     </Label>
                                 </div>
 
-                                <div className="bg-white dark:bg-zinc-900 p-8 rounded-[32px] border shadow-sm space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-2 flex items-center gap-2"><Compass className="w-4 h-4" /> Spatial Intelligence</h4>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black text-zinc-400 uppercase">Geocode Resolution</Label>
-                                        <div className="flex gap-2">
-                                            <Input className="h-12 rounded-xl font-medium" value={geocodeQuery} onChange={e => setGeocodeQuery(e.target.value)} placeholder="Full address string..." />
-                                            <Button disabled={isGeocoding} onClick={handleGeocode} className="h-12 bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-lg px-4">
-                                                {isGeocoding ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Map className="w-4 h-4" />}
+                                {/* Geocode */}
+                                <div className="bg-white rounded border border-[#EDEBE9] p-3 space-y-2.5">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#0078D4] flex items-center gap-1">
+                                        <Compass className="w-3 h-3" /> Geolocation
+                                    </p>
+                                    <div className="space-y-1">
+                                        <Label className="text-[10px] font-semibold text-[#605E5C] uppercase">Address lookup</Label>
+                                        <div className="flex gap-1.5">
+                                            <Input className="h-8 rounded text-xs border-[#C8C6C4] focus-visible:ring-[#0078D4]" value={geocodeQuery} onChange={e => setGeocodeQuery(e.target.value)} placeholder="Street, city…" />
+                                            <Button disabled={isGeocoding} onClick={handleGeocode} className="h-8 w-8 p-0 shrink-0 rounded bg-[#0078D4] hover:bg-[#106EBE]">
+                                                {isGeocoding ? <RefreshCcw className="w-3 h-3 animate-spin" /> : <Map className="w-3 h-3" />}
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 gap-2">
                                         <div className="space-y-1">
-                                            <Label className="text-[10px] font-black text-zinc-300 uppercase">Latitude</Label>
-                                            <Input className="h-10 rounded-lg font-mono text-xs" value={formData.latitude} onChange={e => setFormData({ ...formData, latitude: e.target.value })} />
+                                            <Label className="text-[10px] font-semibold text-[#605E5C] uppercase">Lat</Label>
+                                            <Input className="h-8 rounded font-mono text-xs border-[#C8C6C4] focus-visible:ring-[#0078D4]" value={formData.latitude} onChange={e => setFormData({ ...formData, latitude: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[10px] font-black text-zinc-300 uppercase">Longitude</Label>
-                                            <Input className="h-10 rounded-lg font-mono text-xs" value={formData.longitude} onChange={e => setFormData({ ...formData, longitude: e.target.value })} />
+                                            <Label className="text-[10px] font-semibold text-[#605E5C] uppercase">Lng</Label>
+                                            <Input className="h-8 rounded font-mono text-xs border-[#C8C6C4] focus-visible:ring-[#0078D4]" value={formData.longitude} onChange={e => setFormData({ ...formData, longitude: e.target.value })} />
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Status */}
+                                <div className="bg-white rounded border border-[#EDEBE9] px-3 py-2.5 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[12px] font-semibold text-[#201F1E]">Published</p>
+                                        <p className="text-[10px] text-[#A19F9D]">Visible on public maps</p>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className={`text-[10px] font-bold ${formData.published ? 'text-emerald-600' : 'text-[#A19F9D]'}`}>
+                                            {formData.published ? 'Live' : 'Off'}
+                                        </span>
+                                        <Switch checked={formData.published} onCheckedChange={v => setFormData({ ...formData, published: v })} className="data-[state=checked]:bg-emerald-500 scale-90" />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Name (Greek) *</Label>
-                                        <Input className="h-12 rounded-xl font-bold" value={formData.nameEL ?? ""} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} placeholder="Περιοχή / Όνομα" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Name (English)</Label>
-                                        <Input className="h-12 rounded-xl" value={formData.nameEN ?? ""} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} placeholder="Location name" />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Address (Greek)</Label>
-                                        <Input className="h-12 rounded-xl" value={formData.addressEL ?? ""} onChange={e => setFormData({ ...formData, addressEL: e.target.value })} placeholder="Οδός, αριθμός" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Address (English)</Label>
-                                        <Input className="h-12 rounded-xl" value={formData.addressEN ?? ""} onChange={e => setFormData({ ...formData, addressEN: e.target.value })} placeholder="Street, number" />
+                            {/* Right form area */}
+                            <div className="bg-white p-4 space-y-4">
+                                {/* Name row */}
+                                <div className="space-y-1.5">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Identity</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα (ΕΛ) <span className="text-red-500">*</span></Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] font-medium text-sm" value={formData.nameEL ?? ""} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} placeholder="π.χ. Αθήνα" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Name (EN)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEN ?? ""} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} placeholder="e.g. Athens" />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">City (Greek)</Label>
-                                        <Input className="h-10 rounded-xl" value={formData.cityEL ?? ""} onChange={e => setFormData({ ...formData, cityEL: e.target.value })} placeholder="Πόλη" />
+
+                                {/* Address */}
+                                <div className="space-y-1.5">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Address</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Διεύθυνση (ΕΛ)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.addressEL ?? ""} onChange={e => setFormData({ ...formData, addressEL: e.target.value })} placeholder="Οδός, αριθμός" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Address (EN)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.addressEN ?? ""} onChange={e => setFormData({ ...formData, addressEN: e.target.value })} placeholder="Street, number" />
+                                        </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">City (English)</Label>
-                                        <Input className="h-10 rounded-xl" value={formData.cityEN ?? ""} onChange={e => setFormData({ ...formData, cityEN: e.target.value })} placeholder="City" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Country (Greek)</Label>
-                                        <Input className="h-10 rounded-xl" value={formData.countryEL ?? ""} onChange={e => setFormData({ ...formData, countryEL: e.target.value })} placeholder="Χώρα" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-black uppercase text-zinc-400">Country (English)</Label>
-                                        <Input className="h-10 rounded-xl" value={formData.countryEN ?? ""} onChange={e => setFormData({ ...formData, countryEN: e.target.value })} placeholder="Country" />
+                                    <div className="grid grid-cols-[1fr_1fr_1fr_1fr_100px] gap-2">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Πόλη (ΕΛ)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.cityEL ?? ""} onChange={e => setFormData({ ...formData, cityEL: e.target.value })} placeholder="Πόλη" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">City (EN)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.cityEN ?? ""} onChange={e => setFormData({ ...formData, cityEN: e.target.value })} placeholder="City" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Χώρα (ΕΛ)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.countryEL ?? ""} onChange={e => setFormData({ ...formData, countryEL: e.target.value })} placeholder="Χώρα" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Country (EN)</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.countryEN ?? ""} onChange={e => setFormData({ ...formData, countryEN: e.target.value })} placeholder="Country" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Post code</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] font-mono text-sm" value={formData.zip ?? ""} onChange={e => setFormData({ ...formData, zip: e.target.value })} placeholder="TK" />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-zinc-400">Postal code</Label>
-                                    <Input className="h-10 rounded-xl font-mono w-full max-w-[140px]" value={formData.zip ?? ""} onChange={e => setFormData({ ...formData, zip: e.target.value })} placeholder="TK" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase text-zinc-400">Contact Switchboard</Label>
-                                    <Input className="h-12 rounded-xl" value={formData.phone ?? ""} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-                                </div>
-                                <div className="flex items-center justify-between p-6 border rounded-[32px] bg-white dark:bg-zinc-900 mt-6">
-                                    <div className="flex flex-col gap-1">
-                                        <h4 className="text-[10px] font-black uppercase text-zinc-800 dark:text-zinc-200">Broadcast Protocol</h4>
-                                        <p className="text-[10px] text-zinc-400">Should this node be active on public maps?</p>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className={`text-[10px] font-black uppercase transition-colors ${formData.published ? 'text-emerald-500' : 'text-zinc-300'}`}>{formData.published ? 'Live' : 'Off-grid'}</span>
-                                        <Switch checked={formData.published} onCheckedChange={v => setFormData({ ...formData, published: v })} className="data-[state=checked]:bg-emerald-500" />
+
+                                {/* Contact */}
+                                <div className="space-y-1.5">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Contact</p>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Phone</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.phone ?? ""} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="+30 210 0000000" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Email</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" type="email" value={formData.email ?? ""} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="info@example.com" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Website</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" type="url" value={formData.website ?? ""} onChange={e => setFormData({ ...formData, website: e.target.value })} placeholder="https://example.com" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="p-10 border-t bg-white dark:bg-zinc-950 flex justify-end gap-4">
-                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="font-black text-xs uppercase tracking-[0.2em] text-zinc-400">Abort Mission</Button>
-                        <Button disabled={isSaving} onClick={handleSave} className="bg-zinc-800 text-white font-black text-xs uppercase tracking-[0.2em] h-14 px-12 rounded-2xl shadow-xl hover:bg-zinc-900 transition-all active:scale-95">
-                            {isSaving ? <RefreshCcw className="w-5 h-5 animate-spin" /> : "Deploy Point Parameters"}
+                    {/* Footer */}
+                    <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded">
+                            Cancel
+                        </Button>
+                        <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95">
+                            {isSaving ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Saving…</> : "Save location"}
                         </Button>
                     </div>
                 </DialogContent>

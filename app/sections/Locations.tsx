@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Mail, Phone, Map } from "lucide-react";
+import { MapPin, Mail, Phone, Map, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { useLocale } from "../context/LocaleContext";
@@ -62,15 +62,28 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                         transition={{ delay: idx * 0.1, duration: 0.5 }}
                                         onMouseEnter={() => setActiveId(loc.id)}
                                         onMouseLeave={() => setActiveId(null)}
-                                        className={`flex items-start gap-4 p-6 rounded-2xl cursor-pointer transition-all duration-300 ${activeId === loc.id
+                                        className={`relative flex items-start gap-4 p-6 rounded-2xl transition-all duration-300 border ${activeId === loc.id
                                             ? "bg-monks-accent/20 border-monks-accent"
                                             : "bg-monks-gray/30 border-white/5 hover:border-monks-accent/30"
-                                            } border`}
+                                        }`}
                                     >
-                                        <MapPin className={`w-8 h-8 shrink-0 mt-1 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/40"
-                                            }`} />
-                                        <div>
-                                            <h3 className="font-bold text-white text-xl">{displayCity || locName(loc)}</h3>
+                                        {loc.website && (
+                                            <a
+                                                href={loc.website}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="absolute inset-0 z-10"
+                                                aria-label={locName(loc)}
+                                            />
+                                        )}
+                                        <MapPin className={`w-8 h-8 shrink-0 mt-1 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/40"}`} />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="font-bold text-white text-xl">{displayCity || locName(loc)}</h3>
+                                                {loc.website && (
+                                                    <ExternalLink className={`w-4 h-4 shrink-0 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/30"}`} />
+                                                )}
+                                            </div>
                                             <p className="text-monks-light text-base mt-1 text-justify">{locName(loc)}</p>
                                         </div>
                                     </motion.div>
@@ -164,6 +177,12 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                                     <Mail className="w-4 h-4 text-monks-accent shrink-0" />
                                                     <span className="truncate">{loc.email || "-"}</span>
                                                 </div>
+                                                {loc.website && (
+                                                    <div className="flex items-center gap-3 text-sm text-monks-light">
+                                                        <ExternalLink className="w-4 h-4 text-monks-accent shrink-0" />
+                                                        <span className="truncate">{loc.website}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </foreignObject>
                                     )}
