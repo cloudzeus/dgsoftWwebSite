@@ -132,7 +132,7 @@ export function NewsletterCampaignsClient({
   const handleTestCampaign = async () => {
     const email = testEmail.trim();
     if (!email) {
-      toast.error("Enter an email address for the preview");
+      toast.error("Εισάγετε διεύθυνση email για την προεπισκόπηση");
       return;
     }
     setTestSending(true);
@@ -143,12 +143,12 @@ export function NewsletterCampaignsClient({
         to: email,
       });
       if (result.success) {
-        toast.success(`Test email sent to ${email}`);
+        toast.success(`Δοκιμαστικό email στάλθηκε στο ${email}`);
       } else {
-        toast.error(result.error ?? "Failed to send test");
+        toast.error(result.error ?? "Αποτυχία αποστολής δοκιμής");
       }
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to send test");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αποστολής δοκιμής");
     } finally {
       setTestSending(false);
     }
@@ -157,11 +157,11 @@ export function NewsletterCampaignsClient({
   const handleSave = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      toast.error("Campaign name is required");
+      toast.error("Το όνομα εκστρατείας είναι υποχρεωτικό");
       return;
     }
     if (!subject.trim()) {
-      toast.error("Subject is required");
+      toast.error("Το θέμα είναι υποχρεωτικό");
       return;
     }
     const filtersToSave: NewsletterFilters = {
@@ -179,7 +179,7 @@ export function NewsletterCampaignsClient({
         });
         const list = await getNewsletterCampaigns();
         setCampaigns(list as Campaign[]);
-        toast.success("Campaign updated");
+        toast.success("Η εκστρατεία ενημερώθηκε");
       } else {
         await createNewsletterCampaign({
           name: trimmedName,
@@ -189,11 +189,11 @@ export function NewsletterCampaignsClient({
         });
         const list = await getNewsletterCampaigns();
         setCampaigns(list as Campaign[]);
-        toast.success("Campaign created");
+        toast.success("Η εκστρατεία δημιουργήθηκε");
       }
       setOpen(false);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to save");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αποθήκευσης");
     } finally {
       setSaving(false);
     }
@@ -207,25 +207,25 @@ export function NewsletterCampaignsClient({
         toast.error(error);
         return;
       }
-      toast.success(`Recipients built: ${count} contact(s)`);
+      toast.success(`Δημιουργήθηκαν παραλήπτες: ${count} επαφή(-ές)`);
       const list = await getNewsletterCampaigns();
       setCampaigns(list as Campaign[]);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Build failed");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία δημιουργίας");
     } finally {
       setBuilding(null);
     }
   };
 
   const handleSend = async (campaignId: string) => {
-    if (!confirm("Send this campaign now? Emails will be sent via Mailgun.")) return;
+    if (!confirm("Αποστολή εκστρατείας τώρα; Τα emails θα αποσταλούν μέσω Mailgun.")) return;
     setSending(campaignId);
     try {
       const result = await sendNewsletterCampaign(campaignId);
       if (result.errors?.length) {
         result.errors.forEach((err) => toast.error(err));
       }
-      toast.success(`Sent: ${result.sent}, Failed: ${result.failed}`);
+      toast.success(`Εστάλησαν: ${result.sent}, Απέτυχαν: ${result.failed}`);
       const list = await getNewsletterCampaigns();
       setCampaigns(list as Campaign[]);
       if (campaignDetail?.id === campaignId) {
@@ -233,7 +233,7 @@ export function NewsletterCampaignsClient({
         if (detail?.recipients) setCampaignDetail({ id: campaignId, recipients: detail.recipients });
       }
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Send failed");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αποστολής");
     } finally {
       setSending(null);
     }
@@ -261,7 +261,7 @@ export function NewsletterCampaignsClient({
     <div className="space-y-6">
       <Button onClick={openCreate} className="gap-2">
         <PlusIcon className="h-4 w-4" />
-        New campaign
+        Νέα εκστρατεία
       </Button>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -278,12 +278,12 @@ export function NewsletterCampaignsClient({
                 {c.subject}
               </p>
               <p className="text-xs">
-                Template: {c.template?.name ?? "—"} · Recipients: {c._count?.recipients ?? 0}
-                {(c.companyCount ?? 0) > 0 && ` · Companies: ${c.companyCount}`}
+                Πρότυπο: {c.template?.name ?? "—"} · Παραλήπτες: {c._count?.recipients ?? 0}
+                {(c.companyCount ?? 0) > 0 && ` · Εταιρείες: ${c.companyCount}`}
               </p>
               {c.sentAt && (
                 <p className="text-xs text-muted-foreground">
-                  Sent {new Date(c.sentAt).toLocaleString()}
+                  Εστάλη {new Date(c.sentAt).toLocaleString()}
                 </p>
               )}
               <div className="flex flex-wrap gap-2">
@@ -294,7 +294,7 @@ export function NewsletterCampaignsClient({
                   disabled={building === c.id || c.status === "sending"}
                 >
                   {building === c.id ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <UsersIcon className="h-4 w-4" />}
-                  Build list
+                  Δημιουργία λίστας
                 </Button>
                 <Button
                   size="sm"
@@ -302,12 +302,12 @@ export function NewsletterCampaignsClient({
                   disabled={sending === c.id || c.status === "sending" || (c._count?.recipients ?? 0) === 0}
                 >
                   {sending === c.id ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <SendIcon className="h-4 w-4" />}
-                  Send
+                  Αποστολή
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => openStats(c)}>
-                  Stats
+                  Στατιστικά
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => openEdit(c)} title="Edit campaign">
+                <Button size="sm" variant="ghost" onClick={() => openEdit(c)} title="Επεξεργασία εκστρατείας">
                   <PencilIcon className="h-4 w-4" />
                 </Button>
               </div>
@@ -319,8 +319,8 @@ export function NewsletterCampaignsClient({
       {campaignDetail && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm">Campaign statistics</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => setCampaignDetail(null)}>Close</Button>
+            <CardTitle className="text-sm">Στατιστικά εκστρατείας</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => setCampaignDetail(null)}>Κλείσιμο</Button>
           </CardHeader>
           <CardContent>
             {(() => {
@@ -332,11 +332,11 @@ export function NewsletterCampaignsClient({
               const clicked = recs.filter((r) => r.status === "clicked").length;
               return (
                 <div className="grid gap-2 text-sm sm:grid-cols-2 md:grid-cols-5">
-                  <div>Total: <strong>{recs.length}</strong></div>
-                  <div>Pending: <strong>{pending}</strong></div>
-                  <div>Sent: <strong>{sent}</strong></div>
-                  <div>Failed: <strong>{failed}</strong></div>
-                  <div>Opened / Clicked: <strong>{opened} / {clicked}</strong></div>
+                  <div>Σύνολο: <strong>{recs.length}</strong></div>
+                  <div>Εκκρεμή: <strong>{pending}</strong></div>
+                  <div>Εστάλησαν: <strong>{sent}</strong></div>
+                  <div>Απέτυχαν: <strong>{failed}</strong></div>
+                  <div>Ανοίχτηκαν / Κλικ: <strong>{opened} / {clicked}</strong></div>
                 </div>
               );
             })()}
@@ -353,40 +353,40 @@ export function NewsletterCampaignsClient({
               </div>
               <div>
                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                  {editingId ? "Edit campaign" : "New campaign"}
+                  {editingId ? "Επεξεργασία εκστρατείας" : "Νέα εκστρατεία"}
                 </DialogTitle>
-                <p className="text-[11px] text-[#A19F9D]">Configure recipients and template</p>
+                <p className="text-[11px] text-[#A19F9D]">Ρύθμιση παραληπτών και προτύπου</p>
               </div>
             </div>
           </DialogHeader>
           <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto px-5 py-4 space-y-3">
             {/* Basic details */}
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Campaign Details</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Στοιχεία Εκστρατείας</p>
               <div className="grid gap-3">
                 <div className="space-y-1">
-                  <Label className="text-[11px] font-semibold text-[#605E5C]">Campaign name</Label>
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα εκστρατείας</Label>
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Q1 2025 Newsletter"
+                    placeholder="π.χ. Ενημερωτικό Δελτίο Q1 2025"
                     className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[11px] font-semibold text-[#605E5C]">Email subject</Label>
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Θέμα email</Label>
                   <Input
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Subject line"
+                    placeholder="Γραμμή θέματος"
                     className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[11px] font-semibold text-[#605E5C]">Template</Label>
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Πρότυπο</Label>
                   <Select value={templateId} onValueChange={setTemplateId}>
                     <SelectTrigger className="h-9 rounded border-[#C8C6C4] focus:ring-[#0078D4] text-sm">
-                      <SelectValue placeholder="Select template" />
+                      <SelectValue placeholder="Επιλογή προτύπου" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[240px] overflow-y-scroll">
                       {templates.map((t) => (
@@ -400,23 +400,23 @@ export function NewsletterCampaignsClient({
 
             {/* Manual customers */}
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Manual Recipients</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Χειροκίνητοι Παραλήπτες</p>
               <CustomerMultiSelect
                 selected={selectedCustomers}
                 onChange={(next) => {
                   setSelectedCustomers(next);
                   setFilters((prev) => ({ ...prev, manualTrdrIds: next.map((c) => c.id) }));
                 }}
-                placeholder="Search and add customers…"
+                placeholder="Αναζήτηση και προσθήκη πελατών…"
               />
             </div>
 
             {/* Test send */}
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Test Email</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Δοκιμαστικό Email</p>
               <div className="flex flex-wrap items-end gap-2">
                 <div className="min-w-[200px] flex-1 space-y-1">
-                  <Label className="text-[11px] font-semibold text-[#605E5C]">Send preview to</Label>
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">Αποστολή προεπισκόπησης σε</Label>
                   <Input
                     type="email"
                     value={testEmail}
@@ -433,16 +433,16 @@ export function NewsletterCampaignsClient({
                   className="h-9 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded gap-1.5"
                 >
                   {testSending ? <Loader2Icon className="h-3.5 w-3.5 animate-spin" /> : <MailIcon className="h-3.5 w-3.5" />}
-                  Send test
+                  Αποστολή δοκιμής
                 </Button>
               </div>
             </div>
 
             {/* Email fields */}
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Email Fields</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Πεδία Email</p>
               <p className="text-[11px] text-[#A19F9D]">
-                Choose which customer email field(s) to send to. Multiple addresses in one field (separated by ;) are all used.
+                Επιλέξτε ποια πεδία email πελάτη να χρησιμοποιηθούν. Πολλαπλές διευθύνσεις σε ένα πεδίο (διαχωριστής ;) χρησιμοποιούνται όλες.
               </p>
               <div className="flex flex-wrap gap-4">
                 {(["EMAIL", "EMAILACC", "CCCEMAILMAR"] as EmailFieldKey[]).map((field) => {
@@ -466,37 +466,37 @@ export function NewsletterCampaignsClient({
 
             {/* Recipient filters */}
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Recipient Filters</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Φίλτρα Παραληπτών</p>
               <p className="text-[11px] text-[#A19F9D]">
-                Select regions, cities, legal status, KAD, TRDPGROUP, TRDBUSINESS to build the list. Then use &quot;Build list&quot; on the campaign card.
+                Επιλέξτε περιοχές, πόλεις, νομική μορφή, ΚΑΔ, TRDPGROUP, TRDBUSINESS για δημιουργία λίστας. Στη συνέχεια πατήστε «Δημιουργία λίστας» στην κάρτα εκστρατείας.
               </p>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <MultiSelectFilter
-                  label="Region (Περιφέρεια)"
+                  label="Περιφέρεια"
                   options={regionOptions}
                   value={filters.regionIds ?? []}
                   onChange={(v) => updateFilter("regionIds", v)}
                 />
                 <MultiSelectFilter
-                  label="Regional unit (Νομός)"
+                  label="Νομός / Περιφερειακή Ενότητα"
                   options={nomosOptions}
                   value={filters.nomosIds ?? []}
                   onChange={(v) => updateFilter("nomosIds", v)}
                 />
                 <MultiSelectFilter
-                  label="Municipality (Δήμος)"
+                  label="Δήμος"
                   options={dimosOptions}
                   value={filters.dimosIds ?? []}
                   onChange={(v) => updateFilter("dimosIds", v)}
                 />
                 <MultiSelectFilter
-                  label="City"
+                  label="Πόλη"
                   options={cityOptions}
                   value={filters.cities ?? []}
                   onChange={(v) => updateFilter("cities", v)}
                 />
                 <MultiSelectFilter
-                  label="Legal status"
+                  label="Νομική μορφή"
                   options={legalOptions}
                   value={filters.legalStatuses ?? []}
                   onChange={(v) => updateFilter("legalStatuses", v)}
@@ -523,9 +523,9 @@ export function NewsletterCampaignsClient({
             </div>
           </div>
           <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+            <Button variant="ghost" onClick={() => setOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
             <Button onClick={handleSave} disabled={saving} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-              {saving ? "Saving…" : editingId ? "Update" : "Create"}
+              {saving ? "Αποθήκευση…" : editingId ? "Ενημέρωση" : "Δημιουργία"}
             </Button>
           </div>
         </DialogContent>

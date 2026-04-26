@@ -89,10 +89,10 @@ export function FooterPageEditor({ initialEL, initialEN }: Props) {
     try {
       const res = await updateFooterAction({ contentEL: el, contentEN: en });
       if (!res.success) {
-        toast.error(res.error || "Save failed");
+        toast.error(res.error || "Αποτυχία αποθήκευσης");
         return;
       }
-      toast.success("Footer saved.");
+      toast.success("Υποσέλιδο αποθηκεύτηκε.");
     } finally {
       setPending(false);
     }
@@ -104,9 +104,9 @@ export function FooterPageEditor({ initialEL, initialEN }: Props) {
       <div className="sticky top-0 z-10 -mx-4 md:-mx-6 mb-6 border-b border-[#EDEBE9] bg-white/95 px-4 md:px-6 py-3 backdrop-blur">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-xl font-bold tracking-tight">Footer</h1>
+            <h1 className="text-xl font-bold tracking-tight">Υποσέλιδο</h1>
             <p className="text-muted-foreground text-xs">
-              Site-wide footer shown on every page.{" "}
+              Υποσέλιδο που εμφανίζεται σε κάθε σελίδα.{" "}
               <Link
                 href="/"
                 className="text-primary underline-offset-4 hover:underline"
@@ -122,7 +122,7 @@ export function FooterPageEditor({ initialEL, initialEN }: Props) {
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
-            Save changes
+            Αποθήκευση αλλαγών
           </Button>
         </div>
       </div>
@@ -154,10 +154,10 @@ export function FooterPageEditor({ initialEL, initialEN }: Props) {
           <div className="sticky top-24">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                Live preview ({activeTab === "en" ? "EN" : "EL"})
+                Ζωντανή προεπισκόπηση ({activeTab === "en" ? "EN" : "EL"})
               </p>
               <span className="text-xs text-muted-foreground">
-                Updates as you type
+                Ενημερώνεται καθώς πληκτρολογείτε
               </span>
             </div>
             <FooterPreview content={activeContent} />
@@ -168,7 +168,7 @@ export function FooterPageEditor({ initialEL, initialEN }: Props) {
       {/* Mobile preview below the form */}
       <div className="xl:hidden mt-10">
         <p className="mb-2 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          Live preview ({activeTab === "en" ? "EN" : "EL"})
+          Ζωντανή προεπισκόπηση ({activeTab === "en" ? "EN" : "EL"})
         </p>
         <FooterPreview content={activeContent} />
       </div>
@@ -185,16 +185,16 @@ function FooterFields({
 }) {
   return (
     <div className="space-y-4">
-      <Card title="Brand" subtitle="The logo at the top of the footer" icon={<Star className="w-3 h-3" />}>
+      <Card title="Μάρκα" subtitle="Το λογότυπο στην κορυφή του υποσέλιδου" icon={<Star className="w-3 h-3" />}>
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label="Plain prefix (white)">
+          <Field label="Απλό πρόθεμα (λευκό)">
             <Input
               value={c.brandPrefix}
               onChange={(e) => onChange({ brandPrefix: e.target.value })}
               placeholder="DG"
             />
           </Field>
-          <Field label="Highlighted part (gradient)">
+          <Field label="Επισημασμένο τμήμα (gradient)">
             <Input
               value={c.brandHighlight}
               onChange={(e) => onChange({ brandHighlight: e.target.value })}
@@ -210,7 +210,7 @@ function FooterFields({
         </div>
       </Card>
 
-      <Card title="Tagline" subtitle="Short paragraph under the logo" icon={<AlignLeft className="w-3 h-3" />}>
+      <Card title="Υπότιτλος" subtitle="Σύντομη παράγραφος κάτω από το λογότυπο" icon={<AlignLeft className="w-3 h-3" />}>
         <Textarea
           value={c.tagline}
           onChange={(e) => onChange({ tagline: e.target.value })}
@@ -219,8 +219,8 @@ function FooterFields({
       </Card>
 
       <Card
-        title="Social links"
-        subtitle="URLs starting with http/mailto/tel automatically open in a new tab"
+        title="Σύνδεσμοι κοινωνικών δικτύων"
+        subtitle="URLs που ξεκινούν με http/mailto/tel ανοίγουν αυτόματα σε νέα καρτέλα"
         icon={<Share2 className="w-3 h-3" />}
         actions={
           <Button
@@ -237,12 +237,12 @@ function FooterFields({
             }
           >
             <Plus className="w-4 h-4 mr-1" />
-            Add social
+            Προσθήκη δικτύου
           </Button>
         }
       >
         {c.socials.length === 0 && (
-          <p className="text-sm text-muted-foreground">No social links yet.</p>
+          <p className="text-sm text-muted-foreground">Δεν υπάρχουν ακόμη σύνδεσμοι.</p>
         )}
         <div className="space-y-2">
           {c.socials.map((s, i) => (
@@ -273,8 +273,8 @@ function FooterFields({
       </Card>
 
       <Card
-        title="Link columns"
-        subtitle="The footer shows exactly 3 columns of links"
+        title="Στήλες συνδέσμων"
+        subtitle="Το υποσέλιδο εμφανίζει ακριβώς 3 στήλες συνδέσμων"
         icon={<Columns className="w-3 h-3" />}
       >
         <div className="grid md:grid-cols-3 gap-4">
@@ -293,9 +293,9 @@ function FooterFields({
         </div>
       </Card>
 
-      <Card title="Bottom bar" icon={<CopyCheck className="w-3 h-3" />}>
+      <Card title="Κάτω μπάρα" icon={<CopyCheck className="w-3 h-3" />}>
         <div className="space-y-4">
-          <Field label="Copyright">
+          <Field label="Copyright (πνευματικά δικαιώματα)">
             <Input
               value={c.copyright}
               onChange={(e) => onChange({ copyright: e.target.value })}
@@ -306,7 +306,7 @@ function FooterFields({
               for the current year. Preview: <span className="font-medium">{renderCopyright(c.copyright)}</span>
             </p>
           </Field>
-          <Field label={"\"Back to top\" label"}>
+          <Field label={"Ετικέτα «Επιστροφή στην κορυφή»"}>
             <Input
               value={c.backToTop}
               onChange={(e) => onChange({ backToTop: e.target.value })}
@@ -420,7 +420,7 @@ function ColumnCard({
     <div className="rounded-lg border border-[#EDEBE9] bg-[#F9F8F7] p-3 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">
-          Column {index + 1}
+          Στήλη {index + 1}
         </span>
         <Button
           type="button"
@@ -429,10 +429,10 @@ function ColumnCard({
           onClick={() => patchLinks([...column.links, { name: "", href: "" }])}
         >
           <Plus className="w-3.5 h-3.5 mr-1" />
-          Add link
+          Προσθήκη συνδέσμου
         </Button>
       </div>
-      <Field label="Heading">
+      <Field label="Επικεφαλίδα">
         <Input
           value={column.heading}
           onChange={(e) => onChange({ ...column, heading: e.target.value })}
@@ -441,7 +441,7 @@ function ColumnCard({
       </Field>
 
       {column.links.length === 0 && (
-        <p className="text-xs text-muted-foreground">No links yet.</p>
+        <p className="text-xs text-muted-foreground">Δεν υπάρχουν σύνδεσμοι ακόμη.</p>
       )}
       <div className="space-y-2">
         {column.links.map((link, i) => (

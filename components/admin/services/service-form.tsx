@@ -52,14 +52,14 @@ import { createService, updateService, createServiceMedia, updateServiceMediaOrd
 import { ServiceType, ServiceCategoryType, ServiceMediaType } from "./services-table"
 
 const serviceSchema = z.object({
-    nameEL: z.string().min(1, "Greek name is required"),
+    nameEL: z.string().min(1, "Η ελληνική ονομασία είναι υποχρεωτική"),
     nameEN: z.string().min(0).default(""),
     shortDescriptionEL: z.string().min(0).default(""),
     shortDescriptionEN: z.string().min(0).default(""),
     descriptionEL: z.string().min(0).default(""),
     descriptionEN: z.string().min(0).default(""),
-    slug: z.string().min(1, "Slug is required"),
-    categoryId: z.string().min(1, "Category is required"),
+    slug: z.string().min(1, "Το slug είναι υποχρεωτικό"),
+    categoryId: z.string().min(1, "Η κατηγορία είναι υποχρεωτική"),
     brandName: z.string().min(0).default(""),
     order: z.number().default(0),
     featuresEL: z.array(z.string()).default([]),
@@ -141,7 +141,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
             if (data.url) {
                 if (isLogo) setBrandLogo(data.url)
                 else setFeatureImage(data.url)
-                toast.success(`${type === 'logo' ? 'Logo' : 'Image'} uploaded successfully`)
+                toast.success(`${type === 'logo' ? 'Λογότυπο' : 'Εικόνα'} μεταφορτώθηκε`)
             } else {
                 throw new Error(data.error || "Upload failed")
             }
@@ -156,7 +156,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
     const handleTranslate = async (sourceField: keyof ServiceFormValues, targetField: keyof ServiceFormValues) => {
         const sourceValue = form.getValues(sourceField)
         if (!sourceValue || typeof sourceValue !== 'string') {
-            toast.error("Please enter some text in Greek first")
+            toast.error("Εισάγετε κείμενο στα ελληνικά πρώτα")
             return
         }
 
@@ -169,7 +169,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
             const data = await res.json()
             if (data.translated) {
                 form.setValue(targetField, data.translated as any)
-                toast.success("Translation complete (DeepSeek/OpenAI)")
+                toast.success("Η μετάφραση ολοκληρώθηκε")
             } else {
                 throw new Error(data.error || "Translation failed")
             }
@@ -183,11 +183,11 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
     const handleGenerateWithAI = async () => {
         const nameEL = form.getValues("nameEL")
         if (!nameEL?.trim()) {
-            toast.error("Enter service name (Greek) first")
+            toast.error("Εισάγετε πρώτα την ελληνική ονομασία")
             return
         }
         setIsGenerating(true)
-        const tid = toast.loading("Generating full content with OpenAI...")
+        const tid = toast.loading("Δημιουργία περιεχομένου με AI...")
         try {
             const categoryId = form.getValues("categoryId")
             const category = categories.find(c => c.id === categoryId)
@@ -213,7 +213,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
             }
             if (Array.isArray(data.benefitsEL)) form.setValue("benefitsEL", data.benefitsEL)
             if (Array.isArray(data.benefitsEN)) form.setValue("benefitsEN", data.benefitsEN)
-            toast.success("Content generated", { id: tid })
+            toast.success("Το περιεχόμενο δημιουργήθηκε", { id: tid })
         } catch (err: any) {
             toast.error(err.message, { id: tid })
         } finally {
@@ -242,14 +242,14 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
 
             if (service) {
                 await updateService(service.id, payload)
-                toast.success("Service updated successfully")
+                toast.success("Η υπηρεσία ενημερώθηκε")
             } else {
                 await createService(payload)
-                toast.success("Service created successfully")
+                toast.success("Η υπηρεσία δημιουργήθηκε")
             }
             onSuccess()
         } catch (err: any) {
-            toast.error(err.message || "Failed to save service")
+            toast.error(err.message || "Αποτυχία αποθήκευσης υπηρεσίας")
         } finally {
             setIsSaving(false)
         }
@@ -290,11 +290,11 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
     const handleExpandDescription = async () => {
         const shortEL = form.getValues("shortDescriptionEL")?.trim()
         if (!shortEL) {
-            toast.error("Enter short description (Greek) first")
+            toast.error("Εισάγετε πρώτα τη σύντομη περιγραφή (ελληνικά)")
             return
         }
         setIsExpandingDescription(true)
-        const tid = toast.loading("Generating full description with OpenAI...")
+        const tid = toast.loading("Δημιουργία πλήρους περιγραφής με AI...")
         try {
             const res = await fetch("/api/admin/services/expand-description", {
                 method: "POST",
@@ -308,7 +308,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
             if (!res.ok) throw new Error(data.error || "Expand failed")
             form.setValue("descriptionEL", data.descriptionEL || "")
             form.setValue("descriptionEN", data.descriptionEN || "")
-            toast.success("Full description generated", { id: tid })
+            toast.success("Η πλήρης περιγραφή δημιουργήθηκε", { id: tid })
         } catch (err: any) {
             toast.error(err.message, { id: tid })
         } finally {
@@ -340,19 +340,19 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                         <div className="flex items-center justify-between gap-4 flex-wrap">
                             <TabsList className="bg-[#F3F2F1] border border-[#EDEBE9] p-1 h-10 rounded gap-0.5">
                                 <TabsTrigger value="general" className="rounded px-4 data-[state=active]:bg-white data-[state=active]:text-[#201F1E] data-[state=active]:border-[#EDEBE9] data-[state=active]:shadow-sm text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide gap-1.5 h-8">
-                                    <Info className="w-3.5 h-3.5" /> General Info
+                                    <Info className="w-3.5 h-3.5" /> Γενικά
                                 </TabsTrigger>
                                 <TabsTrigger value="content" className="rounded px-4 data-[state=active]:bg-white data-[state=active]:text-[#201F1E] data-[state=active]:border-[#EDEBE9] data-[state=active]:shadow-sm text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide gap-1.5 h-8">
-                                    <FileText className="w-3.5 h-3.5" /> Content
+                                    <FileText className="w-3.5 h-3.5" /> Περιεχόμενο
                                 </TabsTrigger>
                                 <TabsTrigger value="media" className="rounded px-4 data-[state=active]:bg-white data-[state=active]:text-[#201F1E] data-[state=active]:border-[#EDEBE9] data-[state=active]:shadow-sm text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide gap-1.5 h-8">
-                                    <ImageIcon className="w-3.5 h-3.5" /> Media
+                                    <ImageIcon className="w-3.5 h-3.5" /> Αρχεία
                                 </TabsTrigger>
                                 <TabsTrigger value="branding" className="rounded px-4 data-[state=active]:bg-white data-[state=active]:text-[#201F1E] data-[state=active]:border-[#EDEBE9] data-[state=active]:shadow-sm text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide gap-1.5 h-8">
-                                    <Layout className="w-3.5 h-3.5" /> Branding
+                                    <Layout className="w-3.5 h-3.5" /> Εταιρική Ταυτότητα
                                 </TabsTrigger>
                                 <TabsTrigger value="features" className="rounded px-4 data-[state=active]:bg-white data-[state=active]:text-[#201F1E] data-[state=active]:border-[#EDEBE9] data-[state=active]:shadow-sm text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide gap-1.5 h-8">
-                                    <Sparkles className="w-3.5 h-3.5" /> Key Features
+                                    <Sparkles className="w-3.5 h-3.5" /> Κύρια Χαρακτηριστικά
                                 </TabsTrigger>
                             </TabsList>
                             <Button
@@ -363,7 +363,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                 disabled={isGenerating}
                             >
                                 {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                                Generate full content (OpenAI)
+                                Δημιουργία περιεχομένου (AI)
                             </Button>
                         </div>
                     </div>
@@ -375,7 +375,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                     <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="p-1.5 bg-[#EFF6FC] border border-[#C7E0F4] rounded"><Info className="w-3.5 h-3.5 text-[#0078D4]" /></div>
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">SERVICE IDENTITY</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΤΑΥΤΟΤΗΤΑ ΥΠΗΡΕΣΙΑΣ</p>
                                         </div>
                                         <div className="space-y-4">
                                             <FormField
@@ -383,7 +383,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                 name="nameEL"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Name (Greek) *</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Ονομασία (Ελληνικά) *</FormLabel>
                                                         <FormControl>
                                                             <Input
                                                                 id="nameEL"
@@ -406,7 +406,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <div className="flex items-center justify-between">
-                                                            <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Name (English)</FormLabel>
+                                                            <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Ονομασία (Αγγλικά)</FormLabel>
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"
@@ -416,7 +416,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                                 disabled={!!isTranslating}
                                                             >
                                                                 {isTranslating === "nameEN" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
-                                                                Translate
+                                                                Μετάφραση
                                                             </Button>
                                                         </div>
                                                         <FormControl><Input id="nameEN" {...field} placeholder="English name..." className="h-11 bg-white border-[#C8C6C4] focus-visible:ring-[#0078D4] text-[#201F1E] placeholder:text-[#A19F9D] shadow-inner focus:ring-1 focus:ring-blue-500" /></FormControl>
@@ -432,7 +432,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                     <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="p-1.5 bg-[#F3F2F1] border border-[#EDEBE9] rounded"><Settings className="w-3.5 h-3.5 text-[#605E5C]" /></div>
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">CLASSIFICATION & URL</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΤΑΞΙΝΟΜΗΣΗ & URL</p>
                                         </div>
                                         <div className="space-y-4">
                                             <FormField
@@ -447,7 +447,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                                 <LinkIcon className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C8C6C4]" />
                                                             </div>
                                                         </FormControl>
-                                                        <FormDescription className="text-[10px]">Auto-generated from Greek name during creation.</FormDescription>
+                                                        <FormDescription className="text-[10px]">Δημιουργείται αυτόματα από την ελληνική ονομασία.</FormDescription>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
@@ -457,11 +457,11 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                 name="categoryId"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Industry Category *</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Κατηγορία *</FormLabel>
                                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                             <FormControl>
                                                                 <SelectTrigger className="h-11 bg-white border-[#C8C6C4] focus-visible:ring-[#0078D4] text-[#201F1E] shadow-inner">
-                                                                    <SelectValue placeholder="Select Category..." />
+                                                                    <SelectValue placeholder="Επιλογή κατηγορίας..." />
                                                                 </SelectTrigger>
                                                             </FormControl>
                                                             <SelectContent className="bg-white border-[#C8C6C4] focus-visible:ring-[#0078D4]">
@@ -482,7 +482,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
 
                         <TabsContent value="content" className="mt-0 space-y-6">
                             <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#C8C6C4]">
-                                <span className="text-[11px] font-black uppercase tracking-widest text-[#605E5C]">From short to full</span>
+                                <span className="text-[11px] font-black uppercase tracking-widest text-[#605E5C]">Από σύντομη σε πλήρη</span>
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -492,7 +492,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                     disabled={isExpandingDescription}
                                 >
                                     {isExpandingDescription ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                                    Generate full description from short (OpenAI)
+                                    Δημιουργία πλήρους περιγραφής (AI)
                                 </Button>
                             </div>
                             <div className="grid grid-cols-2 gap-8">
@@ -501,14 +501,14 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                     <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="w-1.5 h-1.5 rounded-full bg-[#0078D4]" />
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">PRIMARY CONTENT (GREEK)</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΚΥΡΙΟ ΠΕΡΙΕΧΟΜΕΝΟ (ΕΛΛΗΝΙΚΑ)</p>
                                         </div>
                                         <FormField
                                             control={form.control as any}
                                             name="shortDescriptionEL"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Catchphrase / Hook</FormLabel>
+                                                    <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Σύντομη Περιγραφή</FormLabel>
                                                     <FormControl><Textarea id="shortDescriptionEL" {...field} placeholder="π.χ. Η κορυφαία λύση ERP..." className="h-24 bg-white border-[#C8C6C4] text-[#201F1E] placeholder:text-[#A19F9D] resize-none rounded-lg focus-visible:ring-[#0078D4]" /></FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -520,7 +520,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <div className="flex items-center justify-between">
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Full Editorial Description</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Πλήρης Περιγραφή</FormLabel>
                                                         <RichToolbar fieldName="descriptionEL" />
                                                     </div>
                                                     <FormControl><Textarea id="descriptionEL" {...field} placeholder="Αναλυτική περιγραφή..." className="h-48 bg-white border-[#C8C6C4] text-[#201F1E] placeholder:text-[#A19F9D] resize-none rounded-lg focus-visible:ring-[#0078D4]" /></FormControl>
@@ -536,7 +536,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                     <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                         <div className="flex items-center gap-2 mb-2">
                                             <div className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4]" />
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">INTERNATIONALIZATION (ENGLISH)</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΔΙΕΘΝΟΠΟΙΗΣΗ (ΑΓΓΛΙΚΑ)</p>
                                         </div>
                                         <FormField
                                             control={form.control as any}
@@ -544,7 +544,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <div className="flex items-center justify-between">
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Catchphrase</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Σύντομη Περιγραφή (EN)</FormLabel>
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
@@ -554,10 +554,10 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                             disabled={!!isTranslating}
                                                         >
                                                             {isTranslating === "shortDescriptionEN" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
-                                                            Auto-Translate
+                                                            Μετάφραση
                                                         </Button>
                                                     </div>
-                                                    <FormControl><Textarea id="shortDescriptionEN" {...field} placeholder="English hook..." className="h-24 bg-white border-[#C8C6C4] text-[#201F1E] italic resize-none rounded-lg placeholder:text-[#A19F9D] focus-visible:ring-[#0078D4]" /></FormControl>
+                                                    <FormControl><Textarea id="shortDescriptionEN" {...field} placeholder="English short description..." className="h-24 bg-white border-[#C8C6C4] text-[#201F1E] italic resize-none rounded-lg placeholder:text-[#A19F9D] focus-visible:ring-[#0078D4]" /></FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
@@ -568,7 +568,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <div className="flex items-center justify-between">
-                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Full Description</FormLabel>
+                                                        <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Πλήρης Περιγραφή (EN)</FormLabel>
                                                         <div className="flex gap-2">
                                                             <RichToolbar fieldName="descriptionEN" />
                                                             <Button
@@ -580,7 +580,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                                 disabled={!!isTranslating}
                                                             >
                                                                 {isTranslating === "descriptionEN" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
-                                                                Translate
+                                                                Μετάφραση
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -596,7 +596,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                             {/* Benefits (Greek / English bullet lists) */}
                             <div className="grid grid-cols-2 gap-8 mt-8">
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">BENEFITS (GREEK)</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΟΦΕΛΗ (ΕΛΛΗΝΙΚΑ)</p>
                                     <FormField
                                         control={form.control as any}
                                         name="benefitsEL"
@@ -620,7 +620,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                     </div>
                                                 ))}
                                                 <Button type="button" variant="outline" size="sm" className="border-[#C8C6C4] text-[#605E5C] hover:bg-[#EDEBE9]" onClick={() => { const v = field.value || []; field.onChange([...v, ""]); const en = form.getValues("benefitsEN") || []; if (en.length <= v.length) form.setValue("benefitsEN", [...en, ...Array(Math.max(0, v.length + 1 - en.length)).fill("")]); }}>
-                                                    <Plus className="w-4 h-4 mr-1" /> Add benefit
+                                                    <Plus className="w-4 h-4 mr-1" /> Προσθήκη οφέλους
                                                 </Button>
                                             </div>
                                         )}
@@ -628,7 +628,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">BENEFITS (ENGLISH)</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΟΦΕΛΗ (ΑΓΓΛΙΚΑ)</p>
                                         <Button
                                             type="button"
                                             variant="ghost"
@@ -636,7 +636,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             className="h-7 px-2 text-[11px] text-[#0078D4] hover:bg-[#EFF6FC]"
                                             onClick={async () => {
                                                 const el = form.getValues("benefitsEL") || []
-                                                if (!el.filter(Boolean).length) { toast.error("Add Greek benefits first"); return }
+                                                if (!el.filter(Boolean).length) { toast.error("Προσθέστε πρώτα ελληνικά οφέλη"); return }
                                                 setIsTranslating("benefitsEN")
                                                 try {
                                                     const translated: string[] = []
@@ -647,7 +647,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                         translated.push(data.translated || "")
                                                     }
                                                     form.setValue("benefitsEN", translated)
-                                                    toast.success("Benefits translated (DeepSeek/OpenAI)")
+                                                    toast.success("Τα οφέλη μεταφράστηκαν")
                                                 } catch (e: any) {
                                                     toast.error(e.message)
                                                 } finally {
@@ -657,7 +657,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             disabled={!!isTranslating}
                                         >
                                             {isTranslating === "benefitsEN" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Languages className="w-3 h-3 mr-1" />}
-                                            Translate all
+                                            Μετάφραση όλων
                                         </Button>
                                     </div>
                                     <FormField
@@ -683,7 +683,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                     </div>
                                                 ))}
                                                 <Button type="button" variant="outline" size="sm" className="border-[#C8C6C4]" onClick={() => { const v = field.value || []; field.onChange([...v, ""]); const el = form.getValues("benefitsEL") || []; if (el.length <= v.length) form.setValue("benefitsEL", [...el, ...Array(Math.max(0, v.length + 1 - el.length)).fill("")]); }}>
-                                                    <Plus className="w-4 h-4 mr-1" /> Add benefit
+                                                    <Plus className="w-4 h-4 mr-1" /> Προσθήκη οφέλους
                                                 </Button>
                                             </div>
                                         )}
@@ -695,8 +695,8 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                         <TabsContent value="media" className="mt-0 space-y-6">
                             <div className="max-w-4xl mx-auto bg-white border border-[#EDEBE9] rounded-lg p-8 space-y-8">
                                 <div className="text-center space-y-2">
-                                    <h4 className="text-sm font-bold text-[#201F1E]">Featured Asset</h4>
-                                    <p className="text-xs text-[#A19F9D] max-w-md mx-auto">Primary hero asset. You can also set it from the media list below when editing.</p>
+                                    <h4 className="text-sm font-bold text-[#201F1E]">Κύρια Εικόνα</h4>
+                                    <p className="text-xs text-[#A19F9D] max-w-md mx-auto">Κύριο οπτικό στοιχείο. Μπορείτε επίσης να το ορίσετε από τη λίστα αρχείων κατά την επεξεργασία.</p>
                                 </div>
 
                                 <div className="relative aspect-video rounded-lg border-2 border-dashed border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden group transition-all hover:border-[#C7E0F4]">
@@ -709,7 +709,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             )}
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                                 <Button type="button" variant="secondary" className="bg-white/90 hover:bg-white text-zinc-900 font-bold px-6 rounded-full" onClick={() => setFeatureImage(null)}>
-                                                    <X className="w-4 h-4 mr-2 text-red-500" /> Remove Asset
+                                                    <X className="w-4 h-4 mr-2 text-red-500" /> Αφαίρεση
                                                 </Button>
                                             </div>
                                         </div>
@@ -719,8 +719,8 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                 {isUploadingFeature ? <Loader2 className="w-7 h-7 animate-spin text-[#A19F9D]" /> : <Upload className="w-7 h-7 text-[#C8C6C4]" />}
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-sm font-semibold text-[#201F1E]">Click to upload featured media</p>
-                                                <p className="text-[10px] font-medium text-[#A19F9D] uppercase tracking-widest">Supports MP4, JPG, PNG, WEBP</p>
+                                                <p className="text-sm font-semibold text-[#201F1E]">Κλικ για μεταφόρτωση κύριας εικόνας</p>
+                                                <p className="text-[10px] font-medium text-[#A19F9D] uppercase tracking-widest">Υποστηρίζει MP4, JPG, PNG, WEBP</p>
                                             </div>
                                             <input
                                                 type="file"
@@ -750,16 +750,16 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-4">
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="p-1.5 bg-[#F3F2F1] border border-[#EDEBE9] rounded"><Layout className="w-3.5 h-3.5 text-[#605E5C]" /></div>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">PARTNER DETAILS</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΣΤΟΙΧΕΙΑ ΣΥΝΕΡΓΑΤΗ</p>
                                     </div>
                                     <FormField
                                         control={form.control as any}
                                         name="brandName"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Associated Brand Name</FormLabel>
-                                                <FormControl><Input {...field} className="h-11 bg-white border-[#C8C6C4] text-[#201F1E]" placeholder="e.g. Soft1 ERP, CTI" /></FormControl>
-                                                <FormDescription className="text-[10px]">Displayed as the vendor or technology partner.</FormDescription>
+                                                <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Ονομασία Συνεργάτη</FormLabel>
+                                                <FormControl><Input {...field} className="h-11 bg-white border-[#C8C6C4] text-[#201F1E]" placeholder="π.χ. Soft1 ERP, CTI" /></FormControl>
+                                                <FormDescription className="text-[10px]">Εμφανίζεται ως προμηθευτής ή τεχνολογικός συνεργάτης.</FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -769,7 +769,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                         name="order"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Catalog Order Ranking</FormLabel>
+                                                <FormLabel className="text-[10px] font-bold uppercase text-[#605E5C]">Σειρά Εμφάνισης</FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="number"
@@ -778,7 +778,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                         className="h-11 bg-white border-[#C8C6C4] text-[#201F1E]"
                                                     />
                                                 </FormControl>
-                                                <FormDescription className="text-[10px]">Lower numbers appear first in the service grid.</FormDescription>
+                                                <FormDescription className="text-[10px]">Μικρότεροι αριθμοί εμφανίζονται πρώτοι.</FormDescription>
                                             </FormItem>
                                         )}
                                     />
@@ -788,11 +788,11 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="p-1.5 bg-[#FFFBEB] border border-[#FDE68A] rounded"><Sparkles className="w-3.5 h-3.5 text-amber-500" /></div>
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">LOGO & VISUAL ID</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΛΟΓΟΤΥΠΟ & ΕΤΑΙΡΙΚΗ ΤΑΥΤΟΤΗΤΑ</p>
                                         </div>
                                         <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F3F2F1] rounded-full border border-[#EDEBE9]">
                                             <Switch checked={removeLogoBg} onCheckedChange={setRemoveLogoBg} className="scale-75" />
-                                            <span className="text-[9px] font-bold text-[#605E5C] uppercase flex items-center gap-1"><Eraser className="w-3 h-3" /> Auto AI Clean</span>
+                                            <span className="text-[9px] font-bold text-[#605E5C] uppercase flex items-center gap-1"><Eraser className="w-3 h-3" /> AI Καθαρισμός Φόντου</span>
                                         </div>
                                     </div>
 
@@ -806,17 +806,17 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             ) : (
                                                 <div className="relative text-center">
                                                     {isUploadingLogo ? <Loader2 className="w-6 h-6 animate-spin text-[#C8C6C4]" /> : <Upload className="w-6 h-6 text-[#C8C6C4] mx-auto" />}
-                                                    <p className="text-[9px] font-bold text-[#A19F9D] mt-2 uppercase tracking-tight">Upload Logo</p>
+                                                    <p className="text-[9px] font-bold text-[#A19F9D] mt-2 uppercase tracking-tight">Μεταφόρτωση Λογοτύπου</p>
                                                     <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleFileUpload(e, 'logo')} accept="image/*" />
                                                 </div>
                                             )}
                                         </div>
                                         <div className="flex-1 space-y-3">
-                                            <p className="text-xs font-semibold text-[#201F1E] leading-relaxed">Ensure logos are PNG or SVG for best quality.</p>
+                                            <p className="text-xs font-semibold text-[#201F1E] leading-relaxed">Χρησιμοποιήστε PNG ή SVG για βέλτιστη ποιότητα.</p>
                                             <ul className="text-[10px] space-y-1.5 text-[#A19F9D] font-medium">
-                                                <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-[#C8C6C4]" /> Transparent background preferred</li>
-                                                <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-[#C8C6C4]" /> Max size: 512x512px</li>
-                                                <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-[#C8C6C4]" /> Horizontal aspect ratios work best</li>
+                                                <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-[#C8C6C4]" /> Προτιμάται διαφανές φόντο</li>
+                                                <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-[#C8C6C4]" /> Μέγιστο μέγεθος: 512x512px</li>
+                                                <li className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-[#C8C6C4]" /> Οριζόντιες αναλογίες λειτουργούν καλύτερα</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -830,13 +830,13 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="p-1.5 bg-[#EFF6FC] border border-[#C7E0F4] rounded"><Sparkles className="w-3.5 h-3.5 text-[#0078D4]" /></div>
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">SERVICE FEATURES (GREEK)</p>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΧΑΡΑΚΤΗΡΙΣΤΙΚΑ (ΕΛΛΗΝΙΚΑ)</p>
                                             </div>
                                             <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-semibold border-[#C8C6C4] text-[#605E5C] hover:bg-[#F3F2F1]" onClick={() => {
                                                 const current = form.getValues("featuresEL")
                                                 form.setValue("featuresEL", [...current, ""])
                                             }}>
-                                                <Plus className="w-3 h-3 mr-1" /> Add Feature
+                                                <Plus className="w-3 h-3 mr-1" /> Προσθήκη
                                             </Button>
                                         </div>
                                         <div className="space-y-3">
@@ -862,7 +862,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                 </div>
                                             ))}
                                             {form.watch("featuresEL").length === 0 && (
-                                                <p className="text-center py-8 text-xs text-[#A19F9D] italic border-2 border-dashed rounded-xl">No features added yet.</p>
+                                                <p className="text-center py-8 text-xs text-[#A19F9D] italic border-2 border-dashed rounded-xl">Δεν έχουν προστεθεί χαρακτηριστικά.</p>
                                             )}
                                         </div>
                                     </div>
@@ -873,7 +873,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-2">
                                                 <div className="p-1.5 bg-[#F3F2F1] border border-[#EDEBE9] rounded"><Languages className="w-3.5 h-3.5 text-[#605E5C]" /></div>
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">SERVICE FEATURES (ENGLISH)</p>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΧΑΡΑΚΤΗΡΙΣΤΙΚΑ (ΑΓΓΛΙΚΑ)</p>
                                             </div>
                                             <div className="flex gap-2">
                                                 <Button type="button" variant="ghost" size="sm" className="h-7 px-2 text-[11px] text-[#0078D4] hover:bg-[#EFF6FC]" onClick={async () => {
@@ -891,18 +891,18 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                             return d.translated || text
                                                         }))
                                                         form.setValue("featuresEN", translated)
-                                                        toast.success("All features translated", { id: tid })
+                                                        toast.success("Όλα τα χαρακτηριστικά μεταφράστηκαν", { id: tid })
                                                     } catch {
-                                                        toast.error("Bulk translation failed", { id: tid })
+                                                        toast.error("Αποτυχία μαζικής μετάφρασης", { id: tid })
                                                     }
                                                 }}>
-                                                    <Sparkles className="w-3 h-3 mr-1" /> AI Bulk Translate
+                                                    <Sparkles className="w-3 h-3 mr-1" /> Μαζική Μετάφραση AI
                                                 </Button>
                                                 <Button type="button" variant="outline" size="sm" className="h-7 text-[10px] font-semibold border-[#C8C6C4] text-[#605E5C] hover:bg-[#F3F2F1]" onClick={() => {
                                                     const current = form.getValues("featuresEN")
                                                     form.setValue("featuresEN", [...current, ""])
                                                 }}>
-                                                    <Plus className="w-3 h-3 mr-1" /> Add Feature
+                                                    <Plus className="w-3 h-3 mr-1" /> Προσθήκη
                                                 </Button>
                                             </div>
                                         </div>
@@ -937,16 +937,16 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
 
                     <div className="px-8 py-6 bg-white border-t border-[#EDEBE9] flex justify-between items-center shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-widest">Action</span>
-                            <span className="text-sm font-bold text-[#201F1E]">{service ? "Save Changes" : "Create Service"}</span>
+                            <span className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-widest">Ενέργεια</span>
+                            <span className="text-sm font-bold text-[#201F1E]">{service ? "Αποθήκευση Αλλαγών" : "Δημιουργία Υπηρεσίας"}</span>
                         </div>
                         <div className="flex gap-2">
                             <Button type="button" onClick={onCancel} variant="ghost" className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded">
-                                Discard Changes
+                                Απόρριψη Αλλαγών
                             </Button>
                             <Button type="submit" disabled={isSaving} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95">
                                 {isSaving ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : <Check className="w-3 h-3 mr-1.5" />}
-                                {service ? "Publish Updates" : "Save & Create Service"}
+                                {service ? "Αποθήκευση & Δημοσίευση" : "Αποθήκευση & Δημιουργία"}
                             </Button>
                         </div>
                     </div>
@@ -976,7 +976,7 @@ function MediaListSection({
         const file = e.target.files?.[0]
         if (!file) return
         setIsUploading(true)
-        const tid = toast.loading("Uploading...")
+        const tid = toast.loading("Μεταφόρτωση...")
         try {
             const formData = new FormData()
             formData.append("file", file)
@@ -991,7 +991,7 @@ function MediaListSection({
                     order: media.length,
                 })
                 onMediaChange()
-                toast.success("Media added", { id: tid })
+                toast.success("Το αρχείο προστέθηκε", { id: tid })
             } else throw new Error(data.error || "Upload failed")
         } catch (err: any) {
             toast.error(err.message, { id: tid })
@@ -1012,7 +1012,7 @@ function MediaListSection({
         try {
             await updateServiceMediaOrder(serviceId, newOrder)
             onMediaChange()
-            toast.success("Order updated")
+            toast.success("Η σειρά ενημερώθηκε")
         } catch (err: any) {
             toast.error(err.message)
         }
@@ -1020,14 +1020,14 @@ function MediaListSection({
 
     const handleSetFeature = (url: string) => {
         setFeatureImage(url)
-        toast.success("Set as feature image (save to persist)")
+        toast.success("Ορίστηκε ως κύρια εικόνα (αποθηκεύστε για να διατηρηθεί)")
     }
 
     const handleDelete = async (id: string) => {
         try {
             await deleteServiceMedia(id)
             onMediaChange()
-            toast.success("Media removed")
+            toast.success("Το αρχείο αφαιρέθηκε")
         } catch (err: any) {
             toast.error(err.message)
         }
@@ -1035,7 +1035,7 @@ function MediaListSection({
 
     return (
         <div className="space-y-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">MEDIA LIBRARY — drag to reorder, set one as feature image</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΒΙΒΛΙΟΘΗΚΗ ΑΡΧΕΙΩΝ — σύρτε για αναδιάταξη, ορίστε ένα ως κύρια εικόνα</p>
             <DndContext sensors={mediaSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={media.map(m => m.id)} strategy={verticalListSortingStrategy}>
                     <div className="space-y-3">
@@ -1053,7 +1053,7 @@ function MediaListSection({
             </DndContext>
             <Label className={`flex items-center justify-center gap-2 w-full py-4 border-2 border-dashed border-[#EDEBE9] rounded-lg cursor-pointer text-[11px] font-semibold text-[#605E5C] ${isUploading ? "opacity-50" : "hover:bg-[#F3F2F1]"}`}>
                 {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
-                Add media (image or video)
+                Προσθήκη αρχείου (εικόνα ή βίντεο)
                 <input type="file" className="hidden" accept="image/*,video/*" onChange={handleUpload} disabled={isUploading} />
             </Label>
         </div>
@@ -1077,11 +1077,11 @@ function MediaSortableItem({ item, isFeature, onSetFeature, onDelete }: { item: 
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-xs font-mono text-[#605E5C] truncate">{item.url.split("/").pop()}</p>
-                {isFeature && <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-amber-600"><Star className="w-3 h-3 fill-amber-500" /> Feature image</span>}
+                {isFeature && <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-amber-600"><Star className="w-3 h-3 fill-amber-500" /> Κύρια εικόνα</span>}
             </div>
             <div className="flex items-center gap-2">
                 {!isFeature && (
-                    <Button type="button" variant="outline" size="sm" className="text-[10px] font-bold" onClick={onSetFeature}>Set as feature</Button>
+                    <Button type="button" variant="outline" size="sm" className="text-[10px] font-bold" onClick={onSetFeature}>Ορισμός ως κύρια</Button>
                 )}
                 <Button type="button" variant="ghost" size="icon" className="text-[#A19F9D] hover:text-red-500" onClick={onDelete}><X className="w-4 h-4" /></Button>
             </div>

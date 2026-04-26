@@ -117,7 +117,7 @@ export function NewsletterMediaClient({
     e.target.value = "";
     const imageFiles = files.filter((f) => f.type.startsWith("image/"));
     if (imageFiles.length === 0) {
-      toast.error(files.length > 0 ? "Only image files are allowed" : "Please select one or more image files");
+      toast.error(files.length > 0 ? "Επιτρέπονται μόνο αρχεία εικόνας" : "Παρακαλώ επιλέξτε ένα ή περισσότερα αρχεία εικόνας");
       return;
     }
     setUploading(true);
@@ -134,7 +134,7 @@ export function NewsletterMediaClient({
           if (targetFolderId) formData.append("folderId", targetFolderId);
           const res = await fetch("/api/admin/newsletter/upload", { method: "POST", body: formData });
           const data = await res.json();
-          if (!res.ok) throw new Error(data.error ?? "Upload failed");
+          if (!res.ok) throw new Error(data.error ?? "Αποτυχία μεταφόρτωσης");
           uploaded++;
         } catch {
           failed++;
@@ -143,15 +143,15 @@ export function NewsletterMediaClient({
       if (uploaded > 0) {
         toast.success(
           failed === 0
-            ? `${uploaded} image${uploaded === 1 ? "" : "s"} uploaded`
-            : `${uploaded} uploaded, ${failed} failed`
+            ? `${uploaded} εικόν${uploaded === 1 ? "α μεταφορτώθηκε" : "ες μεταφορτώθηκαν"}`
+            : `${uploaded} μεταφορτώθηκαν, ${failed} απέτυχαν`
         );
         await refreshMedia();
         await refreshFolders();
       }
-      if (failed > 0 && uploaded === 0) toast.error("All uploads failed");
+      if (failed > 0 && uploaded === 0) toast.error("Όλες οι μεταφορτώσεις απέτυχαν");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload failed");
+      toast.error(err instanceof Error ? err.message : "Αποτυχία μεταφόρτωσης");
     } finally {
       setUploading(false);
     }
@@ -160,14 +160,14 @@ export function NewsletterMediaClient({
   const copyUrl = (item: MediaItem) => {
     navigator.clipboard.writeText(item.url);
     setCopiedId(item.id);
-    toast.success("URL copied to clipboard");
+    toast.success("Το URL αντιγράφηκε στο πρόχειρο");
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleCreateFolder = async () => {
     const name = newFolderName.trim();
     if (!name) {
-      toast.error("Enter a folder name");
+      toast.error("Εισάγετε όνομα φακέλου");
       return;
     }
     setCreatingFolder(true);
@@ -177,12 +177,12 @@ export function NewsletterMediaClient({
         toast.error(result.error);
         return;
       }
-      toast.success("Folder created");
+      toast.success("Ο φάκελος δημιουργήθηκε");
       setNewFolderName("");
       setCreateFolderOpen(false);
       await refreshFolders();
     } catch (err) {
-      toast.error("Failed to create folder");
+      toast.error("Αποτυχία δημιουργίας φακέλου");
     } finally {
       setCreatingFolder(false);
     }
@@ -192,7 +192,7 @@ export function NewsletterMediaClient({
     if (!editingFolderId) return;
     const name = editingFolderName.trim();
     if (!name) {
-      toast.error("Enter a folder name");
+      toast.error("Εισάγετε όνομα φακέλου");
       return;
     }
     try {
@@ -201,28 +201,28 @@ export function NewsletterMediaClient({
         toast.error(result.error);
         return;
       }
-      toast.success("Folder renamed");
+      toast.success("Ο φάκελος μετονομάστηκε");
       setEditingFolderId(null);
       await refreshFolders();
     } catch {
-      toast.error("Failed to rename folder");
+      toast.error("Αποτυχία μετονομασίας φακέλου");
     }
   };
 
   const handleDeleteFolder = async (id: string) => {
-    if (!confirm("Delete this folder? Items inside will become uncategorized.")) return;
+    if (!confirm("Διαγραφή αυτού του φακέλου; Τα περιεχόμενα θα γίνουν αδιάθετα.")) return;
     try {
       const result = await deleteNewsletterMediaFolder(id);
       if (result.error) {
         toast.error(result.error);
         return;
       }
-      toast.success("Folder deleted");
+      toast.success("Ο φάκελος διαγράφηκε");
       if (folderFilter === id) setFolderFilter("all");
       await refreshFolders();
       await refreshMedia();
     } catch {
-      toast.error("Failed to delete folder");
+      toast.error("Αποτυχία διαγραφής φακέλου");
     }
   };
 
@@ -234,11 +234,11 @@ export function NewsletterMediaClient({
         toast.error(result.error);
         return;
       }
-      toast.success("Moved");
+      toast.success("Μετακινήθηκε");
       await refreshMedia();
       await refreshFolders();
     } catch {
-      toast.error("Failed to move");
+      toast.error("Αποτυχία μετακίνησης");
     } finally {
       setMovingId(null);
     }
@@ -252,14 +252,14 @@ export function NewsletterMediaClient({
           <CardTitle className="text-sm font-medium flex items-center justify-between">
             <span className="flex items-center gap-2">
               <FolderIcon className="h-4 w-4" />
-              Folders
+              Φάκελοι
             </span>
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8"
               onClick={() => setCreateFolderOpen(true)}
-              title="New folder"
+              title="Νέος φάκελος"
             >
               <FolderPlusIcon className="h-4 w-4" />
             </Button>
@@ -274,7 +274,7 @@ export function NewsletterMediaClient({
               folderFilter === "all" ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
             )}
           >
-            <span>All</span>
+            <span>Όλα</span>
             <span className="text-muted-foreground tabular-nums">{media.length}</span>
           </button>
           <button
@@ -285,7 +285,7 @@ export function NewsletterMediaClient({
               folderFilter === "uncategorized" ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
             )}
           >
-            <span>Uncategorized</span>
+            <span>Αδιάθετα</span>
             <span className="text-muted-foreground tabular-nums">{uncategorizedCount}</span>
           </button>
           {folders.map((folder) => (
@@ -316,7 +316,7 @@ export function NewsletterMediaClient({
                     setEditingFolderId(folder.id);
                     setEditingFolderName(folder.name);
                   }}
-                  title="Rename"
+                  title="Μετονομασία"
                 >
                   <PencilIcon className="h-3 w-3" />
                 </Button>
@@ -328,7 +328,7 @@ export function NewsletterMediaClient({
                     e.stopPropagation();
                     handleDeleteFolder(folder.id);
                   }}
-                  title="Delete folder"
+                  title="Διαγραφή φακέλου"
                 >
                   <Trash2Icon className="h-3 w-3" />
                 </Button>
@@ -344,10 +344,10 @@ export function NewsletterMediaClient({
           <CardTitle className="text-base flex items-center gap-2">
             <CameraIcon className="h-4 w-4" />
             {folderFilter === "all"
-              ? "All images"
+              ? "Όλες οι εικόνες"
               : folderFilter === "uncategorized"
-                ? "Uncategorized"
-                : folders.find((f) => f.id === folderFilter)?.name ?? "Images"}
+                ? "Αδιάθετα"
+                : folders.find((f) => f.id === folderFilter)?.name ?? "Εικόνες"}
           </CardTitle>
           <div className="flex gap-2">
             <input
@@ -369,7 +369,7 @@ export function NewsletterMediaClient({
               ) : (
                 <UploadIcon className="h-4 w-4" />
               )}
-              Upload
+              Μεταφόρτωση
             </Button>
           </div>
         </CardHeader>
@@ -377,10 +377,10 @@ export function NewsletterMediaClient({
           {media.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
               {folderFilter === "uncategorized"
-                ? "No uncategorized images."
+                ? "Δεν υπάρχουν αδιάθετες εικόνες."
                 : folderFilter !== "all"
-                  ? "No images in this folder."
-                  : "No images yet. Upload images or create a folder to organize them."}
+                  ? "Δεν υπάρχουν εικόνες σε αυτόν τον φάκελο."
+                  : "Δεν υπάρχουν εικόνες ακόμη. Μεταφορτώστε εικόνες ή δημιουργήστε φάκελο για οργάνωση."}
             </p>
           ) : (
             <TooltipProvider delayDuration={300}>
@@ -424,7 +424,7 @@ export function NewsletterMediaClient({
                         size="icon"
                         className="h-7 w-7"
                         onClick={() => copyUrl(item)}
-                        title="Copy URL"
+                        title="Αντιγραφή URL"
                       >
                         {copiedId === item.id ? (
                           <CheckIcon className="h-3.5 w-3.5 text-green-600" />
@@ -438,7 +438,7 @@ export function NewsletterMediaClient({
                             variant="ghost"
                             size="icon"
                             className="h-7 w-7"
-                            title="Move to folder"
+                            title="Μετακίνηση σε φάκελο"
                             disabled={movingId === item.id}
                           >
                             {movingId === item.id ? (
@@ -450,7 +450,7 @@ export function NewsletterMediaClient({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleMoveToFolder(item.id, null)}>
-                            Uncategorized
+                            Αδιάθετα
                           </DropdownMenuItem>
                           {folders.map((folder) => (
                             <DropdownMenuItem
@@ -481,14 +481,14 @@ export function NewsletterMediaClient({
               <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
                 <FolderPlusIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
-              <DialogTitle className="text-sm font-bold text-[#201F1E]">New folder</DialogTitle>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">Νέος φάκελος</DialogTitle>
             </div>
           </DialogHeader>
           <div className="bg-[#F3F2F1] px-5 py-4">
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Folder Name</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Όνομα Φακέλου</p>
               <Input
-                placeholder="Folder name"
+                placeholder="Όνομα φακέλου"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
@@ -498,10 +498,10 @@ export function NewsletterMediaClient({
           </div>
           <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setCreateFolderOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
-              Cancel
+              Ακύρωση
             </Button>
             <Button onClick={handleCreateFolder} disabled={creatingFolder || !newFolderName.trim()} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-              {creatingFolder ? <Loader2Icon className="h-3.5 w-3.5 animate-spin" /> : "Create"}
+              {creatingFolder ? <Loader2Icon className="h-3.5 w-3.5 animate-spin" /> : "Δημιουργία"}
             </Button>
           </div>
         </DialogContent>
@@ -515,14 +515,14 @@ export function NewsletterMediaClient({
               <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
                 <PencilIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
-              <DialogTitle className="text-sm font-bold text-[#201F1E]">Rename folder</DialogTitle>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">Μετονομασία φακέλου</DialogTitle>
             </div>
           </DialogHeader>
           <div className="bg-[#F3F2F1] px-5 py-4">
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">New Name</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Νέο Όνομα</p>
               <Input
-                placeholder="Folder name"
+                placeholder="Όνομα φακέλου"
                 value={editingFolderName}
                 onChange={(e) => setEditingFolderName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleRenameFolder()}
@@ -532,10 +532,10 @@ export function NewsletterMediaClient({
           </div>
           <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setEditingFolderId(null)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
-              Cancel
+              Ακύρωση
             </Button>
             <Button onClick={handleRenameFolder} disabled={!editingFolderName.trim()} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-              Save
+              Αποθήκευση
             </Button>
           </div>
         </DialogContent>

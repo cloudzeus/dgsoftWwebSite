@@ -42,18 +42,18 @@ const FIELD_META: {
   label: string;
   mediaGallery: boolean;
 }[] = [
-  { key: "companyName", label: "Company name", mediaGallery: false },
-  { key: "logoUrl", label: "Logo URL", mediaGallery: true },
-  { key: "facebookUrl", label: "Facebook URL", mediaGallery: true },
-  { key: "instagramUrl", label: "Instagram URL", mediaGallery: true },
-  { key: "linkedinUrl", label: "LinkedIn URL", mediaGallery: true },
-  { key: "xUrl", label: "X (Twitter) URL", mediaGallery: true },
-  { key: "tagline", label: "Tagline", mediaGallery: false },
-  { key: "addressLine", label: "Address", mediaGallery: false },
-  { key: "contactEmail", label: "Contact email", mediaGallery: false },
-  { key: "privacyPolicyUrl", label: "Privacy policy URL", mediaGallery: true },
-  { key: "termsUrl", label: "Terms URL", mediaGallery: true },
-  { key: "unsubscribeUrl", label: "Unsubscribe URL", mediaGallery: true },
+  { key: "companyName", label: "Όνομα εταιρείας", mediaGallery: false },
+  { key: "logoUrl", label: "URL Λογότυπου", mediaGallery: true },
+  { key: "facebookUrl", label: "URL Facebook", mediaGallery: true },
+  { key: "instagramUrl", label: "URL Instagram", mediaGallery: true },
+  { key: "linkedinUrl", label: "URL LinkedIn", mediaGallery: true },
+  { key: "xUrl", label: "URL X (Twitter)", mediaGallery: true },
+  { key: "tagline", label: "Υπότιτλος", mediaGallery: false },
+  { key: "addressLine", label: "Διεύθυνση", mediaGallery: false },
+  { key: "contactEmail", label: "Email επικοινωνίας", mediaGallery: false },
+  { key: "privacyPolicyUrl", label: "URL Πολιτικής Απορρήτου", mediaGallery: true },
+  { key: "termsUrl", label: "URL Όρων Χρήσης", mediaGallery: true },
+  { key: "unsubscribeUrl", label: "URL Κατάργησης Εγγραφής", mediaGallery: true },
 ];
 
 function buildPreviewSrcDoc(html: string, fieldValues: NewsletterBaseTemplateFields): string {
@@ -158,9 +158,9 @@ export function NewsletterBaseTemplatesClient({
         setTemplates((prev) => [c, ...prev]);
       }
       setOpen(false);
-      toast.success(editingId ? "Template updated" : "Template created");
+      toast.success(editingId ? "Το πρότυπο ενημερώθηκε" : "Το πρότυπο δημιουργήθηκε");
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Save failed");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αποθήκευσης");
     } finally {
       setSaving(false);
     }
@@ -177,9 +177,9 @@ export function NewsletterBaseTemplatesClient({
       setTemplates((prev) => [row, ...prev]);
       setDupOpen(false);
       setDupSource(null);
-      toast.success("Template duplicated");
+      toast.success("Το πρότυπο αντιγράφηκε");
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Duplicate failed");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αντιγραφής");
     } finally {
       setDupSaving(false);
     }
@@ -189,22 +189,22 @@ export function NewsletterBaseTemplatesClient({
     try {
       const next = await saveNewsletterBaseSettings(globalFields);
       setGlobalFields(next);
-      toast.success("Global defaults saved (used by every template unless overridden below)");
+      toast.success("Καθολικές ρυθμίσεις αποθηκεύτηκαν (χρησιμοποιούνται από όλα τα πρότυπα εκτός αν παρακαμφθούν)");
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to save global settings");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αποθήκευσης καθολικών ρυθμίσεων");
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Base Templates</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Βασικά Πρότυπα</h1>
         <p className="text-sm text-muted-foreground">
-          <strong className="text-foreground">Global defaults</strong> apply to all shells. Each template can{" "}
-          <strong className="text-foreground">override</strong> logo or links in the editor (only that template changes).
-          Images:{" "}
+          Οι <strong className="text-foreground">καθολικές ρυθμίσεις</strong> εφαρμόζονται σε όλα τα πρότυπα. Κάθε πρότυπο μπορεί να{" "}
+          <strong className="text-foreground">παρακάμψει</strong> λογότυπο ή συνδέσμους (αλλάζει μόνο αυτό το πρότυπο).
+          Εικόνες:{" "}
           <Link href="/admin/newsletter/media" className="font-medium text-primary underline underline-offset-4">
-            Media gallery
+            Γκαλερί μέσων
           </Link>
           .
         </p>
@@ -228,10 +228,9 @@ export function NewsletterBaseTemplatesClient({
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Global newsletter defaults</CardTitle>
+          <CardTitle className="text-base">Καθολικές ρυθμίσεις ενημερωτικού δελτίου</CardTitle>
           <CardDescription>
-            Shared social links, logo, and footer text. Edit per-template overrides in each template&apos;s dialog under
-            &quot;This template&quot;.
+            Κοινοί σύνδεσμοι κοινωνικών δικτύων, λογότυπο και κείμενο υποσέλιδου. Επεξεργαστείτε παρακάμψεις ανά πρότυπο στον διάλογο κάθε προτύπου.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -248,7 +247,7 @@ export function NewsletterBaseTemplatesClient({
                   />
                   {mediaGallery ? (
                     <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => setMediaPickerTarget({ context: "global", key })}>
-                      Gallery
+                      Γκαλερί
                     </Button>
                   ) : null}
                 </div>
@@ -256,7 +255,7 @@ export function NewsletterBaseTemplatesClient({
             ))}
           </div>
           <Button type="button" onClick={() => void saveGlobal()}>
-            Save global defaults
+            Αποθήκευση καθολικών ρυθμίσεων
           </Button>
         </CardContent>
       </Card>
@@ -264,7 +263,7 @@ export function NewsletterBaseTemplatesClient({
       <div className="flex flex-wrap gap-2">
         <Button onClick={openCreate}>
           <PlusIcon className="mr-2 h-4 w-4" />
-          New base template
+          Νέο βασικό πρότυπο
         </Button>
         <Button
           variant="secondary"
@@ -273,27 +272,27 @@ export function NewsletterBaseTemplatesClient({
             window.location.reload();
           }}
         >
-          Save built-in templates
+          Αποθήκευση ενσωματωμένων προτύπων
         </Button>
         <Button
           variant="outline"
           onClick={async () => {
             if (
               !confirm(
-                "Overwrite HTML and description for every base template named exactly “Newsletter Template 01”, “02”, or “03” with the latest built-in shells? Custom edits to those rows will be lost."
+                "Αντικατάσταση HTML και περιγραφής για κάθε βασικό πρότυπο με ακριβές όνομα «Newsletter Template 01», «02» ή «03» με τα τελευταία ενσωματωμένα; Οι προσαρμοσμένες αλλαγές θα χαθούν."
               )
             )
               return;
             try {
               const { updated } = await refreshBuiltInNewsletterBaseTemplatePresets();
-              toast.success(updated > 0 ? `Updated ${updated} built-in shell(s).` : "No matching rows (names must match presets exactly).");
+              toast.success(updated > 0 ? `Ενημερώθηκαν ${updated} ενσωματωμένα πρότυπα.` : "Δεν βρέθηκαν αντίστοιχα πρότυπα (τα ονόματα πρέπει να ταιριάζουν ακριβώς).");
               window.location.reload();
             } catch (e: unknown) {
-              toast.error(e instanceof Error ? e.message : "Refresh failed");
+              toast.error(e instanceof Error ? e.message : "Αποτυχία ανανέωσης");
             }
           }}
         >
-          Refresh built-in HTML
+          Ανανέωση ενσωματωμένου HTML
         </Button>
       </div>
 
@@ -309,7 +308,7 @@ export function NewsletterBaseTemplatesClient({
                   <CardTitle className="flex flex-wrap items-center gap-2 text-base">
                     {t.name}
                     {hasOverrides ? (
-                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">Custom branding</span>
+                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-medium text-primary">Προσαρμοσμένη εμφάνιση</span>
                     ) : null}
                   </CardTitle>
                   {t.description ? <p className="mt-1 text-xs text-muted-foreground">{t.description}</p> : null}
@@ -317,13 +316,13 @@ export function NewsletterBaseTemplatesClient({
                 <div className="flex flex-shrink-0 flex-wrap gap-1">
                   <Button size="sm" variant="secondary" className="gap-1" onClick={() => setFullPreview({ title: t.name, srcDoc: teaserSrc })}>
                     <Maximize2 className="h-3.5 w-3.5" />
-                    Full preview
+                    Πλήρης προεπισκόπηση
                   </Button>
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => openDuplicate(t)}>
                     <Copy className="h-3.5 w-3.5" />
-                    Duplicate
+                    Αντιγραφή
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(t)} title="Edit">
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(t)} title="Επεξεργασία">
                     <PencilIcon className="h-4 w-4" />
                   </Button>
                   <Button
@@ -331,11 +330,11 @@ export function NewsletterBaseTemplatesClient({
                     variant="ghost"
                     className="h-8 w-8 text-destructive"
                     onClick={async () => {
-                      if (!confirm(`Delete “${t.name}”?`)) return;
+                      if (!confirm(`Διαγραφή "${t.name}";`)) return;
                       await deleteNewsletterBaseTemplate(t.id);
                       setTemplates((p) => p.filter((x) => x.id !== t.id));
                     }}
-                    title="Delete"
+                    title="Διαγραφή"
                   >
                     <Trash2Icon className="h-4 w-4" />
                   </Button>
@@ -349,7 +348,7 @@ export function NewsletterBaseTemplatesClient({
                 </div>
               </CardContent>
               <CardFooter className="text-[10px] text-muted-foreground">
-                Scroll the gray area for the full height. Width matches a common email column (~600px), not an exact client screenshot.
+                Κυλήστε στην γκρι περιοχή για το πλήρες ύψος. Το πλάτος αντιστοιχεί σε συνηθισμένη στήλη email (~600px), όχι σε ακριβές στιγμιότυπο.
               </CardFooter>
             </Card>
           );
@@ -359,8 +358,8 @@ export function NewsletterBaseTemplatesClient({
       <Dialog open={!!fullPreview} onOpenChange={(o) => !o && setFullPreview(null)}>
         <DialogContent className="flex h-[96vh] max-h-[96vh] w-[min(100vw-1rem,620px)] max-w-none flex-col gap-0 overflow-hidden p-0 sm:max-w-none">
           <DialogHeader className="shrink-0 border-b px-4 py-3 text-left">
-            <DialogTitle className="text-sm">{fullPreview?.title ?? "Preview"}</DialogTitle>
-            <p className="mt-1 text-xs font-normal text-muted-foreground">Browser preview ~600px wide; not identical to live inbox rendering.</p>
+            <DialogTitle className="text-sm">{fullPreview?.title ?? "Προεπισκόπηση"}</DialogTitle>
+            <p className="mt-1 text-xs font-normal text-muted-foreground">Προεπισκόπηση ~600px πλάτος· δεν είναι ταυτόσημη με την εμφάνιση στο email client.</p>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-muted/40">
             <div className="mx-auto w-full max-w-[600px] bg-white py-2">
@@ -384,25 +383,25 @@ export function NewsletterBaseTemplatesClient({
               <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
                 <Copy className="w-4 h-4 text-[#0078D4]" />
               </div>
-              <DialogTitle className="text-sm font-bold text-[#201F1E]">Duplicate base template</DialogTitle>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">Αντιγραφή βασικού προτύπου</DialogTitle>
             </div>
           </DialogHeader>
           <div className="bg-[#F3F2F1] px-5 py-4 space-y-3">
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Copy Details</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Στοιχεία Αντιγράφου</p>
               <div className="space-y-1">
-                <Label htmlFor="dup-name" className="text-[11px] font-semibold text-[#605E5C]">New name</Label>
+                <Label htmlFor="dup-name" className="text-[11px] font-semibold text-[#605E5C]">Νέο όνομα</Label>
                 <Input id="dup-name" value={dupName} onChange={(e) => setDupName(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
               </div>
               <div className="flex items-start gap-2.5 pt-1">
                 <Checkbox id="dup-bake" checked={dupBake} onCheckedChange={(c) => setDupBake(c === true)} className="mt-0.5" />
                 <div className="space-y-0.5">
                   <Label htmlFor="dup-bake" className="text-[11px] font-semibold text-[#605E5C] leading-snug">
-                    Bake links into HTML
+                    Ενσωμάτωση συνδέσμων στο HTML
                   </Label>
                   <p className="text-[11px] text-[#A19F9D]">
-                    Applies effective global + this template&apos;s overrides into the HTML.{" "}
-                    <code className="rounded bg-[#F3F2F1] px-1 text-[10px]">{"{{dynamic_content}}"}</code> stays for the campaign body.
+                    Εφαρμόζει καθολικές + παρακαμπτόμενες ρυθμίσεις αυτού του προτύπου.{" "}
+                    <code className="rounded bg-[#F3F2F1] px-1 text-[10px]">{"{{dynamic_content}}"}</code> παραμένει για το σώμα της εκστρατείας.
                   </p>
                 </div>
               </div>
@@ -410,11 +409,11 @@ export function NewsletterBaseTemplatesClient({
           </div>
           <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setDupOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
-              Cancel
+              Ακύρωση
             </Button>
             <Button disabled={dupSaving || !dupName.trim()} onClick={() => void confirmDuplicate()} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
               {dupSaving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-              Save copy
+              Αποθήκευση αντιγράφου
             </Button>
           </div>
         </DialogContent>
@@ -446,20 +445,20 @@ export function NewsletterBaseTemplatesClient({
               <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
                 <MailIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
-              <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Edit" : "Create"} base template</DialogTitle>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Επεξεργασία" : "Δημιουργία"} βασικού προτύπου</DialogTitle>
             </div>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-[#F3F2F1] px-5 py-4">
             <Tabs defaultValue="presets">
               <TabsList className="h-8 mb-4 gap-0.5 bg-white border border-[#EDEBE9] p-0.5 rounded w-full flex-wrap justify-start">
-                <TabsTrigger value="presets" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">Presets</TabsTrigger>
-                <TabsTrigger value="overrides" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">This template</TabsTrigger>
+                <TabsTrigger value="presets" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">Προεπιλογές</TabsTrigger>
+                <TabsTrigger value="overrides" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">Αυτό το πρότυπο</TabsTrigger>
                 <TabsTrigger value="html" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">HTML</TabsTrigger>
-                <TabsTrigger value="preview" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">Preview</TabsTrigger>
+                <TabsTrigger value="preview" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">Προεπισκόπηση</TabsTrigger>
               </TabsList>
               <TabsContent value="presets" className="mt-0">
                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Choose a starting template</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Επιλογή αρχικού προτύπου</p>
                   <div className="grid gap-3 md:grid-cols-3">
                     {NEWSLETTER_BASE_TEMPLATE_PRESETS.map((p) => (
                       <button
@@ -480,10 +479,9 @@ export function NewsletterBaseTemplatesClient({
               </TabsContent>
               <TabsContent value="overrides" className="mt-0 space-y-3">
                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1">Template Overrides</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1">Παρακάμψεις Προτύπου</p>
                   <p className="text-[11px] text-[#A19F9D]">
-                    Values here apply <strong className="text-[#605E5C]">only to this template</strong>. Leave a field equal to the global default to
-                    clear the override. Use Gallery to pick from the media library.
+                    Οι τιμές εδώ εφαρμόζονται <strong className="text-[#605E5C]">μόνο σε αυτό το πρότυπο</strong>. Αφήστε ένα πεδίο ίσο με την καθολική τιμή για να καταργηθεί η παράκαμψη. Χρησιμοποιήστε Γκαλερί για επιλογή από τα μέσα.
                   </p>
                   <div className="grid gap-3 md:grid-cols-2">
                     {FIELD_META.map(({ key, label, mediaGallery }) => (
@@ -498,12 +496,12 @@ export function NewsletterBaseTemplatesClient({
                           />
                           {mediaGallery ? (
                             <Button type="button" variant="outline" size="sm" className="h-9 shrink-0 border-[#C8C6C4] hover:bg-[#EDEBE9] rounded" onClick={() => setMediaPickerTarget({ context: "template", key })}>
-                              Gallery
+                              Γκαλερί
                             </Button>
                           ) : null}
                         </div>
                         {templateOverrides[key] !== undefined && templateOverrides[key] !== globalFields[key] ? (
-                          <p className="text-[10px] text-[#0078D4]">Override active (differs from global)</p>
+                          <p className="text-[10px] text-[#0078D4]">Παράκαμψη ενεργή (διαφέρει από καθολική)</p>
                         ) : null}
                       </div>
                     ))}
@@ -512,16 +510,16 @@ export function NewsletterBaseTemplatesClient({
               </TabsContent>
               <TabsContent value="html" className="mt-0">
                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">HTML Document</p>
-                  <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
-                  <Input placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Έγγραφο HTML</p>
+                  <Input placeholder="Όνομα" value={name} onChange={(e) => setName(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+                  <Input placeholder="Περιγραφή" value={description} onChange={(e) => setDescription(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
                   <Textarea className="min-h-[360px] font-mono text-xs rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]" value={htmlDocument} spellCheck={false} onChange={(e) => setHtmlDocument(e.target.value)} />
                 </div>
               </TabsContent>
               <TabsContent value="preview" className="mt-0">
                 <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden">
                   <div className="px-4 py-2 border-b border-[#EDEBE9]">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Email Preview (~600px width)</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Προεπισκόπηση Email (~600px πλάτος)</p>
                   </div>
                   <div className="max-h-[min(80vh,900px)] overflow-y-auto bg-[#F3F2F1]">
                     <div className="mx-auto max-w-[600px] bg-white">
@@ -534,11 +532,11 @@ export function NewsletterBaseTemplatesClient({
           </div>
           <div className="shrink-0 px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
-              Cancel
+              Ακύρωση
             </Button>
             <Button onClick={() => void saveTemplate()} disabled={saving} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
               {saving ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-              Save
+              Αποθήκευση
             </Button>
           </div>
         </DialogContent>

@@ -58,176 +58,176 @@ import {
 const navData = {
   navMain: [
     {
-      title: "Dashboard",
+      title: "Πίνακας Ελέγχου",
       url: "/admin/dashboard",
       icon: LayoutDashboardIcon,
     },
     {
-      title: "First page",
+      title: "Αρχική Σελίδα",
       url: "/admin/first-page",
       icon: HomeIcon,
     },
     {
-      title: "Footer",
+      title: "Υποσέλιδο",
       url: "/admin/footer",
       icon: PanelBottomIcon,
     },
 
     {
-      title: "Customers",
+      title: "Πελάτες",
       url: "/admin/customers",
       icon: UsersIcon,
     },
     {
-      title: "Articles",
+      title: "Άρθρα",
       url: "/admin/articles",
       icon: FileTextIcon,
     },
     {
-      title: "Services",
+      title: "Υπηρεσίες",
       url: "/admin/services",
       icon: WrenchIcon,
     },
     {
-      title: "Ariadne page",
+      title: "Σελίδα Ariadni",
       url: "/admin/ariadni",
       icon: PlugIcon,
     },
     {
-      title: "Downloads",
+      title: "Λήψεις",
       url: "/admin/downloads",
       icon: FolderIcon,
     },
     {
-      title: "Careers",
+      title: "Καριέρα",
       url: "/admin/careers",
       icon: UsersIcon,
     },
     {
-      title: "CV Applications",
+      title: "Αιτήσεις CV",
       url: "/admin/cv-applications",
       icon: FileTextIcon,
     },
     {
-      title: "System Users",
+      title: "Χρήστες Συστήματος",
       url: "/admin/users",
       icon: UsersIcon,
     },
     {
-      title: "Location",
+      title: "Τοποθεσίες",
       url: "/admin/locations",
       icon: MapPinIcon,
     },
     {
-      title: "Projects",
+      title: "Έργα",
       url: "/admin/works",
       icon: FolderIcon,
     },
     {
-      title: "Send email",
+      title: "Αποστολή Email",
       url: "/admin/email",
       icon: MailIcon,
     },
     {
-      title: "Teams Calendar",
+      title: "Ημερολόγιο Ομάδας",
       url: "/admin/teams-calendar",
       icon: CalendarDaysIcon,
     },
     {
-      title: "Privacy Policy",
+      title: "Πολιτική Απορρήτου",
       url: "/admin/legal/privacy-policy",
       icon: ShieldIcon,
     },
     {
-      title: "Cookie Policy",
+      title: "Πολιτική Cookies",
       url: "/admin/legal/cookie-policy",
       icon: CookieIcon,
     },
   ],
   navNewsletter: [
     {
-      title: "Templates",
+      title: "Πρότυπα Email",
       url: "/admin/newsletter/templates",
       icon: LayoutTemplateIcon,
     },
     {
-      title: "Base Templates",
+      title: "Βασικά Πρότυπα",
       url: "/admin/newsletter/base-templates",
       icon: FileCode2Icon,
     },
     {
-      title: "Campaigns",
+      title: "Εκστρατείες",
       url: "/admin/newsletter/campaigns",
       icon: SendIcon,
     },
     {
-      title: "Media gallery",
+      title: "Γκαλερί Μέσων",
       url: "/admin/newsletter/media",
       icon: CameraIcon,
     },
     {
-      title: "EU Lists",
+      title: "Λίστες ΕΕ",
       url: "/admin/newsletter/eu-lists",
       icon: ListIcon,
     },
     {
-      title: "Reports",
+      title: "Αναφορές",
       url: "/admin/newsletter/reports",
       icon: BarChartIcon,
     },
   ],
   navFunding: [
     {
-      title: "EU Programs",
+      title: "Προγράμματα ΕΕ",
       url: "/admin/eu-programs",
       icon: BriefcaseIcon,
     },
     {
-      title: "Periferies",
+      title: "Περιφέρειες",
       url: "/admin/eu-programs/periferies",
       icon: GlobeIcon,
     },
     {
-      title: "Address → Region",
+      title: "Αντιστοίχιση Διεύθυνσης",
       url: "/admin/eu-programs/address-mapping",
       icon: MapPinIcon,
     },
     {
-      title: "KAD Management",
+      title: "Διαχείριση ΚΑΔ",
       url: "/admin/eu-programs/kads",
       icon: FileCodeIcon,
     },
     {
-      title: "Expense Categories",
+      title: "Κατηγορίες Δαπανών",
       url: "/admin/eu-programs/expense-categories",
       icon: DatabaseIcon,
     },
     {
-      title: "Expense Limits",
+      title: "Όρια Δαπανών",
       url: "/admin/eu-programs/expense-limits",
       icon: ClipboardListIcon,
     },
   ],
   navSoftone: [
     {
-      title: "Connection & Status",
+      title: "Σύνδεση & Κατάσταση",
       url: "/admin/softone",
       icon: PlugIcon,
     },
   ],
   navSecondary: [
     {
-      title: "Settings",
+      title: "Ρυθμίσεις",
       url: "#",
       icon: SettingsIcon,
     },
     {
-      title: "Get Help",
+      title: "Βοήθεια",
       url: "#",
       icon: HelpCircleIcon,
     },
     {
-      title: "Search",
+      title: "Αναζήτηση",
       url: "#",
       icon: SearchIcon,
     },
@@ -275,7 +275,7 @@ export function AppSidebar({
         <NavMain items={navData.navMain} />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Newsletter</SidebarGroupLabel>
+          <SidebarGroupLabel>Ενημερωτικό Δελτίο</SidebarGroupLabel>
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
               {navData.navNewsletter.map((item) => (
@@ -293,7 +293,7 @@ export function AppSidebar({
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Funding & European Programs</SidebarGroupLabel>
+          <SidebarGroupLabel>Χρηματοδότηση & Ευρωπαϊκά Προγράμματα</SidebarGroupLabel>
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
               {navData.navFunding.map((item) => (

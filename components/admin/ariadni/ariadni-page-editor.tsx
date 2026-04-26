@@ -60,10 +60,10 @@ export function AriadniPageEditor({
         contentEN: en,
       });
       if (!res.success) {
-        toast.error(res.error || "Save failed");
+        toast.error(res.error || "Αποτυχία αποθήκευσης");
         return;
       }
-      toast.success("Ariadne page saved.");
+      toast.success("Η σελίδα Ariadne αποθηκεύτηκε.");
     } finally {
       setPending(false);
     }
@@ -78,9 +78,9 @@ export function AriadniPageEditor({
             <Globe className="w-4 h-4 text-[#0078D4]" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-[#201F1E] leading-tight">Ariadne Page</h1>
+            <h1 className="text-base font-bold text-[#201F1E] leading-tight">Σελίδα Ariadne</h1>
             <p className="text-[11px] text-[#A19F9D]">
-              Bilingual CMS for{" "}
+              Δίγλωσσο CMS για{" "}
               <Link
                 href="/ariadni"
                 className="text-[#0078D4] hover:underline"
@@ -88,7 +88,7 @@ export function AriadniPageEditor({
               >
                 /ariadni
               </Link>
-              . Use header EL/EN toggle to switch language on site.
+              . Χρησιμοποιήστε τον διακόπτη ΕΛ/ΑΝ στην κεφαλίδα για εναλλαγή γλώσσας.
             </p>
           </div>
         </div>
@@ -102,7 +102,7 @@ export function AriadniPageEditor({
           ) : (
             <Save className="w-3.5 h-3.5 mr-1.5" />
           )}
-          {pending ? "Saving…" : "Save changes"}
+          {pending ? "Αποθήκευση…" : "Αποθήκευση αλλαγών"}
         </Button>
       </div>
 
@@ -118,7 +118,7 @@ export function AriadniPageEditor({
                 <Image className="w-3 h-3" /> Logo
               </p>
               <div className="space-y-1.5">
-                <Label className="text-[11px] font-semibold text-[#605E5C]">Logo URL (CDN)</Label>
+                <Label className="text-[11px] font-semibold text-[#605E5C]">URL Λογότυπου (CDN)</Label>
                 <Input
                   value={logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
@@ -145,24 +145,24 @@ export function AriadniPageEditor({
               </p>
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] font-semibold text-[#605E5C]">PDF URL</Label>
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">URL PDF</Label>
                   <Input
                     value={espaPdfUrl}
                     onChange={(e) => setEspaPdfUrl(e.target.value)}
                     placeholder="https://…pdf"
                     className="h-9 text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]"
                   />
-                  <p className="text-[10px] text-[#A19F9D]">Opens in new tab on click.</p>
+                  <p className="text-[10px] text-[#A19F9D]">Ανοίγει σε νέα καρτέλα.</p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] font-semibold text-[#605E5C]">Banner image URL</Label>
+                  <Label className="text-[11px] font-semibold text-[#605E5C]">URL Εικόνας Banner</Label>
                   <Input
                     value={espaPdfBannerUrl}
                     onChange={(e) => setEspaPdfBannerUrl(e.target.value)}
                     placeholder="https://…webp"
                     className="h-9 text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]"
                   />
-                  <p className="text-[10px] text-[#A19F9D]">Full-width below budget cards. Upload to Bunny, paste URL here.</p>
+                  <p className="text-[10px] text-[#A19F9D]">Πλήρους πλάτους κάτω από τις κάρτες προϋπολογισμού. Ανεβάστε στο Bunny, επικολλήστε URL.</p>
                 </div>
               </div>
             </div>
@@ -170,7 +170,7 @@ export function AriadniPageEditor({
             {/* Hint */}
             <div className="bg-[#EFF6FC] border border-[#C7E0F4] rounded-lg p-3 flex items-start gap-2">
               <FileText className="w-3.5 h-3.5 text-[#0078D4] shrink-0 mt-0.5" />
-              <p className="text-[11px] text-[#0078D4]">Edit bilingual content in the tabs on the right, then click Save changes above.</p>
+              <p className="text-[11px] text-[#0078D4]">Επεξεργαστείτε το δίγλωσσο περιεχόμενο στις καρτέλες δεξιά και κάντε κλικ στο «Αποθήκευση αλλαγών».</p>
             </div>
           </div>
 
@@ -224,14 +224,14 @@ function LocaleFields({
       {/* Hero */}
       <SectionCard title="Hero" icon={<Globe className="w-3 h-3" />}>
         <div className="grid grid-cols-2 gap-3">
-          <FieldRow label="Hero badge">
+          <FieldRow label="Σήμα Hero">
             <Input
               value={c.heroBadge}
               onChange={(e) => onChange({ heroBadge: e.target.value })}
               className="h-9 text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]"
             />
           </FieldRow>
-          <FieldRow label="Title">
+          <FieldRow label="Τίτλος">
             <Input
               value={c.title}
               onChange={(e) => onChange({ title: e.target.value })}
@@ -239,7 +239,7 @@ function LocaleFields({
             />
           </FieldRow>
         </div>
-        <FieldRow label="Tagline">
+        <FieldRow label="Υπότιτλος">
           <Textarea
             value={c.tagline}
             onChange={(e) => onChange({ tagline: e.target.value })}
@@ -250,12 +250,12 @@ function LocaleFields({
       </SectionCard>
 
       {/* Stats */}
-      <SectionCard title="Stats" icon={<FileText className="w-3 h-3" />}>
+      <SectionCard title="Στατιστικά" icon={<FileText className="w-3 h-3" />}>
         <div className="grid grid-cols-2 gap-3">
           {[0, 1].map((i) => (
             <div key={i} className="bg-[#F3F2F1] border border-[#EDEBE9] rounded-lg p-3 space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Stat {i + 1}</p>
-              <FieldRow label="Label">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Στατιστικό {i + 1}</p>
+              <FieldRow label="Ετικέτα">
                 <Input
                   value={c.stats[i]?.label ?? ""}
                   onChange={(e) => {
@@ -266,7 +266,7 @@ function LocaleFields({
                   className="h-9 text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]"
                 />
               </FieldRow>
-              <FieldRow label="Value">
+              <FieldRow label="Τιμή">
                 <Input
                   value={c.stats[i]?.value ?? ""}
                   onChange={(e) => {
@@ -283,8 +283,8 @@ function LocaleFields({
       </SectionCard>
 
       {/* Intro */}
-      <SectionCard title="Intro" icon={<FileText className="w-3 h-3" />}>
-        <FieldRow label="Intro paragraph">
+      <SectionCard title="Εισαγωγή" icon={<FileText className="w-3 h-3" />}>
+        <FieldRow label="Παράγραφος εισαγωγής">
           <Textarea
             value={c.intro}
             onChange={(e) => onChange({ intro: e.target.value })}
@@ -295,8 +295,8 @@ function LocaleFields({
       </SectionCard>
 
       {/* API / Integration */}
-      <SectionCard title="API Integration" icon={<ChevronRight className="w-3 h-3" />}>
-        <FieldRow label="API lead-in">
+      <SectionCard title="Ενσωμάτωση API" icon={<ChevronRight className="w-3 h-3" />}>
+        <FieldRow label="Εισαγωγή API">
           <Textarea
             value={c.apiLeadIn}
             onChange={(e) => onChange({ apiLeadIn: e.target.value })}
@@ -304,14 +304,14 @@ function LocaleFields({
             className="text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] resize-none"
           />
         </FieldRow>
-        <FieldRow label="Integration lines">
+        <FieldRow label="Γραμμές ενσωμάτωσης">
           <ArrayEditor
             items={c.integrationLines}
             onChange={(items) => onChange({ integrationLines: items })}
-            placeholder="Integration line…"
+            placeholder="Γραμμή ενσωμάτωσης…"
           />
         </FieldRow>
-        <FieldRow label="Value paragraph">
+        <FieldRow label="Παράγραφος αξίας">
           <Textarea
             value={c.valueParagraph}
             onChange={(e) => onChange({ valueParagraph: e.target.value })}
@@ -322,26 +322,26 @@ function LocaleFields({
       </SectionCard>
 
       {/* Feature checks */}
-      <SectionCard title="Feature Checks" icon={<FileText className="w-3 h-3" />}>
-        <FieldRow label="Feature checks">
+      <SectionCard title="Χαρακτηριστικά" icon={<FileText className="w-3 h-3" />}>
+        <FieldRow label="Χαρακτηριστικά">
           <ArrayEditor
             items={c.featureChecks}
             onChange={(items) => onChange({ featureChecks: items })}
-            placeholder="Feature check line…"
+            placeholder="Γραμμή χαρακτηριστικού…"
           />
         </FieldRow>
       </SectionCard>
 
       {/* Partner */}
-      <SectionCard title="Partner (DGSOFT)" icon={<Globe className="w-3 h-3" />}>
-        <FieldRow label="Strategic heading">
+      <SectionCard title="Εταίρος (DGSOFT)" icon={<Globe className="w-3 h-3" />}>
+        <FieldRow label="Στρατηγική επικεφαλίδα">
           <Input
             value={c.strategicHeading}
             onChange={(e) => onChange({ strategicHeading: e.target.value })}
             className="h-9 text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]"
           />
         </FieldRow>
-        <FieldRow label="Partner intro">
+        <FieldRow label="Εισαγωγή εταίρου">
           <Textarea
             value={c.partnerIntro}
             onChange={(e) => onChange({ partnerIntro: e.target.value })}
@@ -349,14 +349,14 @@ function LocaleFields({
             className="text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] resize-none"
           />
         </FieldRow>
-        <FieldRow label="Partner bullets">
+        <FieldRow label="Σημεία εταίρου">
           <ArrayEditor
             items={c.partnerBullets}
             onChange={(items) => onChange({ partnerBullets: items })}
-            placeholder="Bullet point…"
+            placeholder="Σημείο λίστας…"
           />
         </FieldRow>
-        <FieldRow label="Partner closing">
+        <FieldRow label="Κλείσιμο εταίρου">
           <Textarea
             value={c.partnerClosing}
             onChange={(e) => onChange({ partnerClosing: e.target.value })}
@@ -367,26 +367,26 @@ function LocaleFields({
       </SectionCard>
 
       {/* Advantages */}
-      <SectionCard title="Advantages" icon={<FileText className="w-3 h-3" />}>
-        <FieldRow label="Advantages heading">
+      <SectionCard title="Πλεονεκτήματα" icon={<FileText className="w-3 h-3" />}>
+        <FieldRow label="Επικεφαλίδα πλεονεκτημάτων">
           <Input
             value={c.advantagesHeading}
             onChange={(e) => onChange({ advantagesHeading: e.target.value })}
             className="h-9 text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4]"
           />
         </FieldRow>
-        <FieldRow label="Advantages list">
+        <FieldRow label="Λίστα πλεονεκτημάτων">
           <ArrayEditor
             items={c.advantages}
             onChange={(items) => onChange({ advantages: items })}
-            placeholder="Advantage item…"
+            placeholder="Στοιχείο πλεονεκτήματος…"
           />
         </FieldRow>
       </SectionCard>
 
       {/* Closing */}
-      <SectionCard title="Closing" icon={<FileText className="w-3 h-3" />}>
-        <FieldRow label="Closing line">
+      <SectionCard title="Κλείσιμο" icon={<FileText className="w-3 h-3" />}>
+        <FieldRow label="Γραμμή κλεισίματος">
           <Textarea
             value={c.closingLine}
             onChange={(e) => onChange({ closingLine: e.target.value })}
@@ -478,7 +478,7 @@ function ArrayEditor({
         onClick={add}
         className="h-8 px-3 rounded border border-dashed border-[#C8C6C4] bg-white hover:bg-[#F3F2F1] text-[11px] font-semibold text-[#605E5C] flex items-center gap-1.5 w-full justify-center transition-colors"
       >
-        <Plus className="w-3 h-3" /> Add item
+        <Plus className="w-3 h-3" /> Προσθήκη στοιχείου
       </button>
     </div>
   );

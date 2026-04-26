@@ -101,7 +101,7 @@ const MediaSortableItem = ({ item, isFeatured, onSetFeatured, onDelete }: {
                     <Badge variant="outline" className="text-[10px] uppercase font-semibold text-[#605E5C] border-[#C8C6C4]">{item.type}</Badge>
                     {isFeatured && (
                         <Badge className="bg-amber-500/10 text-amber-600 border-none text-[10px] font-semibold px-2">
-                            <Star className="w-3 h-3 mr-1 fill-amber-500" /> Featured
+                            <Star className="w-3 h-3 mr-1 fill-amber-500" /> Κύρια
                         </Badge>
                     )}
                 </div>
@@ -109,7 +109,7 @@ const MediaSortableItem = ({ item, isFeatured, onSetFeatured, onDelete }: {
             <div className="flex items-center gap-2">
                 {!isFeatured && (
                     <Button size="sm" variant="ghost" onClick={onSetFeatured} className="h-8 px-3 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
-                        Set Main
+                        Ορισμός Κύριας
                     </Button>
                 )}
                 <Button size="icon" variant="ghost" onClick={() => onDelete(item.id || item.url)} className="text-[#A19F9D] hover:text-red-500 h-8 w-8 hover:bg-red-50 rounded">
@@ -150,10 +150,10 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
         setData(newData)
         try {
             await updateWorkOrder(newData.map(d => d.id))
-            toast.success("Operational sequence updated")
+            toast.success("Η σειρά ενημερώθηκε")
         } catch {
             setData(initialData)
-            toast.error("Sequence sync failed")
+            toast.error("Αποτυχία συγχρονισμού σειράς")
         }
     }
 
@@ -192,11 +192,11 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
             if (editingWork) {
                 const res = await updateWork(editingWork.id, payload)
                 setData(data.map(d => d.id === res.id ? res as any : d))
-                toast.success("Case study updated")
+                toast.success("Η μελέτη περίπτωσης ενημερώθηκε")
             } else {
                 const res = await createWork(payload)
                 setData([...data, res as any])
-                toast.success("Case study initialized")
+                toast.success("Η μελέτη περίπτωσης δημιουργήθηκε")
             }
             setIsDialogOpen(false)
         } catch (err: any) { toast.error(err.message) }
@@ -204,9 +204,9 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
     }
 
     const handleGenerate = async () => {
-        if (!formData.titleEL) return toast.error("Provide a Greek title first")
+        if (!formData.titleEL) return toast.error("Εισάγετε πρώτα έναν Ελληνικό τίτλο")
         setIsGenerating(true)
-        const tid = toast.loading("AI Engine is mapping the success story...")
+        const tid = toast.loading("Το AI δημιουργεί την ιστορία επιτυχίας...")
         try {
             const customer = allCustomers.find(c => c.id === formData.customerId)
             const services = allServices.filter(s => formData.servicesUsed.includes(s.id))
@@ -224,14 +224,14 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                 stats: d.stats?.length === 4 ? d.stats : prev.stats,
                 slug: d.slug || prev.slug || formData.titleEL.toLowerCase().replace(/[^a-z0-9α-ωάέήίόύώ]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
             }))
-            toast.success("Intelligence Draft Generated", { id: tid })
+            toast.success("Το πρόχειρο δημιουργήθηκε", { id: tid })
         } catch (err: any) { toast.error(err.message, { id: tid }) }
         finally { setIsGenerating(false) }
     }
 
     const handleMediaUpload = async (files: FileList | null, workId?: string) => {
         if (!files || files.length === 0) return
-        const tid = toast.loading(`Uploading ${files.length} evidence assets...`)
+        const tid = toast.loading(`Μεταφόρτωση ${files.length} αρχείων...`)
         try {
             let currentMedia = workId ? data.find(w => w.id === workId)?.media || [] : [...formData.media]
             for (let i = 0; i < files.length; i++) {
@@ -247,7 +247,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
             } else {
                 setFormData(prev => ({ ...prev, media: currentMedia }))
             }
-            toast.success("Visual library expanded", { id: tid })
+            toast.success("Η βιβλιοθήκη μέσων ενημερώθηκε", { id: tid })
         } catch (err: any) { toast.error(err.message, { id: tid }) }
     }
 
@@ -260,7 +260,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
         },
         {
             id: "hero",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Media</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Μέσα</span>,
             cell: ({ row }) => {
                 const media = row.original.media || []
                 const hero = media.find((m: WorkMedia) => m.featured) || media[0]
@@ -287,29 +287,29 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
         },
         {
             accessorKey: "titleEL",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Case Study</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Μελέτη Περίπτωσης</span>,
             cell: ({ row }) => (
                 <div className="flex flex-col">
                     <span className="text-sm font-semibold text-[#201F1E]">{row.original.titleEL}</span>
                     {row.original.titleEN && <span className="text-[11px] text-[#A19F9D] italic">{row.original.titleEN}</span>}
                     <span className="text-[11px] text-[#A19F9D] mt-0.5">
-                        {row.original.customer?.NAME || "Independent Project"}
+                        {row.original.customer?.NAME || "Ανεξάρτητο Έργο"}
                     </span>
                 </div>
             )
         },
         {
             accessorKey: "published",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κατάσταση</span>,
             cell: ({ row }) => row.original.published ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    Public
+                    Δημοσιευμένο
                 </span>
             ) : (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />
-                    Draft
+                    Πρόχειρο
                 </span>
             )
         },
@@ -319,24 +319,24 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
-                            Actions <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
+                            Ενέργειες <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => openEdit(row.original)} className="text-sm">
-                            <Layout className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit
+                            <Layout className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Επεξεργασία
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => window.open(`/works/${row.original.slug}`, "_blank")} className="text-sm">
-                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> Preview
+                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> Προεπισκόπηση
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-500 text-sm" onClick={async () => {
-                            if (confirm("Archive this case study?")) {
+                            if (confirm("Διαγραφή αυτής της μελέτης περίπτωσης;")) {
                                 await deleteWork(row.original.id)
                                 setData(data.filter(d => d.id !== row.original.id))
                             }
                         }}>
-                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Διαγραφή
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -350,10 +350,10 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                 <div className="px-4 pt-3 pb-0">
                     <TabsList className="mb-0 bg-white border border-[#EDEBE9] p-0.5 h-8 rounded gap-0.5 w-fit">
                         <TabsTrigger value="highlights" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
-                            Highlights
+                            Επισημάνσεις
                         </TabsTrigger>
                         <TabsTrigger value="media" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
-                            Media ({(work.media || []).length})
+                            Μέσα ({(work.media || []).length})
                         </TabsTrigger>
                     </TabsList>
                 </div>
@@ -379,14 +379,14 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#EDEBE9] rounded-lg overflow-hidden">
                         <div className="bg-white p-4 space-y-2">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Strategic Challenge</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Στρατηγική Πρόκληση</p>
                             <p className="text-sm leading-relaxed text-[#605E5C] italic">
-                                &quot;{work.challengeEL || "Challenge briefing not yet defined."}&quot;
+                                &quot;{work.challengeEL || "Η πρόκληση δεν έχει οριστεί ακόμα."}&quot;
                             </p>
                             {work.challengeEN && <p className="text-[11px] text-[#A19F9D] italic">EN: &quot;{work.challengeEN}&quot;</p>}
                         </div>
                         <div className="bg-white p-4 space-y-2">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Services Used</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Υπηρεσίες που Χρησιμοποιήθηκαν</p>
                             <div className="flex flex-wrap gap-1.5">
                                 {work.servicesUsed?.map(sid => {
                                     const s = allServices.find(x => x.id === sid)
@@ -407,7 +407,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                         </div>
                                     ))}
                                 </div>
-                                <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">{(work.media || []).length} media assets</span>
+                                <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">{(work.media || []).length} αρχεία μέσων</span>
                             </div>
                         </div>
                     </div>
@@ -415,9 +415,9 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
 
                 <TabsContent value="media" className="animate-in fade-in duration-300 p-4">
                     <div className="flex justify-between items-center mb-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Production Assets ({(work.media || []).length})</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Αρχεία Μέσων ({(work.media || []).length})</p>
                         <Label className="cursor-pointer h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded inline-flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                            <Plus className="w-3.5 h-3.5" /> Add Media
+                            <Plus className="w-3.5 h-3.5" /> Προσθήκη Μέσων
                             <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={e => handleMediaUpload(e.target.files, work.id)} />
                         </Label>
                     </div>
@@ -425,7 +425,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                         {(work.media || []).length === 0 ? (
                             <div className="py-8 text-center rounded-lg border border-dashed border-[#EDEBE9] bg-white">
                                 <ImageIcon className="w-8 h-8 mx-auto text-[#C8C6C4] mb-2" />
-                                <p className="text-sm font-medium text-[#A19F9D]">No media yet. Upload images or videos.</p>
+                                <p className="text-sm font-medium text-[#A19F9D]">Δεν υπάρχουν αρχεία ακόμα. Ανεβάστε εικόνες ή βίντεο.</p>
                             </div>
                         ) : (
                             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => {
@@ -443,7 +443,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                         <MediaSortableItem
                                             key={m.id || m.url} item={m} isFeatured={m.featured}
                                             onDelete={async (id) => {
-                                                if (confirm("Delete asset?")) {
+                                                if (confirm("Διαγραφή αρχείου;")) {
                                                     const mediaList = work.media || []
                                                     const upd = await updateWork(work.id, { ...work, media: mediaList.filter(x => (x.id || x.url) !== id) })
                                                     setData(data.map(w => w.id === upd.id ? upd as any : w))
@@ -453,7 +453,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                                 const mediaList = work.media || []
                                                 const upd = await updateWork(work.id, { ...work, media: mediaList.map(x => ({ ...x, featured: x.url === m.url })) })
                                                 setData(data.map(w => w.id === upd.id ? upd as any : w))
-                                                toast.success("Featured media updated")
+                                                toast.success("Η κύρια εικόνα ενημερώθηκε")
                                             }}
                                         />
                                     ))}
@@ -497,7 +497,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                             </div>
                             <Button size="sm" onClick={handleGenerate} disabled={isGenerating} className="h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95">
                                 {isGenerating ? <RefreshCcw className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
-                                Forge with AI
+                                Δημιουργία με AI
                             </Button>
                         </div>
                     </DialogHeader>
@@ -507,10 +507,10 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                         <Tabs defaultValue="base">
                             <div className="px-5 pt-4 pb-0 bg-white border-b border-[#EDEBE9]">
                                 <TabsList className="bg-[#F3F2F1] p-0.5 h-8 rounded gap-0.5 w-fit border border-[#EDEBE9]">
-                                    <TabsTrigger value="base" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Core</TabsTrigger>
-                                    <TabsTrigger value="impact" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Steps</TabsTrigger>
-                                    <TabsTrigger value="metrics" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Metrics</TabsTrigger>
-                                    <TabsTrigger value="media" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Media</TabsTrigger>
+                                    <TabsTrigger value="base" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Βάση</TabsTrigger>
+                                    <TabsTrigger value="impact" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Βήματα</TabsTrigger>
+                                    <TabsTrigger value="metrics" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Μετρικές</TabsTrigger>
+                                    <TabsTrigger value="media" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Μέσα</TabsTrigger>
                                 </TabsList>
                             </div>
 
@@ -607,7 +607,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                     <div className="flex justify-between items-center">
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Βήματα (English)</p>
                                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded gap-1" onClick={() => setFormData(prev => ({ ...prev, stepsEN: [...prev.stepsEN, ""] }))}>
-                                            <Plus className="w-3 h-3" /> Add Step
+                                            <Plus className="w-3 h-3" /> Προσθήκη
                                         </Button>
                                     </div>
                                     <div className="space-y-2">
@@ -648,15 +648,15 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                             </div>
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div className="space-y-1">
-                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">KPI Value</Label>
-                                                    <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-bold text-[#0078D4]" value={stat.value} onChange={e => { const arr = [...formData.stats]; arr[i].value = e.target.value; setFormData({ ...formData, stats: arr }) }} placeholder="e.g. +45%" />
+                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Τιμή KPI</Label>
+                                                    <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-bold text-[#0078D4]" value={stat.value} onChange={e => { const arr = [...formData.stats]; arr[i].value = e.target.value; setFormData({ ...formData, stats: arr }) }} placeholder="π.χ. +45%" />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Label (EL)</Label>
+                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Ετικέτα (ΕΛ)</Label>
                                                     <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={stat.textEL} onChange={e => { const arr = [...formData.stats]; arr[i].textEL = e.target.value; setFormData({ ...formData, stats: arr }) }} placeholder="Αύξηση ROI" />
                                                 </div>
                                                 <div className="space-y-1 col-span-2">
-                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Label (EN)</Label>
+                                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Ετικέτα (EN)</Label>
                                                     <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={stat.textEN || ""} onChange={e => { const arr = [...formData.stats]; arr[i].textEN = e.target.value; setFormData({ ...formData, stats: arr }) }} placeholder="ROI Growth" />
                                                 </div>
                                             </div>
@@ -664,7 +664,7 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                     ))}
                                 </div>
                                 <Button variant="outline" className="w-full mt-3 h-9 rounded border-dashed border-[#C8C6C4] hover:bg-[#F3F2F1] text-[12px] font-semibold text-[#605E5C]" onClick={() => setFormData(prev => ({ ...prev, stats: [...prev.stats, { icon: "TrendingUp", value: "", textEL: "", textEN: "" }] }))}>
-                                    <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Data Point
+                                    <Plus className="w-3.5 h-3.5 mr-1.5" /> Προσθήκη Μετρικής
                                 </Button>
                             </TabsContent>
 
@@ -674,11 +674,11 @@ export function DataTableWorks({ data: initialData, allCustomers, allServices }:
                                         <ImageIcon className="w-4 h-4 text-[#0078D4]" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-semibold text-[#201F1E]">Media Library</p>
-                                        <p className="text-[11px] text-[#A19F9D]">Attach images or videos and set a featured image.</p>
+                                        <p className="text-sm font-semibold text-[#201F1E]">Βιβλιοθήκη Μέσων</p>
+                                        <p className="text-[11px] text-[#A19F9D]">Επισυνάψτε εικόνες ή βίντεο και ορίστε κύρια εικόνα.</p>
                                     </div>
                                     <Label className="inline-flex h-8 items-center justify-center rounded bg-[#0078D4] hover:bg-[#106EBE] px-4 text-[12px] font-semibold text-white cursor-pointer active:scale-95 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                                        Upload Files
+                                        Μεταφόρτωση
                                         <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={e => handleMediaUpload(e.target.files)} />
                                     </Label>
                                     {formData.media.length > 0 && (

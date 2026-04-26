@@ -90,15 +90,15 @@ type ExpenseLimitFormItem = {
 }
 
 const WIZARD_STEPS = [
-    { value: "general", label: "1. Names" },
-    { value: "dates", label: "2. Dates" },
-    { value: "financials", label: "3. Budget" },
-    { value: "criteria", label: "4. Rules" },
-    { value: "requirements", label: "5. Reqs" },
-    { value: "expenseLimits", label: "6. Limits" },
-    { value: "regions", label: "7. Regions" },
-    { value: "kads", label: "8. KADs & PDF" },
-    { value: "media", label: "9. Media" },
+    { value: "general", label: "1. Ονόματα" },
+    { value: "dates", label: "2. Ημερομηνίες" },
+    { value: "financials", label: "3. Προϋπολογισμός" },
+    { value: "criteria", label: "4. Κανόνες" },
+    { value: "requirements", label: "5. Απαιτήσεις" },
+    { value: "expenseLimits", label: "6. Όρια" },
+    { value: "regions", label: "7. Περιφέρειες" },
+    { value: "kads", label: "8. ΚΑΔ & PDF" },
+    { value: "media", label: "9. Μέσα" },
 ] as const
 
 type WizardStepValue = (typeof WIZARD_STEPS)[number]["value"]
@@ -248,7 +248,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
 
     const openDeepSeekProgress = (programName: string) => {
         setDeepSeekStatus("processing")
-        setDeepSeekMessage(`Processing "${programName}" with DeepSeek. Please wait...`)
+        setDeepSeekMessage(`Επεξεργασία "${programName}" με DeepSeek. Παρακαλώ περιμένετε...`)
         setDeepSeekResult(null)
         setDeepSeekModalOpen(true)
     }
@@ -272,7 +272,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
         formData.append("file", file)
         const result = await processGrantPdfAction(formData)
         if (!result.success) {
-            const errMessage = result.error || "Failed to parse program details"
+            const errMessage = result.error || "Αποτυχία ανάλυσης λεπτομερειών προγράμματος"
             setDeepSeekStatus("error")
             setDeepSeekMessage(errMessage)
             throw new Error(errMessage)
@@ -284,13 +284,13 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
         await refreshProgramFromDb(programId)
         setDeepSeekStatus("success")
         setDeepSeekResult({ requirements, expenseLimits, kads })
-        setDeepSeekMessage(`Finished parsing "${programName}".`)
+        setDeepSeekMessage(`Ολοκληρώθηκε η ανάλυση "${programName}".`)
         return { requirements, expenseLimits, kads }
     }
 
     const handleTranslate = async () => {
         setIsTranslating(true)
-        toast.loading("Translating...", { id: "translate" })
+        toast.loading("Μετάφραση...", { id: "translate" })
         try {
             const updates: any = {}
             const fields = [['nameEL', 'nameEN'], ['shortDescriptionEL', 'shortDescriptionEN'], ['descriptionEL', 'descriptionEN']]
@@ -302,7 +302,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 }
             }
             setFormData(prev => ({ ...prev, ...updates }))
-            toast.success("Ready!", { id: "translate" })
+            toast.success("Έτοιμο!", { id: "translate" })
         } catch (err: any) {
             toast.error(err.message, { id: "translate" })
         } finally {
@@ -328,7 +328,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 for (let kId of previouslySelectedKads) if (!selectedKads.has(kId)) await unlinkKadFromProgram(resProgram.id, kId)
                 for (let kId of Array.from(selectedKads)) if (!previouslySelectedKads.includes(kId)) await linkKadToProgram(resProgram.id, kId)
 
-                toast.success("Saved successfully")
+                toast.success("Αποθηκεύτηκε επιτυχώς")
                 window.location.reload()
             }
         } catch (err: any) {
@@ -339,35 +339,35 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete program?")) return
+        if (!confirm("Διαγραφή προγράμματος;")) return
         try {
             await deleteEuProgram(id)
             setData(prev => prev.filter(d => d.id !== id))
-            toast.success("Deleted")
+            toast.success("Διαγράφηκε")
         } catch (err: any) { toast.error(err.message) }
     }
 
     const handleUploadProgramDetails = async () => {
         if (!editingProgram?.id) {
-            toast.error("Save program first, then upload PDF details.")
+            toast.error("Αποθηκεύστε πρώτα το πρόγραμμα και μετά ανεβάστε λεπτομέρειες PDF.")
             return
         }
         if (!programDetailsFile) {
-            toast.error("Choose a PDF first.")
+            toast.error("Επιλέξτε πρώτα ένα PDF.")
             return
         }
 
         setIsProcessingProgramDetails(true)
-        toast.loading("Processing PDF with DeepSeek...", { id: "program-details" })
+        toast.loading("Επεξεργασία PDF με DeepSeek...", { id: "program-details" })
         try {
             const parsed = await parseProgramDetails(editingProgram.id, programDetailsFile, editingProgram.nameEL)
             toast.success(
-                `Parsed ${parsed.requirements} requirements, ${parsed.expenseLimits} expense limits, ${parsed.kads} KADs.`,
+                `Αναλύθηκαν ${parsed.requirements} απαιτήσεις, ${parsed.expenseLimits} όρια δαπανών, ${parsed.kads} ΚΑΔ.`,
                 { id: "program-details" }
             )
             setProgramDetailsFile(null)
         } catch (error: any) {
-            toast.error(error?.message || "Processing failed", { id: "program-details" })
+            toast.error(error?.message || "Η επεξεργασία απέτυχε", { id: "program-details" })
         } finally {
             setIsProcessingProgramDetails(false)
         }
@@ -375,32 +375,32 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
 
     const handleRowUploadSubmit = async () => {
         if (!rowUploadProgram?.id) {
-            toast.error("No program selected.")
+            toast.error("Δεν επιλέχθηκε πρόγραμμα.")
             return
         }
         if (!rowUploadFile) {
-            toast.error("Choose a PDF first.")
+            toast.error("Επιλέξτε πρώτα ένα PDF.")
             return
         }
         try {
             setIsRowUploadModalOpen(false)
             const parsed = await parseProgramDetails(rowUploadProgram.id, rowUploadFile, rowUploadProgram.nameEL)
-            toast.success(`Parsed ${parsed.requirements} requirements, ${parsed.expenseLimits} expense limits, ${parsed.kads} KADs.`)
+            toast.success(`Αναλύθηκαν ${parsed.requirements} απαιτήσεις, ${parsed.expenseLimits} όρια δαπανών, ${parsed.kads} ΚΑΔ.`)
             setRowUploadFile(null)
         } catch (error: any) {
-            toast.error(error?.message || "Processing failed")
+            toast.error(error?.message || "Η επεξεργασία απέτυχε")
         }
     }
 
     const handleImportManualKads = async () => {
         const parsedCodes = parseKadCodesFromText(manualKadInput)
         if (parsedCodes.length === 0) {
-            toast.error("No valid KAD codes found. Paste values like 46.11, 56.10.")
+            toast.error("Δεν βρέθηκαν έγκυροι κωδικοί ΚΑΔ. Επικολλήστε τιμές όπως 46.11, 56.10.")
             return
         }
 
         setIsImportingManualKads(true)
-        toast.loading("Importing KADs from text...", { id: "manual-kads" })
+        toast.loading("Εισαγωγή ΚΑΔ από κείμενο...", { id: "manual-kads" })
         try {
             const normalize = (value: string) => value.replace(/\./g, "").trim()
             const knownByCode = new globalThis.Map<string, any>()
@@ -421,11 +421,11 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
 
             if (missingCodes.length > 0) {
                 if (!editingProgram?.id) {
-                    throw new Error("Save program first to create new KAD entries from manual input.")
+                    throw new Error("Αποθηκεύστε πρώτα το πρόγραμμα για να δημιουργήσετε νέες εγγραφές ΚΑΔ.")
                 }
                 await processOcrAndCreateKads(
                     editingProgram.id,
-                    missingCodes.map((code) => ({ code, desc: "Manual import from admin prompt" }))
+                    missingCodes.map((code) => ({ code, desc: "Χειροκίνητη εισαγωγή" }))
                 )
                 const refreshed = await getAllKadsList()
                 setAllKads(refreshed || [])
@@ -443,9 +443,9 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 for (const id of existingToSelect) next.add(id)
                 return next
             })
-            toast.success(`Imported ${parsedCodes.length} KAD codes.`, { id: "manual-kads" })
+            toast.success(`Εισήχθησαν ${parsedCodes.length} κωδικοί ΚΑΔ.`, { id: "manual-kads" })
         } catch (error: any) {
-            toast.error(error?.message || "Manual KAD import failed.", { id: "manual-kads" })
+            toast.error(error?.message || "Αποτυχία εισαγωγής ΚΑΔ.", { id: "manual-kads" })
         } finally {
             setIsImportingManualKads(false)
         }
@@ -454,7 +454,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
     const columns: ColumnDef<EuProgramType>[] = [
         {
             accessorKey: "nameEL",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Program Name</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Όνομα Προγράμματος</span>,
             cell: ({ row }) => (
                 <div className="flex max-w-xl flex-col gap-0.5">
                     <span className="text-sm font-semibold text-[#201F1E] line-clamp-2">
@@ -468,7 +468,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
         },
         {
             accessorKey: "maxBudget",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Max Budget</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Μέγ. Προϋπολογισμός</span>,
             cell: ({ row }) => budgetToNumber(row.original.maxBudget) ? (
                 <div className="flex items-center gap-1 font-bold text-emerald-600">
                     <Euro className="w-3 h-3" />
@@ -478,7 +478,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
         },
         {
             id: "stats",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Mapping</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Αντιστοίχιση</span>,
             cell: ({ row }) => {
                 const summary = parseSummaryByProgram[row.original.id]
                 const requirementsCount = summary?.requirements ?? (row.original.requirements?.length || 0)
@@ -487,26 +487,26 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 const isParsed = requirementsCount > 0 || expenseLimitsCount > 0 || kadsCount > 0
                 return (
                     <div className="flex items-center gap-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{kadsCount} KADs</span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{row.original.periferies?.length || 0} Regions</span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{requirementsCount} Requirements</span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{row.original.criteria?.length || 0} Rules</span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{expenseLimitsCount} Expense Limits</span>
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${isParsed ? "bg-[#DFF6DD] text-[#107C10]" : "bg-[#F3F2F1] text-[#A19F9D]"}`}>{isParsed ? "AI Parsed" : "Not Parsed"}</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{kadsCount} ΚΑΔ</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{row.original.periferies?.length || 0} Περιφέρειες</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{requirementsCount} Απαιτήσεις</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{row.original.criteria?.length || 0} Κανόνες</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">{expenseLimitsCount} Όρια Δαπανών</span>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${isParsed ? "bg-[#DFF6DD] text-[#107C10]" : "bg-[#F3F2F1] text-[#A19F9D]"}`}>{isParsed ? "AI Αναλύθηκε" : "Δεν Αναλύθηκε"}</span>
                     </div>
                 )
             }
         },
         {
             accessorKey: "active",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κατάσταση</span>,
             cell: ({ row }) => row.original.active ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /> Active
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /> Ενεργό
                 </span>
             ) : (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" /> Closed
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" /> Κλειστό
                 </span>
             )
         },
@@ -516,21 +516,21 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
-                            Actions <ChevronDown className="h-4 w-4 ml-1" />
+                            Ενέργειες <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
                             <Link href={`/admin/eu-programs/${row.original.id}`} className="flex items-center">
-                                <ExternalLink className="w-4 h-4 mr-2" /> Program details
+                                <ExternalLink className="w-4 h-4 mr-2" /> Λεπτομέρειες προγράμματος
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                             <Link href={`/admin/eu-programs/${row.original.id}/expense-categories`} className="flex items-center">
-                                <Database className="w-4 h-4 mr-2" /> Expense categories (OPSKE)
+                                <Database className="w-4 h-4 mr-2" /> Κατηγορίες δαπανών (OPSKE)
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Edit className="w-4 h-4 mr-2" /> Edit Program (wizard)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Edit className="w-4 h-4 mr-2" /> Επεξεργασία Προγράμματος (οδηγός)</DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => {
                                 setRowUploadProgram(row.original)
@@ -538,7 +538,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                 setIsRowUploadModalOpen(true)
                             }}
                         >
-                            <Upload className="w-4 h-4 mr-2" /> Upload Entire PDF
+                            <Upload className="w-4 h-4 mr-2" /> Μεταφόρτωση ολόκληρου PDF
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={() => {
@@ -546,10 +546,10 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                 setEmailListModalOpen(true)
                             }}
                         >
-                            <Mail className="w-4 h-4 mr-2" /> Generate email list
+                            <Mail className="w-4 h-4 mr-2" /> Δημιουργία Λίστας Email
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Διαγραφή</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -561,49 +561,49 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
             <GenericDataTable
                 columns={columns}
                 data={data}
-                searchPlaceholder="Search programs..."
+                searchPlaceholder="Αναζήτηση προγραμμάτων..."
                 searchColumn="nameEL"
                 onAddClick={() => openEdit()}
-                addButtonLabel="Add EU Program"
+                addButtonLabel="Προσθήκη Προγράμματος ΕΕ"
                 renderExpandedRow={(program) => (
                     <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
                         <div className="grid grid-cols-2 divide-x divide-[#EDEBE9]">
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><FileText className="w-3 h-3" /> Program Overview</p>
-                                <p className="text-xs leading-relaxed text-[#605E5C]">{program.shortDescriptionEL || "No description provided."}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><FileText className="w-3 h-3" /> Επισκόπηση Προγράμματος</p>
+                                <p className="text-xs leading-relaxed text-[#605E5C]">{program.shortDescriptionEL || "Δεν υπάρχει περιγραφή."}</p>
                                 <div className="flex flex-wrap gap-1.5 pt-1">
-                                    {program.submissionDate && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]"><Calendar className="w-3 h-3" /> Ends: {new Date(program.submissionDate).toLocaleDateString()}</span>}
-                                    {program.percentageOfFinance && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">{program.percentageOfFinance} Finance</span>}
-                                    {budgetToNumber(program.minBudget) != null && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">Min: {budgetToNumber(program.minBudget)?.toLocaleString()} EUR</span>}
-                                    {budgetToNumber(program.maxBudget) != null && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">Max: {budgetToNumber(program.maxBudget)?.toLocaleString()} EUR</span>}
+                                    {program.submissionDate && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]"><Calendar className="w-3 h-3" /> Λήξη: {new Date(program.submissionDate).toLocaleDateString()}</span>}
+                                    {program.percentageOfFinance && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">{program.percentageOfFinance} Χρηματοδότηση</span>}
+                                    {budgetToNumber(program.minBudget) != null && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">Ελάχ.: {budgetToNumber(program.minBudget)?.toLocaleString()} EUR</span>}
+                                    {budgetToNumber(program.maxBudget) != null && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">Μέγ.: {budgetToNumber(program.maxBudget)?.toLocaleString()} EUR</span>}
                                 </div>
                             </div>
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Map className="w-3 h-3" /> Active Regions</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Map className="w-3 h-3" /> Ενεργές Περιφέρειες</p>
                                 <div className="flex flex-wrap gap-1">
-                                    {program.periferies?.map(p => <span key={p.periferia.id} className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">{p.periferia.nameEL}</span>) || <span className="text-[11px] italic text-[#A19F9D]">None linked</span>}
+                                    {program.periferies?.map(p => <span key={p.periferia.id} className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-white border border-[#EDEBE9] text-[#605E5C]">{p.periferia.nameEL}</span>) || <span className="text-[11px] italic text-[#A19F9D]">Δεν συνδέθηκαν</span>}
                                 </div>
                             </div>
                         </div>
                         <div className="border-t border-[#EDEBE9] grid grid-cols-2 divide-x divide-[#EDEBE9]">
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><FileCode className="w-3 h-3" /> Top Linked KADs</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><FileCode className="w-3 h-3" /> Κορυφαίοι Συνδεδεμένοι ΚΑΔ</p>
                                 <div className="grid grid-cols-2 gap-1">
-                                    {program.kads?.slice(0, 10).map(k => <div key={k.kad.id} className="text-[10px] font-mono text-[#605E5C] truncate">{k.kad.code}</div>) || <span className="text-[11px] italic text-[#A19F9D]">None linked</span>}
+                                    {program.kads?.slice(0, 10).map(k => <div key={k.kad.id} className="text-[10px] font-mono text-[#605E5C] truncate">{k.kad.code}</div>) || <span className="text-[11px] italic text-[#A19F9D]">Δεν συνδέθηκαν</span>}
                                     {program.kads && program.kads.length > 10 && <div className="text-[10px] font-bold text-[#A19F9D]">+{program.kads.length - 10} more</div>}
                                 </div>
                             </div>
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Captured from PDF</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Εξαγωγή από PDF</p>
                                 <div className="grid grid-cols-2 gap-2 text-[11px]">
                                     <div>
-                                        <div className="font-semibold text-[#605E5C] mb-1">Requirements ({program.requirements?.length || 0})</div>
+                                        <div className="font-semibold text-[#605E5C] mb-1">Απαιτήσεις ({program.requirements?.length || 0})</div>
                                         {program.requirements?.slice(0, 3).map((r) => (
                                             <div key={r.id} className="font-mono text-[#A19F9D] truncate">{r.type} {r.operator} {r.value}</div>
                                         ))}
                                     </div>
                                     <div>
-                                        <div className="font-semibold text-[#605E5C] mb-1">Expense Limits ({program.expenseLimits?.length || 0})</div>
+                                        <div className="font-semibold text-[#605E5C] mb-1">Όρια Δαπανών ({program.expenseLimits?.length || 0})</div>
                                         {program.expenseLimits?.slice(0, 3).map((e) => (
                                             <div key={e.id} className="text-[#A19F9D] truncate"><span className="font-mono">{e.expenseCategory.code}</span></div>
                                         ))}
@@ -626,10 +626,10 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                             </div>
                             <div>
                                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                    {editingProgram ? "Program Settings" : "New EU Program"}
+                                    {editingProgram ? "Ρυθμίσεις Προγράμματος" : "Νέο Πρόγραμμα ΕΕ"}
                                 </DialogTitle>
                                 <p className="text-[11px] text-[#A19F9D]">
-                                    {editingProgram ? `Editing: ${editingProgram.nameEL}` : "Complete all steps to create a new EU program"}
+                                    {editingProgram ? `Επεξεργασία: ${editingProgram.nameEL}` : "Συμπληρώστε όλα τα βήματα για τη δημιουργία νέου προγράμματος ΕΕ"}
                                 </p>
                             </div>
                         </div>
@@ -639,7 +639,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                         {/* Step tabs — DG text tabs */}
                         <div className="px-5 bg-white border-b border-[#EDEBE9]">
                             <div className="text-[11px] text-[#A19F9D] pt-3 pb-1">
-                                Step {currentStepIndex + 1} of {WIZARD_STEPS.length}
+                                Βήμα {currentStepIndex + 1} από {WIZARD_STEPS.length}
                             </div>
                             <TabsList className="bg-transparent p-0 h-auto flex flex-wrap gap-0 rounded-none border-0 w-full">
                                 {WIZARD_STEPS.map((s) => (
@@ -658,35 +658,35 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                         <div className="flex-1 overflow-y-auto bg-[#F3F2F1] p-4">
                             <TabsContent value="general" className="m-0 space-y-3">
                                 <div className="flex items-center justify-between bg-white rounded-lg border border-[#EDEBE9] p-3">
-                                    <span className="text-[11px] text-[#605E5C]">Automatic translation available for Greek content.</span>
+                                    <span className="text-[11px] text-[#605E5C]">Διαθέσιμη αυτόματη μετάφραση ελληνικού περιεχομένου.</span>
                                     <Button size="sm" onClick={handleTranslate} disabled={isTranslating} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                                        {isTranslating ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <Languages className="w-3 h-3 mr-2" />} Translate to English
+                                        {isTranslating ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <Languages className="w-3 h-3 mr-2" />} Μετάφραση στα Αγγλικά
                                     </Button>
                                 </div>
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Name (GR)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα (ΕΛ)</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEL} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Name (EN)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα (ΑΝ)</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEN} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Short Description (GR)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Σύντομη Περιγραφή (ΕΛ)</Label>
                                             <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.shortDescriptionEL} onChange={e => setFormData({ ...formData, shortDescriptionEL: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Short Description (EN)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Σύντομη Περιγραφή (ΑΝ)</Label>
                                             <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.shortDescriptionEN} onChange={e => setFormData({ ...formData, shortDescriptionEN: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Description (GR)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (ΕΛ)</Label>
                                             <Textarea className="h-28 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.descriptionEL} onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Description (EN)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (ΑΝ)</Label>
                                             <Textarea className="h-28 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.descriptionEN} onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })} />
                                         </div>
                                     </div>
@@ -695,54 +695,54 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
 
                             <TabsContent value="dates" className="m-0">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#A19F9D]">Deadlines & Status</p>
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#A19F9D]">Προθεσμίες & Κατάσταση</p>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Announced Date</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ημερομηνία Ανακοίνωσης</Label>
                                             <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.announcedDate || ""} onChange={e => setFormData({ ...formData, announcedDate: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Submission Date</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ημερομηνία Υποβολής</Label>
                                             <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.submissionDate} onChange={e => setFormData({ ...formData, submissionDate: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">End Date</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ημερομηνία Λήξης</Label>
                                             <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.endDate || ""} onChange={e => setFormData({ ...formData, endDate: e.target.value })} />
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Checkbox checked={formData.active} onCheckedChange={c => setFormData({ ...formData, active: !!c })} />
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Program is Active</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Το Πρόγραμμα είναι Ενεργό</Label>
                                     </div>
                                 </div>
                             </TabsContent>
 
                             <TabsContent value="financials" className="m-0">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#A19F9D]">Budget & Finance</p>
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#A19F9D]">Προϋπολογισμός & Χρηματοδότηση</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Min Budget (€)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ελάχ. Προϋπολογισμός (€)</Label>
                                             <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.minBudget} onChange={e => setFormData({ ...formData, minBudget: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Max Budget (€)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Μέγ. Προϋπολογισμός (€)</Label>
                                             <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.maxBudget} onChange={e => setFormData({ ...formData, maxBudget: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Finance %</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Χρηματοδότηση %</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.percentageOfFinance} onChange={e => setFormData({ ...formData, percentageOfFinance: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Indirect Cost %</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Έμμεσο Κόστος %</Label>
                                             <Input type="number" step="0.01" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.indirectCostPercentage} onChange={e => setFormData({ ...formData, indirectCostPercentage: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Minimum company years</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ελάχιστα έτη εταιρείας</Label>
                                             <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.minimumCompanyYears || ""} onChange={e => setFormData({ ...formData, minimumCompanyYears: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Minimum employees</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ελάχιστος αριθμός εργαζομένων</Label>
                                             <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.minimumEmployees || ""} onChange={e => setFormData({ ...formData, minimumEmployees: e.target.value })} />
                                         </div>
                                     </div>
@@ -752,7 +752,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                             <TabsContent value="criteria" className="m-0">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Eligibility Rules</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Κανόνες Επιλεξιμότητας</p>
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -768,7 +768,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                                 }))
                                             }
                                         >
-                                            <Plus className="w-3 h-3 mr-1" /> Add Rule
+                                            <Plus className="w-3 h-3 mr-1" /> Προσθήκη Κανόνα
                                         </Button>
                                     </div>
                                     <div className="space-y-2">
@@ -777,14 +777,14 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                                 <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="AVERAGE_TURNOVER" value={criterion.key} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], key: e.target.value }; return { ...prev, criteria: next } })} />
                                                 <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder=">=" value={criterion.operator} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], operator: e.target.value }; return { ...prev, criteria: next } })} />
                                                 <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="10000" value={criterion.targetValue} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], targetValue: e.target.value }; return { ...prev, criteria: next } })} />
-                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="Error message" value={criterion.errorMessage} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], errorMessage: e.target.value }; return { ...prev, criteria: next } })} />
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="Μήνυμα σφάλματος" value={criterion.errorMessage} onChange={(e) => setFormData((prev) => { const next = [...prev.criteria]; next[idx] = { ...next[idx], errorMessage: e.target.value }; return { ...prev, criteria: next } })} />
                                                 <Button type="button" variant="ghost" size="icon" className="col-span-1 h-9 w-9" onClick={() => setFormData((prev) => ({ ...prev, criteria: prev.criteria.filter((_, index) => index !== idx) }))}>
                                                     <Trash2 className="w-4 h-4 text-red-500" />
                                                 </Button>
                                             </div>
                                         ))}
                                         {formData.criteria.length === 0 && (
-                                            <p className="text-[11px] text-[#A19F9D]">No custom rules added yet.</p>
+                                            <p className="text-[11px] text-[#A19F9D]">Δεν προστέθηκαν κανόνες ακόμα.</p>
                                         )}
                                     </div>
                                 </div>
@@ -793,7 +793,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                             <TabsContent value="requirements" className="m-0">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Program Requirements</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Απαιτήσεις Προγράμματος</p>
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -809,7 +809,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                                 }))
                                             }
                                         >
-                                            <Plus className="w-3 h-3 mr-1" /> Add Requirement
+                                            <Plus className="w-3 h-3 mr-1" /> Προσθήκη Απαίτησης
                                         </Button>
                                     </div>
                                     <div className="space-y-2">
@@ -819,7 +819,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                                 <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="key" value={req.key} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], key: e.target.value }; return { ...prev, requirements: next } })} />
                                                 <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="operator" value={req.operator} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], operator: e.target.value.toUpperCase() }; return { ...prev, requirements: next } })} />
                                                 <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="value" value={req.value} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], value: e.target.value }; return { ...prev, requirements: next } })} />
-                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="error message (EL)" value={req.errorMessageEL} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], errorMessageEL: e.target.value }; return { ...prev, requirements: next } })} />
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="μήνυμα σφάλματος (ΕΛ)" value={req.errorMessageEL} onChange={(e) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], errorMessageEL: e.target.value }; return { ...prev, requirements: next } })} />
                                                 <div className="col-span-1 flex items-center justify-center gap-1">
                                                     <Checkbox checked={req.isMandatory} onCheckedChange={(v) => setFormData((prev) => { const next = [...prev.requirements]; next[idx] = { ...next[idx], isMandatory: !!v }; return { ...prev, requirements: next } })} />
                                                     <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setFormData((prev) => ({ ...prev, requirements: prev.requirements.filter((_, index) => index !== idx) }))}>
@@ -829,7 +829,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                             </div>
                                         ))}
                                         {formData.requirements.length === 0 && (
-                                            <p className="text-[11px] text-[#A19F9D]">No validator requirements yet.</p>
+                                            <p className="text-[11px] text-[#A19F9D]">Δεν υπάρχουν απαιτήσεις ακόμα.</p>
                                         )}
                                     </div>
                                 </div>
@@ -838,7 +838,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                             <TabsContent value="expenseLimits" className="m-0">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Expense Limits (OPSKE)</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Όρια Δαπανών (OPSKE)</p>
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -854,17 +854,17 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                                 }))
                                             }
                                         >
-                                            <Plus className="w-3 h-3 mr-1" /> Add Limit
+                                            <Plus className="w-3 h-3 mr-1" /> Προσθήκη Ορίου
                                         </Button>
                                     </div>
                                     <div className="space-y-2">
                                         {formData.expenseLimits.map((limit, idx) => (
                                             <div key={`${limit.code}-${idx}`} className="grid grid-cols-12 gap-2 bg-[#F3F2F1] border border-[#EDEBE9] rounded p-3">
-                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="OPSKE code" value={limit.code} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], code: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="description" value={limit.description} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], description: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="max %" value={limit.maxPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="min %" value={limit.minPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], minPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
-                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="max amount" value={limit.maxAmount} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxAmount: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="Κωδ. OPSKE" value={limit.code} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], code: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-3 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="περιγραφή" value={limit.description} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], description: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="μέγ. %" value={limit.maxPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="ελάχ. %" value={limit.minPercentage} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], minPercentage: e.target.value }; return { ...prev, expenseLimits: next } })} />
+                                                <Input className="col-span-2 h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" placeholder="μέγ. ποσό" value={limit.maxAmount} onChange={(e) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], maxAmount: e.target.value }; return { ...prev, expenseLimits: next } })} />
                                                 <div className="col-span-1 flex items-center justify-center gap-1">
                                                     <Checkbox checked={limit.isMandatory} onCheckedChange={(v) => setFormData((prev) => { const next = [...prev.expenseLimits]; next[idx] = { ...next[idx], isMandatory: !!v }; return { ...prev, expenseLimits: next } })} />
                                                     <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => setFormData((prev) => ({ ...prev, expenseLimits: prev.expenseLimits.filter((_, index) => index !== idx) }))}>
@@ -874,7 +874,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                             </div>
                                         ))}
                                         {formData.expenseLimits.length === 0 && (
-                                            <p className="text-[11px] text-[#A19F9D]">No expense limits added yet.</p>
+                                            <p className="text-[11px] text-[#A19F9D]">Δεν προστέθηκαν όρια δαπανών ακόμα.</p>
                                         )}
                                     </div>
                                 </div>
@@ -882,7 +882,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
 
                             <TabsContent value="regions" className="m-0">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Select Active Regions</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Επιλογή Ενεργών Περιφερειών</p>
                                     <div className="grid grid-cols-3 gap-2">
                                         {allPeriferies.map(p => (
                                             <div
@@ -906,12 +906,12 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">KADs & Program PDF</p>
-                                            <p className="text-[11px] text-[#605E5C] mt-0.5">Parse requirements, expense limits, and KADs from PDF, or insert KADs manually.</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΚΑΔ & PDF Προγράμματος</p>
+                                            <p className="text-[11px] text-[#605E5C] mt-0.5">Εξαγωγή απαιτήσεων, ορίων δαπανών και ΚΑΔ από PDF, ή εισαγωγή ΚΑΔ χειροκίνητα.</p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Label className="h-8 px-3 text-[12px] font-semibold border border-[#C8C6C4] hover:bg-[#EDEBE9] rounded flex items-center cursor-pointer">
-                                                Choose PDF
+                                                Επιλογή PDF
                                                 <input type="file" className="hidden" accept="application/pdf" onChange={(e) => setProgramDetailsFile(e.target.files?.[0] || null)} />
                                             </Label>
                                             <Button
@@ -920,33 +920,33 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                                 className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]"
                                             >
                                                 {isProcessingProgramDetails ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
-                                                {isProcessingProgramDetails ? "Processing..." : "Parse & Save"}
+                                                {isProcessingProgramDetails ? "Επεξεργασία..." : "Ανάλυση & Αποθήκευση"}
                                             </Button>
                                         </div>
                                     </div>
-                                    {programDetailsFile && <p className="text-[11px] text-[#0078D4]">Selected: {programDetailsFile.name}</p>}
+                                    {programDetailsFile && <p className="text-[11px] text-[#0078D4]">Επιλέχθηκε: {programDetailsFile.name}</p>}
                                 </div>
 
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Manual KAD Input</p>
-                                        {!editingProgram && <span className="text-[11px] text-[#A19F9D] italic">Save first to create new codes</span>}
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Χειροκίνητη Εισαγωγή ΚΑΔ</p>
+                                        {!editingProgram && <span className="text-[11px] text-[#A19F9D] italic">Αποθηκεύστε πρώτα για να δημιουργήσετε νέους κωδικούς</span>}
                                     </div>
                                     <Textarea
                                         value={manualKadInput}
                                         onChange={(e) => setManualKadInput(e.target.value)}
-                                        placeholder="Paste text from prompt or PDF appendix. Example: 46.11, 56.10, 62.01"
+                                        placeholder="Επικολλήστε κείμενο από prompt ή παράρτημα PDF. Παράδειγμα: 46.11, 56.10, 62.01"
                                         className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm min-h-[80px]"
                                     />
                                     <div className="flex items-center justify-between">
-                                        <p className="text-[11px] text-[#A19F9D]">Auto-detects patterns like 46.11 and links them to this program.</p>
+                                        <p className="text-[11px] text-[#A19F9D]">Αυτόματη ανίχνευση μοτίβων όπως 46.11 και σύνδεσή τους με αυτό το πρόγραμμα.</p>
                                         <Button
                                             onClick={handleImportManualKads}
                                             disabled={isImportingManualKads || !manualKadInput.trim()}
                                             className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]"
                                         >
                                             {isImportingManualKads ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
-                                            {isImportingManualKads ? "Importing..." : "Import KADs"}
+                                            {isImportingManualKads ? "Εισαγωγή..." : "Εισαγωγή ΚΑΔ"}
                                         </Button>
                                     </div>
                                 </div>
@@ -954,7 +954,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                 <div className="grid grid-cols-2 gap-3 h-[360px]">
                                     <div className="bg-white rounded-lg border border-[#EDEBE9] overflow-hidden flex flex-col">
                                         <div className="px-4 py-2 border-b border-[#EDEBE9]">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Linked KADs ({selectedKads.size})</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Συνδεδεμένοι ΚΑΔ ({selectedKads.size})</span>
                                         </div>
                                         <div className="flex-1 overflow-y-auto p-3 space-y-1">
                                             {allKads.filter(k => selectedKads.has(k.id)).map(k => (
@@ -967,7 +967,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                     </div>
                                     <div className="bg-white rounded-lg border border-[#EDEBE9] overflow-hidden flex flex-col">
                                         <div className="p-3 border-b border-[#EDEBE9]">
-                                            <Input placeholder="Search KAD codes..." value={kadSearch} onChange={e => setKadSearch(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
+                                            <Input placeholder="Αναζήτηση κωδικών ΚΑΔ..." value={kadSearch} onChange={e => setKadSearch(e.target.value)} className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" />
                                         </div>
                                         <div className="flex-1 overflow-y-auto p-3 space-y-1">
                                             {allKads.filter(k => !kadSearch || k.code.includes(kadSearch) || k.nameEL.toLowerCase().includes(kadSearch.toLowerCase())).slice(0, 50).map(kad => (
@@ -990,15 +990,15 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
 
                             <TabsContent value="media" className="m-0">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Media & Files</p>
-                                    <p className="text-[11px] text-[#A19F9D]">Program image and publication file URLs. For multiple media items use the Program details page.</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Μέσα & Αρχεία</p>
+                                    <p className="text-[11px] text-[#A19F9D]">URL εικόνας προγράμματος και αρχείου δημοσίευσης. Για περισσότερα μέσα χρησιμοποιήστε τη σελίδα λεπτομερειών.</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Image URL</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">URL Εικόνας</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.image || ""} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Publication file URL</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">URL Αρχείου Δημοσίευσης</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.publicationFile || ""} onChange={(e) => setFormData({ ...formData, publicationFile: e.target.value })} placeholder="https://..." />
                                         </div>
                                     </div>
@@ -1009,14 +1009,14 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                         {/* Footer */}
                         <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" onClick={goToPreviousStep} disabled={isFirstStep} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Back</Button>
-                                <Button variant="ghost" onClick={goToNextStep} disabled={isLastStep} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Next</Button>
+                                <Button variant="ghost" onClick={goToPreviousStep} disabled={isFirstStep} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Πίσω</Button>
+                                <Button variant="ghost" onClick={goToNextStep} disabled={isLastStep} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Επόμενο</Button>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                                <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
                                 <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
                                     {isSaving ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
-                                    {isSaving ? "Saving..." : "Save Changes"}
+                                    {isSaving ? "Αποθήκευση..." : "Αποθήκευση Αλλαγών"}
                                 </Button>
                             </div>
                         </div>
@@ -1033,8 +1033,8 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                 <Upload className="w-4 h-4 text-[#0078D4]" />
                             </div>
                             <div>
-                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Upload Entire Program PDF</DialogTitle>
-                                <p className="text-[11px] text-[#A19F9D]">{rowUploadProgram ? rowUploadProgram.nameEL : "Select a program PDF to parse."}</p>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Μεταφόρτωση Ολόκληρου PDF Προγράμματος</DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">{rowUploadProgram ? rowUploadProgram.nameEL : "Επιλέξτε PDF προγράμματος για ανάλυση."}</p>
                             </div>
                         </div>
                     </DialogHeader>
@@ -1044,9 +1044,9 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                         </div>
                     </div>
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" onClick={() => setIsRowUploadModalOpen(false)} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button variant="ghost" onClick={() => setIsRowUploadModalOpen(false)} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
                         <Button onClick={handleRowUploadSubmit} disabled={!rowUploadFile || deepSeekStatus === "processing"} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                            <Upload className="w-3 h-3 mr-2" /> Parse & Save
+                            <Upload className="w-3 h-3 mr-2" /> Ανάλυση & Αποθήκευση
                         </Button>
                     </div>
                 </DialogContent>
@@ -1062,7 +1062,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                             </div>
                             <div>
                                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                    {deepSeekStatus === "processing" ? "DeepSeek Processing" : deepSeekStatus === "success" ? "Parsing Completed" : "Parsing Failed"}
+                                    {deepSeekStatus === "processing" ? "Επεξεργασία DeepSeek" : deepSeekStatus === "success" ? "Η Ανάλυση Ολοκληρώθηκε" : "Αποτυχία Ανάλυσης"}
                                 </DialogTitle>
                                 <p className="text-[11px] text-[#A19F9D]">{deepSeekMessage}</p>
                             </div>
@@ -1072,31 +1072,31 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                         {deepSeekStatus === "processing" && (
                             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 flex items-center gap-3">
                                 <RefreshCcw className="w-4 h-4 animate-spin text-[#0078D4]" />
-                                <p className="text-[11px] text-[#605E5C]">Extracting requirements, expense limits, and KADs...</p>
+                                <p className="text-[11px] text-[#605E5C]">Εξαγωγή απαιτήσεων, ορίων δαπανών και ΚΑΔ...</p>
                             </div>
                         )}
                         {deepSeekStatus === "success" && deepSeekResult && (
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
                                     <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.requirements}</div>
-                                    <div className="text-[11px] text-[#A19F9D]">Requirements</div>
+                                    <div className="text-[11px] text-[#A19F9D]">Απαιτήσεις</div>
                                 </div>
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
                                     <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.expenseLimits}</div>
-                                    <div className="text-[11px] text-[#A19F9D]">Limits</div>
+                                    <div className="text-[11px] text-[#A19F9D]">Όρια</div>
                                 </div>
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
                                     <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.kads}</div>
-                                    <div className="text-[11px] text-[#A19F9D]">KADs</div>
+                                    <div className="text-[11px] text-[#A19F9D]">ΚΑΔ</div>
                                 </div>
                             </div>
                         )}
                     </div>
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" onClick={closeDeepSeekModal} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Close</Button>
+                        <Button variant="ghost" onClick={closeDeepSeekModal} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Κλείσιμο</Button>
                         {deepSeekStatus !== "processing" && (
                             <Button onClick={() => { setDeepSeekModalOpen(false); setIsRowUploadModalOpen(false); window.location.reload() }} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                                Refresh Data
+                                Ανανέωση Δεδομένων
                             </Button>
                         )}
                     </div>

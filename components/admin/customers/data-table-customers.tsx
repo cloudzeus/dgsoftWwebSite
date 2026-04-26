@@ -235,7 +235,7 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
         return (
             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
                 <Loader2 className="w-6 h-6 mx-auto text-[#A19F9D] animate-spin mb-2" />
-                <p className="text-xs font-medium text-[#605E5C]">Looking up location…</p>
+                <p className="text-xs font-medium text-[#605E5C]">Αναζήτηση τοποθεσίας…</p>
                 <p className="text-[10px] text-[#A19F9D] mt-1">{addressQuery}</p>
             </div>
         )
@@ -246,11 +246,11 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
         return (
             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
                 <MapPin className="w-6 h-6 mx-auto text-[#A19F9D] mb-2" />
-                <p className="text-xs font-medium text-[#605E5C]">Could not find location</p>
+                <p className="text-xs font-medium text-[#605E5C]">Δεν βρέθηκε τοποθεσία</p>
                 <p className="text-[10px] text-[#A19F9D] mt-1">{geocodeError}</p>
                 {addressQuery && (
                     <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-[#0078D4] underline">
-                        Search on OpenStreetMap
+                        Αναζήτηση στο OpenStreetMap
                     </a>
                 )}
             </div>
@@ -261,8 +261,8 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
         return (
             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
                 <MapPin className="w-6 h-6 mx-auto text-[#C8C6C4] mb-2" />
-                <p className="text-xs font-medium text-[#605E5C]">No coordinates or address</p>
-                <p className="text-[10px] text-[#A19F9D] mt-1">Add address, ZIP, or city, or use &quot;Get coordinates&quot; in row actions.</p>
+                <p className="text-xs font-medium text-[#605E5C]">Δεν υπάρχουν συντεταγμένες ή διεύθυνση</p>
+                <p className="text-[10px] text-[#A19F9D] mt-1">Προσθέστε διεύθυνση, ΤΚ ή πόλη, ή χρησιμοποιήστε &quot;Λήψη συντεταγμένων&quot;.</p>
             </div>
         )
     }
@@ -271,10 +271,10 @@ function CustomerMapTab({ customer }: { customer: Customer }) {
     return (
         <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 text-center">
             <MapPin className="w-6 h-6 mx-auto text-[#A19F9D] mb-2" />
-            <p className="text-xs font-medium text-[#605E5C]">Location not found for this address</p>
+            <p className="text-xs font-medium text-[#605E5C]">Δεν βρέθηκε τοποθεσία για αυτή τη διεύθυνση</p>
             <p className="text-[10px] text-[#A19F9D] mt-1">{addressQuery}</p>
             <a href={searchUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-xs text-[#0078D4] underline">
-                Search on OpenStreetMap
+                Αναζήτηση στο OpenStreetMap
             </a>
         </div>
     )
@@ -335,9 +335,9 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
     const [isResolvingCoords, setIsResolvingCoords] = React.useState(false)
 
     const handleFetchVat = async () => {
-        if (!formData.AFM || formData.AFM.trim() === "") return toast.error("Provide an AFM first")
+        if (!formData.AFM || formData.AFM.trim() === "") return toast.error("Εισάγετε πρώτα ΑΦΜ")
         setIsSearchingVat(true)
-        const tid = toast.loading("Syncing with Government VAT API...")
+        const tid = toast.loading("Συγχρονισμός με ΓΓΠΣ...")
         try {
             const res = await fetch("/api/vat", {
                 method: "POST",
@@ -364,7 +364,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                     legalStatus: str(apiData.basic_rec?.legal_status_descr) || prev.legalStatus,
                     kads: fetchedKads,
                 }))
-                toast.success("VIES/VAT Data Retrieved", { id: tid })
+                toast.success("Στοιχεία ΓΓΠΣ ανακτήθηκαν", { id: tid })
             } else throw new Error(apiData.error || "No record found")
         } catch (err: any) { toast.error(err.message, { id: tid }) }
         finally { setIsSearchingVat(false) }
@@ -374,7 +374,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         const file = e.target.files?.[0]
         if (!file) return
         setIsUploading(true)
-        const tid = toast.loading("Processing logo with AI...")
+        const tid = toast.loading("Επεξεργασία λογοτύπου με AI...")
         try {
             const form = new FormData()
             form.append("logo", file)
@@ -383,7 +383,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
             const d = await res.json()
             if (!res.ok) throw new Error(d.error || "Upload failed")
             setFormData(prev => ({ ...prev, logo: d.url }))
-            toast.success("Logo Optimized & Uploaded", { id: tid })
+            toast.success("Λογότυπο βελτιστοποιήθηκε & μεταφορτώθηκε", { id: tid })
         } catch (error: any) { toast.error(error.message, { id: tid }) }
         finally { setIsUploading(false) }
     }
@@ -391,16 +391,16 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
     const handleGetCoordinates = async () => {
         const parts = [formData.ADDRESS, formData.CITY, formData.ZIP].filter(Boolean)
         const query = parts.join(", ").trim()
-        if (!query) return toast.error("Enter address, city or ZIP first")
+        if (!query) return toast.error("Εισάγετε διεύθυνση, πόλη ή ΤΚ")
         setIsResolvingCoords(true)
-        const tid = toast.loading("Resolving coordinates…")
+        const tid = toast.loading("Εύρεση συντεταγμένων…")
         try {
             const coords = await getCoordinates(query)
             if (coords) {
                 setFormData((prev) => ({ ...prev, latitude: String(coords.latitude), longitude: String(coords.longitude) }))
-                toast.success("Coordinates set", { id: tid })
+                toast.success("Οι συντεταγμένες ορίστηκαν", { id: tid })
             } else {
-                toast.error("No results", { id: tid })
+                toast.error("Δεν βρέθηκαν αποτελέσματα", { id: tid })
             }
         } catch (e: any) {
             toast.error(e?.message ?? "Failed", { id: tid })
@@ -494,20 +494,20 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 if (pushToErp) {
                     const erpResult = await pushCustomerToErp(editingCustomer.TRDR, payload, editingCustomer)
                     if (erpResult.success) {
-                        toast.success("Saved to database and sent to ERP (SetData)")
+                        toast.success("Αποθηκεύτηκε στη βάση και στάλθηκε στο ERP")
                     } else {
-                        toast.warning("Saved to database, but ERP update failed", {
-                            description: erpResult.message ?? "Check SoftOne connection and try again.",
+                        toast.warning("Αποθηκεύτηκε στη βάση, αλλά η ενημέρωση ERP απέτυχε", {
+                            description: erpResult.message ?? "Ελέγξτε τη σύνδεση SoftOne και δοκιμάστε ξανά.",
                             duration: 6000,
                         })
                     }
                 } else {
-                    toast.success("Customer updated in database")
+                    toast.success("Ο πελάτης ενημερώθηκε")
                 }
             } else {
                 const created = await createCustomer(payload)
                 setData((prev) => [created as any, ...prev])
-                toast.success("Customer created")
+                toast.success("Ο πελάτης δημιουργήθηκε")
             }
             setIsDialogOpen(false)
         } catch (err: any) { toast.error(err.message) }
@@ -536,7 +536,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             accessorKey: "NAME",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Company</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Εταιρεία</span>,
             cell: ({ row }) => {
                 const kadCount = row.original.kads?.length ?? 0
                 return (
@@ -554,13 +554,13 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             accessorKey: "CODE",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Code</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κωδικός</span>,
             cell: ({ row }) => <code className="text-xs font-mono bg-[#F3F2F1] border border-[#EDEBE9] px-1.5 py-0.5 rounded text-[#605E5C]">{row.original.CODE}</code>
         },
         {
             id: "COUNTRY",
             accessorKey: "COUNTRY",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Country</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Χώρα</span>,
             cell: ({ row }) => {
                 const code = (row.original as Customer).COUNTRY
                 const name = code != null ? lookups.countries[code] : null
@@ -569,7 +569,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         },
         {
             accessorKey: "displayAtCarousel",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Homepage</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Αρχική</span>,
             cell: ({ row }) => {
                 const c = row.original
                 const hasLogo = !!(c.logo?.trim())
@@ -577,7 +577,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                     try {
                         await updateCustomerCarousel(c.id, checked)
                         setData((prev) => prev.map((x) => (x.id === c.id ? { ...x, displayAtCarousel: checked } : x)))
-                        toast.success(checked ? "Shown on homepage scroller" : "Removed from homepage scroller")
+                        toast.success(checked ? "Εμφανίζεται στην αρχική" : "Αφαιρέθηκε από την αρχική")
                     } catch (e: any) {
                         toast.error(e?.message ?? "Update failed")
                     }
@@ -597,7 +597,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                     </span>
                                 </TooltipTrigger>
                                 <TooltipContent side="left" className="text-xs">
-                                    {hasLogo ? (c.displayAtCarousel ? "Shown on first page companies scroller" : "Show on first page scroller") : "Add logo to feature on homepage"}
+                                    {hasLogo ? (c.displayAtCarousel ? "Εμφανίζεται στο scroller της αρχικής" : "Εμφάνιση στο scroller αρχικής") : "Προσθέστε λογότυπο για εμφάνιση στην αρχική"}
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -688,11 +688,11 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded gap-1">
-                            Actions <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
+                            Ενέργειες <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-[180px] text-xs">
-                        <DropdownMenuItem onClick={() => {
+                        <DropdownMenuItem onClick={() => { /* edit */
                             const c = row.original as Customer;
                             setEditingCustomer(c);
                             const countryVal = (c as any).COUNTRY ?? c.COUNTRY;
@@ -729,7 +729,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 })),
                             } as any);
                             setIsDialogOpen(true);
-                        }}><Edit3 className="w-4 h-4 mr-2 text-[#0078D4]" /> Edit Profile</DropdownMenuItem>
+                        }}><Edit3 className="w-4 h-4 mr-2 text-[#0078D4]" /> Επεξεργασία</DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -748,7 +748,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             }}
                             className="text-[#0078D4]"
                         >
-                            <Zap className="w-4 h-4 mr-2" /> Sync KADs
+                            <Zap className="w-4 h-4 mr-2" /> Συγχρ. KADs
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={async () => {
                             if (!row.original.AFM?.trim()) {
@@ -766,21 +766,21 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             } catch (e) {
                                 toast.error(e instanceof Error ? e.message : "Sync from ERP failed")
                             }
-                        }} className="text-sky-600"><RefreshCcw className="w-4 h-4 mr-2" /> Sync from ERP (AFM)</DropdownMenuItem>
+                        }} className="text-sky-600"><RefreshCcw className="w-4 h-4 mr-2" /> Συγχρ. από ERP (AFM)</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleSyncAllFromSoftOne} disabled={isPendingSyncAll} className="text-emerald-600">
                             {isPendingSyncAll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CloudDownload className="w-4 h-4 mr-2" />}
-                            Sync all from SoftOne
+                            Συγχρ. όλων από SoftOne
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleSyncLookups}><Database className="w-4 h-4 mr-2" /> Sync lookups</DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleGetCoordinatesBulk}><MapPin className="w-4 h-4 mr-2" /> Get coordinates</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleSyncLookups}><Database className="w-4 h-4 mr-2" /> Συγχρ. lookups</DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleGetCoordinatesBulk}><MapPin className="w-4 h-4 mr-2" /> Λήψη συντεταγμένων</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={async () => {
                             if (confirm("Delete client?")) {
                                 await deleteCustomer(row.original.id);
                                 setData(data.filter(c => c.id !== row.original.id));
                             }
-                        }} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Delete Client</DropdownMenuItem>
+                        }} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Διαγραφή Πελάτη</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -796,42 +796,42 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                 <Tabs value={expandedRowTab} onValueChange={(v) => setExpandedRowTab(v as "stats" | "map" | "kads")}>
                     <div className="px-4 pt-3">
                         <TabsList className="mb-0 bg-white border border-[#EDEBE9] p-0.5 h-8 rounded gap-0.5 w-fit">
-                            <TabsTrigger value="stats" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Intel</TabsTrigger>
+                            <TabsTrigger value="stats" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Στοιχεία</TabsTrigger>
                             <TabsTrigger value="kads" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">KAD ({customer.kads?.length || 0})</TabsTrigger>
-                            <TabsTrigger value="map" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Map</TabsTrigger>
+                            <TabsTrigger value="map" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7">Χάρτης</TabsTrigger>
                         </TabsList>
                     </div>
 
                     <TabsContent value="stats" className="animate-in fade-in duration-300 p-4">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#EDEBE9] rounded-lg overflow-hidden mb-3">
                             <div className="bg-white px-3 py-2">
-                                <p className="flex items-center gap-1 text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1"><Users2 className="w-3 h-3" /> Workforce</p>
+                                <p className="flex items-center gap-1 text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1"><Users2 className="w-3 h-3" /> Εργαζόμενοι</p>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-sm font-bold text-[#201F1E]">{customer.numEmployees ?? "0"}</span>
                                     <span className="text-[11px] text-[#A19F9D]">FTEs</span>
                                 </div>
                             </div>
                             <div className="bg-white px-3 py-2">
-                                <p className="flex items-center gap-1 text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1"><Calendar className="w-3 h-3" /> Established</p>
+                                <p className="flex items-center gap-1 text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1"><Calendar className="w-3 h-3" /> Ίδρυση</p>
                                 <span className="text-sm font-semibold text-[#201F1E]">{toDateInputValue(customer.registDate) || "—"}</span>
                             </div>
                             <div className="bg-white px-3 py-2">
-                                <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Country</p>
+                                <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Χώρα</p>
                                 <span className="text-xs font-semibold text-[#605E5C]">{countryName ?? (customer.COUNTRY != null ? String(customer.COUNTRY) : "—")}</span>
                             </div>
                             <div className="bg-white px-3 py-2">
-                                <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Group / Business</p>
+                                <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Όμιλος / Επιχείρηση</p>
                                 <p className="text-xs font-semibold text-[#605E5C]">{trdpGroupName ?? "—"}{trdBusinessName ? ` · ${trdBusinessName}` : ""}</p>
                             </div>
                             <div className="md:col-span-2 bg-white px-3 py-2 grid grid-cols-2 gap-3">
                                 <div>
-                                    <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Location</p>
+                                    <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Τοποθεσία</p>
                                     <p className="text-xs font-semibold text-[#605E5C] flex items-center gap-1"><MapPin className="w-2.5 h-2.5 text-red-400 shrink-0" />{[customer.ADDRESS, customer.CITY].map((v) => (v != null && typeof v === "string" ? v : "")).filter(Boolean).join(", ") || "—"}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Legal</p>
+                                    <p className="text-[10px] font-bold text-[#A19F9D] uppercase tracking-wide mb-1">Νομικό Καθεστώς</p>
                                     <p className="text-xs font-semibold text-[#0078D4]">{customer.legalStatus != null && typeof customer.legalStatus === "string" ? customer.legalStatus : "—"}</p>
-                                    <p className="text-[11px] text-[#A19F9D] mt-0.5">Form: {legalFormLabel((customer as any).legalForm)}</p>
+                                    <p className="text-[11px] text-[#A19F9D] mt-0.5">Μορφή: {legalFormLabel((customer as any).legalForm)}</p>
                                 </div>
                             </div>
                             {addressRegionMap && (() => {
@@ -840,7 +840,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 if (!mapping) return null
                                 return (
                                     <div className="md:col-span-2 bg-amber-50/50 px-3 py-2 border-l-2 border-amber-300">
-                                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">Region</p>
+                                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">Περιφέρεια</p>
                                         <p className="text-xs font-semibold text-amber-800">{mapping.path}</p>
                                     </div>
                                 )
@@ -862,9 +862,9 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <table className="w-full text-xs">
                                 <thead className="bg-[#F3F2F1] border-b border-[#EDEBE9]">
                                     <tr>
-                                        <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Code</th>
-                                        <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Description</th>
-                                        <th className="px-4 py-2 text-right text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Status</th>
+                                        <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Κωδικός</th>
+                                        <th className="px-4 py-2 text-left text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Περιγραφή</th>
+                                        <th className="px-4 py-2 text-right text-[10px] font-bold uppercase text-[#A19F9D] tracking-wide">Κατάσταση</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[#EDEBE9]">
@@ -873,14 +873,14 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                             <td className="px-4 py-2 font-mono text-xs font-semibold text-[#0078D4]">{k.firm_act_code}</td>
                                             <td className="px-4 py-2 text-xs text-[#605E5C]">{k.firm_act_descr}</td>
                                             <td className="px-4 py-2 text-right">{k.firm_act_kind
-                                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />Primary</span>
-                                                : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]"><span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />Secondary</span>
+                                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />Κύριος</span>
+                                                : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]"><span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />Δευτερεύων</span>
                                             }</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                            {customer.kads?.length === 0 && <div className="p-4 text-center text-[#A19F9D] text-xs font-semibold uppercase tracking-wide">No KAD activities.</div>}
+                            {customer.kads?.length === 0 && <div className="p-4 text-center text-[#A19F9D] text-xs font-semibold uppercase tracking-wide">Δεν υπάρχουν ΚΑΔ.</div>}
                         </div>
                     </TabsContent>
                 </Tabs>
@@ -896,12 +896,12 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
         <div className="flex flex-col min-h-0 flex-1 gap-3">
             {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-2 text-xs shrink-0">
-                <span className="text-[11px] font-semibold text-[#605E5C] mr-1">Show only with:</span>
+                <span className="text-[11px] font-semibold text-[#605E5C] mr-1">Εμφάνιση μόνο με:</span>
                 {([
-                    { key: "avatar" as CustomerFilter, icon: <Image className="w-3 h-3 mr-1" />, label: "Avatar" },
-                    { key: "webpage" as CustomerFilter, icon: <Link className="w-3 h-3 mr-1" />, label: "Webpage" },
+                    { key: "avatar" as CustomerFilter, icon: <Image className="w-3 h-3 mr-1" />, label: "Λογότυπο" },
+                    { key: "webpage" as CustomerFilter, icon: <Link className="w-3 h-3 mr-1" />, label: "Ιστότοπος" },
                     { key: "email" as CustomerFilter, icon: <Mail className="w-3 h-3 mr-1" />, label: "Email" },
-                    { key: "afm" as CustomerFilter, icon: <Hash className="w-3 h-3 mr-1" />, label: "AFM" },
+                    { key: "afm" as CustomerFilter, icon: <Hash className="w-3 h-3 mr-1" />, label: "ΑΦΜ" },
                 ] as { key: CustomerFilter; icon: React.ReactNode; label: string }[]).map(({ key, icon, label }) => (
                     <Button
                         key={key}
@@ -918,9 +918,9 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
 
             <div className="min-h-0 flex-1 flex flex-col">
                 <GenericDataTable
-                    columns={columns} data={filteredData} searchPlaceholder="Search clients by name or AFM..." searchColumn="NAME"
+                    columns={columns} data={filteredData} searchPlaceholder="Αναζήτηση με όνομα ή ΑΦΜ..." searchColumn="NAME"
                     onAddClick={() => { setEditingCustomer(null); setFormData(emptyFormData()); setIsDialogOpen(true); }}
-                    addButtonLabel="New Client"
+                    addButtonLabel="Νέος Πελάτης"
                     renderExpandedRow={renderExpandedRow}
                 />
             </div>
@@ -935,9 +935,9 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             </div>
                             <div>
                                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                    {editingCustomer ? "Edit customer" : "New customer"}
+                                    {editingCustomer ? "Επεξεργασία Πελάτη" : "Νέος Πελάτης"}
                                 </DialogTitle>
-                                <DialogDescription className="text-[11px] text-[#A19F9D]">Save: database only. Save & ERP: also update SoftOne with current fields.</DialogDescription>
+                                <DialogDescription className="text-[11px] text-[#A19F9D]">Αποθήκευση: μόνο βάση. Αποθήκευση & ERP: ενημερώνει και το SoftOne.</DialogDescription>
                             </div>
                         </div>
                     </DialogHeader>
@@ -946,11 +946,11 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                         <div className="bg-white border-b border-[#EDEBE9] px-4">
                             <TabsList className="w-full justify-start rounded-none bg-transparent p-0 gap-0 h-9">
                                 {[
-                                    { value: "identity", label: "Identity" },
-                                    { value: "contact", label: "Contact" },
-                                    { value: "address", label: "Address & map" },
-                                    { value: "financials", label: "Financials" },
-                                    { value: "branding", label: "Branding" },
+                                    { value: "identity", label: "Ταυτότητα" },
+                                    { value: "contact", label: "Επαφή" },
+                                    { value: "address", label: "Διεύθυνση & χάρτης" },
+                                    { value: "financials", label: "Οικονομικά" },
+                                    { value: "branding", label: "Εταιρική Ταυτότητα" },
                                 ].map(tab => (
                                     <TabsTrigger key={tab.value} value={tab.value} className="text-[11px] font-semibold rounded-none border-b-2 border-transparent data-[state=active]:border-[#0078D4] data-[state=active]:bg-transparent data-[state=active]:text-[#0078D4] h-9 px-3 text-[#605E5C]">
                                         {tab.label}
@@ -963,14 +963,14 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <TabsContent value="identity" className="mt-0 space-y-3">
                                 {/* Company */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Company</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Εταιρεία</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Company name</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Επωνυμία</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.NAME ?? ""} onChange={e => setFormData({ ...formData, NAME: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">ERP code</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Κωδικός ERP</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.CODE ?? ""} onChange={e => setFormData({ ...formData, CODE: e.target.value })} />
                                         </div>
                                     </div>
@@ -982,15 +982,15 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                                 {isSearchingVat ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
                                             </Button>
                                         </div>
-                                        <p className="text-[10px] text-[#A19F9D]">Fetch name/address from VAT API (Greek AFM).</p>
+                                        <p className="text-[10px] text-[#A19F9D]">Ανάκτηση στοιχείων από ΓΓΠΣ (ΑΦΜ).</p>
                                     </div>
                                 </div>
                                 {/* Classification */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Classification</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Ταξινόμηση</p>
                                     <div className="grid grid-cols-3 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Country</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Χώρα</Label>
                                             <Select value={formData.COUNTRY && String(formData.COUNTRY).trim() ? String(formData.COUNTRY) : "none"} onValueChange={(v) => setFormData({ ...formData, COUNTRY: v === "none" ? "" : v })}>
                                                 <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm"><SelectValue placeholder="Select…" /></SelectTrigger>
                                                 <SelectContent>
@@ -1037,27 +1037,27 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Headcount</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Εργαζόμενοι</Label>
                                             <Input type="number" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm w-24" value={formData.numEmployees ?? ""} onChange={e => setFormData({ ...formData, numEmployees: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Registration date</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ημ. Εγγραφής</Label>
                                             <Input type="date" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.registDate ?? ""} onChange={e => setFormData({ ...formData, registDate: e.target.value })} />
                                         </div>
                                     </div>
                                 </div>
                                 {/* Legal */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Legal</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Νομικά Στοιχεία</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Legal status</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Νομικό καθεστώς</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.legalStatus ?? ""} onChange={e => setFormData({ ...formData, legalStatus: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Legal form</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Νομική μορφή</Label>
                                             <Select value={(formData.legalForm && String(formData.legalForm).trim()) ? String(formData.legalForm) : "none"} onValueChange={(v) => setFormData({ ...formData, legalForm: v === "none" ? "" : v })}>
-                                                <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm"><SelectValue placeholder="Select legal form…" /></SelectTrigger>
+                                                <SelectTrigger className="h-9 rounded border-[#C8C6C4] text-sm"><SelectValue placeholder="Επιλογή νομικής μορφής…" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="none">—</SelectItem>
                                                     {LEGAL_FORM_OPTIONS.map((item) => (
@@ -1071,14 +1071,14 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                         <div className="flex items-center justify-between py-2 px-3 bg-[#F3F2F1] rounded-lg">
                                             <div>
                                                 <Label className="text-[11px] font-semibold text-[#605E5C]">Franchise</Label>
-                                                <p className="text-[10px] text-[#A19F9D]">Franchise operation</p>
+                                                <p className="text-[10px] text-[#A19F9D]">Λειτουργία franchise</p>
                                             </div>
                                             <Switch checked={!!formData.isFranchise} onCheckedChange={(v) => setFormData({ ...formData, isFranchise: !!v })} className="data-[state=checked]:bg-[#0078D4]" />
                                         </div>
                                         <div className="flex items-center justify-between py-2 px-3 bg-[#F3F2F1] rounded-lg">
                                             <div>
-                                                <Label className="text-[11px] font-semibold text-[#605E5C]">Home address</Label>
-                                                <p className="text-[10px] text-[#A19F9D]">Residential address</p>
+                                                <Label className="text-[11px] font-semibold text-[#605E5C]">Οικεία Διεύθυνση</Label>
+                                                <p className="text-[10px] text-[#A19F9D]">Κατοικία</p>
                                             </div>
                                             <Switch checked={!!formData.isHomeAddress} onCheckedChange={(v) => setFormData({ ...formData, isHomeAddress: !!v })} className="data-[state=checked]:bg-[#0078D4]" />
                                         </div>
@@ -1089,13 +1089,13 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <TabsContent value="contact" className="mt-0 space-y-3">
                                 {/* Email Addresses */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Email Addresses</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Διευθύνσεις Email</p>
                                     <div className="space-y-1">
                                         <Label className="text-[11px] font-semibold text-[#605E5C]">Email</Label>
-                                        <Input type="text" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.EMAIL ?? ""} onChange={e => setFormData({ ...formData, EMAIL: e.target.value })} placeholder="Multiple with ;" />
+                                        <Input type="text" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.EMAIL ?? ""} onChange={e => setFormData({ ...formData, EMAIL: e.target.value })} placeholder="Πολλαπλά με ;" />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Email (account)</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Email (λογιστήριο)</Label>
                                         <Input type="text" className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.EMAILACC ?? ""} onChange={e => setFormData({ ...formData, EMAILACC: e.target.value })} placeholder="Λογ. email (multiple with ;)" />
                                     </div>
                                     <div className="space-y-1">
@@ -1105,19 +1105,19 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 </div>
                                 {/* Phone & Web */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Phone & Web</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Τηλέφωνο & Ιστότοπος</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Phone 1</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τηλέφωνο 1</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.PHONE01 ?? ""} onChange={e => setFormData({ ...formData, PHONE01: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Phone 2</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τηλέφωνο 2</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.PHONE02 ?? ""} onChange={e => setFormData({ ...formData, PHONE02: e.target.value })} />
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Website</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Ιστότοπος</Label>
                                         <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.website ?? ""} onChange={e => setFormData({ ...formData, website: e.target.value })} placeholder="https://…" />
                                     </div>
                                 </div>
@@ -1126,40 +1126,40 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <TabsContent value="address" className="mt-0 space-y-3">
                                 {/* Address */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Address</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Διεύθυνση</p>
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Street address</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Οδός</Label>
                                         <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.ADDRESS ?? ""} onChange={e => setFormData({ ...formData, ADDRESS: e.target.value })} />
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">ZIP</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">ΤΚ</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.ZIP ?? ""} onChange={e => setFormData({ ...formData, ZIP: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">City</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Πόλη</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.CITY ?? ""} onChange={e => setFormData({ ...formData, CITY: e.target.value })} />
                                         </div>
                                     </div>
                                 </div>
                                 {/* Coordinates */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Coordinates</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Συντεταγμένες</p>
                                     <div className="flex gap-3 items-end flex-wrap">
                                         <div className="space-y-1 flex-1 min-w-[120px]">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Latitude</Label>
-                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.latitude ?? ""} onChange={e => setFormData({ ...formData, latitude: e.target.value })} placeholder="e.g. 37.9838" />
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Γεωγρ. Πλάτος</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.latitude ?? ""} onChange={e => setFormData({ ...formData, latitude: e.target.value })} placeholder="π.χ. 37.9838" />
                                         </div>
                                         <div className="space-y-1 flex-1 min-w-[120px]">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Longitude</Label>
-                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.longitude ?? ""} onChange={e => setFormData({ ...formData, longitude: e.target.value })} placeholder="e.g. 23.7275" />
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Γεωγρ. Μήκος</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.longitude ?? ""} onChange={e => setFormData({ ...formData, longitude: e.target.value })} placeholder="π.χ. 23.7275" />
                                         </div>
                                         <Button type="button" size="sm" disabled={isResolvingCoords} onClick={handleGetCoordinates} className="h-9 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded border gap-1.5">
                                             {isResolvingCoords ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
-                                            Get coordinates
+                                            Λήψη συντεταγμένων
                                         </Button>
                                     </div>
-                                    <p className="text-[10px] text-[#A19F9D]">Uses address/city/ZIP to resolve lat/long via geocode API.</p>
+                                    <p className="text-[10px] text-[#A19F9D]">Χρησιμοποιεί διεύθυνση/πόλη/ΤΚ για γεωκωδικοποίηση.</p>
                                 </div>
                             </TabsContent>
 
@@ -1167,7 +1167,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                 {/* Annual Figures */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                     <div className="flex items-center justify-between mb-1">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Annual Figures</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Ετήσια Στοιχεία</p>
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -1178,10 +1178,10 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                                 financials: [...prev.financials, { year: String(new Date().getFullYear() - 1), turnover: "", ebitda: "", netProfit: "", eme: "", assets: "", equity: "", totalDeMinimis3Years: "" }],
                                             }))}
                                         >
-                                            <Plus className="w-3 h-3 mr-1" /> Add year
+                                            <Plus className="w-3 h-3 mr-1" /> Προσθήκη έτους
                                         </Button>
                                     </div>
-                                    <p className="text-[11px] text-[#605E5C]">Annual figures used by the eligibility engine.</p>
+                                    <p className="text-[11px] text-[#605E5C]">Ετήσια στοιχεία για τον έλεγχο επιλεξιμότητας.</p>
                                     <div className="space-y-2">
                                         {formData.financials.map((f, index) => (
                                             <div key={`${f.year}-${index}`} className="grid grid-cols-14 gap-2 px-3 py-2 bg-[#F3F2F1] rounded-lg border border-[#EDEBE9]">
@@ -1199,7 +1199,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                             </div>
                                         ))}
                                         {formData.financials.length === 0 && (
-                                            <div className="text-xs text-[#A19F9D] bg-[#F3F2F1] border border-[#EDEBE9] rounded-lg p-3">No financial years added yet.</div>
+                                            <div className="text-xs text-[#A19F9D] bg-[#F3F2F1] border border-[#EDEBE9] rounded-lg p-3">Δεν έχουν προστεθεί οικονομικά στοιχεία.</div>
                                         )}
                                     </div>
                                 </div>
@@ -1208,30 +1208,30 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                             <TabsContent value="branding" className="mt-0 space-y-3">
                                 {/* Logo */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Logo</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Λογότυπο</p>
                                     <div className="flex items-center gap-4">
                                         <div className="w-16 h-16 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] flex items-center justify-center overflow-hidden p-1.5">
                                             {formData.logo ? <img src={formData.logo} alt="" className="w-full h-full object-contain" /> : <Building2 className="w-6 h-6 text-[#C8C6C4]" />}
                                         </div>
                                         <div className="space-y-2">
                                             <Label className="inline-flex h-8 items-center justify-center rounded bg-[#0078D4] hover:bg-[#106EBE] px-4 text-[12px] font-semibold text-white cursor-pointer active:scale-95 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                                                Choose logo
+                                                Επιλογή λογοτύπου
                                                 <input type="file" className="hidden" accept="image/*" onChange={handleUploadLogo} disabled={isUploading} />
                                             </Label>
                                             <div className="flex items-center gap-2">
                                                 <Checkbox id="rmbg" checked={formData.removeBackgroundLogo} onCheckedChange={v => setFormData({ ...formData, removeBackgroundLogo: !!v })} />
-                                                <Label htmlFor="rmbg" className="text-[11px] text-[#605E5C] cursor-pointer">Remove background</Label>
+                                                <Label htmlFor="rmbg" className="text-[11px] text-[#605E5C] cursor-pointer">Αφαίρεση φόντου</Label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 {/* Homepage */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Homepage</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Αρχική Σελίδα</p>
                                     <div className="flex items-center justify-between py-2 px-3 bg-[#F3F2F1] rounded-lg">
                                         <div>
-                                            <p className="text-[11px] font-semibold text-[#201F1E]">Show on homepage scroller</p>
-                                            <p className="text-[10px] text-[#A19F9D]">Feature logo on first page (requires logo).</p>
+                                            <p className="text-[11px] font-semibold text-[#201F1E]">Εμφάνιση στο scroller αρχικής</p>
+                                            <p className="text-[10px] text-[#A19F9D]">Απαιτείται λογότυπο.</p>
                                         </div>
                                         <Switch checked={formData.displayAtCarousel} onCheckedChange={v => setFormData({ ...formData, displayAtCarousel: v })} className="data-[state=checked]:bg-emerald-500" />
                                     </div>
@@ -1242,13 +1242,13 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
 
                     {/* Dialog Footer */}
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button variant="ghost" size="sm" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
                         <Button size="sm" disabled={isSaving || isUploading} onClick={() => handleSave(false)} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95">
-                            {isSaving ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : editingCustomer ? "Save" : "Create"}
+                            {isSaving ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : editingCustomer ? "Αποθήκευση" : "Δημιουργία"}
                         </Button>
                         {editingCustomer && (
                             <Button size="sm" disabled={isSaving || isUploading} onClick={() => handleSave(true)} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95">
-                                {isSaving ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : "Save & ERP"}
+                                {isSaving ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : "Αποθήκευση & ERP"}
                             </Button>
                         )}
                     </div>

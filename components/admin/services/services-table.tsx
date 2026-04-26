@@ -131,11 +131,11 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
     }
 
     const handleDeleteService = async (id: string) => {
-        if (!confirm("Decommission this service module?")) return
+        if (!confirm("Να διαγραφεί αυτή η υπηρεσία;")) return
         try {
             await deleteService(id)
             setServices(services.filter(s => s.id !== id))
-            toast.success("Capability archived")
+            toast.success("Η υπηρεσία διαγράφηκε")
         } catch (err: any) { toast.error(err.message) }
     }
 
@@ -143,9 +143,9 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
         setServices(newData)
         try {
             await updateServicesOrder(newData.map((s, i) => ({ id: s.id, order: i })))
-            toast.success("Ecosystem hierarchy synchronized")
+            toast.success("Η σειρά ενημερώθηκε")
         } catch {
-            toast.error("Hierarchy sync failed")
+            toast.error("Αποτυχία ενημέρωσης σειράς")
             refreshData()
         }
     }
@@ -159,7 +159,7 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
         },
         {
             id: "hero",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Visual</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Εικόνα</span>,
             cell: ({ row }) => (
                 <div className="w-9 h-9 rounded-lg overflow-hidden border border-[#EDEBE9] bg-[#F3F2F1] shrink-0 flex items-center justify-center">
                     {row.original.featureImage ? (
@@ -173,7 +173,7 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
         },
         {
             accessorKey: "nameEL",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Service</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Υπηρεσία</span>,
             cell: ({ row }) => (
                 <div className="flex flex-col">
                     <span className="text-sm font-semibold text-[#201F1E]">{row.original.nameEL}</span>
@@ -190,17 +190,17 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
         },
         {
             id: "payload",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Payload</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Περιεχόμενο</span>,
             cell: ({ row }) => (
                 <div className="flex items-center gap-3">
                     <div className="flex flex-col items-center">
                         <span className="text-xs font-bold text-[#201F1E]">{row.original.features?.length || 0}</span>
-                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">Features</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">Χαρακτηριστικά</span>
                     </div>
                     <div className="w-px h-5 bg-[#EDEBE9]" />
                     <div className="flex flex-col items-center">
                         <span className="text-xs font-bold text-[#201F1E]">{row.original.media?.length || 0}</span>
-                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">Assets</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D]">Αρχεία</span>
                     </div>
                 </div>
             )
@@ -211,19 +211,19 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
-                            Actions <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
+                            Ενέργειες <ChevronDown className="w-3.5 h-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => openEditService(row.original)} className="text-sm">
-                            <Edit className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit Service
+                            <Edit className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Επεξεργασία
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => window.open(`/services/${row.original.slug}`, '_blank')} className="text-sm">
-                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> View Public
+                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> Προβολή
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => handleDeleteService(row.original.id)} className="text-red-500 text-sm focus:bg-red-50 focus:text-red-600">
-                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Διαγραφή
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -238,16 +238,16 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
                 <div className="flex items-center gap-4">
                     <div className="flex flex-col">
                         <span className="text-sm font-bold text-[#201F1E]">{services.length}</span>
-                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D] tracking-wide">Active Services</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D] tracking-wide">Ενεργές Υπηρεσίες</span>
                     </div>
                     <div className="w-px h-8 bg-[#EDEBE9]" />
                     <div className="flex flex-col">
                         <span className="text-sm font-bold text-[#201F1E]">{categories.length}</span>
-                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D] tracking-wide">Categories</span>
+                        <span className="text-[10px] font-semibold uppercase text-[#A19F9D] tracking-wide">Κατηγορίες</span>
                     </div>
                 </div>
                 <Button variant="outline" onClick={() => setIsCategoryDialogOpen(true)} className="h-8 px-4 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded">
-                    Manage Categories
+                    Διαχείριση Κατηγοριών
                 </Button>
             </div>
 
@@ -271,7 +271,7 @@ export function ServicesTable({ initialData, categories: initialCategories }: {
                                     {selectedService ? 'Επεξεργασία Υπηρεσίας' : 'Νέα Υπηρεσία'}
                                 </DialogTitle>
                                 <DialogDescription className="text-[11px] text-[#A19F9D]">
-                                    Define high-impact service modules and strategic feature mapping.
+                                    Ορισμός υπηρεσιών και χαρτογράφηση χαρακτηριστικών.
                                 </DialogDescription>
                             </div>
                         </div>
@@ -309,7 +309,7 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
             setFeatureForm({ nameEL: "", nameEN: "", descriptionEL: "", descriptionEN: "" })
             setIsAddingFeature(false)
             onRefresh()
-            toast.success("Capability feature initialized")
+            toast.success("Το χαρακτηριστικό αποθηκεύτηκε")
         } catch (err: any) { toast.error(err.message) }
         finally { setIsSavingFeature(false) }
     }
@@ -317,7 +317,7 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
     const handleUploadMedia = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]; if (!file) return
         setIsUploadingMedia(true)
-        const tid = toast.loading("Uploading visual component...")
+        const tid = toast.loading("Μεταφόρτωση αρχείου...")
         const formData = new FormData(); formData.append("file", file); formData.append("type", "media")
         try {
             const res = await fetch("/api/admin/services/upload", { method: "POST", body: formData })
@@ -325,7 +325,7 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
             if (data.url) {
                 await createServiceMedia({ serviceId: service.id, url: data.url, mediaType: file.type.startsWith("video/") ? "VIDEO" : "IMAGE", order: service.media.length })
                 onRefresh()
-                toast.success("Asset integrated", { id: tid })
+                toast.success("Το αρχείο προστέθηκε", { id: tid })
             }
         } catch (err: any) { toast.error(err.message, { id: tid }) }
         finally { setIsUploadingMedia(false) }
@@ -337,22 +337,22 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
                 <div className="px-4 pt-3">
                     <TabsList className="mb-0 bg-white border border-[#EDEBE9] p-0.5 h-8 rounded gap-0.5 w-fit">
                         <TabsTrigger value="details" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
-                            Details
+                            Λεπτομέρειες
                         </TabsTrigger>
                         <TabsTrigger value="features" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
-                            Features ({service.features.length})
+                            Χαρακτηριστικά ({service.features.length})
                         </TabsTrigger>
                         <TabsTrigger value="media" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold uppercase tracking-wide px-4 rounded h-7 transition-all">
-                            Media ({service.media.length})
+                            Αρχεία ({service.media.length})
                         </TabsTrigger>
                     </TabsList>
                 </div>
 
                 <TabsContent value="details" className="animate-in fade-in duration-300 p-4 space-y-3">
                     <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Primary Proposition</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Κύρια Περιγραφή</p>
                         <p className="text-sm leading-relaxed text-[#605E5C] italic">
-                            &quot;{service.descriptionEL || "Service narrative pending."}&quot;
+                            &quot;{service.descriptionEL || "Η περιγραφή δεν έχει συμπληρωθεί."}&quot;
                         </p>
                         {service.brandName && (
                             <div className="pt-3 border-t border-[#EDEBE9] flex items-center justify-between">
@@ -365,15 +365,15 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
                                     <span className="font-bold text-sm text-[#201F1E]">{service.brandName}</span>
                                 </div>
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">
-                                    Certified Partner
+                                    Πιστοποιημένος Συνεργάτης
                                 </span>
                             </div>
                         )}
                     </div>
                     <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Global Localization</p>
-                        <p className="text-sm font-bold text-[#201F1E]">{service.nameEN || "Sync Required"}</p>
-                        <p className="text-sm leading-relaxed text-[#A19F9D]">{service.descriptionEN || "Global narrative draft pending synchronization."}</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Αγγλικά (EN)</p>
+                        <p className="text-sm font-bold text-[#201F1E]">{service.nameEN || "Απαιτείται μετάφραση"}</p>
+                        <p className="text-sm leading-relaxed text-[#A19F9D]">{service.descriptionEN || "Η αγγλική περιγραφή εκκρεμεί."}</p>
                     </div>
                 </TabsContent>
 
@@ -403,7 +403,7 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
                             <div className="w-8 h-8 bg-[#F3F2F1] border border-[#EDEBE9] rounded flex items-center justify-center">
                                 <Plus className="w-4 h-4" />
                             </div>
-                            <span className="text-[10px] font-semibold uppercase tracking-wide">Add Feature</span>
+                            <span className="text-[10px] font-semibold uppercase tracking-wide">Προσθήκη Χαρακτηριστικού</span>
                         </Button>
                     </div>
 
@@ -416,16 +416,16 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
                                         <Zap className="w-4 h-4 text-[#0078D4]" />
                                     </div>
                                     <div>
-                                        <DialogTitle className="text-sm font-bold text-[#201F1E]">Νέο Feature</DialogTitle>
+                                        <DialogTitle className="text-sm font-bold text-[#201F1E]">Νέο Χαρακτηριστικό</DialogTitle>
                                         <DialogDescription className="text-[11px] text-[#A19F9D]">
-                                            Extend the service toolkit with modular characteristic blocks.
+                                            Προσθήκη χαρακτηριστικού στην υπηρεσία.
                                         </DialogDescription>
                                     </div>
                                 </div>
                             </DialogHeader>
                             <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto px-4 py-4 space-y-3">
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Names</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Ονομασίες</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα (GR)</Label>
@@ -438,7 +438,7 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
                                     </div>
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Descriptions</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Περιγραφές</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (GR)</Label>
@@ -465,17 +465,17 @@ function ServiceExpandedContent({ service, onRefresh }: { service: ServiceType, 
 
                 <TabsContent value="media" className="animate-in fade-in duration-300 p-4">
                     <div className="flex justify-between items-center mb-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Product Media</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Αρχεία Προϊόντος</p>
                         <Label className={`cursor-pointer h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded inline-flex items-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] ${isUploadingMedia ? 'opacity-50 pointer-events-none' : ''}`}>
                             {isUploadingMedia ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                            Upload
+                            Μεταφόρτωση
                             <input type="file" className="hidden" onChange={handleUploadMedia} accept="image/*,video/*" />
                         </Label>
                     </div>
                     {service.media.length === 0 ? (
                         <div className="py-8 text-center rounded-lg border border-dashed border-[#EDEBE9] bg-white">
                             <ImageIcon className="w-8 h-8 mx-auto text-[#C8C6C4] mb-2" />
-                            <p className="text-sm font-medium text-[#A19F9D]">No media yet. Upload images or videos.</p>
+                            <p className="text-sm font-medium text-[#A19F9D]">Δεν υπάρχουν αρχεία. Μεταφορτώστε εικόνες ή βίντεο.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

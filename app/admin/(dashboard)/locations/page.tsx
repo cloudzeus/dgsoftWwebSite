@@ -3,7 +3,7 @@ import { Metadata } from "next"
 import { getLocations } from "@/app/lib/actions/location"
 import { DataTableLocations } from "@/components/admin/locations/data-table-locations"
 
-export const metadata: Metadata = { title: "Locations | Admin Dashboard" }
+export const metadata: Metadata = { title: "Τοποθεσίες | Admin" }
 
 export default async function LocationsPage() {
   const locations = await getLocations()
@@ -11,7 +11,7 @@ export default async function LocationsPage() {
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Locations (Presence)</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Τοποθεσίες (Παρουσία)</h1>
       </div>
       <DataTableLocations data={locations as any} />
     </div>

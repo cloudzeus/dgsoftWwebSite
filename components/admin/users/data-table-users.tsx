@@ -70,12 +70,12 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
             if (editingUser) {
                 const res = await updateUser(editingUser.id, formData)
                 setData(data.map(d => d.id === (res as any).id ? res as any : d))
-                toast.success("User updated")
+                toast.success("Ο χρήστης ενημερώθηκε")
             } else {
-                if (!formData.password) throw new Error("A password is required")
+                if (!formData.password) throw new Error("Ο κωδικός είναι υποχρεωτικός")
                 const res = await createUser(formData)
                 setData([res as any, ...data])
-                toast.success("User created")
+                toast.success("Ο χρήστης δημιουργήθηκε")
             }
             setIsDialogOpen(false)
         } catch (err: any) { toast.error(err.message) }
@@ -84,14 +84,14 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
 
     const handleAvatarUpload = async (file: File | null) => {
         if (!file) return
-        const tid = toast.loading("Uploading avatar…")
+        const tid = toast.loading("Μεταφόρτωση φωτογραφίας…")
         try {
             const upData = new FormData(); upData.append("file", file);
             const res = await fetch("/api/admin/articles/upload", { method: "POST", body: upData })
             const d = await res.json()
             if (!res.ok) throw new Error(d.error)
             setFormData(prev => ({ ...prev, image: d.url }))
-            toast.success("Avatar uploaded", { id: tid })
+            toast.success("Η φωτογραφία μεταφορτώθηκε", { id: tid })
         } catch (error: any) { toast.error(error.message, { id: tid }) }
     }
 
@@ -118,7 +118,7 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="flex items-center gap-1 text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide hover:text-[#201F1E]"
                 >
-                    User <ArrowUpDown className="h-3 w-3" />
+                    Χρήστης <ArrowUpDown className="h-3 w-3" />
                 </button>
             ),
             cell: ({ row }) => (
@@ -135,22 +135,22 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
         },
         {
             accessorKey: "role",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Role</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Ρόλος</span>,
             cell: ({ row }) => (
                 row.original.role === "ADMIN" ? (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#EFF6FC] text-[#0078D4] border border-[#C7E0F4]">
-                        <Shield className="w-3 h-3 shrink-0" /> Admin
+                        <Shield className="w-3 h-3 shrink-0" /> Διαχειριστής
                     </span>
                 ) : (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">
-                        <UserIcon className="w-3 h-3 shrink-0" /> User
+                        <UserIcon className="w-3 h-3 shrink-0" /> Χρήστης
                     </span>
                 )
             )
         },
         {
             id: "joined",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Joined</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Εγγράφηκε</span>,
             cell: ({ row }) => (
                 <span className="text-xs text-[#605E5C] flex items-center gap-1">
                     <Calendar className="w-3 h-3 text-[#A19F9D] shrink-0" />
@@ -164,24 +164,24 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
-                            Actions <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
+                            Ενέργειες <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => openEdit(row.original)} className="text-sm">
-                            <UserCheck className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit user
+                            <UserCheck className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Επεξεργασία χρήστη
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             className="text-red-500 text-sm"
                             onClick={async () => {
-                                if (confirm("Delete this user?")) {
+                                if (confirm("Διαγραφή αυτού του χρήστη;")) {
                                     await deleteUser(row.original.id);
                                     setData(data.filter(d => d.id !== row.original.id));
                                 }
                             }}
                         >
-                            <UserX className="w-3.5 h-3.5 mr-2" /> Delete user
+                            <UserX className="w-3.5 h-3.5 mr-2" /> Διαγραφή χρήστη
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -195,7 +195,7 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                 {/* Identity */}
                 <div className="p-4 space-y-3 bg-white">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
-                        <Fingerprint className="w-3 h-3" /> Identity
+                        <Fingerprint className="w-3 h-3" /> Ταυτότητα
                     </p>
                     <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10 border border-[#EDEBE9] shrink-0">
@@ -208,7 +208,7 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                             <p className="text-sm font-semibold text-[#201F1E] leading-tight">{user.firstName} {user.lastName}</p>
                             <div className="flex items-center gap-1 mt-0.5">
                                 <BadgeCheck className="w-3 h-3 text-emerald-500" />
-                                <span className="text-[11px] text-[#605E5C]">verified</span>
+                                <span className="text-[11px] text-[#605E5C]">επαληθευμένος</span>
                             </div>
                         </div>
                     </div>
@@ -225,10 +225,10 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                 {/* Joined */}
                 <div className="p-4 space-y-3 bg-white">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
-                        <Calendar className="w-3 h-3" /> Joined
+                        <Calendar className="w-3 h-3" /> Εγγράφηκε
                     </p>
                     <p className="text-sm font-medium text-[#201F1E]">{new Date(user.createdAt).toLocaleDateString()}</p>
-                    <p className="text-xs text-[#605E5C]">{user.role === "ADMIN" ? "Administrator" : "Standard User"}</p>
+                    <p className="text-xs text-[#605E5C]">{user.role === "ADMIN" ? "Διαχειριστής" : "Τυπικός Χρήστης"}</p>
                 </div>
             </div>
         </div>
@@ -237,8 +237,8 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
     return (
         <div className="space-y-4">
             <GenericDataTable
-                columns={columns} data={data} searchPlaceholder="Search by name or email…" searchColumn="firstName"
-                onAddClick={() => openEdit()} addButtonLabel="Add User"
+                columns={columns} data={data} searchPlaceholder="Αναζήτηση με όνομα ή email…" searchColumn="firstName"
+                onAddClick={() => openEdit()} addButtonLabel="Προσθήκη Χρήστη"
                 renderExpandedRow={renderExpandedRow}
             />
 
@@ -252,10 +252,10 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                             </div>
                             <div>
                                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                    {editingUser ? "Edit User" : "New User"}
+                                    {editingUser ? "Επεξεργασία Χρήστη" : "Νέος Χρήστης"}
                                 </DialogTitle>
                                 <DialogDescription className="text-[11px] text-[#A19F9D]">
-                                    {editingUser ? editingUser.email || editingUser.firstName || "" : "Configure role and profile details."}
+                                    {editingUser ? editingUser.email || editingUser.firstName || "" : "Ρύθμιση ρόλου και στοιχείων προφίλ."}
                                 </DialogDescription>
                             </div>
                         </div>
@@ -269,7 +269,7 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                             <div className="space-y-3">
                                 {/* Avatar upload */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-3 flex flex-col items-center gap-2.5">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] self-start mb-1">Photo</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] self-start mb-1">Φωτογραφία</p>
                                     <div className="relative">
                                         <Avatar className="h-14 w-14 border border-[#EDEBE9]">
                                             {formData.image && <AvatarImage src={formData.image} className="object-cover" />}
@@ -286,18 +286,18 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
 
                                 {/* Role */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-3 space-y-1.5">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1">Role</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1">Ρόλος</p>
                                     <Select value={formData.role} onValueChange={val => setFormData({ ...formData, role: val })}>
                                         <SelectTrigger className="h-9 rounded border-[#C8C6C4] focus:ring-[#0078D4] bg-white text-sm font-medium">
-                                            <SelectValue placeholder="Select role" />
+                                            <SelectValue placeholder="Επιλογή ρόλου" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="USER">Standard User</SelectItem>
-                                            <SelectItem value="ADMIN">Administrator</SelectItem>
+                                            <SelectItem value="USER">Τυπικός Χρήστης</SelectItem>
+                                            <SelectItem value="ADMIN">Διαχειριστής</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <p className="text-[10px] text-[#A19F9D]">
-                                        {formData.role === "ADMIN" ? "Full admin access." : "Read-only access."}
+                                        {formData.role === "ADMIN" ? "Πλήρης πρόσβαση διαχείρισης." : "Πρόσβαση μόνο ανάγνωσης."}
                                     </p>
                                 </div>
                             </div>
@@ -305,31 +305,31 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                             {/* Right form */}
                             <div className="space-y-3">
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Profile</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Προφίλ</p>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">First Name</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα</Label>
                                             <Input
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
                                                 value={formData.firstName}
                                                 onChange={e => setFormData({ ...formData, firstName: e.target.value })}
-                                                placeholder="e.g. George"
+                                                placeholder="π.χ. Γιώργης"
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Last Name</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Επώνυμο</Label>
                                             <Input
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
                                                 value={formData.lastName}
                                                 onChange={e => setFormData({ ...formData, lastName: e.target.value })}
-                                                placeholder="e.g. Smith"
+                                                placeholder="π.χ. Παπαδόπουλος"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Credentials</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Στοιχεία Πρόσβασης</p>
                                     <div className="space-y-2">
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Email</Label>
@@ -343,11 +343,11 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                                         </div>
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">
-                                                Password {editingUser && <span className="text-[#A19F9D] font-normal normal-case">(leave blank to keep current)</span>}
+                                                Κωδικός {editingUser && <span className="text-[#A19F9D] font-normal normal-case">(αφήστε κενό για να διατηρηθεί)</span>}
                                             </Label>
                                             <Input
                                                 type="password"
-                                                placeholder={editingUser ? "••••••••" : "Set a secure password…"}
+                                                placeholder={editingUser ? "••••••••" : "Ορίστε ασφαλή κωδικό…"}
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono"
                                                 value={formData.password}
                                                 onChange={e => setFormData({ ...formData, password: e.target.value })}
@@ -366,14 +366,14 @@ export function DataTableUsers({ data: initialData }: { data: User[] }) {
                             onClick={() => setIsDialogOpen(false)}
                             className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded"
                         >
-                            Cancel
+                            Ακύρωση
                         </Button>
                         <Button
                             disabled={isSaving}
                             onClick={handleSave}
                             className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95"
                         >
-                            {isSaving ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Saving…</> : (editingUser ? "Save Changes" : "Create User")}
+                            {isSaving ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Αποθήκευση…</> : (editingUser ? "Αποθήκευση Αλλαγών" : "Δημιουργία Χρήστη")}
                         </Button>
                     </div>
                 </DialogContent>

@@ -84,7 +84,7 @@ function ArrayInput({ label, values, onChange, placeholder }: { label: string; v
                 <Input
                     className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
                     value={draft}
-                    placeholder={placeholder || "Add item…"}
+                    placeholder={placeholder || "Προσθήκη στοιχείου…"}
                     onChange={e => setDraft(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter" && draft.trim()) { onChange([...values, draft.trim()]); setDraft(""); e.preventDefault(); } }}
                 />
@@ -150,7 +150,7 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
     };
 
     const handleSave = async () => {
-        if (!form.titleEL.trim()) return toast.error("Position title is required");
+        if (!form.titleEL.trim()) return toast.error("Ο τίτλος θέσης είναι υποχρεωτικός");
         setSaving(true);
         try {
             const slug = form.slug || form.titleEL.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim();
@@ -158,11 +158,11 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
             if (editing) {
                 const updated = await updatePosition(editing.id, payload);
                 setData(prev => prev.map(d => d.id === editing.id ? { ...d, ...updated } : d));
-                toast.success("Position updated");
+                toast.success("Η θέση ενημερώθηκε");
             } else {
                 const created = await createPosition(payload);
                 setData(prev => [...prev, { ...(created as any), applications: [] }]);
-                toast.success("Position created");
+                toast.success("Η θέση δημιουργήθηκε");
             }
             setOpen(false);
         } catch (e: any) { toast.error(e.message); }
@@ -171,13 +171,13 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
 
     const handleReorder = async (newData: Position[]) => {
         setData(newData);
-        try { await updatePositionOrder(newData.map(d => d.id)); toast.success("Order saved"); }
-        catch { toast.error("Reorder failed"); }
+        try { await updatePositionOrder(newData.map(d => d.id)); toast.success("Η σειρά αποθηκεύτηκε"); }
+        catch { toast.error("Η αναδιάταξη απέτυχε"); }
     };
 
     const runAiTranslation = async () => {
         setTranslating(true);
-        const tid = toast.loading("Translating position…");
+        const tid = toast.loading("Μετάφραση θέσης…");
         try {
             const res = await fetch("/api/admin/translate", {
                 method: "POST", headers: { "Content-Type": "application/json" },
@@ -195,7 +195,7 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                 ...prev, titleEN: parsed.title, descriptionEN: parsed.desc, departmentEN: parsed.dept, cityEN: parsed.city, typeEN: parsed.type,
                 dutiesEN: parsed.duties, skillsEN: parsed.skills
             }));
-            toast.success("Translation ready", { id: tid });
+            toast.success("Η μετάφραση είναι έτοιμη", { id: tid });
         } catch (e: any) { toast.error(e.message, { id: tid }); }
         finally { setTranslating(false); }
     };
@@ -219,7 +219,7 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
         },
         {
             accessorKey: "titleEL",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Position</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Θέση</span>,
             cell: ({ row }) => (
                 <div>
                     <p className="font-semibold text-sm text-[#201F1E] leading-tight">{row.original.titleEL}</p>
@@ -241,7 +241,7 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
         },
         {
             id: "type",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Type</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Τύπος</span>,
             cell: ({ row }) => row.original.typeEL ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#EFF6FC] text-[#0078D4] border border-[#C7E0F4]">
                     <Clock className="w-3 h-3" />{row.original.typeEL}
@@ -252,7 +252,7 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
         },
         {
             id: "yield",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Applications</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Αιτήσεις</span>,
             cell: ({ row }) => {
                 const count = row.original._count?.applications ?? row.original.applications?.length ?? 0;
                 return (
@@ -267,16 +267,16 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
         },
         {
             accessorKey: "published",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κατάσταση</span>,
             cell: ({ row }) => row.original.published ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    Active
+                    Ενεργό
                 </span>
             ) : (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />
-                    Draft
+                    Πρόχειρο
                 </span>
             )
         },
@@ -286,22 +286,22 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
-                            Actions <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
+                            Ενέργειες <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => openEdit(row.original)} className="text-sm">
-                            <Edit className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit position
+                            <Edit className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Επεξεργασία θέσης
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => window.open(`/careers/${row.original.slug}`, "_blank")} className="text-sm">
-                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> View listing
+                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> Προβολή αγγελίας
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             className="text-red-500 text-sm"
-                            onClick={() => { if (confirm("Delete this position?")) deletePosition(row.original.id).then(() => setData(d => d.filter(x => x.id !== row.original.id))) }}
+                            onClick={() => { if (confirm("Διαγραφή αυτής της θέσης;")) deletePosition(row.original.id).then(() => setData(d => d.filter(x => x.id !== row.original.id))) }}
                         >
-                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Διαγραφή
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -314,17 +314,17 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
     return (
         <div className="space-y-4">
             <GenericDataTable
-                columns={columns} data={data} searchPlaceholder="Search positions…" searchColumn="titleEL"
-                onAddClick={() => openEdit()} addButtonLabel="Open Position"
+                columns={columns} data={data} searchPlaceholder="Αναζήτηση θέσεων…" searchColumn="titleEL"
+                onAddClick={() => openEdit()} addButtonLabel="Νέα Θέση"
                 isSortable={true} onReorder={handleReorder}
                 renderExpandedRow={(item) => (
                     <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
                         {/* Expanded header */}
                         <div className="px-4 py-3 border-b border-[#EDEBE9] bg-white flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Candidate Applications</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Αιτήσεις Υποψηφίων</p>
                                 <p className="text-sm font-semibold text-[#201F1E] mt-0.5">
-                                    {item.applications?.length || 0} profiles for {item.titleEL}
+                                    {item.applications?.length || 0} προφίλ για {item.titleEL}
                                 </p>
                             </div>
                             <div className="flex gap-1.5">
@@ -358,10 +358,10 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                                 </div>
                                 <div>
                                     <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                        {editing ? "Edit Position" : "New Position"}
+                                        {editing ? "Επεξεργασία Θέσης" : "Νέα Θέση"}
                                     </DialogTitle>
                                     <DialogDescription className="text-[11px] text-[#A19F9D]">
-                                        {editing ? editing.titleEL : "Configure position requirements and skills."}
+                                        {editing ? editing.titleEL : "Ρύθμιση απαιτήσεων και δεξιοτήτων θέσης."}
                                     </DialogDescription>
                                 </div>
                             </div>
@@ -371,7 +371,7 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                                 className="bg-[#0078D4] hover:bg-[#106EBE] h-8 px-3 text-[12px] font-semibold rounded text-white gap-1.5"
                             >
                                 {translating ? <RefreshCcw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-                                AI Translate
+                                AI Μετάφραση
                             </Button>
                         </div>
                     </DialogHeader>
@@ -381,67 +381,67 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                         <Tabs defaultValue="greek">
                             <TabsList className="h-8 mb-4 gap-0.5 bg-white border border-[#EDEBE9] p-0.5 rounded">
                                 <TabsTrigger value="greek" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">
-                                    Greek (GR)
+                                    Ελληνικά (GR)
                                 </TabsTrigger>
                                 <TabsTrigger value="english" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">
-                                    English (EN)
+                                    Αγγλικά (EN)
                                 </TabsTrigger>
                                 <TabsTrigger value="governance" className="text-[11px] font-semibold px-3 h-7 rounded data-[state=active]:bg-[#F3F2F1] data-[state=active]:shadow-sm">
-                                    Settings
+                                    Ρυθμίσεις
                                 </TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="greek" className="space-y-3 animate-in fade-in duration-200 mt-0">
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Identity</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Ταυτότητα</p>
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Position Title <span className="text-red-500">*</span></Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Τίτλος Θέσης <span className="text-red-500">*</span></Label>
                                         <Input
                                             className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-medium"
-                                            placeholder="e.g. Marketing Director"
+                                            placeholder="π.χ. Διευθυντής Μάρκετινγκ"
                                             value={form.titleEL}
                                             onChange={e => setForm({ ...form, titleEL: e.target.value })}
                                         />
                                     </div>
                                     <div className="grid grid-cols-3 gap-2">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Department</Label>
-                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.departmentEL} onChange={e => setForm({ ...form, departmentEL: e.target.value })} placeholder="e.g. Marketing" />
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τμήμα</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.departmentEL} onChange={e => setForm({ ...form, departmentEL: e.target.value })} placeholder="π.χ. Μάρκετινγκ" />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">City</Label>
-                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.cityEL} onChange={e => setForm({ ...form, cityEL: e.target.value })} placeholder="e.g. Athens" />
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Πόλη</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.cityEL} onChange={e => setForm({ ...form, cityEL: e.target.value })} placeholder="π.χ. Αθήνα" />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Type</Label>
-                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.typeEL} onChange={e => setForm({ ...form, typeEL: e.target.value })} placeholder="e.g. Full-time" />
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τύπος</Label>
+                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.typeEL} onChange={e => setForm({ ...form, typeEL: e.target.value })} placeholder="π.χ. Πλήρης Απασχόληση" />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Description</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Περιγραφή</p>
                                     <Textarea
                                         rows={4}
                                         className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm resize-none"
-                                        placeholder="Describe the role and its impact…"
+                                        placeholder="Περιγράψτε τον ρόλο και τη σημασία του…"
                                         value={form.descriptionEL}
                                         onChange={e => setForm({ ...form, descriptionEL: e.target.value })}
                                     />
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Requirements</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Απαιτήσεις</p>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <ArrayInput label="Duties" values={form.dutiesEL} onChange={v => setForm({ ...form, dutiesEL: v })} placeholder="Add duty…" />
-                                        <ArrayInput label="Skills" values={form.skillsEL} onChange={v => setForm({ ...form, skillsEL: v })} placeholder="Add skill…" />
+                                        <ArrayInput label="Καθήκοντα" values={form.dutiesEL} onChange={v => setForm({ ...form, dutiesEL: v })} placeholder="Προσθήκη καθήκοντος…" />
+                                        <ArrayInput label="Δεξιότητες" values={form.skillsEL} onChange={v => setForm({ ...form, skillsEL: v })} placeholder="Προσθήκη δεξιότητας…" />
                                     </div>
                                 </div>
                             </TabsContent>
 
                             <TabsContent value="english" className="space-y-3 animate-in fade-in duration-200 mt-0">
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Identity (EN)</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Ταυτότητα (EN)</p>
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Position Title (EN)</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Τίτλος Θέσης (EN)</Label>
                                         <Input
                                             className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-medium"
                                             value={form.titleEN || ""}
@@ -450,21 +450,21 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                                     </div>
                                     <div className="grid grid-cols-3 gap-2">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Department (EN)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τμήμα (EN)</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.departmentEN || ""} onChange={e => setForm({ ...form, departmentEN: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">City (EN)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Πόλη (EN)</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.cityEN || ""} onChange={e => setForm({ ...form, cityEN: e.target.value })} />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Type (EN)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τύπος (EN)</Label>
                                             <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={form.typeEN || ""} onChange={e => setForm({ ...form, typeEN: e.target.value })} />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Description (EN)</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Περιγραφή (EN)</p>
                                     <Textarea
                                         rows={4}
                                         className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm resize-none"
@@ -473,17 +473,17 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                                     />
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Requirements (EN)</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Απαιτήσεις (EN)</p>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <ArrayInput label="Duties (EN)" values={form.dutiesEN} onChange={v => setForm({ ...form, dutiesEN: v })} />
-                                        <ArrayInput label="Skills (EN)" values={form.skillsEN} onChange={v => setForm({ ...form, skillsEN: v })} />
+                                        <ArrayInput label="Καθήκοντα (EN)" values={form.dutiesEN} onChange={v => setForm({ ...form, dutiesEN: v })} />
+                                        <ArrayInput label="Δεξιότητες (EN)" values={form.skillsEN} onChange={v => setForm({ ...form, skillsEN: v })} />
                                     </div>
                                 </div>
                             </TabsContent>
 
                             <TabsContent value="governance" className="space-y-3 animate-in fade-in duration-200 mt-0">
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">URL & Order</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">URL & Σειρά</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">URL Slug</Label>
@@ -491,11 +491,11 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono text-[#0078D4]"
                                                 value={form.slug}
                                                 onChange={e => setForm({ ...form, slug: e.target.value })}
-                                                placeholder="auto-generated-from-title"
+                                                placeholder="αυτόματη-δημιουργία-από-τίτλο"
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Display Order</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Σειρά Εμφάνισης</Label>
                                             <Input
                                                 type="number"
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
@@ -507,12 +507,12 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 flex items-center justify-between">
                                     <div>
-                                        <p className="text-[11px] font-semibold text-[#605E5C]">Published</p>
-                                        <p className="text-[11px] text-[#A19F9D] mt-0.5">Make this position visible to the public.</p>
+                                        <p className="text-[11px] font-semibold text-[#605E5C]">Δημοσιευμένο</p>
+                                        <p className="text-[11px] text-[#A19F9D] mt-0.5">Κάντε αυτή τη θέση ορατή στο κοινό.</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className={`text-[11px] font-bold ${form.published ? "text-emerald-600" : "text-[#A19F9D]"}`}>
-                                            {form.published ? "Live" : "Draft"}
+                                            {form.published ? "Ενεργό" : "Πρόχειρο"}
                                         </span>
                                         <Switch
                                             checked={form.published}
@@ -532,14 +532,14 @@ export function DataTablePositions({ data: init }: { data: Position[] }) {
                             onClick={() => setOpen(false)}
                             className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded"
                         >
-                            Cancel
+                            Ακύρωση
                         </Button>
                         <Button
                             disabled={saving}
                             onClick={handleSave}
                             className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95"
                         >
-                            {saving ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Saving…</> : (editing ? "Save Changes" : "Create Position")}
+                            {saving ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Αποθήκευση…</> : (editing ? "Αποθήκευση Αλλαγών" : "Δημιουργία Θέσης")}
                         </Button>
                     </div>
                 </DialogContent>
@@ -556,7 +556,7 @@ function CvApplicationsPanel({ applications: init, positionTitle }: { applicatio
             <div className="w-10 h-10 bg-[#F3F2F1] rounded-lg border border-[#EDEBE9] flex items-center justify-center mb-3">
                 <Search className="w-4.5 h-4.5 text-[#C8C6C4]" />
             </div>
-            <p className="text-[11px] font-semibold text-[#A19F9D]">No applications yet</p>
+            <p className="text-[11px] font-semibold text-[#A19F9D]">Δεν υπάρχουν αιτήσεις ακόμα</p>
         </div>
     );
 
@@ -605,7 +605,7 @@ function CvApplicationsPanel({ applications: init, positionTitle }: { applicatio
                             className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded gap-1"
                             onClick={() => window.open(app.cvUrl, "_blank")}
                         >
-                            <FileSpreadsheet className="w-3.5 h-3.5 text-[#0078D4]" /> View CV
+                            <FileSpreadsheet className="w-3.5 h-3.5 text-[#0078D4]" /> Προβολή Βιογραφικού
                         </Button>
 
                         <DropdownMenu>
@@ -619,14 +619,14 @@ function CvApplicationsPanel({ applications: init, positionTitle }: { applicatio
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-[#A19F9D] tracking-widest">Update Status</div>
+                                <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-[#A19F9D] tracking-widest">Ενημέρωση Κατάστασης</div>
                                 {["REVIEWED", "SHORTLISTED", "REJECTED"].map(s => (
                                     <DropdownMenuItem
                                         key={s}
                                         onClick={async () => {
                                             await updateCvStatus(app.id, s);
                                             setApps(prev => prev.map(a => a.id === app.id ? { ...a, status: s } : a));
-                                            toast.success(`Status: ${s}`);
+                                            toast.success(`Κατάσταση: ${s}`);
                                         }}
                                     >
                                         <span className={`w-2 h-2 rounded-full mr-2 shrink-0 ${s === "REVIEWED" ? "bg-[#605E5C]" : s === "SHORTLISTED" ? "bg-emerald-500" : "bg-red-500"}`} />
@@ -637,14 +637,14 @@ function CvApplicationsPanel({ applications: init, positionTitle }: { applicatio
                                 <DropdownMenuItem
                                     className="text-red-500 focus:bg-red-50 focus:text-red-600"
                                     onClick={async () => {
-                                        if (!confirm("Remove this application?")) return;
+                                        if (!confirm("Αφαίρεση αυτής της αίτησης;")) return;
                                         await deleteCvApplication(app.id);
                                         setApps(prev => prev.filter(a => a.id !== app.id));
-                                        toast.success("Application removed");
+                                        toast.success("Η αίτηση αφαιρέθηκε");
                                     }}
                                 >
                                     <UserX className="w-3.5 h-3.5 mr-2" />
-                                    <span className="text-xs font-medium">Remove Application</span>
+                                    <span className="text-xs font-medium">Αφαίρεση Αίτησης</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

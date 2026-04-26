@@ -46,10 +46,10 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
         contentEn,
       });
       if (!res.success) {
-        toast.error(res.error || "Save failed");
+        toast.error(res.error || "Αποτυχία αποθήκευσης");
         return;
       }
-      toast.success(`${pageLabel} saved.`);
+      toast.success(`${pageLabel} αποθηκεύτηκε.`);
     } finally {
       setSaving(false);
     }
@@ -93,7 +93,7 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
           : "Translated to Greek. Review and save."
       );
     } catch (err: any) {
-      toast.error(err.message ?? "Translation failed");
+      toast.error(err.message ?? "Αποτυχία μετάφρασης");
     } finally {
       setTranslating(null);
     }
@@ -112,7 +112,7 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
           <div>
             <h1 className="text-xl font-bold tracking-tight text-[#201F1E]">{pageLabel}</h1>
             <p className="text-[#A19F9D] text-[11px] mt-0.5">
-              Bilingual rich-text content shown in a modal when users click the footer link.
+              Δίγλωσσο περιεχόμενο rich-text που εμφανίζεται σε modal όταν ο χρήστης κάνει κλικ στον σύνδεσμο υποσέλιδου.
             </p>
           </div>
         </div>
@@ -149,7 +149,7 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
               <Languages className="w-4 h-4" />
             )}
             <span className="hidden sm:inline">
-              {translating === "en→el" ? "Translating…" : "EN → ΕΛ"}
+              {translating === "en→el" ? "Μετάφραση…" : "EN → ΕΛ"}
             </span>
           </Button>
 
@@ -164,7 +164,7 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
             ) : (
               <Save className="w-4 h-4 mr-2" />
             )}
-            Save
+            Αποθήκευση
           </Button>
         </div>
       </div>
@@ -206,24 +206,24 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
           {/* Title */}
           <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
-              <AlignLeft className="w-3 h-3" />TITLE
+              <AlignLeft className="w-3 h-3" />ΤΙΤΛΟΣ
             </p>
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-semibold text-[#605E5C]">Title</Label>
+              <Label className="text-[11px] font-semibold text-[#605E5C]">Τίτλος</Label>
               <Input value={titleEn} onChange={(e) => setTitleEn(e.target.value)} />
             </div>
           </div>
           {/* Content */}
           <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-1.5">
-              <FileText className="w-3 h-3" />CONTENT
+              <FileText className="w-3 h-3" />ΠΕΡΙΕΧΟΜΕΝΟ
             </p>
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-semibold text-[#605E5C]">Content</Label>
+              <Label className="text-[11px] font-semibold text-[#605E5C]">Περιεχόμενο</Label>
               <TiptapEditor
                 value={contentEn}
                 onChange={setContentEn}
-                placeholder="Write the policy content here..."
+                placeholder="Γράψτε το κείμενο της πολιτικής εδώ..."
               />
             </div>
           </div>

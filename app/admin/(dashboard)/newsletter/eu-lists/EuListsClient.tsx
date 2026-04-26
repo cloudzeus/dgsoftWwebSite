@@ -78,14 +78,14 @@ function CriteriaPanel({ criteria }: { criteria: EuListCriteriaSummary }) {
             </span>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700/90 dark:text-amber-400/90">
-                Eligible KADs
+                Επιλέξιμοι ΚΑΔ
               </p>
-              <p className="text-[10px] text-muted-foreground">Prefix match vs program</p>
+              <p className="text-[10px] text-muted-foreground">Αντιστοίχιση προθέματος με πρόγραμμα</p>
             </div>
           </div>
           {criteria.programKadLabels.length === 0 ? (
             <p className="text-[11px] leading-relaxed text-muted-foreground pl-2 pr-1">
-              None linked — <span className="text-sky-700 dark:text-sky-300 font-medium">any</span> customer KAD qualifies.
+              Κανένας συνδεδεμένος — <span className="text-sky-700 dark:text-sky-300 font-medium">όλοι</span> οι ΚΑΔ πελατών είναι επιλέξιμοι.
             </p>
           ) : (
             <div className="flex flex-wrap gap-1.5 pl-2">
@@ -109,9 +109,9 @@ function CriteriaPanel({ criteria }: { criteria: EuListCriteriaSummary }) {
             </span>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700/90 dark:text-emerald-400/90">
-                Program regions
+                Περιοχές Προγράμματος
               </p>
-              <p className="text-[10px] text-muted-foreground">Address → periferia</p>
+              <p className="text-[10px] text-muted-foreground">Διεύθυνση → Περιφέρεια</p>
             </div>
           </div>
           {!criteria.regionFilterActive ? (
@@ -119,10 +119,10 @@ function CriteriaPanel({ criteria }: { criteria: EuListCriteriaSummary }) {
               <span className="inline-flex items-center rounded-md bg-slate-200/80 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-slate-800 dark:text-slate-200 mr-1">
                 Open
               </span>
-              No regional filter — all addresses allowed (KAD rules still apply).
+              Χωρίς περιφερειακό φίλτρο — όλες οι διευθύνσεις επιτρέπονται (ισχύουν οι κανόνες ΚΑΔ).
             </p>
           ) : criteria.programRegionLabels.length === 0 ? (
-            <p className="text-[11px] text-amber-800/80 dark:text-amber-200/80 pl-2">Regions linked but names missing.</p>
+            <p className="text-[11px] text-amber-800/80 dark:text-amber-200/80 pl-2">Περιοχές συνδεδεμένες αλλά τα ονόματα λείπουν.</p>
           ) : (
             <div className="flex flex-wrap gap-1.5 pl-2">
               {criteria.programRegionLabels.map((r) => (
@@ -140,8 +140,8 @@ function CriteriaPanel({ criteria }: { criteria: EuListCriteriaSummary }) {
       </div>
       <div className="border-t border-violet-200/50 dark:border-violet-900/40 bg-gradient-to-r from-violet-500/8 via-transparent to-sky-500/8 px-4 py-2.5">
         <p className="text-[10px] leading-snug text-muted-foreground text-center sm:text-left">
-          <span className="text-violet-700 dark:text-violet-300 font-semibold">KAD match</span> column = company code vs program prefix ·{" "}
-          <span className="text-emerald-700 dark:text-emerald-300 font-semibold">Region</span> = mapped address when regional filter applies
+          <span className="text-violet-700 dark:text-violet-300 font-semibold">Αντιστοίχιση ΚΑΔ</span> στήλη = κωδικός εταιρείας vs πρόθεμα προγράμματος ·{" "}
+          <span className="text-emerald-700 dark:text-emerald-300 font-semibold">Περιοχή</span> = αντιστοιχισμένη διεύθυνση όταν ισχύει περιφερειακό φίλτρο
         </p>
       </div>
     </div>
@@ -210,33 +210,33 @@ function RegionMatchCell({ text }: { text: string }) {
 const columns: ColumnDef<EuListRecipientTableRow>[] = [
   {
     accessorKey: "customerName",
-    header: ({ column }) => <SortableHeader column={column} label="Company" />,
+    header: ({ column }) => <SortableHeader column={column} label="Εταιρεία" />,
     cell: ({ row }) => (
       <span className="font-medium text-[11px] leading-tight text-foreground">{row.original.customerName}</span>
     ),
   },
   {
     accessorKey: "customerCode",
-    header: ({ column }) => <SortableHeader column={column} label="Code" />,
+    header: ({ column }) => <SortableHeader column={column} label="Κωδικός" />,
     cell: ({ row }) => (
       <span className="font-mono text-[10px] leading-tight text-muted-foreground tabular-nums">{row.original.customerCode}</span>
     ),
   },
   {
     accessorKey: "email",
-    header: ({ column }) => <SortableHeader column={column} label="Email" />,
+    header: ({ column }) => <SortableHeader column={column} label="Email" />, // Email is the same in Greek
     cell: ({ row }) => (
       <span className="text-[10px] leading-tight text-sky-700 dark:text-sky-300 break-all">{row.original.email}</span>
     ),
   },
   {
     accessorKey: "kadMatch",
-    header: ({ column }) => <SortableHeader column={column} label="KAD" />,
+    header: ({ column }) => <SortableHeader column={column} label="ΚΑΔ" />,
     cell: ({ row }) => <KadMatchCell text={row.original.kadMatch} />,
   },
   {
     accessorKey: "regionMatch",
-    header: ({ column }) => <SortableHeader column={column} label="Region" />,
+    header: ({ column }) => <SortableHeader column={column} label="Περιοχή" />,
     cell: ({ row }) => <RegionMatchCell text={row.original.regionMatch} />,
   },
 ];
@@ -269,7 +269,7 @@ function RecipientsModalTable({ data }: { data: EuListRecipientTableRow[] }) {
   return (
     <div className="flex flex-col gap-2.5 min-h-0">
       <Input
-        placeholder="Filter…"
+        placeholder="Φίλτρο…"
         value={globalFilter}
         onChange={(e) => setGlobalFilter(e.target.value)}
         className="max-w-sm h-8 text-[11px] rounded-lg border-slate-200/80 bg-white/80 dark:bg-background/80 shadow-sm"
@@ -308,7 +308,7 @@ function RecipientsModalTable({ data }: { data: EuListRecipientTableRow[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-20 text-center text-muted-foreground text-[11px]">
-                  No rows.
+                  Δεν υπάρχουν εγγραφές.
                 </TableCell>
               </TableRow>
             )}
@@ -317,8 +317,8 @@ function RecipientsModalTable({ data }: { data: EuListRecipientTableRow[] }) {
       </div>
       <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
         <span>
-          {table.getFilteredRowModel().rows.length} row{table.getFilteredRowModel().rows.length === 1 ? "" : "s"}
-          {globalFilter ? ` (filtered)` : ""}
+          {table.getFilteredRowModel().rows.length} εγγραφ{table.getFilteredRowModel().rows.length === 1 ? "ή" : "ές"}
+          {globalFilter ? ` (φιλτράρισμα)` : ""}
         </span>
         <div className="flex items-center gap-2">
           <Button
@@ -367,13 +367,13 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
     try {
       const detail = await getEuProgramRecipientListTableDetail(id);
       if (!detail) {
-        toast.error("List not found");
+        toast.error("Η λίστα δεν βρέθηκε");
         setViewId(null);
         return;
       }
       setViewDetail(detail);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to load list");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία φόρτωσης λίστας");
       setViewId(null);
     } finally {
       setViewLoading(false);
@@ -381,14 +381,14 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this saved list? This cannot be undone.")) return;
+    if (!confirm("Διαγραφή αυτής της αποθηκευμένης λίστας; Η ενέργεια δεν μπορεί να αναιρεθεί.")) return;
     setDeletingId(id);
     try {
       await deleteEuProgramRecipientList(id);
-      toast.success("List deleted");
+      toast.success("Η λίστα διαγράφηκε");
       router.refresh();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Delete failed");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία διαγραφής");
     } finally {
       setDeletingId(null);
     }
@@ -405,13 +405,13 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                 <Mail className="h-5 w-5" />
               </span>
               <div className="space-y-1">
-                <CardTitle className="text-sm font-semibold tracking-tight">No lists yet</CardTitle>
+                <CardTitle className="text-sm font-semibold tracking-tight">Δεν υπάρχουν λίστες ακόμη</CardTitle>
                 <CardDescription className="text-[11px] leading-relaxed">
-                  Open{" "}
+                  Ανοίξτε{" "}
                   <Link href="/admin/eu-programs" className="text-primary font-medium underline underline-offset-2">
-                    EU Programs
+                    Ευρωπαϊκά Προγράμματα
                   </Link>
-                  , then <span className="text-foreground/80">Actions → Generate email list</span> and save to see cards here.
+                  , κατόπιν <span className="text-foreground/80">Ενέργειες → Δημιουργία λίστας email</span> και αποθηκεύστε για να δείτε κάρτες εδώ.
                 </CardDescription>
               </div>
             </div>
@@ -439,7 +439,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                         className="h-6 gap-1 border-0 px-2 text-[10px] font-medium tabular-nums bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm ring-1 ring-emerald-700/30"
                       >
                         <Users className="h-3 w-3 text-white/90" />
-                        {list.recipientCount} recipients
+                        {list.recipientCount} παραλήπτες
                       </Badge>
                       <Badge
                         variant="outline"
@@ -460,7 +460,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                 >
                   <Link href={`/admin/eu-programs/${list.euProgramId}`}>
                     <Briefcase className="h-3.5 w-3.5 mr-1.5" />
-                    Open program
+                    Άνοιγμα προγράμματος
                   </Link>
                 </Button>
               </CardContent>
@@ -473,7 +473,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                   onClick={() => openView(list.id)}
                 >
                   <Mail className="h-3.5 w-3.5 mr-1.5" />
-                  Recipients
+                  Παραλήπτες
                 </Button>
                 <Button
                   type="button"
@@ -488,7 +488,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                   ) : (
                     <>
                       <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                      Delete
+                      Διαγραφή
                     </>
                   )}
                 </Button>
@@ -515,7 +515,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
               </div>
               <div className="min-w-0 flex-1">
                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                  Companies &amp; matching criteria
+                  Εταιρείες &amp; κριτήρια αντιστοίχισης
                 </DialogTitle>
                 <DialogDescription asChild>
                   <div className="flex items-center gap-3 mt-0.5">
@@ -531,7 +531,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                       >
                         <Link href={`/admin/eu-programs/${viewDetail.euProgramId}`}>
                           <Briefcase className="h-3 w-3" />
-                          Open EU program
+                          Άνοιγμα ΕΕ προγράμματος
                         </Link>
                       </Button>
                     ) : null}
@@ -545,7 +545,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
             {viewLoading ? (
               <div className="flex flex-col items-center justify-center py-14 text-[#A19F9D] gap-2">
                 <Loader2 className="h-6 w-6 animate-spin text-[#0078D4]" />
-                <span className="text-[11px] font-semibold">Loading companies…</span>
+                <span className="text-[11px] font-semibold">Φόρτωση εταιρειών…</span>
               </div>
             ) : viewDetail ? (
               <>
@@ -553,7 +553,7 @@ export function EuListsClient({ initialLists }: { initialLists: EuProgramRecipie
                 <RecipientsModalTable data={viewDetail.rows} />
               </>
             ) : (
-              <p className="text-center text-[#A19F9D] py-8 text-[11px]">Nothing to show.</p>
+              <p className="text-center text-[#A19F9D] py-8 text-[11px]">Δεν υπάρχουν δεδομένα.</p>
             )}
           </div>
         </DialogContent>

@@ -232,7 +232,7 @@ export default async function DashboardPage() {
               <LayoutDashboardIcon className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-[#201F1E] leading-tight">Dashboard</h1>
+              <h1 className="text-xl font-semibold text-[#201F1E] leading-tight">Πίνακας Ελέγχου</h1>
               <p className="text-xs text-[#605E5C] capitalize">{today}</p>
             </div>
           </div>
@@ -398,7 +398,7 @@ export default async function DashboardPage() {
                           : "bg-[#F3F2F1] text-[#605E5C] border-[#EDEBE9]"
                       }`}
                     >
-                      {a.published ? "Δημοσιευμένο" : "Draft"}
+                      {a.published ? "Δημοσιευμένο" : "Πρόχειρο"}
                     </span>
                   </div>
                 ))}
@@ -503,7 +503,7 @@ export default async function DashboardPage() {
               { href: "/admin/newsletter/campaigns", icon: SendIcon, label: "Νέα εκστρατεία" },
               { href: "/admin/eu-programs", icon: BriefcaseIcon, label: "Νέο ΕΠ" },
               { href: "/admin/first-page", icon: LayoutDashboardIcon, label: "Αρχική σελίδα" },
-              { href: "/admin/footer", icon: LayoutDashboardIcon, label: "Footer" },
+              { href: "/admin/footer", icon: LayoutDashboardIcon, label: "Υποσέλιδο" },
               { href: "/admin/legal/privacy-policy", icon: ShieldIcon, label: "Πολιτική Απορρήτου" },
               { href: "/admin/legal/cookie-policy", icon: CookieIcon, label: "Πολιτική Cookies" },
               { href: "/admin/cv-applications", icon: UserCheckIcon, label: "CV Αιτήσεις" },

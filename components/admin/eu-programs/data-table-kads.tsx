@@ -72,16 +72,16 @@ export function DataTableKads({
     const handleSave = async () => {
         setIsSaving(true)
         try {
-            if (!formData.code) throw new Error("Code is required")
+            if (!formData.code) throw new Error("Ο κωδικός είναι υποχρεωτικός")
             const cleanData = { code: formData.code.trim(), nameEL: formData.nameEL.trim(), nameEN: formData.nameEN.trim() || null }
             if (editingItem) {
                 const updated = await updateKad(editingItem.id, cleanData)
                 setData(prev => prev.map(d => d.id === updated.id ? updated as any : d))
-                toast.success("KAD updated")
+                toast.success("Ο ΚΑΔ ενημερώθηκε")
             } else {
                 const created = await createKad(cleanData)
                 setData(prev => [created as any, ...prev])
-                toast.success("KAD created")
+                toast.success("Ο ΚΑΔ δημιουργήθηκε")
             }
             setIsDialogOpen(false)
         } catch (err: any) { toast.error(err.message) }
@@ -93,21 +93,21 @@ export function DataTableKads({
         if (!file) return
         e.target.value = ""
         setIsUploading(true)
-        const tid = toast.loading(`Uploading "${file.name}"...`)
+        const tid = toast.loading(`Μεταφόρτωση "${file.name}"...`)
         try {
             const form = new FormData()
             form.append("file", file)
             const res = await fetch("/api/admin/eu-programs/upload-kads", { method: "POST", body: form })
             const json = await res.json()
-            if (!res.ok) throw new Error(json.error || "Upload failed")
-            toast.success(`Synced ${json.count} KADs`, { id: tid })
+            if (!res.ok) throw new Error(json.error || "Αποτυχία μεταφόρτωσης")
+            toast.success(`Συγχρονίστηκαν ${json.count} ΚΑΔ`, { id: tid })
             setTimeout(() => window.location.reload(), 1200)
         } catch (err: any) { toast.error(err.message, { id: tid }) }
         finally { setIsUploading(false) }
     }
 
     const handleBulkAssign = async () => {
-        if (!selectedProgramId) return toast.error("Select a program")
+        if (!selectedProgramId) return toast.error("Επιλέξτε πρόγραμμα")
         const selectedIndices = Object.keys(rowSelection).filter(k => rowSelection[k])
         // Since GenericDataTable handles its own filtering/sorting, rowSelection indices refer to the current visible rows in the table instance.
         // This is a limitation if we use index-based selection.
@@ -115,10 +115,10 @@ export function DataTableKads({
         const kadIds = selectedIndices;
 
         setIsAssigning(true)
-        const tid = toast.loading(`Linking ${kadIds.length} KADs...`)
+        const tid = toast.loading(`Σύνδεση ${kadIds.length} ΚΑΔ...`)
         try {
             for (const id of kadIds) await linkKadToProgram(selectedProgramId, id)
-            toast.success("Linked successfully", { id: tid })
+            toast.success("Συνδέθηκαν επιτυχώς", { id: tid })
             setRowSelection({})
             setIsAssignOpen(false)
         } catch (err: any) { toast.error(err.message, { id: tid }) }
@@ -149,7 +149,7 @@ export function DataTableKads({
         },
         {
             accessorKey: "code",
-            header: "KAD Code",
+            header: "Κωδικός ΚΑΔ",
             cell: ({ row }) => (
                 <div className="flex items-center gap-2">
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold font-mono bg-[#EFF6FC] text-[#0078D4] border border-[#C7E0F4]">{row.original.code}</span>
@@ -159,7 +159,7 @@ export function DataTableKads({
         },
         {
             accessorKey: "nameEL",
-            header: "KAD Description",
+            header: "Περιγραφή ΚΑΔ",
             cell: ({ row }) => (
                 <div className="min-w-[200px] max-w-[500px] space-y-0.5" title={row.original.nameEL || ""}>
                     <p className="text-sm font-semibold text-[#201F1E] line-clamp-2 leading-snug">{row.original.nameEL || "—"}</p>
@@ -176,19 +176,19 @@ export function DataTableKads({
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
-                            Actions <ChevronDown className="h-4 w-4 ml-1" />
+                            Ενέργειες <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Edit className="w-4 h-4 mr-2" /> Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Edit className="w-4 h-4 mr-2" /> Επεξεργασία</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={async () => {
-                            if (confirm("Delete KAD?")) {
+                            if (confirm("Διαγραφή ΚΑΔ;")) {
                                 await deleteKad(row.original.id)
                                 setData(prev => prev.filter(d => d.id !== row.original.id))
-                                toast.success("Deleted")
+                                toast.success("Διαγράφηκε")
                             }
-                        }} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Delete</DropdownMenuItem>
+                        }} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Διαγραφή</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -203,11 +203,11 @@ export function DataTableKads({
                 <div className="flex items-center gap-2">
                     <input ref={fileInputRef} type="file" className="hidden" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} />
                     <Button variant="outline" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                        <FileCode className="w-3 h-3 mr-2" /> Bulk Upload (Excel)
+                        <FileCode className="w-3 h-3 mr-2" /> Μαζική Εισαγωγή (Excel)
                     </Button>
                     {selectedCount > 0 && (
                         <Button className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]" onClick={() => setIsAssignOpen(true)}>
-                            <Link2 className="w-3 h-3 mr-2" /> Assign {selectedCount} to Program
+                            <Link2 className="w-3 h-3 mr-2" /> Αντιστοίχιση {selectedCount} σε Πρόγραμμα
                         </Button>
                     )}
                 </div>
@@ -216,10 +216,10 @@ export function DataTableKads({
             <GenericDataTable
                 columns={columns}
                 data={data}
-                searchPlaceholder="Search KAD codes or descriptions..."
+                searchPlaceholder="Αναζήτηση κωδικών ΚΑΔ ή περιγραφών..."
                 searchColumn="nameEL"
                 onAddClick={() => openEdit()}
-                addButtonLabel="Add KAD"
+                addButtonLabel="Προσθήκη ΚΑΔ"
                 rowIdKey="id"
                 enableRowSelection={true}
                 rowSelection={rowSelection}
@@ -228,12 +228,12 @@ export function DataTableKads({
                     <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
                         <div className="grid grid-cols-2 divide-x divide-[#EDEBE9]">
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Type className="w-3 h-3" /> Full Description (Greek)</p>
-                                <p className="text-sm leading-relaxed text-[#201F1E]">{kad.nameEL || "No description provided."}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Type className="w-3 h-3" /> Πλήρης Περιγραφή (Ελληνικά)</p>
+                                <p className="text-sm leading-relaxed text-[#201F1E]">{kad.nameEL || "Δεν υπάρχει περιγραφή."}</p>
                             </div>
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><CheckCircle2 className="w-3 h-3" /> English Metadata</p>
-                                <p className="text-sm leading-relaxed text-[#201F1E]">{kad.nameEN || "Translation not available."}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><CheckCircle2 className="w-3 h-3" /> Μεταδεδομένα Αγγλικά</p>
+                                <p className="text-sm leading-relaxed text-[#201F1E]">{kad.nameEN || "Δεν υπάρχει μετάφραση."}</p>
                             </div>
                         </div>
                     </div>
@@ -249,32 +249,32 @@ export function DataTableKads({
                                 <FileCode className="w-4 h-4 text-[#0078D4]" />
                             </div>
                             <div>
-                                <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingItem ? "Edit KAD" : "Create KAD"}</DialogTitle>
-                                <p className="text-[11px] text-[#A19F9D]">{editingItem ? `Code: ${editingItem.code}` : "Add a new KAD code to the registry"}</p>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingItem ? "Επεξεργασία ΚΑΔ" : "Δημιουργία ΚΑΔ"}</DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">{editingItem ? `Κωδικός: ${editingItem.code}` : "Προσθήκη νέου κωδικού ΚΑΔ στο μητρώο"}</p>
                             </div>
                         </div>
                     </DialogHeader>
                     <div className="bg-[#F3F2F1] p-4">
                         <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                             <div className="space-y-1">
-                                <Label className="text-[11px] font-semibold text-[#605E5C]">Government Code</Label>
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Κωδικός</Label>
                                 <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" placeholder="62.01" value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value })} />
                             </div>
                             <div className="space-y-1">
-                                <Label className="text-[11px] font-semibold text-[#605E5C]">Description (Greek)</Label>
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (Ελληνικά)</Label>
                                 <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm min-h-[90px]" placeholder="Δραστηριότητες προγραμματισμού..." value={formData.nameEL} onChange={e => setFormData({ ...formData, nameEL: e.target.value })} />
                             </div>
                             <div className="space-y-1">
-                                <Label className="text-[11px] font-semibold text-[#605E5C]">Description (English)</Label>
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (Αγγλικά)</Label>
                                 <Textarea className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm min-h-[90px]" placeholder="Computer programming activities..." value={formData.nameEN} onChange={e => setFormData({ ...formData, nameEN: e.target.value })} />
                             </div>
                         </div>
                     </div>
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
                         <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
                             {isSaving ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
-                            {isSaving ? "Saving..." : "Save KAD"}
+                            {isSaving ? "Αποθήκευση..." : "Αποθήκευση ΚΑΔ"}
                         </Button>
                     </div>
                 </DialogContent>
@@ -289,17 +289,17 @@ export function DataTableKads({
                                 <Link2 className="w-4 h-4 text-[#0078D4]" />
                             </div>
                             <div>
-                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Assign to Program</DialogTitle>
-                                <p className="text-[11px] text-[#A19F9D]">Link {selectedCount} selected KAD codes to an EU Program.</p>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Αντιστοίχιση σε Πρόγραμμα</DialogTitle>
+                                <p className="text-[11px] text-[#A19F9D]">Σύνδεση {selectedCount} επιλεγμένων ΚΑΔ σε Ευρωπαϊκό Πρόγραμμα.</p>
                             </div>
                         </div>
                     </DialogHeader>
                     <div className="bg-[#F3F2F1] p-4">
                         <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-2">
-                            <Label className="text-[11px] font-semibold text-[#605E5C]">Choose EU Program</Label>
+                            <Label className="text-[11px] font-semibold text-[#605E5C]">Επιλογή Ευρωπαϊκού Προγράμματος</Label>
                             <Select value={selectedProgramId} onValueChange={setSelectedProgramId}>
                                 <SelectTrigger className="h-9 rounded border-[#C8C6C4] focus:ring-[#0078D4] text-sm">
-                                    <SelectValue placeholder="Search target program..." />
+                                    <SelectValue placeholder="Αναζήτηση προγράμματος..." />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {programs.map(p => <SelectItem key={p.id} value={p.id}>{p.nameEL || p.id}</SelectItem>)}
@@ -308,10 +308,10 @@ export function DataTableKads({
                         </div>
                     </div>
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" onClick={() => setIsAssignOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button variant="ghost" onClick={() => setIsAssignOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
                         <Button disabled={isAssigning || !selectedProgramId} onClick={handleBulkAssign} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
                             {isAssigning ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
-                            {isAssigning ? "Linking..." : "Link KADs Now"}
+                            {isAssigning ? "Σύνδεση..." : "Σύνδεση ΚΑΔ"}
                         </Button>
                     </div>
                 </DialogContent>

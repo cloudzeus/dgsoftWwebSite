@@ -8,7 +8,7 @@ import { SyncKadLegalButton } from "@/components/admin/customers/sync-kad-legal-
 import { SyncGeodataButton } from "@/components/admin/customers/sync-geodata-button"
 import { SyncEmailAccButton } from "@/components/admin/customers/sync-emailacc-button"
 
-export const metadata: Metadata = { title: "Customers | Admin Dashboard" }
+export const metadata: Metadata = { title: "Πελάτες | Admin" }
 
 export default async function CustomersPage() {
   const [customers, lookups, addressRegionMap] = await Promise.all([
@@ -20,7 +20,7 @@ export default async function CustomersPage() {
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Customers</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Πελάτες</h1>
         <div className="flex flex-wrap items-center gap-2">
           <SyncAllFromSoftOneButton />
           <SyncLookupsButton />

@@ -96,10 +96,10 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete region and all children?")) return
+        if (!confirm("Διαγραφή περιοχής και όλων των υποπεριοχών;")) return
         try {
             await deletePeriferia(id)
-            toast.success("Deleted")
+            toast.success("Διαγράφηκε")
             window.location.reload()
         } catch (err: any) { toast.error(err.message) }
     }
@@ -110,7 +110,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
             const payload = { ...formData, parentCode: formData.parentCode || null }
             if (editingItem) await updatePeriferia(editingItem.id, payload)
             else await createPeriferia(payload)
-            toast.success("Saved")
+            toast.success("Αποθηκεύτηκε")
             window.location.reload()
         } catch (err: any) { toast.error(err.message) }
         finally { setIsSaving(false) }
@@ -118,10 +118,10 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
 
     const handleImport = async () => {
         setIsImporting(true)
-        const tid = toast.loading("Syncing Kallikratis...")
+        const tid = toast.loading("Συγχρονισμός Καλλικράτη...")
         try {
             await importKallikratis()
-            toast.success("Synced", { id: tid })
+            toast.success("Συγχρονίστηκε", { id: tid })
             window.location.reload()
         } catch (err: any) { toast.error(err.message, { id: tid }) }
         finally { setIsImporting(false) }
@@ -129,10 +129,10 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
 
     const handleTranslateAll = async () => {
         setIsTranslating(true)
-        const tid = toast.loading("Translating via AI...")
+        const tid = toast.loading("Μετάφραση μέσω AI...")
         try {
             const res = await translateAllPeriferies()
-            toast.success(`Translated ${res.count} regions`, { id: tid })
+            toast.success(`Μεταφράστηκαν ${res.count} περιοχές`, { id: tid })
             window.location.reload()
         } catch (err: any) { toast.error(err.message, { id: tid }) }
         finally { setIsTranslating(false) }
@@ -151,7 +151,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
         },
         {
             accessorKey: "level",
-            header: "Level",
+            header: "Επίπεδο",
             cell: ({ row }) => {
                 const meta = LEVEL_META[row.original.level] || LEVEL_META[6]
                 const Icon = meta.icon
@@ -164,7 +164,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
         },
         {
             accessorKey: "nameEL",
-            header: "Region Name",
+            header: "Όνομα Περιοχής",
             cell: ({ row }) => (
                 <div className="flex flex-col gap-0.5">
                     <span className="text-sm font-semibold text-[#201F1E]">{row.original.nameEL}</span>
@@ -174,7 +174,7 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
         },
         {
             accessorKey: "code",
-            header: "Kallikratis ID",
+            header: "Κωδικός Καλλικράτη",
             cell: ({ row }) => <code className="text-[10px] font-mono bg-[#F3F2F1] px-2 py-0.5 rounded text-[#605E5C]">{row.original.code}</code>
         },
         {
@@ -183,14 +183,14 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
-                            Actions <ChevronDown className="h-4 w-4 ml-1" />
+                            Ενέργειες <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        {row.original.level < 6 && <DropdownMenuItem onClick={() => openAddChild(row.original)}><Plus className="w-4 h-4 mr-2" /> Add Child</DropdownMenuItem>}
-                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Edit className="w-4 h-4 mr-2" /> Edit</DropdownMenuItem>
+                        {row.original.level < 6 && <DropdownMenuItem onClick={() => openAddChild(row.original)}><Plus className="w-4 h-4 mr-2" /> Προσθήκη Υποπεριοχής</DropdownMenuItem>}
+                        <DropdownMenuItem onClick={() => openEdit(row.original)}><Edit className="w-4 h-4 mr-2" /> Επεξεργασία</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="text-red-500"><Trash2 className="w-4 h-4 mr-2" /> Διαγραφή</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
@@ -210,10 +210,10 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={handleTranslateAll} disabled={isTranslating} className="h-8 px-3 text-[12px] font-semibold border-[#C8C6C4] hover:bg-[#EDEBE9] rounded">
-                        {isTranslating ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <Globe className="w-3 h-3 mr-2" />} Translate All
+                        {isTranslating ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <Globe className="w-3 h-3 mr-2" />} Μετάφραση Όλων
                     </Button>
                     <Button size="sm" onClick={handleImport} disabled={isImporting} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                        {isImporting ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <DownloadCloud className="w-3 h-3 mr-2" />} Sync Kallikratis
+                        {isImporting ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <DownloadCloud className="w-3 h-3 mr-2" />} Συγχρονισμός Καλλικράτη
                     </Button>
                     <GeocodePeriferiesButton />
                 </div>
@@ -222,24 +222,24 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
             <GenericDataTable
                 columns={columns}
                 data={data}
-                searchPlaceholder="Search regions..."
+                searchPlaceholder="Αναζήτηση περιοχών..."
                 searchColumn="nameEL"
                 onAddClick={openAddRoot}
-                addButtonLabel="Add Root Region"
+                addButtonLabel="Προσθήκη Κύριας Περιοχής"
                 getSubRows={row => row.children}
                 getRowClassName={row => LEVEL_META[row.level]?.bg || ""}
                 renderExpandedRow={(region) => (
                     <div className="mx-4 mb-3 mt-1 rounded-lg border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden">
                         <div className="grid grid-cols-2 divide-x divide-[#EDEBE9]">
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Layers className="w-3 h-3" /> Regional Metadata</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] flex items-center gap-2"><Layers className="w-3 h-3" /> Μεταδεδομένα Περιοχής</p>
                                 <div className="space-y-2 text-sm">
                                     <div>
-                                        <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Hierarchy Path</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Ιεραρχική Διαδρομή</Label>
                                         <p className="font-mono text-[11px] text-[#201F1E]">{region.parentCode ? `${region.parentCode} → ${region.code}` : region.code}</p>
                                     </div>
                                     <div>
-                                        <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Coordinates</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Συντεταγμένες</Label>
                                         <p className="font-mono text-[11px] text-[#201F1E]">
                                             {region.latitude != null && region.longitude != null
                                                 ? `${region.latitude.toFixed(4)}, ${region.longitude.toFixed(4)}`
@@ -249,10 +249,10 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                                 </div>
                             </div>
                             <div className="p-4 space-y-2">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Sub-regions</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Υποπεριοχές</p>
                                 <div>
-                                    <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Total Children</Label>
-                                    <p className="text-sm font-bold text-[#0078D4]">{region.children?.length || 0} Children</p>
+                                    <Label className="text-[11px] font-semibold text-[#605E5C] block mb-0.5">Σύνολο Υποπεριοχών</Label>
+                                    <p className="text-sm font-bold text-[#0078D4]">{region.children?.length || 0} Υποπεριοχές</p>
                                 </div>
                             </div>
                         </div>
@@ -270,10 +270,10 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                             </div>
                             <div>
                                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                    {editingItem ? `Edit: ${editingItem.nameEL}` : addingToParent ? `Add sub-region under ${addingToParent.nameEL}` : "Create Root Region"}
+                                    {editingItem ? `Επεξεργασία: ${editingItem.nameEL}` : addingToParent ? `Προσθήκη υποπεριοχής στη ${addingToParent.nameEL}` : "Δημιουργία Κύριας Περιοχής"}
                                 </DialogTitle>
                                 <p className="text-[11px] text-[#A19F9D]">
-                                    {editingItem ? "Update region details" : addingToParent ? `Parent code: ${addingToParent.code}` : "Add a top-level region"}
+                                    {editingItem ? "Ενημέρωση στοιχείων περιοχής" : addingToParent ? `Κωδικός γονέα: ${addingToParent.code}` : "Προσθήκη περιοχής κορυφής ιεραρχίας"}
                                 </p>
                             </div>
                         </div>
@@ -283,11 +283,11 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                         <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Government Code</Label>
+                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Κωδικός</Label>
                                     <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono" value={formData.code} onChange={e => setFormData(f => ({ ...f, code: e.target.value }))} />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Regional Level</Label>
+                                    <Label className="text-[11px] font-semibold text-[#605E5C]">Επίπεδο Περιοχής</Label>
                                     <Select value={String(formData.level)} onValueChange={v => setFormData(f => ({ ...f, level: parseInt(v) }))}>
                                         <SelectTrigger className="h-9 rounded border-[#C8C6C4] focus:ring-[#0078D4] text-sm">
                                             <SelectValue />
@@ -302,21 +302,21 @@ export function DataTablePeriferies({ data: initialData }: { data: PeriferiaType
                                 </div>
                             </div>
                             <div className="space-y-1">
-                                <Label className="text-[11px] font-semibold text-[#605E5C]">Full Name (Greek)</Label>
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Πλήρες Όνομα (Ελληνικά)</Label>
                                 <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEL} onChange={e => setFormData(f => ({ ...f, nameEL: e.target.value }))} />
                             </div>
                             <div className="space-y-1">
-                                <Label className="text-[11px] font-semibold text-[#605E5C]">Full Name (English)</Label>
+                                <Label className="text-[11px] font-semibold text-[#605E5C]">Πλήρες Όνομα (Αγγλικά)</Label>
                                 <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.nameEN} onChange={e => setFormData(f => ({ ...f, nameEN: e.target.value }))} />
                             </div>
                         </div>
                     </div>
 
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Cancel</Button>
+                        <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
                         <Button disabled={isSaving} onClick={handleSave} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
                             {isSaving ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : null}
-                            {isSaving ? "Saving..." : "Save Region"}
+                            {isSaving ? "Αποθήκευση..." : "Αποθήκευση Περιοχής"}
                         </Button>
                     </div>
                 </DialogContent>

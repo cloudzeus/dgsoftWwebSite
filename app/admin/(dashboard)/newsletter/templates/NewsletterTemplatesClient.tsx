@@ -68,7 +68,7 @@ export function NewsletterTemplatesClient({
   const handleSave = async () => {
     const trimmed = name.trim();
     if (!trimmed) {
-      toast.error("Name is required");
+      toast.error("Το όνομα είναι υποχρεωτικό");
       return;
     }
     setSaving(true);
@@ -78,7 +78,7 @@ export function NewsletterTemplatesClient({
         setTemplates((prev) =>
           prev.map((p) => (p.id === editingId ? { ...p, name: trimmed, description: description.trim() || null, content, updatedAt: new Date() } : p))
         );
-        toast.success("Template updated");
+        toast.success("Το πρότυπο ενημερώθηκε");
       } else {
         const created = await createNewsletterTemplate({
           name: trimmed,
@@ -86,25 +86,25 @@ export function NewsletterTemplatesClient({
           content,
         });
         setTemplates((prev) => [created as Template, ...prev]);
-        toast.success("Template created");
+        toast.success("Το πρότυπο δημιουργήθηκε");
       }
       setOpen(false);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to save");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αποθήκευσης");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this template?")) return;
+    if (!confirm("Διαγραφή αυτού του προτύπου;")) return;
     try {
       await deleteNewsletterTemplate(id);
       setTemplates((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Template deleted");
+      toast.success("Το πρότυπο διαγράφηκε");
       if (editingId === id) setOpen(false);
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to delete");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία διαγραφής");
     }
   };
 
@@ -112,7 +112,7 @@ export function NewsletterTemplatesClient({
     <div className="space-y-4">
       <Button onClick={openCreate} className="gap-2">
         <PlusIcon className="h-4 w-4" />
-        New template
+        Νέο πρότυπο
       </Button>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -139,7 +139,7 @@ export function NewsletterTemplatesClient({
                 <CardDescription className="text-xs">{t.description}</CardDescription>
               )}
               <p className="mt-1 text-xs text-muted-foreground">
-                Updated {new Date(t.updatedAt).toLocaleDateString()}
+                Ενημερώθηκε {new Date(t.updatedAt).toLocaleDateString()}
               </p>
             </CardContent>
           </Card>
@@ -153,42 +153,42 @@ export function NewsletterTemplatesClient({
               <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
                 <PlusIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
-              <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Edit template" : "New template"}</DialogTitle>
+              <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Επεξεργασία προτύπου" : "Νέο πρότυπο"}</DialogTitle>
             </div>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-[#F3F2F1] px-5 py-4 space-y-3">
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Template Details</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Στοιχεία Προτύπου</p>
               <div className="space-y-1">
-                <Label className="text-[11px] font-semibold text-[#605E5C]">Name</Label>
+                <Label className="text-[11px] font-semibold text-[#605E5C]">Όνομα</Label>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Template name"
+                  placeholder="Όνομα προτύπου"
                   className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[11px] font-semibold text-[#605E5C]">Description (optional)</Label>
+                <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (προαιρετικό)</Label>
                 <Input
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Short description"
+                  placeholder="Σύντομη περιγραφή"
                   className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
                 />
               </div>
             </div>
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Content</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Περιεχόμενο</p>
               <VisualDesigner value={content} onChange={setContent} />
             </div>
           </div>
           <div className="shrink-0 px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">
-              Cancel
+              Ακύρωση
             </Button>
             <Button onClick={handleSave} disabled={saving} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-              {saving ? "Saving…" : editingId ? "Update" : "Create"}
+              {saving ? "Αποθήκευση…" : editingId ? "Ενημέρωση" : "Δημιουργία"}
             </Button>
           </div>
         </DialogContent>

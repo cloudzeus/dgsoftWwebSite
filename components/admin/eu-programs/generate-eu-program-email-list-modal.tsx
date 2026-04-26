@@ -59,7 +59,7 @@ export function GenerateEuProgramEmailListModal({
         setSelected(new Set(list.map(rowKey)));
       })
       .catch((e: Error) => {
-        toast.error(e.message || "Failed to load recipients");
+        toast.error(e.message || "Αποτυχία φόρτωσης παραληπτών");
         setRows([]);
         setSelected(new Set());
       })
@@ -95,17 +95,17 @@ export function GenerateEuProgramEmailListModal({
         customerCode: r.customerCode,
       }));
     if (chosen.length === 0) {
-      toast.error("Select at least one recipient");
+      toast.error("Επιλέξτε τουλάχιστον έναν παραλήπτη");
       return;
     }
     setSaving(true);
     try {
       await saveEuProgramRecipientList(program.id, chosen);
-      toast.success(`Saved list (${chosen.length} recipients)`);
+      toast.success(`Αποθηκεύτηκε λίστα (${chosen.length} παραλήπτες)`);
       onOpenChange(false);
       onSaved?.();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Failed to save list");
+      toast.error(e instanceof Error ? e.message : "Αποτυχία αποθήκευσης λίστας");
     } finally {
       setSaving(false);
     }
@@ -123,10 +123,10 @@ export function GenerateEuProgramEmailListModal({
             </div>
             <div>
               <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                Generate Email List
+                Δημιουργία Λίστας Email
               </DialogTitle>
               <DialogDescription className="text-[11px] text-[#A19F9D]">
-                {program ? program.nameEL : "Select a program to continue"}
+                {program ? program.nameEL : "Επιλέξτε πρόγραμμα για να συνεχίσετε"}
               </DialogDescription>
             </div>
           </div>
@@ -138,10 +138,10 @@ export function GenerateEuProgramEmailListModal({
           {/* Info card */}
           {program && (
             <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">MATCHING RULES</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">ΚΑΝΟΝΕΣ ΑΝΤΙΣΤΟΙΧΙΣΗΣ</p>
               <p className="text-[11px] text-[#605E5C] leading-relaxed">
-                Matches use the same KAD prefix rules as program validation and the program&apos;s linked regions
-                (address → region mapping). All matching clients are pre-selected — uncheck any row before saving.
+                Η αντιστοίχιση χρησιμοποιεί τους ίδιους κανόνες ΚΑΔ με την επικύρωση προγράμματος και τις συνδεδεμένες περιοχές
+                (διεύθυνση → αντιστοίχιση περιοχής). Όλοι οι αντίστοιχοι πελάτες είναι προεπιλεγμένοι — αποεπιλέξτε γραμμές πριν αποθηκεύσετε.
               </p>
             </div>
           )}
@@ -152,7 +152,7 @@ export function GenerateEuProgramEmailListModal({
               <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-[#A19F9D]" />
                 <span className="text-[11px] font-semibold text-[#605E5C]">
-                  {loading ? "Loading recipients…" : `${selected.size} of ${rows.length} selected`}
+                  {loading ? "Φόρτωση παραληπτών…" : `${selected.size} από ${rows.length} επιλεγμένοι`}
                 </span>
               </div>
               <div className="flex gap-1.5">
@@ -164,7 +164,7 @@ export function GenerateEuProgramEmailListModal({
                   disabled={loading || rows.length === 0}
                   className="h-7 px-3 text-[11px] font-semibold text-[#0078D4] hover:bg-[#EFF6FC]"
                 >
-                  Select all
+                  Επιλογή όλων
                 </Button>
                 <Button
                   type="button"
@@ -174,7 +174,7 @@ export function GenerateEuProgramEmailListModal({
                   disabled={loading || rows.length === 0}
                   className="h-7 px-3 text-[11px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9]"
                 >
-                  Clear
+                  Εκκαθάριση
                 </Button>
               </div>
             </div>
@@ -182,16 +182,15 @@ export function GenerateEuProgramEmailListModal({
 
           {/* Recipients list card */}
           <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] px-4 pt-3 pb-2">RECIPIENTS</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] px-4 pt-3 pb-2">ΠΑΡΑΛΗΠΤΕΣ</p>
             {loading ? (
               <div className="flex items-center justify-center py-12 text-[#A19F9D] gap-2">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="text-[11px] font-semibold">Building recipient list…</span>
+                <span className="text-[11px] font-semibold">Δημιουργία λίστας παραληπτών…</span>
               </div>
             ) : rows.length === 0 ? (
               <p className="py-10 text-center text-[11px] text-[#A19F9D] px-4">
-                No customers match this program&apos;s KADs and regions (with a known email and address mapping where
-                regions apply).
+                Δεν βρέθηκαν πελάτες που να ταιριάζουν με τους ΚΑΔ και τις περιοχές του προγράμματος (με γνωστό email και αντιστοίχιση διεύθυνσης).
               </p>
             ) : (
               <div className="divide-y divide-[#EDEBE9]">
@@ -232,7 +231,7 @@ export function GenerateEuProgramEmailListModal({
             disabled={saving}
             className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded"
           >
-            Cancel
+            Ακύρωση
           </Button>
           <Button
             type="button"
@@ -243,10 +242,10 @@ export function GenerateEuProgramEmailListModal({
             {saving ? (
               <>
                 <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
-                Saving…
+                Αποθήκευση…
               </>
             ) : (
-              `Save list${selected.size > 0 ? ` (${selected.size})` : ""}`
+              `Αποθήκευση λίστας${selected.size > 0 ? ` (${selected.size})` : ""}`
             )}
           </Button>
         </div>

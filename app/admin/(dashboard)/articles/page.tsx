@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import { getArticles, getArticleCategories } from "@/app/lib/actions/article"
 import { DataTableArticles } from "@/components/admin/articles/data-table-articles"
 
-export const metadata: Metadata = { title: "Articles | Admin Dashboard" }
+export const metadata: Metadata = { title: "Άρθρα | Admin" }
 
 export default async function ArticlesPage() {
   const [articles, categories] = await Promise.all([

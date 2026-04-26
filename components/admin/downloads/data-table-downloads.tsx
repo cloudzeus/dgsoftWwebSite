@@ -97,7 +97,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
 
     const handleFileUpload = async (file: File) => {
         setIsUploading(true)
-        const tid = toast.loading("Uploading file...")
+        const tid = toast.loading("Μεταφόρτωση αρχείου...")
         try {
             const fd = new FormData()
             fd.append("file", file)
@@ -105,7 +105,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
             const d = await res.json()
             if (!res.ok) throw new Error(d.error)
             setFormData(prev => ({ ...prev, fileUrl: d.url, fileSize: d.fileSize || prev.fileSize, fileType: d.fileType || prev.fileType }))
-            toast.success("File uploaded", { id: tid })
+            toast.success("Το αρχείο μεταφορτώθηκε", { id: tid })
         } catch (err: any) {
             toast.error(err.message, { id: tid })
         } finally {
@@ -115,7 +115,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
 
     const runAiTranslation = async () => {
         setTranslating(true)
-        const tid = toast.loading("Translating metadata...")
+        const tid = toast.loading("Μετάφραση μεταδεδομένων...")
         try {
             const res = await fetch("/api/admin/translate", {
                 method: "POST",
@@ -126,7 +126,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
             if (!res.ok) throw new Error(d.error)
             const parsed = JSON.parse(d.translated)
             setFormData(prev => ({ ...prev, nameEN: parsed.name, descriptionEN: parsed.desc }))
-            toast.success("Translation applied", { id: tid })
+            toast.success("Η μετάφραση εφαρμόστηκε", { id: tid })
         } catch (e: any) {
             toast.error(e.message, { id: tid })
         } finally {
@@ -135,19 +135,19 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
     }
 
     const handleSave = async () => {
-        if (!formData.nameEL.trim()) return toast.error("Asset name is required")
-        if (!formData.fileUrl.trim()) return toast.error("File URL is required")
+        if (!formData.nameEL.trim()) return toast.error("Το όνομα αρχείου είναι υποχρεωτικό")
+        if (!formData.fileUrl.trim()) return toast.error("Το URL αρχείου είναι υποχρεωτικό")
         setIsSaving(true)
         try {
             const payload = { ...formData, order: Number(formData.order) || 0 }
             if (editingItem) {
                 const updated = await updateDownload(editingItem.id, payload as any)
                 setData(prev => prev.map(d => d.id === updated.id ? updated as any : d))
-                toast.success("Download updated")
+                toast.success("Το αρχείο λήψης ενημερώθηκε")
             } else {
                 const created = await createDownload(payload as any)
                 setData(prev => [...prev, created as any])
-                toast.success("Download created")
+                toast.success("Το αρχείο λήψης δημιουργήθηκε")
             }
             setIsDialogOpen(false)
         } catch (err: any) {
@@ -161,9 +161,9 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
         setData(newData)
         try {
             await updateDownloadOrder(newData.map(d => d.id))
-            toast.success("Order updated")
+            toast.success("Η σειρά ενημερώθηκε")
         } catch {
-            toast.error("Reorder failed")
+            toast.error("Αποτυχία αναδιάταξης")
         }
     }
 
@@ -183,7 +183,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="flex items-center gap-1 text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide hover:text-[#201F1E]"
                 >
-                    File <ArrowUpDown className="h-3 w-3" />
+                    Αρχείο <ArrowUpDown className="h-3 w-3" />
                 </button>
             ),
             cell: ({ row }) => (
@@ -205,7 +205,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
         },
         {
             id: "meta",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Category / Type</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κατηγορία / Τύπος</span>,
             cell: ({ row }) => (
                 <div className="flex flex-wrap items-center gap-1.5">
                     {row.original.category && (
@@ -226,7 +226,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
         },
         {
             id: "size",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Size</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Μέγεθος</span>,
             cell: ({ row }) => (
                 <div className="flex items-center gap-1.5">
                     <Database className="w-3.5 h-3.5 text-[#C8C6C4] shrink-0" />
@@ -236,16 +236,16 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
         },
         {
             accessorKey: "published",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κατάσταση</span>,
             cell: ({ row }) => row.original.published ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    Live
+                    Ενεργό
                 </span>
             ) : (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />
-                    Draft
+                    Πρόχειρο
                 </span>
             )
         },
@@ -255,26 +255,26 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
-                            Actions <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
+                            Ενέργειες <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => openEdit(row.original)} className="text-sm">
-                            <Edit className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit
+                            <Edit className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Επεξεργασία
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => window.open(row.original.fileUrl, "_blank")} className="text-sm">
-                            <CloudDownload className="w-3.5 h-3.5 mr-2" /> Download File
+                            <CloudDownload className="w-3.5 h-3.5 mr-2" /> Λήψη Αρχείου
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             className="text-red-500 text-sm focus:bg-red-50 focus:text-red-600"
                             onClick={() => {
-                                if (confirm("Delete this download?")) {
+                                if (confirm("Διαγραφή αυτής της λήψης;")) {
                                     deleteDownload(row.original.id).then(() => setData(d => d.filter(x => x.id !== row.original.id)))
                                 }
                             }}
                         >
-                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Διαγραφή
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -290,7 +290,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
 
                 {/* Left — file details */}
                 <div className="p-4 space-y-3 bg-white">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">File Details</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Στοιχεία Αρχείου</p>
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-[#F3F2F1] border border-[#EDEBE9] p-1 flex items-center justify-center shrink-0">
                             <FileTypeIcon type={item.fileType} className="w-4 h-4 text-[#605E5C]" />
@@ -319,23 +319,23 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                         className="w-full h-8 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] rounded gap-2"
                         onClick={() => window.open(item.fileUrl, "_blank")}
                     >
-                        <CloudDownload className="w-3.5 h-3.5 text-[#0078D4]" /> Download File
+                        <CloudDownload className="w-3.5 h-3.5 text-[#0078D4]" /> Λήψη Αρχείου
                     </Button>
                 </div>
 
                 {/* Right — English localization */}
                 <div className="p-4 space-y-3 bg-white">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">English Localization</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Αγγλική Έκδοση</p>
                     <p className="text-sm font-semibold text-[#201F1E]">
-                        {item.nameEN || <span className="text-[#A19F9D] font-normal italic">Not translated</span>}
+                        {item.nameEN || <span className="text-[#A19F9D] font-normal italic">Δεν έχει μεταφραστεί</span>}
                     </p>
                     <p className="text-sm text-[#605E5C] leading-relaxed">
-                        {item.descriptionEN || <span className="text-[#A19F9D] italic">No English description.</span>}
+                        {item.descriptionEN || <span className="text-[#A19F9D] italic">Δεν υπάρχει αγγλική περιγραφή.</span>}
                     </p>
                     <div className="pt-2 border-t border-[#EDEBE9] flex items-center justify-between text-[11px] text-[#A19F9D]">
-                        <span>Added: {new Date(item.createdAt).toLocaleDateString()}</span>
+                        <span>Προστέθηκε: {new Date(item.createdAt).toLocaleDateString()}</span>
                         <span className="flex items-center gap-1.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Available
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Διαθέσιμο
                         </span>
                     </div>
                 </div>
@@ -348,8 +348,8 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
     return (
         <div className="space-y-4">
             <GenericDataTable
-                columns={columns} data={data} searchPlaceholder="Search downloads..." searchColumn="nameEL"
-                onAddClick={() => openEdit()} addButtonLabel="New Download"
+                columns={columns} data={data} searchPlaceholder="Αναζήτηση λήψεων..." searchColumn="nameEL"
+                onAddClick={() => openEdit()} addButtonLabel="Νέα Λήψη"
                 isSortable={true} onReorder={handleReorder}
                 renderExpandedRow={renderExpandedRow}
             />
@@ -366,10 +366,10 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                                 </div>
                                 <div>
                                     <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                        {editingItem ? "Edit Download" : "New Download"}
+                                        {editingItem ? "Επεξεργασία Λήψης" : "Νέα Λήψη"}
                                     </DialogTitle>
                                     <DialogDescription className="text-[11px] text-[#A19F9D]">
-                                        {editingItem ? editingItem.nameEL : "Configure file metadata and localization."}
+                                        {editingItem ? editingItem.nameEL : "Ρύθμιση μεταδεδομένων αρχείου και μεταφράσεων."}
                                     </DialogDescription>
                                 </div>
                             </div>
@@ -383,7 +383,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                                     ? <RefreshCcw className="w-3.5 h-3.5 animate-spin mr-1.5" />
                                     : <Zap className="w-3.5 h-3.5 mr-1.5" />
                                 }
-                                AI Translate
+                                Μετάφραση AI
                             </Button>
                         </div>
                     </DialogHeader>
@@ -399,7 +399,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                                     EN
                                 </TabsTrigger>
                                 <TabsTrigger value="file" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide px-3 h-6 rounded transition-all">
-                                    File & Settings
+                                    Αρχείο & Ρυθμίσεις
                                 </TabsTrigger>
                             </TabsList>
 
@@ -437,12 +437,12 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">English</p>
                                     <div className="space-y-1.5">
                                         <Label className="text-[11px] font-semibold text-[#605E5C] flex justify-between items-center">
-                                            Name (English)
+                                            Όνομα (Αγγλικά)
                                             <button
                                                 onClick={() => runAiTranslation()}
                                                 className="text-[#0078D4] hover:text-[#106EBE] text-[11px] font-semibold transition-colors flex items-center gap-1"
                                             >
-                                                <Wand2 className="w-3 h-3" /> Auto-translate
+                                                <Wand2 className="w-3 h-3" /> Αυτόματη Μετάφραση
                                             </button>
                                         </Label>
                                         <Input
@@ -453,7 +453,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Description (English)</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (Αγγλικά)</Label>
                                         <Textarea
                                             rows={5}
                                             className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
@@ -470,12 +470,12 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
 
                                 {/* Upload drop zone */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">File Upload</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Μεταφόρτωση Αρχείου</p>
                                     <div className="border border-dashed border-[#C8C6C4] rounded-lg p-6 text-center bg-[#F3F2F1] hover:border-[#0078D4] transition-colors group">
                                         <CloudDownload className="w-8 h-8 mx-auto mb-3 text-[#C8C6C4] group-hover:text-[#0078D4] transition-colors" />
                                         <Label className="cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95 transition-all">
                                             {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                                            Upload File
+                                            Μεταφόρτωση
                                             <input
                                                 type="file"
                                                 className="hidden"
@@ -493,9 +493,9 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
 
                                 {/* Manual URL */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">File URL</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">URL Αρχείου</p>
                                     <Label className="text-[11px] font-semibold text-[#605E5C]">
-                                        Direct URL <span className="text-red-500">*</span>
+                                        Άμεσο URL <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono text-[#0078D4]"
@@ -507,19 +507,19 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
 
                                 {/* Metadata */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Metadata</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Μεταδεδομένα</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1.5">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Category</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Κατηγορία</Label>
                                             <Input
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
-                                                placeholder="e.g. Reports"
+                                                placeholder="π.χ. Αναφορές"
                                                 value={formData.category}
                                                 onChange={e => setFormData({ ...formData, category: e.target.value })}
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">File Type</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Τύπος Αρχείου</Label>
                                             <Input
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono uppercase"
                                                 placeholder="PDF, ZIP, DOCX..."
@@ -530,16 +530,16 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1.5">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">File Size</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Μέγεθος Αρχείου</Label>
                                             <Input
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono"
-                                                placeholder="e.g. 2.4 MB"
+                                                placeholder="π.χ. 2.4 MB"
                                                 value={formData.fileSize}
                                                 onChange={e => setFormData({ ...formData, fileSize: e.target.value })}
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Order</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Σειρά</Label>
                                             <Input
                                                 type="number"
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm"
@@ -553,12 +553,12 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                                 {/* Visibility */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 flex items-center justify-between">
                                     <div className="flex flex-col gap-0.5">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Public Visibility</Label>
-                                        <p className="text-[11px] text-[#A19F9D]">Make this file available to visitors.</p>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Δημόσια Ορατότητα</Label>
+                                        <p className="text-[11px] text-[#A19F9D]">Κάντε το αρχείο διαθέσιμο στους επισκέπτες.</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className={`text-[11px] font-semibold transition-colors ${formData.published ? 'text-emerald-600' : 'text-[#A19F9D]'}`}>
-                                            {formData.published ? 'Live' : 'Off'}
+                                            {formData.published ? 'Ενεργό' : 'Ανενεργό'}
                                         </span>
                                         <Switch
                                             checked={formData.published}
@@ -574,7 +574,7 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                     {/* ── Dialog Footer ─────────────────────────────────────── */}
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
                         <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded">
-                            Cancel
+                            Ακύρωση
                         </Button>
                         <Button
                             disabled={isSaving}
@@ -582,8 +582,8 @@ export function DataTableDownloads({ data: initialData }: { data: Download[] }) 
                             className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95"
                         >
                             {isSaving
-                                ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Saving…</>
-                                : editingItem ? "Save Download" : "Create Download"
+                                ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Αποθήκευση…</>
+                                : editingItem ? "Αποθήκευση" : "Δημιουργία"
                             }
                         </Button>
                     </div>

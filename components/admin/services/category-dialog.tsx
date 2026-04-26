@@ -76,11 +76,11 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure? This will delete the category and all associated services.")) return
+        if (!confirm("Είστε σίγουροι; Αυτό θα διαγράψει την κατηγορία και όλες τις σχετικές υπηρεσίες.")) return
         try {
             await deleteServiceCategory(id)
             onCategoriesChange(categories.filter(c => c.id !== id))
-            toast.success("Category deleted")
+            toast.success("Η κατηγορία διαγράφηκε")
         } catch (err: any) {
             toast.error(err.message)
         }
@@ -98,10 +98,10 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
             const data = await res.json()
             if (data.url) {
                 setFormData(prev => ({ ...prev, icon: data.url }))
-                toast.success("Icon uploaded")
+                toast.success("Το εικονίδιο μεταφορτώθηκε")
             }
         } catch (err: any) {
-            toast.error("Upload failed")
+            toast.error("Αποτυχία μεταφόρτωσης")
         } finally {
             setIsUploading(false)
         }
@@ -110,7 +110,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
     const handleTranslate = async (sourceField: keyof typeof formData, targetField: keyof typeof formData) => {
         const sourceValue = formData[sourceField]
         if (!sourceValue || typeof sourceValue !== 'string') {
-            toast.error("Please enter some text in Greek first")
+            toast.error("Εισάγετε κείμενο στα ελληνικά πρώτα")
             return
         }
         setIsTranslating(String(targetField))
@@ -122,7 +122,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
             const data = await res.json()
             if (data.translated) {
                 setFormData(prev => ({ ...prev, [targetField]: data.translated }))
-                toast.success("Translation complete")
+                toast.success("Η μετάφραση ολοκληρώθηκε")
             } else {
                 throw new Error(data.error || "Translation failed")
             }
@@ -134,17 +134,17 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
     }
 
     const handleSave = async () => {
-        if (!formData.nameEL) return toast.error("Greek name is required")
+        if (!formData.nameEL) return toast.error("Η ελληνική ονομασία είναι υποχρεωτική")
         setIsSaving(true)
         try {
             if (editingCategory) {
                 const updated = await updateServiceCategory(editingCategory.id, formData)
                 onCategoriesChange(categories.map(c => c.id === updated.id ? { ...c, ...updated } : c))
-                toast.success("Category updated")
+                toast.success("Η κατηγορία ενημερώθηκε")
             } else {
                 const created = await createServiceCategory(formData)
                 onCategoriesChange([...categories, created as any])
-                toast.success("Category created")
+                toast.success("Η κατηγορία δημιουργήθηκε")
             }
             setIsFormOpen(false)
             resetForm()
@@ -166,11 +166,11 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                 <Layers className="w-4 h-4 text-[#0078D4]" />
                             </div>
                             <div>
-                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Service Categories</DialogTitle>
+                                <DialogTitle className="text-sm font-bold text-[#201F1E]">Κατηγορίες Υπηρεσιών</DialogTitle>
                                 <DialogDescription className="text-[11px] text-[#A19F9D]">
                                     {isFormOpen
-                                        ? editingCategory ? `Editing: ${editingCategory.nameEL}` : "Create a new category"
-                                        : `${categories.length} ${categories.length === 1 ? 'category' : 'categories'}`}
+                                        ? editingCategory ? `Επεξεργασία: ${editingCategory.nameEL}` : "Δημιουργία νέας κατηγορίας"
+                                        : `${categories.length} ${categories.length === 1 ? 'κατηγορία' : 'κατηγορίες'}`}
                                 </DialogDescription>
                             </div>
                         </div>
@@ -180,7 +180,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                 onClick={() => { resetForm(); setIsFormOpen(true) }}
                                 className="h-8 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95"
                             >
-                                <Plus className="w-3 h-3 mr-1.5" /> New Category
+                                <Plus className="w-3 h-3 mr-1.5" /> Νέα Κατηγορία
                             </Button>
                         )}
                     </div>
@@ -192,11 +192,11 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                         <div className="bg-[#F3F2F1] max-h-[75vh] overflow-y-auto px-5 py-4 space-y-3">
                             {/* Names */}
                             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Names</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Ονομασίες</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-1">
                                         <Label className="text-[11px] font-semibold text-[#605E5C]">
-                                            Name (Greek) <span className="text-red-500">*</span>
+                                            Ονομασία (Ελληνικά) <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             value={formData.nameEL}
@@ -207,7 +207,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center justify-between">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Name (English)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Ονομασία (Αγγλικά)</Label>
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -217,7 +217,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                                 disabled={!!isTranslating}
                                             >
                                                 {isTranslating === "nameEN" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
-                                                Translate
+                                                Μετάφραση
                                             </Button>
                                         </div>
                                         <Input
@@ -232,10 +232,10 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
 
                             {/* Descriptions */}
                             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Descriptions</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Περιγραφές</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-1">
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Description (Greek)</Label>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (Ελληνικά)</Label>
                                         <Textarea
                                             value={formData.descriptionEL}
                                             onChange={e => setFormData({ ...formData, descriptionEL: e.target.value })}
@@ -245,7 +245,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex items-center justify-between">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Description (English)</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Περιγραφή (Αγγλικά)</Label>
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -255,13 +255,13 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                                 disabled={!!isTranslating}
                                             >
                                                 {isTranslating === "descriptionEN" ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
-                                                Translate
+                                                Μετάφραση
                                             </Button>
                                         </div>
                                         <Textarea
                                             value={formData.descriptionEN}
                                             onChange={e => setFormData({ ...formData, descriptionEN: e.target.value })}
-                                            placeholder="Describe the category..."
+                                            placeholder="Περιγράψτε την κατηγορία (αγγλικά)..."
                                             className="rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm h-28 resize-none"
                                         />
                                     </div>
@@ -270,7 +270,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
 
                             {/* Icon */}
                             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 space-y-3">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Category Icon</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Εικονίδιο Κατηγορίας</p>
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 rounded-lg border border-[#EDEBE9] flex items-center justify-center bg-[#F3F2F1] overflow-hidden relative group shrink-0">
                                         {formData.icon ? (
@@ -292,7 +292,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                         )}
                                     </div>
                                     <p className="text-[11px] text-[#A19F9D] leading-relaxed">
-                                        Upload an SVG or PNG icon. Icons should be clear and minimalist to represent the category across the site.
+                                        Μεταφορτώστε εικονίδιο SVG ή PNG. Θα πρέπει να είναι σαφές και μινιμαλιστικό.
                                     </p>
                                 </div>
                             </div>
@@ -306,7 +306,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                 onClick={() => { setIsFormOpen(false); resetForm() }}
                                 className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded"
                             >
-                                Cancel
+                                Ακύρωση
                             </Button>
                             <Button
                                 size="sm"
@@ -315,7 +315,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                 className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95"
                             >
                                 {isSaving ? <RefreshCcw className="w-3 h-3 animate-spin mr-2" /> : <Check className="w-3 h-3 mr-2" />}
-                                Save Category
+                                Αποθήκευση Κατηγορίας
                             </Button>
                         </div>
                     </>
@@ -328,8 +328,8 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                     <div className="w-9 h-9 rounded-lg bg-[#F3F2F1] border border-[#EDEBE9] flex items-center justify-center mb-3">
                                         <Layers className="w-4 h-4 text-[#A19F9D]" />
                                     </div>
-                                    <p className="text-sm font-semibold text-[#201F1E]">No categories yet</p>
-                                    <p className="text-[11px] text-[#A19F9D] mt-1">Click &quot;New Category&quot; to get started.</p>
+                                    <p className="text-sm font-semibold text-[#201F1E]">Δεν υπάρχουν κατηγορίες</p>
+                                    <p className="text-[11px] text-[#A19F9D] mt-1">Πατήστε &quot;Νέα Κατηγορία&quot; για να ξεκινήσετε.</p>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -349,7 +349,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                                     <span className="text-sm font-semibold text-[#201F1E] block">{cat.nameEL}</span>
                                                     <div className="flex items-center gap-2 mt-0.5">
                                                         <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#605E5C] border border-[#EDEBE9]">
-                                                            {cat._count?.services || 0} services
+                                                            {cat._count?.services || 0} υπηρεσίες
                                                         </span>
                                                         {cat.nameEN && (
                                                             <span className="text-[11px] text-[#A19F9D] italic truncate">{cat.nameEN}</span>
@@ -388,7 +388,7 @@ export function CategoryDialog({ open, onOpenChange, categories, onCategoriesCha
                                 onClick={() => onOpenChange(false)}
                                 className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded"
                             >
-                                Close
+                                Κλείσιμο
                             </Button>
                         </div>
                     </>

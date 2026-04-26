@@ -89,7 +89,7 @@ const MediaSortableItem = ({
                     </span>
                     {isCover && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /> Cover
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" /> Εξώφυλλο
                         </span>
                     )}
                 </div>
@@ -97,7 +97,7 @@ const MediaSortableItem = ({
             <div className="flex items-center gap-1.5">
                 {!isCover && (
                     <Button size="sm" variant="ghost" onClick={onSetCover} className="h-7 text-[11px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9]">
-                        Set Cover
+                        Ορισμός Εξωφύλλου
                     </Button>
                 )}
                 <Button size="icon" variant="ghost" onClick={() => onDelete(item.id || item.url)} className="text-[#A19F9D] hover:text-red-500 h-7 w-7 hover:bg-red-50">
@@ -143,9 +143,9 @@ export function DataTableArticles({
         setData(newData)
         try {
             await updateArticleOrder(newData.map(d => d.id))
-            toast.success("Order synchronized")
+            toast.success("Η σειρά συγχρονίστηκε")
         } catch {
-            toast.error("Order sync failed")
+            toast.error("Αποτυχία συγχρονισμού σειράς")
             setData(initialData)
         }
     }
@@ -182,11 +182,11 @@ export function DataTableArticles({
             if (editingArticle) {
                 const res = await updateArticle(editingArticle.id, formData)
                 setData(data.map(d => d.id === res.id ? res as any : d))
-                toast.success("Article updated")
+                toast.success("Το άρθρο ενημερώθηκε")
             } else {
                 const res = await createArticle(formData)
                 setData([...data, res as any])
-                toast.success("Article created")
+                toast.success("Το άρθρο δημιουργήθηκε")
             }
             setIsDialogOpen(false)
         } catch (err: any) {
@@ -198,7 +198,7 @@ export function DataTableArticles({
 
     const translateField = async (sourceText: string, targetField: string) => {
         if (!sourceText) return
-        toast.loading("Translating...", { id: targetField })
+        toast.loading("Μετάφραση σε εξέλιξη...", { id: targetField })
         try {
             const res = await fetch("/api/admin/translate", {
                 method: "POST",
@@ -208,16 +208,16 @@ export function DataTableArticles({
             const d = await res.json()
             if (!res.ok) throw new Error(d.error)
             setFormData(prev => ({ ...prev, [targetField]: d.text }))
-            toast.success("Translation applied", { id: targetField })
+            toast.success("Η μετάφραση εφαρμόστηκε", { id: targetField })
         } catch (err: any) {
             toast.error(err.message, { id: targetField })
         }
     }
 
     const handleGenerateArticle = async () => {
-        if (!formData.titleEL) return toast.error("Enter a Greek Title first!")
+        if (!formData.titleEL) return toast.error("Εισάγετε πρώτα έναν Ελληνικό Τίτλο!")
         setIsGenerating(true)
-        const tid = toast.loading("DeepSeek is crafting your SEO post...")
+        const tid = toast.loading("Το AI δημιουργεί το SEO άρθρο σας...")
         try {
             const res = await fetch("/api/admin/articles/generate", {
                 method: "POST",
@@ -264,7 +264,7 @@ export function DataTableArticles({
                 categories: mappedCategories,
                 slug: d.slug || prev.slug || formData.titleEL.toLowerCase().replace(/[^a-z0-9α-ωάέήίόύώ]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
             }))
-            toast.success("Article Draft Generated", { id: tid })
+            toast.success("Το πρόχειρο άρθρο δημιουργήθηκε", { id: tid })
         } catch (error: any) {
             toast.error(error.message, { id: tid })
         } finally {
@@ -274,7 +274,7 @@ export function DataTableArticles({
 
     const handleMediaUpload = async (files: FileList | null, article: Article) => {
         if (!files || files.length === 0) return
-        const tid = toast.loading("Uploading resources...")
+        const tid = toast.loading("Μεταφόρτωση αρχείων...")
         try {
             let currentMedia = [...article.media]
             for (let i = 0; i < files.length; i++) {
@@ -287,7 +287,7 @@ export function DataTableArticles({
             }
             const updated = await updateArticle(article.id, { ...article, media: currentMedia })
             setData(data.map(item => item.id === updated.id ? updated as any : item))
-            toast.success("Library updated", { id: tid })
+            toast.success("Η βιβλιοθήκη ενημερώθηκε", { id: tid })
         } catch (error: any) {
             toast.error(error.message, { id: tid })
         }
@@ -322,7 +322,7 @@ export function DataTableArticles({
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="flex items-center gap-1 text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide hover:text-[#201F1E]"
                 >
-                    Post Title <ArrowUpDown className="h-3 w-3" />
+                    Τίτλος Άρθρου <ArrowUpDown className="h-3 w-3" />
                 </button>
             ),
             cell: ({ row }) => (
@@ -334,7 +334,7 @@ export function DataTableArticles({
         },
         {
             id: "categories",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Category</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κατηγορία</span>,
             cell: ({ row }) => {
                 const cats = row.original.categories
                 if (!cats || cats.length === 0) {
@@ -359,16 +359,16 @@ export function DataTableArticles({
         },
         {
             accessorKey: "published",
-            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Status</span>,
+            header: () => <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Κατάσταση</span>,
             cell: ({ row }) => row.original.published ? (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    Live
+                    Ενεργό
                 </span>
             ) : (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F3F2F1] text-[#A19F9D] border border-[#EDEBE9]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C8C6C4] shrink-0" />
-                    Draft
+                    Πρόχειρο
                 </span>
             )
         },
@@ -378,25 +378,25 @@ export function DataTableArticles({
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild onClick={e => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 px-3 text-[12px] font-semibold text-[#201F1E] border-[#C8C6C4] hover:bg-[#EDEBE9] hover:border-[#A19F9D] rounded gap-1">
-                            Actions <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
+                            Ενέργειες <ChevronDown className="h-3.5 w-3.5 text-[#A19F9D]" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => openEdit(row.original)} className="text-sm">
-                            <Layout className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Edit Article
+                            <Layout className="w-3.5 h-3.5 mr-2 text-[#0078D4]" /> Επεξεργασία
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => window.open(`/blog/${row.original.slug}`, '_blank')} className="text-sm">
-                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> View Post
+                            <ExternalLink className="w-3.5 h-3.5 mr-2" /> Προβολή
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-500 text-sm" onClick={async () => {
-                            if (confirm("Permanently delete this article?")) {
+                            if (confirm("Οριστική διαγραφή αυτού του άρθρου;")) {
                                 await deleteArticle(row.original.id)
                                 setData(data.filter(d => d.id !== row.original.id))
-                                toast.success("Article removed")
+                                toast.success("Το άρθρο διαγράφηκε")
                             }
                         }}>
-                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete
+                            <Trash2 className="w-3.5 h-3.5 mr-2" /> Διαγραφή
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -412,10 +412,10 @@ export function DataTableArticles({
                 <div className="px-4 pt-3 pb-0 bg-[#F3F2F1] border-b border-[#EDEBE9]">
                     <TabsList className="bg-transparent p-0 h-8 rounded-none border-0 gap-1">
                         <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:border-[#EDEBE9] data-[state=active]:shadow-sm text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide px-4 h-7 rounded border border-transparent transition-all">
-                            Overview
+                            Επισκόπηση
                         </TabsTrigger>
                         <TabsTrigger value="media" className="data-[state=active]:bg-white data-[state=active]:border-[#EDEBE9] data-[state=active]:shadow-sm text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide px-4 h-7 rounded border border-transparent transition-all">
-                            Media Library
+                            Βιβλιοθήκη Μέσων
                         </TabsTrigger>
                     </TabsList>
                 </div>
@@ -423,14 +423,14 @@ export function DataTableArticles({
                 <TabsContent value="overview" className="m-0">
                     <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-[#EDEBE9]">
                         <div className="p-4 space-y-2 bg-white">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Short Snippet (Greek)</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Σύντομη Περίληψη (Ελληνικά)</p>
                             <p className="text-sm leading-relaxed text-[#605E5C] italic">
-                                "{article.shortDescriptionEL || "No description available yet."}"
+                                "{article.shortDescriptionEL || "Δεν υπάρχει ακόμα περιγραφή."}"
                             </p>
                         </div>
                         <div className="grid grid-cols-2 divide-x divide-[#EDEBE9]">
                             <div className="p-4 space-y-2 bg-white">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Categories</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Κατηγορίες</p>
                                 <div className="flex flex-wrap gap-1.5 mt-1">
                                     {article.categories.map(c => (
                                         <span key={c.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-[#EFF6FC] text-[#0078D4] border border-[#C7E0F4]">
@@ -438,16 +438,16 @@ export function DataTableArticles({
                                         </span>
                                     ))}
                                     {article.categories.length === 0 && (
-                                        <span className="text-xs text-[#A19F9D]">Uncategorized</span>
+                                        <span className="text-xs text-[#A19F9D]">Χωρίς κατηγορία</span>
                                     )}
                                 </div>
                             </div>
                             <div className="p-4 space-y-2 bg-white">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">SEO Health</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Υγεία SEO</p>
                                 <div className="mt-1 flex items-center gap-2">
                                     <div className={`w-2.5 h-2.5 rounded-full ${article.metaTitleEL && article.metaDescriptionEL ? 'bg-emerald-500' : 'bg-amber-400'}`} />
                                     <span className="text-xs font-semibold text-[#201F1E]">
-                                        {article.metaTitleEL && article.metaDescriptionEL ? 'Optimized' : 'Needs attention'}
+                                        {article.metaTitleEL && article.metaDescriptionEL ? 'Βελτιστοποιημένο' : 'Χρειάζεται προσοχή'}
                                     </span>
                                 </div>
                             </div>
@@ -459,11 +459,11 @@ export function DataTableArticles({
                     <div className="p-4 bg-white">
                         <div className="flex justify-between items-center mb-3">
                             <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Media Library</p>
-                                <p className="text-xs text-[#605E5C] mt-0.5">Drag to reorder. First image becomes the cover.</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Βιβλιοθήκη Μέσων</p>
+                                <p className="text-xs text-[#605E5C] mt-0.5">Σύρετε για αναδιάταξη. Η πρώτη εικόνα γίνεται εξώφυλλο.</p>
                             </div>
                             <Label className="cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] active:scale-95 transition-all">
-                                <Plus className="w-3.5 h-3.5" /> Add Assets
+                                <Plus className="w-3.5 h-3.5" /> Προσθήκη Αρχείων
                                 <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={e => handleMediaUpload(e.target.files, article)} />
                             </Label>
                         </div>
@@ -484,7 +484,7 @@ export function DataTableArticles({
                                         <MediaSortableItem
                                             key={m.id || m.url} item={m} isCover={article.featureImage === m.url}
                                             onDelete={async (id) => {
-                                                if (confirm("Remove this asset?")) {
+                                                if (confirm("Αφαίρεση αυτού του αρχείου;")) {
                                                     const updated = await updateArticle(article.id, { ...article, media: article.media.filter(x => (x.id || x.url) !== id) })
                                                     setData(data.map(item => item.id === updated.id ? updated as any : item))
                                                 }
@@ -492,14 +492,14 @@ export function DataTableArticles({
                                             onSetCover={async () => {
                                                 const updated = await updateArticle(article.id, { ...article, featureImage: m.url })
                                                 setData(data.map(item => item.id === updated.id ? updated as any : item))
-                                                toast.success("Main cover image updated")
+                                                toast.success("Η εικόνα εξωφύλλου ενημερώθηκε")
                                             }}
                                         />
                                     ))}
                                     {article.media.length === 0 && (
                                         <div className="border border-dashed border-[#C8C6C4] rounded-lg p-6 flex flex-col items-center justify-center text-[#A19F9D] gap-2">
                                             <ImageIcon className="w-8 h-8 opacity-30" />
-                                            <p className="text-xs font-semibold">No media assets in library.</p>
+                                            <p className="text-xs font-semibold">Δεν υπάρχουν αρχεία στη βιβλιοθήκη.</p>
                                         </div>
                                     )}
                                 </SortableContext>
@@ -517,8 +517,8 @@ export function DataTableArticles({
         <div className="space-y-4">
             <GenericDataTable
                 columns={columns} data={data}
-                searchPlaceholder="Search by title..." searchColumn="titleEL"
-                onAddClick={() => openEdit()} addButtonLabel="New Article"
+                searchPlaceholder="Αναζήτηση με τίτλο..." searchColumn="titleEL"
+                onAddClick={() => openEdit()} addButtonLabel="Νέο Άρθρο"
                 isSortable={true} rowIdKey="id" onReorder={handleReorder}
                 renderExpandedRow={renderExpandedRow}
             />
@@ -535,10 +535,10 @@ export function DataTableArticles({
                                 </div>
                                 <div>
                                     <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                        {editingArticle ? 'Edit Article' : 'New Article'}
+                                        {editingArticle ? 'Επεξεργασία Άρθρου' : 'Νέο Άρθρο'}
                                     </DialogTitle>
                                     <DialogDescription className="text-[11px] text-[#A19F9D]">
-                                        {editingArticle ? editingArticle.titleEL : 'Draft and optimize blog posts with AI assistance.'}
+                                        {editingArticle ? editingArticle.titleEL : 'Σύνταξη και βελτιστοποίηση άρθρων blog με AI.'}
                                     </DialogDescription>
                                 </div>
                             </div>
@@ -552,7 +552,7 @@ export function DataTableArticles({
                                     ? <RefreshCcw className="w-3.5 h-3.5 animate-spin mr-1.5" />
                                     : <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                                 }
-                                Smart Autocomplete
+                                Αυτόματη Συμπλήρωση
                             </Button>
                         </div>
                     </DialogHeader>
@@ -572,7 +572,7 @@ export function DataTableArticles({
                                     SEO
                                 </TabsTrigger>
                                 <TabsTrigger value="settings" className="data-[state=active]:bg-[#F3F2F1] data-[state=active]:text-[#201F1E] text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide px-3 h-6 rounded transition-all">
-                                    Settings
+                                    Ρυθμίσεις
                                 </TabsTrigger>
                             </TabsList>
 
@@ -629,12 +629,12 @@ export function DataTableArticles({
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">English</p>
                                     <div className="space-y-1.5">
                                         <Label className="text-[11px] font-semibold text-[#605E5C] flex justify-between items-center">
-                                            Title (EN)
+                                            Τίτλος (EN)
                                             <button
                                                 onClick={() => translateField(formData.titleEL, "titleEN")}
                                                 className="text-[#0078D4] hover:text-[#106EBE] text-[11px] font-semibold transition-colors flex items-center gap-1"
                                             >
-                                                <Wand2 className="w-3 h-3" /> Auto-translate
+                                                <Wand2 className="w-3 h-3" /> Αυτόματη Μετάφραση
                                             </button>
                                         </Label>
                                         <Input
@@ -646,12 +646,12 @@ export function DataTableArticles({
                                     </div>
                                     <div className="space-y-1.5">
                                         <Label className="text-[11px] font-semibold text-[#605E5C] flex justify-between items-center">
-                                            Short Description (EN)
+                                            Σύντομη Περιγραφή (EN)
                                             <button
                                                 onClick={() => translateField(formData.shortDescriptionEL, "shortDescriptionEN")}
                                                 className="text-[#0078D4] hover:text-[#106EBE] text-[11px] font-semibold transition-colors flex items-center gap-1"
                                             >
-                                                <Wand2 className="w-3 h-3" /> Auto-translate
+                                                <Wand2 className="w-3 h-3" /> Αυτόματη Μετάφραση
                                             </button>
                                         </Label>
                                         <Textarea
@@ -664,12 +664,12 @@ export function DataTableArticles({
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                     <Label className="text-[11px] font-semibold text-[#605E5C] flex justify-between items-center">
-                                        Full Post (EN)
+                                        Πλήρες Άρθρο (EN)
                                         <button
                                             onClick={() => translateField(formData.descriptionEL, "descriptionEN")}
                                             className="text-[#0078D4] hover:text-[#106EBE] text-[11px] font-semibold transition-colors flex items-center gap-1"
                                         >
-                                            <Wand2 className="w-3 h-3" /> Apply AI Translation
+                                            <Wand2 className="w-3 h-3" /> Εφαρμογή AI Μετάφρασης
                                         </button>
                                     </Label>
                                     <Textarea
@@ -684,7 +684,7 @@ export function DataTableArticles({
                             {/* ── SEO tab ─────────────────────────────────────── */}
                             <TabsContent value="seo" className="space-y-3 animate-in fade-in duration-300 mt-0">
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Meta Titles</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Τίτλοι Meta</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1.5">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Meta Title (ΕΛ)</Label>
@@ -705,7 +705,7 @@ export function DataTableArticles({
                                     </div>
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Meta Descriptions</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Περιγραφές Meta</p>
                                     <div className="space-y-1.5">
                                         <Label className="text-[11px] font-semibold text-[#605E5C]">Meta Description (ΕΛ)</Label>
                                         <Textarea
@@ -724,7 +724,7 @@ export function DataTableArticles({
                                     </div>
                                 </div>
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Keywords</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Λέξεις-Κλειδιά</p>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1.5">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">Keywords (ΕΛ)</Label>
@@ -752,7 +752,7 @@ export function DataTableArticles({
                             <TabsContent value="settings" className="space-y-3 animate-in fade-in duration-300 mt-0">
                                 {/* Feature image */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Feature Image</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Κύρια Εικόνα</p>
                                     <div className="flex items-start gap-4">
                                         <div className="w-20 h-20 rounded-lg bg-[#F3F2F1] border border-[#EDEBE9] flex items-center justify-center shrink-0 overflow-hidden">
                                             {formData.featureImage
@@ -761,7 +761,7 @@ export function DataTableArticles({
                                             }
                                         </div>
                                         <div className="flex-1 space-y-1.5">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Image URL</Label>
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">URL Εικόνας</Label>
                                             <Input
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono text-[#0078D4]"
                                                 placeholder="https://cdn.dgsoft.gr/..."
@@ -775,13 +775,13 @@ export function DataTableArticles({
                                 {/* Visibility */}
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 flex items-center justify-between">
                                     <div className="flex flex-col gap-0.5">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1">Visibility</p>
-                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Visibility Status</Label>
-                                        <p className="text-[11px] text-[#A19F9D]">Control if this article is visible to public visitors.</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-1">Ορατότητα</p>
+                                        <Label className="text-[11px] font-semibold text-[#605E5C]">Κατάσταση Ορατότητας</Label>
+                                        <p className="text-[11px] text-[#A19F9D]">Ελέγξτε αν το άρθρο είναι ορατό στους επισκέπτες.</p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className={`text-[11px] font-semibold transition-colors ${formData.published ? 'text-emerald-600' : 'text-[#A19F9D]'}`}>
-                                            {formData.published ? 'Published' : 'Draft'}
+                                            {formData.published ? 'Δημοσιευμένο' : 'Πρόχειρο'}
                                         </span>
                                         <Switch
                                             checked={formData.published}
@@ -797,7 +797,7 @@ export function DataTableArticles({
                     {/* ── Dialog Footer ─────────────────────────────────────── */}
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
                         <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] hover:text-[#201F1E] rounded">
-                            Cancel
+                            Ακύρωση
                         </Button>
                         <Button
                             onClick={handleSave}
@@ -805,8 +805,8 @@ export function DataTableArticles({
                             className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors active:scale-95"
                         >
                             {isSaving
-                                ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Saving…</>
-                                : editingArticle ? "Save Article" : "Publish Post"
+                                ? <><RefreshCcw className="w-3 h-3 animate-spin mr-1.5" />Αποθήκευση…</>
+                                : editingArticle ? "Αποθήκευση" : "Δημοσίευση"
                             }
                         </Button>
                     </div>
