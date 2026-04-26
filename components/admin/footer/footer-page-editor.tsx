@@ -277,20 +277,10 @@ function FooterFields({
         subtitle="Το υποσέλιδο εμφανίζει ακριβώς 3 στήλες συνδέσμων"
         icon={<Columns className="w-3 h-3" />}
       >
-        <div className="grid md:grid-cols-3 gap-4">
-          {c.columns.map((col, colIdx) => (
-            <ColumnCard
-              key={colIdx}
-              index={colIdx}
-              column={col}
-              onChange={(next) => {
-                const arr = [...c.columns];
-                arr[colIdx] = next;
-                onChange({ columns: arr as FooterLocaleContent["columns"] });
-              }}
-            />
-          ))}
-        </div>
+        <ColumnsTabs
+          columns={c.columns}
+          onChange={(cols) => onChange({ columns: cols as FooterLocaleContent["columns"] })}
+        />
       </Card>
 
       <Card title="Κάτω μπάρα" icon={<CopyCheck className="w-3 h-3" />}>
@@ -340,66 +330,106 @@ function SocialRow({
   const external = social.href && isExternal(social.href);
 
   return (
-    <div className="grid items-center gap-2 rounded-md border border-[#EDEBE9] bg-[#F9F8F7] p-2 md:grid-cols-[auto_10rem_minmax(0,2fr)_minmax(0,1fr)_auto]">
-      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#EDEBE9] text-[#605E5C]">
-        <Icon className="w-4 h-4" />
+    <div className="rounded-md border border-[#EDEBE9] bg-[#F9F8F7] p-3 space-y-2">
+      {/* Row 1: icon + select + move/delete */}
+      <div className="flex items-center gap-2">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#EDEBE9] text-[#605E5C]">
+          <Icon className="w-4 h-4" />
+        </div>
+        <select
+          className="h-8 flex-1 rounded-md border border-input bg-white px-2 text-sm text-[#201F1E]"
+          value={social.icon}
+          onChange={(e) =>
+            onChange({ ...social, icon: e.target.value as FooterSocialIcon })
+          }
+        >
+          {FOOTER_SOCIAL_ICONS.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Button type="button" size="icon" variant="ghost" className="h-7 w-7" disabled={index === 0} onClick={onMoveUp}>
+            <ArrowUp className="w-3.5 h-3.5" />
+          </Button>
+          <Button type="button" size="icon" variant="ghost" className="h-7 w-7" disabled={index === total - 1} onClick={onMoveDown}>
+            <ArrowDown className="w-3.5 h-3.5" />
+          </Button>
+          <Button type="button" size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive" onClick={onDelete}>
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
       </div>
-      <select
-        className="h-9 rounded-md border border-input bg-transparent px-2 text-sm"
-        value={social.icon}
-        onChange={(e) =>
-          onChange({ ...social, icon: e.target.value as FooterSocialIcon })
-        }
-      >
-        {FOOTER_SOCIAL_ICONS.map((name) => (
-          <option key={name} value={name}>
-            {name}
-          </option>
+      {/* Row 2: URL */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold text-[#A19F9D] uppercase tracking-wide">URL</p>
+        <Input
+          value={social.href}
+          onChange={(e) => onChange({ ...social, href: e.target.value })}
+          placeholder="https://…"
+          className={`h-8 text-sm ${external ? "border-emerald-600/40" : ""}`}
+        />
+      </div>
+      {/* Row 3: Label */}
+      <div className="space-y-1">
+        <p className="text-[10px] font-semibold text-[#A19F9D] uppercase tracking-wide">Aria label</p>
+        <Input
+          value={social.label}
+          onChange={(e) => onChange({ ...social, label: e.target.value })}
+          placeholder="π.χ. Ακολουθήστε μας στο Facebook"
+          className="h-8 text-sm"
+        />
+      </div>
+    </div>
+  );
+}
+
+function ColumnsTabs({
+  columns,
+  onChange,
+}: {
+  columns: FooterColumn[];
+  onChange: (cols: FooterColumn[]) => void;
+}) {
+  const [activeCol, setActiveCol] = React.useState(0);
+  const col = columns[activeCol];
+
+  const patchCol = (next: FooterColumn) => {
+    const arr = [...columns];
+    arr[activeCol] = next;
+    onChange(arr);
+  };
+
+  return (
+    <div>
+      {/* Tab bar */}
+      <div className="flex gap-1 mb-4 border-b border-[#EDEBE9]">
+        {columns.map((c, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setActiveCol(i)}
+            className={`px-4 py-2 text-sm font-semibold rounded-t-md border-b-2 transition-colors ${
+              activeCol === i
+                ? "border-[#0078D4] text-[#0078D4] bg-[#EFF6FC]"
+                : "border-transparent text-[#605E5C] hover:text-[#201F1E] hover:bg-[#F3F2F1]"
+            }`}
+          >
+            Στήλη {i + 1}
+            {c.heading ? <span className="ml-1.5 text-[11px] font-normal opacity-70">— {c.heading}</span> : null}
+          </button>
         ))}
-      </select>
-      <Input
-        value={social.href}
-        onChange={(e) => onChange({ ...social, href: e.target.value })}
-        placeholder="https://…"
-        className={external ? "border-emerald-600/40" : undefined}
-      />
-      <Input
-        value={social.label}
-        onChange={(e) => onChange({ ...social, label: e.target.value })}
-        placeholder="Aria label"
-      />
-      <div className="flex items-center gap-1">
-        <Button
-          type="button"
-          size="icon"
-          variant="ghost"
-          disabled={index === 0}
-          onClick={onMoveUp}
-          title="Move up"
-        >
-          <ArrowUp className="w-4 h-4" />
-        </Button>
-        <Button
-          type="button"
-          size="icon"
-          variant="ghost"
-          disabled={index === total - 1}
-          onClick={onMoveDown}
-          title="Move down"
-        >
-          <ArrowDown className="w-4 h-4" />
-        </Button>
-        <Button
-          type="button"
-          size="icon"
-          variant="ghost"
-          onClick={onDelete}
-          title="Remove"
-          className="text-destructive hover:text-destructive"
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
       </div>
+
+      {col && (
+        <ColumnCard
+          key={activeCol}
+          index={activeCol}
+          column={col}
+          onChange={patchCol}
+        />
+      )}
     </div>
   );
 }
@@ -417,90 +447,74 @@ function ColumnCard({
     onChange({ ...column, links });
 
   return (
-    <div className="rounded-lg border border-[#EDEBE9] bg-[#F9F8F7] p-3 space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">
-          Στήλη {index + 1}
-        </span>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => patchLinks([...column.links, { name: "", href: "" }])}
-        >
-          <Plus className="w-3.5 h-3.5 mr-1" />
-          Προσθήκη συνδέσμου
-        </Button>
-      </div>
-      <Field label="Επικεφαλίδα">
+    <div className="space-y-4">
+      <Field label="Επικεφαλίδα στήλης">
         <Input
           value={column.heading}
           onChange={(e) => onChange({ ...column, heading: e.target.value })}
-          placeholder="Solutions"
+          placeholder="π.χ. Λύσεις"
+          className="h-9 text-sm max-w-sm"
         />
       </Field>
 
       {column.links.length === 0 && (
-        <p className="text-xs text-muted-foreground">Δεν υπάρχουν σύνδεσμοι ακόμη.</p>
+        <p className="text-sm text-[#A19F9D] py-2">Δεν υπάρχουν σύνδεσμοι ακόμη.</p>
       )}
+
       <div className="space-y-2">
         {column.links.map((link, i) => (
-          <div key={i} className="rounded-md border border-[#EDEBE9] bg-white p-2 space-y-2">
-            <Input
-              value={link.name}
-              onChange={(e) => {
-                const arr = [...column.links];
-                arr[i] = { ...arr[i], name: e.target.value };
-                patchLinks(arr);
-              }}
-              placeholder="Label"
-            />
-            <Input
-              value={link.href}
-              onChange={(e) => {
-                const arr = [...column.links];
-                arr[i] = { ...arr[i], href: e.target.value };
-                patchLinks(arr);
-              }}
-              placeholder="/path or https://…"
-            />
-            <div className="flex items-center justify-end gap-1">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                disabled={i === 0}
-                onClick={() => patchLinks(move(column.links, i, i - 1))}
-                title="Move up"
-              >
+          <div key={i} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-center rounded-md border border-[#EDEBE9] bg-[#F9F8F7] px-3 py-2">
+            <div className="space-y-1 min-w-0">
+              <p className="text-[10px] font-semibold text-[#A19F9D] uppercase tracking-wide">Ετικέτα</p>
+              <Input
+                value={link.name}
+                onChange={(e) => {
+                  const arr = [...column.links];
+                  arr[i] = { ...arr[i], name: e.target.value };
+                  patchLinks(arr);
+                }}
+                placeholder="π.χ. Αρχική"
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1 min-w-0">
+              <p className="text-[10px] font-semibold text-[#A19F9D] uppercase tracking-wide">URL / Διαδρομή</p>
+              <Input
+                value={link.href}
+                onChange={(e) => {
+                  const arr = [...column.links];
+                  arr[i] = { ...arr[i], href: e.target.value };
+                  patchLinks(arr);
+                }}
+                placeholder="/path ή https://…"
+                className={`h-8 text-sm ${link.href && isExternal(link.href) ? "border-emerald-600/40" : ""}`}
+              />
+            </div>
+            <div className="flex items-center gap-0.5 shrink-0 mt-4">
+              <Button type="button" size="icon" variant="ghost" className="h-7 w-7" disabled={i === 0} onClick={() => patchLinks(move(column.links, i, i - 1))}>
                 <ArrowUp className="w-3.5 h-3.5" />
               </Button>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                disabled={i === column.links.length - 1}
-                onClick={() => patchLinks(move(column.links, i, i + 1))}
-                title="Move down"
-              >
+              <Button type="button" size="icon" variant="ghost" className="h-7 w-7" disabled={i === column.links.length - 1} onClick={() => patchLinks(move(column.links, i, i + 1))}>
                 <ArrowDown className="w-3.5 h-3.5" />
               </Button>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                onClick={() =>
-                  patchLinks(column.links.filter((_, idx) => idx !== i))
-                }
-                title="Remove"
-                className="text-destructive hover:text-destructive"
-              >
+              <Button type="button" size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => patchLinks(column.links.filter((_, idx) => idx !== i))}>
                 <Trash2 className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>
         ))}
       </div>
+
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="border-dashed border-[#C8C6C4] text-[#605E5C] hover:border-[#0078D4] hover:text-[#0078D4]"
+        onClick={() => patchLinks([...column.links, { name: "", href: "" }])}
+      >
+        <Plus className="w-3.5 h-3.5 mr-1.5" />
+        Προσθήκη συνδέσμου
+      </Button>
     </div>
   );
 }
