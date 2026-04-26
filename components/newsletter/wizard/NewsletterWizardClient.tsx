@@ -3,16 +3,21 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2Icon, MailIcon, Wand2Icon, CheckIcon, UploadIcon, XIcon } from "lucide-react";
+import {
+  Loader2Icon, MailIcon, Wand2Icon, CheckIcon, UploadIcon, XIcon,
+  ChevronDownIcon, ChevronUpIcon, UsersIcon, PencilIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   createNewsletterCampaign,
   buildCampaignRecipients,
   sendNewsletterCampaign,
   sendNewsletterTestEmail,
   getNewsletterFilterOptions,
+  estimateNewsletterRecipients,
   type NewsletterFilters,
   type RegionOption,
   type CityOption,
@@ -20,18 +25,41 @@ import {
   type KadOption,
   type TrdpOption,
   type TrdBusinessOption,
+  type NewsletterWizardTemplate,
+  type NewsletterWizardBaseTemplate,
+  type NewsletterWizardBaseSettings,
+  type NewsletterWizardEuProgram,
 } from "@/app/lib/actions/newsletter";
 import { CustomerMultiSelect, type CustomerOption } from "@/components/newsletter/customer-multi-select";
 import { MultiSelectFilter } from "@/components/newsletter/multi-select-filter";
-import type { NewsletterWizardTemplate, NewsletterWizardBaseTemplate, NewsletterWizardBaseSettings } from "@/app/lib/actions/newsletter";
+import { VisualDesigner } from "@/components/newsletter/visual-designer";
+import type { NewsletterContent } from "@/lib/newsletter-blocks";
+import { createBlock } from "@/lib/newsletter-blocks";
 
 // ——— Types ———
+
+const BASE_FIELD_LABELS: Record<string, string> = {
+  companyName: "Όνομα εταιρείας",
+  logoUrl: "URL Λογότυπου",
+  facebookUrl: "URL Facebook",
+  instagramUrl: "URL Instagram",
+  linkedinUrl: "URL LinkedIn",
+  xUrl: "URL X (Twitter)",
+  tagline: "Υπότιτλος",
+  addressLine: "Διεύθυνση",
+  contactEmail: "Email επικοινωνίας",
+  privacyPolicyUrl: "URL Πολιτικής Απορρήτου",
+  termsUrl: "URL Όρων Χρήσης",
+  unsubscribeUrl: "URL Κατάργησης Εγγραφής",
+};
 
 type WizardState = {
   name: string;
   subject: string;
   templateId: string | null;
+  inlineTemplate: NewsletterContent | null;
   baseTemplateId: string | null;
+  baseTemplatePatches: Record<string, string>;
   recipientMode: "filters" | "excel" | "manual";
   filters: NewsletterFilters;
   excelEmails: string[];
@@ -50,13 +78,7 @@ type FilterOptions = {
 };
 
 const TOTAL_STEPS = 5;
-const STEP_LABELS = [
-  "Στοιχεία",
-  "Περιεχόμενο",
-  "Πρότυπο Βάσης",
-  "Παραλήπτες",
-  "Αποστολή",
-];
+const STEP_LABELS = ["Στοιχεία", "Περιεχόμενο", "Πρότυπο Βάσης", "Παραλήπτες", "Αποστολή"];
 
 // ——— Step Indicator ———
 
@@ -91,9 +113,7 @@ function StepIndicator({ current }: { current: number }) {
             </div>
             {i < STEP_LABELS.length - 1 && (
               <div
-                className={`h-[2px] flex-1 mx-1 mb-4 ${
-                  step < current ? "bg-[#0078D4]" : "bg-[#EDEBE9]"
-                }`}
+                className={`h-[2px] flex-1 mx-1 mb-4 ${step < current ? "bg-[#0078D4]" : "bg-[#EDEBE9]"}`}
                 style={{ minWidth: 16 }}
               />
             )}
@@ -106,13 +126,7 @@ function StepIndicator({ current }: { current: number }) {
 
 // ——— Step 1: Campaign Details ———
 
-function Step1({
-  state,
-  onChange,
-}: {
-  state: WizardState;
-  onChange: (patch: Partial<WizardState>) => void;
-}) {
+function Step1({ state, onChange }: { state: WizardState; onChange: (p: Partial<WizardState>) => void }) {
   return (
     <div className="bg-white border border-[#EDEBE9] rounded-lg p-5 space-y-4">
       <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Στοιχεία Εκστρατείας</p>
@@ -142,7 +156,7 @@ function Step1({
   );
 }
 
-// ——— Step 2: Template ———
+// ——— Step 2: Template (with inline designer) ———
 
 function Step2({
   templates,
@@ -151,48 +165,130 @@ function Step2({
 }: {
   templates: NewsletterWizardTemplate[];
   state: WizardState;
-  onChange: (patch: Partial<WizardState>) => void;
+  onChange: (p: Partial<WizardState>) => void;
 }) {
+  const [designMode, setDesignMode] = React.useState(false);
+
+  const emptyContent: NewsletterContent = React.useMemo(
+    () => ({ blocks: [createBlock("paragraph")], bodyOptions: { backgroundColor: "#ffffff" } }),
+    []
+  );
+
+  const handlePickExisting = (id: string | null) => {
+    onChange({ templateId: id, inlineTemplate: null });
+    setDesignMode(false);
+  };
+
+  const handleOpenDesigner = () => {
+    if (!state.inlineTemplate) {
+      onChange({ inlineTemplate: emptyContent, templateId: null });
+    }
+    setDesignMode(true);
+  };
+
+  if (designMode) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Σχεδιασμός περιεχομένου</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDesignMode(false)}
+            className="h-8 text-[12px] border-[#C8C6C4] text-[#605E5C] hover:bg-[#EDEBE9]"
+          >
+            Επιστροφή στη λίστα
+          </Button>
+        </div>
+        <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden">
+          <VisualDesigner
+            value={state.inlineTemplate ?? emptyContent}
+            onChange={(content) => onChange({ inlineTemplate: content, templateId: null })}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            onClick={() => setDesignMode(false)}
+            className="h-8 text-[12px] bg-[#0078D4] hover:bg-[#106EBE] text-white"
+          >
+            <CheckIcon className="w-3.5 h-3.5 mr-1.5" />
+            Αποθήκευση σχεδιασμού
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-[11px] font-semibold text-[#605E5C]">
-        Επιλέξτε πρότυπο περιεχομένου για το email σας. Η επιλογή είναι προαιρετική.
+        Επιλέξτε πρότυπο περιεχομένου ή σχεδιάστε νέο. Η επιλογή είναι προαιρετική.
       </p>
 
-      {/* No template option */}
-      <div
-        onClick={() => onChange({ templateId: null })}
-        className={`cursor-pointer border-2 rounded-lg p-4 flex items-center gap-3 transition-colors ${
-          state.templateId === null
-            ? "border-[#0078D4] bg-[#EFF6FC]"
-            : "border-[#EDEBE9] bg-white hover:border-[#C8C6C4]"
-        }`}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* No template */}
         <div
-          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-            state.templateId === null ? "border-[#0078D4] bg-[#0078D4]" : "border-[#C8C6C4]"
+          onClick={() => handlePickExisting(null)}
+          className={`cursor-pointer border-2 rounded-lg p-4 flex items-center gap-3 transition-colors ${
+            state.templateId === null && !state.inlineTemplate
+              ? "border-[#0078D4] bg-[#EFF6FC]"
+              : "border-[#EDEBE9] bg-white hover:border-[#C8C6C4]"
           }`}
         >
-          {state.templateId === null && <CheckIcon className="w-3 h-3 text-white" />}
+          <div
+            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              state.templateId === null && !state.inlineTemplate
+                ? "border-[#0078D4] bg-[#0078D4]"
+                : "border-[#C8C6C4]"
+            }`}
+          >
+            {state.templateId === null && !state.inlineTemplate && <CheckIcon className="w-3 h-3 text-white" />}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[#201F1E]">Χωρίς πρότυπο</p>
+            <p className="text-[11px] text-[#A19F9D]">Αποστολή χωρίς HTML πρότυπο</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-[#201F1E]">Χωρίς πρότυπο</p>
-          <p className="text-[11px] text-[#A19F9D]">Αποστολή χωρίς HTML πρότυπο</p>
-        </div>
-      </div>
 
-      {/* Template grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Design new */}
+        <div
+          onClick={handleOpenDesigner}
+          className={`cursor-pointer border-2 rounded-lg p-4 flex items-center gap-3 transition-colors ${
+            state.inlineTemplate
+              ? "border-[#0078D4] bg-[#EFF6FC]"
+              : "border-dashed border-[#C8C6C4] bg-white hover:border-[#0078D4] hover:bg-[#F3F2F1]"
+          }`}
+        >
+          <div
+            className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${
+              state.inlineTemplate ? "bg-[#0078D4]" : "bg-[#F3F2F1] border border-[#EDEBE9]"
+            }`}
+          >
+            <PencilIcon className={`w-3.5 h-3.5 ${state.inlineTemplate ? "text-white" : "text-[#A19F9D]"}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[#201F1E]">
+              {state.inlineTemplate ? "Επεξεργασία σχεδίου" : "Σχεδιάστε νέο"}
+            </p>
+            <p className="text-[11px] text-[#A19F9D]">
+              {state.inlineTemplate
+                ? `${state.inlineTemplate.blocks?.length ?? 0} block(s) δημιουργήθηκαν`
+                : "Ανοίξτε τον visual designer"}
+            </p>
+          </div>
+          {state.inlineTemplate && <CheckIcon className="w-4 h-4 text-[#0078D4] shrink-0" />}
+        </div>
+
+        {/* Existing templates */}
         {templates.map((t) => {
           const selected = state.templateId === t.id;
           return (
             <div
               key={t.id}
-              onClick={() => onChange({ templateId: t.id })}
+              onClick={() => handlePickExisting(t.id)}
               className={`cursor-pointer border-2 rounded-lg p-4 relative transition-colors ${
-                selected
-                  ? "border-[#0078D4] bg-[#EFF6FC]"
-                  : "border-[#EDEBE9] bg-white hover:border-[#C8C6C4]"
+                selected ? "border-[#0078D4] bg-[#EFF6FC]" : "border-[#EDEBE9] bg-white hover:border-[#C8C6C4]"
               }`}
             >
               {selected && (
@@ -215,7 +311,7 @@ function Step2({
   );
 }
 
-// ——— Step 3: Base Template ———
+// ——— Step 3: Base Template (with on-the-fly field overrides) ———
 
 function Step3({
   baseTemplates,
@@ -224,17 +320,24 @@ function Step3({
 }: {
   baseTemplates: NewsletterWizardBaseTemplate[];
   state: WizardState;
-  onChange: (patch: Partial<WizardState>) => void;
+  onChange: (p: Partial<WizardState>) => void;
 }) {
+  const [patchOpen, setPatchOpen] = React.useState(false);
+  const selectedBase = baseTemplates.find((bt) => bt.id === state.baseTemplateId) ?? null;
+
+  const updatePatch = (key: string, value: string) => {
+    onChange({ baseTemplatePatches: { ...state.baseTemplatePatches, [key]: value } });
+  };
+
   return (
     <div className="space-y-4">
       <p className="text-[11px] font-semibold text-[#605E5C]">
-        Επιλέξτε πρότυπο βάσης (HTML wrapper). Η επιλογή είναι προαιρετική.
+        Επιλέξτε πρότυπο βάσης (HTML wrapper). Μετά την επιλογή, μπορείτε να τροποποιήσετε τα πεδία του.
       </p>
 
-      {/* No base template option */}
+      {/* No base template */}
       <div
-        onClick={() => onChange({ baseTemplateId: null })}
+        onClick={() => onChange({ baseTemplateId: null, baseTemplatePatches: {} })}
         className={`cursor-pointer border-2 rounded-lg p-4 flex items-center gap-3 transition-colors ${
           state.baseTemplateId === null
             ? "border-[#0078D4] bg-[#EFF6FC]"
@@ -291,6 +394,62 @@ function Step3({
           );
         })}
       </div>
+
+      {/* On-the-fly field overrides for selected template */}
+      {selectedBase && (
+        <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setPatchOpen((o) => !o)}
+            className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#F3F2F1] transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <PencilIcon className="w-3.5 h-3.5 text-[#0078D4]" />
+              <span className="text-sm font-semibold text-[#201F1E]">Προσαρμογή πεδίων: {selectedBase.name}</span>
+              {Object.keys(state.baseTemplatePatches).length > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#0078D4] text-white">
+                  {Object.keys(state.baseTemplatePatches).length} αλλαγές
+                </span>
+              )}
+            </div>
+            {patchOpen
+              ? <ChevronUpIcon className="w-4 h-4 text-[#A19F9D] shrink-0" />
+              : <ChevronDownIcon className="w-4 h-4 text-[#A19F9D] shrink-0" />}
+          </button>
+
+          {patchOpen && (
+            <div className="border-t border-[#EDEBE9] p-4 space-y-3 bg-[#F3F2F1]">
+              <p className="text-[11px] text-[#A19F9D]">
+                Τα πεδία που συμπληρώνετε εδώ αντικαθιστούν τις προεπιλεγμένες τιμές μόνο για αυτή την εκστρατεία.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {Object.entries(BASE_FIELD_LABELS).map(([key, label]) => (
+                  <div key={key} className="space-y-1">
+                    <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
+                      {label}
+                    </Label>
+                    <Input
+                      value={state.baseTemplatePatches[key] ?? ""}
+                      onChange={(e) => updatePatch(key, e.target.value)}
+                      placeholder="(προεπιλεγμένη τιμή)"
+                      className="h-8 text-sm border-[#C8C6C4] bg-white focus-visible:ring-[#0078D4]"
+                    />
+                  </div>
+                ))}
+              </div>
+              {Object.keys(state.baseTemplatePatches).length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onChange({ baseTemplatePatches: {} })}
+                  className="text-[11px] text-red-500 hover:text-red-700"
+                >
+                  Επαναφορά όλων
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -301,19 +460,25 @@ function Step4({
   state,
   onChange,
   filterOptions,
+  euPrograms,
 }: {
   state: WizardState;
-  onChange: (patch: Partial<WizardState>) => void;
+  onChange: (p: Partial<WizardState>) => void;
   filterOptions: FilterOptions | null;
+  euPrograms: NewsletterWizardEuProgram[];
 }) {
   const [uploading, setUploading] = React.useState(false);
   const [uploadError, setUploadError] = React.useState<string | null>(null);
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [selectedCustomers, setSelectedCustomers] = React.useState<CustomerOption[]>([]);
+  const [selectedEuProgramId, setSelectedEuProgramId] = React.useState<string>("");
+  const [estimating, setEstimating] = React.useState(false);
+  const [estimatedCount, setEstimatedCount] = React.useState<number | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   const updateFilter = <K extends keyof NewsletterFilters>(key: K, value: NewsletterFilters[K]) => {
     onChange({ filters: { ...state.filters, [key]: value } });
+    setEstimatedCount(null);
   };
 
   const handleFileUpload = async (file: File) => {
@@ -324,18 +489,14 @@ function Step4({
       fd.append("file", file);
       const res = await fetch("/api/admin/newsletter/excel-recipients", { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) {
-        setUploadError(data.error ?? "Αποτυχία επεξεργασίας αρχείου");
-        return;
-      }
+      if (!res.ok) { setUploadError(data.error ?? "Αποτυχία επεξεργασίας αρχείου"); return; }
       onChange({
         excelEmails: data.emails as string[],
         excelFileName: file.name,
         filters: { ...state.filters, directEmails: data.emails as string[] },
       });
-      if (data.errors?.length) {
-        setUploadError((data.errors as string[]).join(", "));
-      }
+      setEstimatedCount(null);
+      if (data.errors?.length) setUploadError((data.errors as string[]).join(", "));
     } catch (e: unknown) {
       setUploadError(e instanceof Error ? e.message : "Αποτυχία");
     } finally {
@@ -350,20 +511,44 @@ function Step4({
     if (file) handleFileUpload(file);
   };
 
-  const tabs = [
-    { id: "filters" as const, label: "Φίλτρα" },
-    { id: "excel" as const, label: "Excel" },
-    { id: "manual" as const, label: "Χειροκίνητη" },
-  ];
+  const handleEstimate = async () => {
+    setEstimating(true);
+    try {
+      const { count } = await estimateNewsletterRecipients({
+        ...state.filters,
+        directEmails: state.excelEmails.length > 0 ? state.excelEmails : state.filters.directEmails,
+      });
+      setEstimatedCount(count);
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Αποτυχία εκτίμησης");
+    } finally {
+      setEstimating(false);
+    }
+  };
+
+  // Filter KAD options by selected EU program
+  const allKadOptions = filterOptions?.kadCodes.map((k) => ({ value: k.value, label: k.value })) ?? [];
+  const kadOptions = React.useMemo(() => {
+    if (!selectedEuProgramId) return allKadOptions;
+    const prog = euPrograms.find((p) => p.id === selectedEuProgramId);
+    if (!prog) return allKadOptions;
+    const set = new Set(prog.kadCodes);
+    return allKadOptions.filter((o) => set.has(o.value));
+  }, [selectedEuProgramId, allKadOptions, euPrograms]);
 
   const regionOptions = filterOptions?.regions.map((r) => ({ value: r.id, label: r.path || r.nameEL })) ?? [];
   const nomosOptions = filterOptions?.nomoi.map((r) => ({ value: r.id, label: r.path || r.nameEL })) ?? [];
   const dimosOptions = filterOptions?.dimoi.map((r) => ({ value: r.id, label: r.path || r.nameEL })) ?? [];
   const cityOptions = filterOptions?.cities.map((c) => ({ value: c.value, label: c.value })) ?? [];
   const legalOptions = filterOptions?.legalStatuses.map((l) => ({ value: l.value, label: l.value })) ?? [];
-  const kadOptions = filterOptions?.kadCodes.map((k) => ({ value: k.value, label: k.value })) ?? [];
   const trdpOptions = filterOptions?.trdpGroups.map((t) => ({ value: String(t.code), label: t.name ?? `Code ${t.code}` })) ?? [];
   const trdbOptions = filterOptions?.trdBusinesses.map((t) => ({ value: String(t.code), label: t.name ?? `Code ${t.code}` })) ?? [];
+
+  const tabs = [
+    { id: "filters" as const, label: "Φίλτρα" },
+    { id: "excel" as const, label: "Excel / CSV" },
+    { id: "manual" as const, label: "Χειροκίνητη" },
+  ];
 
   return (
     <div className="space-y-4">
@@ -372,7 +557,7 @@ function Step4({
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => onChange({ recipientMode: tab.id })}
+            onClick={() => { onChange({ recipientMode: tab.id }); setEstimatedCount(null); }}
             className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${
               state.recipientMode === tab.id
                 ? "border-[#0078D4] text-[#0078D4]"
@@ -387,25 +572,57 @@ function Step4({
       {/* Filters tab */}
       {state.recipientMode === "filters" && (
         <div className="bg-white border border-[#EDEBE9] rounded-lg p-5 space-y-4">
-          <p className="text-[11px] text-[#A19F9D]">
-            Επιλέξτε φίλτρα για δημιουργία λίστας παραληπτών από τη βάση δεδομένων.
-          </p>
           {filterOptions === null ? (
             <div className="flex items-center gap-2 text-[#605E5C] text-sm">
               <Loader2Icon className="w-4 h-4 animate-spin" />
               Φόρτωση φίλτρων…
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <MultiSelectFilter label="Περιφέρεια" options={regionOptions} value={state.filters.regionIds ?? []} onChange={(v) => updateFilter("regionIds", v)} />
-              <MultiSelectFilter label="Νομός / Περιφερειακή Ενότητα" options={nomosOptions} value={state.filters.nomosIds ?? []} onChange={(v) => updateFilter("nomosIds", v)} />
-              <MultiSelectFilter label="Δήμος" options={dimosOptions} value={state.filters.dimosIds ?? []} onChange={(v) => updateFilter("dimosIds", v)} />
-              <MultiSelectFilter label="Πόλη" options={cityOptions} value={state.filters.cities ?? []} onChange={(v) => updateFilter("cities", v)} />
-              <MultiSelectFilter label="Νομική μορφή" options={legalOptions} value={state.filters.legalStatuses ?? []} onChange={(v) => updateFilter("legalStatuses", v)} />
-              <MultiSelectFilter label="KAD" options={kadOptions} value={state.filters.kadCodes ?? []} onChange={(v) => updateFilter("kadCodes", v)} />
-              <MultiSelectFilter label="TRDPGROUP" options={trdpOptions} value={state.filters.trdpGroupIds ?? []} onChange={(v) => updateFilter("trdpGroupIds", v)} />
-              <MultiSelectFilter label="TRDBUSINESS" options={trdbOptions} value={state.filters.trdBusinessIds ?? []} onChange={(v) => updateFilter("trdBusinessIds", v)} />
-            </div>
+            <>
+              {/* EU Program filter → narrows KAD list */}
+              <div className="space-y-1">
+                <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
+                  Πρόγραμμα ΕΣΠΑ (φιλτράρει KAD)
+                </Label>
+                <select
+                  value={selectedEuProgramId}
+                  onChange={(e) => {
+                    setSelectedEuProgramId(e.target.value);
+                    // clear KAD selection when program changes
+                    updateFilter("kadCodes", []);
+                  }}
+                  className="w-full h-9 text-sm rounded border border-[#C8C6C4] bg-white px-3 focus:outline-none focus:ring-2 focus:ring-[#0078D4] text-[#201F1E]"
+                >
+                  <option value="">— Όλα τα προγράμματα —</option>
+                  {euPrograms.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nameEL} ({p.kadCodes.length} KAD)
+                    </option>
+                  ))}
+                </select>
+                {selectedEuProgramId && (
+                  <p className="text-[11px] text-[#0078D4]">
+                    Εμφανίζονται {kadOptions.length} KAD κωδικοί για το επιλεγμένο πρόγραμμα
+                  </p>
+                )}
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <MultiSelectFilter label="Περιφέρεια" options={regionOptions} value={state.filters.regionIds ?? []} onChange={(v) => updateFilter("regionIds", v)} />
+                <MultiSelectFilter label="Νομός / Περιφερειακή Ενότητα" options={nomosOptions} value={state.filters.nomosIds ?? []} onChange={(v) => updateFilter("nomosIds", v)} />
+                <MultiSelectFilter label="Δήμος" options={dimosOptions} value={state.filters.dimosIds ?? []} onChange={(v) => updateFilter("dimosIds", v)} />
+                <MultiSelectFilter label="Πόλη" options={cityOptions} value={state.filters.cities ?? []} onChange={(v) => updateFilter("cities", v)} />
+                <MultiSelectFilter label="Νομική μορφή" options={legalOptions} value={state.filters.legalStatuses ?? []} onChange={(v) => updateFilter("legalStatuses", v)} />
+                <MultiSelectFilter
+                  label={selectedEuProgramId ? "KAD (φιλτραρισμένο)" : "KAD"}
+                  options={kadOptions}
+                  value={state.filters.kadCodes ?? []}
+                  onChange={(v) => updateFilter("kadCodes", v)}
+                />
+                <MultiSelectFilter label="TRDPGROUP" options={trdpOptions} value={state.filters.trdpGroupIds ?? []} onChange={(v) => updateFilter("trdpGroupIds", v)} />
+                <MultiSelectFilter label="TRDBUSINESS" options={trdbOptions} value={state.filters.trdBusinessIds ?? []} onChange={(v) => updateFilter("trdBusinessIds", v)} />
+              </div>
+            </>
           )}
         </div>
       )}
@@ -448,11 +665,7 @@ function Step4({
               </div>
             )}
           </div>
-
-          {uploadError && (
-            <p className="text-sm text-red-500">{uploadError}</p>
-          )}
-
+          {uploadError && <p className="text-sm text-red-500">{uploadError}</p>}
           {state.excelEmails.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -460,16 +673,14 @@ function Step4({
                   {state.excelEmails.length} emails βρέθηκαν
                 </p>
                 <button
-                  onClick={() => onChange({ excelEmails: [], excelFileName: "", filters: { ...state.filters, directEmails: [] } })}
+                  onClick={() => { onChange({ excelEmails: [], excelFileName: "", filters: { ...state.filters, directEmails: [] } }); setEstimatedCount(null); }}
                   className="text-[11px] text-red-500 hover:text-red-700 flex items-center gap-1"
                 >
                   <XIcon className="w-3 h-3" /> Εκκαθάριση
                 </button>
               </div>
               <div className="bg-[#F3F2F1] rounded p-3 text-[11px] text-[#605E5C] space-y-0.5 max-h-40 overflow-y-auto">
-                {state.excelEmails.slice(0, 10).map((email, i) => (
-                  <div key={i}>{email}</div>
-                ))}
+                {state.excelEmails.slice(0, 10).map((email, i) => <div key={i}>{email}</div>)}
                 {state.excelEmails.length > 10 && (
                   <div className="text-[#A19F9D] pt-1">…και {state.excelEmails.length - 10} ακόμα</div>
                 )}
@@ -488,11 +699,34 @@ function Step4({
             onChange={(next) => {
               setSelectedCustomers(next);
               onChange({ filters: { ...state.filters, manualTrdrIds: next.map((c) => c.id) } });
+              setEstimatedCount(null);
             }}
             placeholder="Αναζήτηση και προσθήκη πελατών…"
           />
         </div>
       )}
+
+      {/* Live recipient count estimator */}
+      <div className="flex items-center gap-3 pt-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleEstimate}
+          disabled={estimating}
+          className="h-8 text-[12px] border-[#C8C6C4] text-[#605E5C] hover:bg-[#EDEBE9] gap-1.5"
+        >
+          {estimating
+            ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" />
+            : <UsersIcon className="w-3.5 h-3.5" />}
+          Εκτίμηση παραληπτών
+        </Button>
+        {estimatedCount !== null && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#EFF6FC] border border-[#C7E0F4] rounded text-sm font-bold text-[#0078D4]">
+            <UsersIcon className="w-3.5 h-3.5" />
+            {estimatedCount.toLocaleString("el-GR")} παραλήπτες
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -543,23 +777,24 @@ function Step5({
     const manualCount = state.filters.manualTrdrIds?.length ?? 0;
     if (manualCount > 0) parts.push(`${manualCount} χειροκίνητοι`);
     const hasFilters = [
-      state.filters.regionIds,
-      state.filters.nomosIds,
-      state.filters.dimosIds,
-      state.filters.cities,
-      state.filters.legalStatuses,
-      state.filters.kadCodes,
-      state.filters.trdpGroupIds,
-      state.filters.trdBusinessIds,
+      state.filters.regionIds, state.filters.nomosIds, state.filters.dimosIds,
+      state.filters.cities, state.filters.legalStatuses, state.filters.kadCodes,
+      state.filters.trdpGroupIds, state.filters.trdBusinessIds,
     ].some((f) => f && f.length > 0);
     if (hasFilters) parts.push("φίλτρα εφαρμόζονται");
     return parts.length ? parts.join(" + ") : "Κανένας παραλήπτης";
   })();
 
+  const contentLabel = state.inlineTemplate
+    ? `Νέο σχέδιο (${state.inlineTemplate.blocks?.length ?? 0} blocks)`
+    : selectedTemplate?.name ?? "—";
+
+  const patchCount = Object.keys(state.baseTemplatePatches).length;
+
   const previewSrc = selectedBase?.htmlDocument
     ? selectedBase.htmlDocument
     : selectedTemplate
-    ? `<html><body style="font-family:sans-serif;padding:24px;max-width:600px;margin:0 auto"><p style="color:#888;font-size:12px">Προεπισκόπηση περιεχομένου: ${selectedTemplate.name}</p></body></html>`
+    ? `<html><body style="font-family:sans-serif;padding:24px;max-width:600px;margin:0 auto"><p style="color:#888;font-size:12px">Προεπισκόπηση: ${selectedTemplate.name}</p></body></html>`
     : `<html><body style="font-family:sans-serif;padding:24px;color:#A19F9D;text-align:center"><p>Δεν επιλέχθηκε πρότυπο</p></body></html>`;
 
   return (
@@ -585,8 +820,8 @@ function Step5({
           {[
             ["Εκστρατεία", state.name || "—"],
             ["Θέμα", state.subject || "—"],
-            ["Περιεχόμενο", selectedTemplate?.name ?? "—"],
-            ["Πρότυπο βάσης", selectedBase?.name ?? "—"],
+            ["Περιεχόμενο", contentLabel],
+            ["Πρότυπο βάσης", selectedBase ? `${selectedBase.name}${patchCount ? ` (${patchCount} παραμετροποιήσεις)` : ""}` : "—"],
             ["Παραλήπτες", recipientSummary],
           ].map(([label, value]) => (
             <div key={label} className="flex justify-between text-sm">
@@ -611,8 +846,8 @@ function Step5({
               onClick={handleTest}
               disabled={testSending || !testEmail.trim()}
               size="sm"
-              className="h-9 px-3 bg-white border border-[#C8C6C4] text-[#201F1E] hover:bg-[#F3F2F1] text-[12px] font-semibold"
               variant="outline"
+              className="h-9 px-3 bg-white border border-[#C8C6C4] text-[#201F1E] hover:bg-[#F3F2F1] text-[12px] font-semibold"
             >
               {testSending ? <Loader2Icon className="w-3.5 h-3.5 animate-spin" /> : <MailIcon className="w-3.5 h-3.5" />}
               <span className="ml-1.5">Αποστολή δοκιμής</span>
@@ -620,17 +855,14 @@ function Step5({
           </div>
         </div>
 
-        {/* Send button */}
         <Button
           onClick={onSend}
           disabled={sending}
           className="w-full h-11 text-sm font-bold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_6px_rgba(0,120,212,0.3)]"
         >
-          {sending ? (
-            <><Loader2Icon className="w-4 h-4 animate-spin mr-2" />Αποστολή…</>
-          ) : (
-            <>Αποστολή εκστρατείας</>
-          )}
+          {sending
+            ? <><Loader2Icon className="w-4 h-4 animate-spin mr-2" />Αποστολή…</>
+            : "Αποστολή εκστρατείας"}
         </Button>
       </div>
     </div>
@@ -643,10 +875,12 @@ export function NewsletterWizardClient({
   templates,
   baseTemplates,
   baseSettings: _baseSettings,
+  euPrograms,
 }: {
   templates: NewsletterWizardTemplate[];
   baseTemplates: NewsletterWizardBaseTemplate[];
   baseSettings: NewsletterWizardBaseSettings;
+  euPrograms: NewsletterWizardEuProgram[];
 }) {
   const router = useRouter();
   const [step, setStep] = React.useState(1);
@@ -657,7 +891,9 @@ export function NewsletterWizardClient({
     name: "",
     subject: "",
     templateId: null,
+    inlineTemplate: null,
     baseTemplateId: null,
+    baseTemplatePatches: {},
     recipientMode: "filters",
     filters: {},
     excelEmails: [],
@@ -668,7 +904,6 @@ export function NewsletterWizardClient({
     setState((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  // Load filter options when reaching step 4
   React.useEffect(() => {
     if (step === 4 && filterOptions === null) {
       getNewsletterFilterOptions().then((opts) => setFilterOptions(opts));
@@ -683,11 +918,7 @@ export function NewsletterWizardClient({
     return true;
   };
 
-  const handleNext = () => {
-    if (!validateStep()) return;
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS));
-  };
-
+  const handleNext = () => { if (!validateStep()) return; setStep((s) => Math.min(s + 1, TOTAL_STEPS)); };
   const handleBack = () => setStep((s) => Math.max(s - 1, 1));
 
   const handleSend = async () => {
@@ -712,9 +943,7 @@ export function NewsletterWizardClient({
       if (!confirmed) { setSending(false); return; }
 
       const result = await sendNewsletterCampaign(campaign.id);
-      if (result.errors?.length) {
-        result.errors.slice(0, 3).forEach((e) => toast.error(e));
-      }
+      if (result.errors?.length) result.errors.slice(0, 3).forEach((e) => toast.error(e));
       toast.success(`Εστάλησαν: ${result.sent}, Απέτυχαν: ${result.failed}`);
       router.push("/admin/newsletter/campaigns");
     } catch (e: unknown) {
@@ -751,7 +980,14 @@ export function NewsletterWizardClient({
           {step === 1 && <Step1 state={state} onChange={onChange} />}
           {step === 2 && <Step2 templates={templates} state={state} onChange={onChange} />}
           {step === 3 && <Step3 baseTemplates={baseTemplates} state={state} onChange={onChange} />}
-          {step === 4 && <Step4 state={state} onChange={onChange} filterOptions={filterOptions} />}
+          {step === 4 && (
+            <Step4
+              state={state}
+              onChange={onChange}
+              filterOptions={filterOptions}
+              euPrograms={euPrograms}
+            />
+          )}
           {step === 5 && (
             <Step5
               state={state}

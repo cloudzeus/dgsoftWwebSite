@@ -656,6 +656,12 @@ export type NewsletterWizardBaseTemplate = {
 
 export type NewsletterWizardBaseSettings = Record<string, string>
 
+export type NewsletterWizardEuProgram = {
+  id: string
+  nameEL: string
+  kadCodes: string[]
+}
+
 /** Send campaign emails via Mailgun. Uses template HTML or fallback text. */
 export async function sendNewsletterCampaign(campaignId: string): Promise<SendCampaignResult> {
   const session = await auth();
@@ -728,7 +734,7 @@ export async function getNewsletterWizardData() {
   const session = await auth()
   if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized")
 
-  const [templates, baseTemplates, baseSettings] = await Promise.all([
+  const [templates, baseTemplates, baseSettings, euPrograms] = await Promise.all([
     prisma.newsletterTemplate.findMany({
       orderBy: { updatedAt: "desc" },
       select: { id: true, name: true, description: true, content: true, updatedAt: true },
@@ -738,11 +744,38 @@ export async function getNewsletterWizardData() {
       select: { id: true, name: true, description: true, htmlDocument: true, fieldOverrides: true, updatedAt: true },
     }),
     prisma.newsletterBaseSettings.findUnique({ where: { id: "default" } }),
+    prisma.euProgram.findMany({
+      orderBy: { nameEL: "asc" },
+      select: {
+        id: true,
+        nameEL: true,
+        kads: { select: { kad: { select: { code: true } } } },
+      },
+    }),
   ])
 
   return JSON.parse(JSON.stringify({
     templates,
     baseTemplates,
     baseSettings: (baseSettings?.fields as Record<string, string>) ?? {},
+    euPrograms: euPrograms.map((p) => ({
+      id: p.id,
+      nameEL: p.nameEL,
+      kadCodes: p.kads.map((k) => k.kad.code),
+    })),
   }))
+}
+
+export async function estimateNewsletterRecipients(
+  filters: NewsletterFilters
+): Promise<{ count: number }> {
+  const session = await auth()
+  if (!session || session.user?.role !== "ADMIN") return { count: 0 }
+
+  const list = await buildRecipientList(filters)
+  const directEmails = filters.directEmails ?? []
+  const directSet = new Set(directEmails.map((e) => e.toLowerCase()))
+  for (const r of list) directSet.add(r.email.toLowerCase())
+
+  return { count: directSet.size }
 }
