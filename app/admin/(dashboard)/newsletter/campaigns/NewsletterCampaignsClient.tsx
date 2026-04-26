@@ -41,8 +41,9 @@ import {
   type TrdBusinessOption,
 } from "@/app/lib/actions/newsletter";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PlusIcon, SendIcon, UsersIcon, Loader2Icon, PencilIcon, MailIcon } from "lucide-react";
+import { PlusIcon, SendIcon, UsersIcon, Loader2Icon, PencilIcon, MailIcon, Wand2Icon } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 type Template = { id: string; name: string };
 type Campaign = {
@@ -259,10 +260,19 @@ export function NewsletterCampaignsClient({
 
   return (
     <div className="space-y-6">
-      <Button onClick={openCreate} className="gap-2">
-        <PlusIcon className="h-4 w-4" />
-        Νέα εκστρατεία
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link
+          href="/admin/newsletter/wizard"
+          className="inline-flex items-center gap-2 h-9 px-4 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)] transition-colors"
+        >
+          <Wand2Icon className="h-4 w-4" />
+          Οδηγός Δημιουργίας
+        </Link>
+        <Button onClick={openCreate} variant="outline" className="gap-2 h-9">
+          <PlusIcon className="h-4 w-4" />
+          Νέα εκστρατεία
+        </Button>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {campaigns.map((c) => (

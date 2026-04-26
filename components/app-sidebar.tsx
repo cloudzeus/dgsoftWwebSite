@@ -31,6 +31,7 @@ import {
   PanelBottomIcon,
   ShieldIcon,
   CookieIcon,
+  Wand2Icon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -145,6 +146,11 @@ const navData = {
     },
   ],
   navNewsletter: [
+    {
+      title: "Οδηγός Δημιουργίας",
+      url: "/admin/newsletter/wizard",
+      icon: Wand2Icon,
+    },
     {
       title: "Πρότυπα Email",
       url: "/admin/newsletter/templates",

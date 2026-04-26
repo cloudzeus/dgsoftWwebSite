@@ -26,6 +26,8 @@ export type NewsletterFilters = {
   manualTrdrIds?: string[];
   /** Which customer email fields to use for sending (default: all three). */
   emailFields?: EmailFieldKey[];
+  /** Plain email addresses uploaded directly (e.g. from Excel). */
+  directEmails?: string[];
 };
 
 /** Resolve region/nomos/dimos selection to set of level-5 (dimos) periferia IDs. */
@@ -522,6 +524,7 @@ export async function createNewsletterCampaign(data: {
   name: string;
   subject: string;
   templateId?: string | null;
+  baseTemplateId?: string | null;
   filters?: NewsletterFilters | null;
 }) {
   const session = await auth();
@@ -531,6 +534,7 @@ export async function createNewsletterCampaign(data: {
       name: data.name,
       subject: data.subject,
       templateId: data.templateId ?? null,
+      baseTemplateId: data.baseTemplateId ?? null,
       filters: (data.filters ?? {}) as object,
     },
   });
@@ -540,14 +544,15 @@ export async function createNewsletterCampaign(data: {
 
 export async function updateNewsletterCampaign(
   id: string,
-  data: { name?: string; subject?: string; templateId?: string | null; filters?: NewsletterFilters | null }
+  data: { name?: string; subject?: string; templateId?: string | null; baseTemplateId?: string | null; filters?: NewsletterFilters | null }
 ) {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized");
-  const update: { name?: string; subject?: string; templateId?: string | null; filters?: object } = {};
+  const update: { name?: string; subject?: string; templateId?: string | null; baseTemplateId?: string | null; filters?: object } = {};
   if (data.name != null) update.name = data.name;
   if (data.subject != null) update.subject = data.subject;
-  if (data.templateId != null) update.templateId = data.templateId;
+  if (data.templateId !== undefined) update.templateId = data.templateId;
+  if (data.baseTemplateId !== undefined) update.baseTemplateId = data.baseTemplateId;
   if (data.filters != null) update.filters = data.filters as object;
   const c = await prisma.newsletterCampaign.update({ where: { id }, data: update });
   revalidatePath(`${NEWSLETTER_PATH}/campaigns`);
@@ -565,6 +570,20 @@ export async function buildCampaignRecipients(campaignId: string): Promise<{ cou
   const filters = (campaign.filters ?? {}) as NewsletterFilters;
   const list = await buildRecipientList(filters);
 
+  // Track seen emails from regular recipients
+  const seen = new Set(list.map((r) => r.email.toLowerCase()));
+
+  // Add directEmails (e.g. from Excel upload) that aren't already in the list
+  const directRows: { campaignId: string; email: string; trdrId: null; status: string }[] = [];
+  if (filters.directEmails?.length) {
+    for (const raw of filters.directEmails) {
+      const email = raw.trim().toLowerCase();
+      if (!email || seen.has(email)) continue;
+      seen.add(email);
+      directRows.push({ campaignId, email, trdrId: null, status: "pending" });
+    }
+  }
+
   await prisma.newsletterCampaignRecipient.deleteMany({ where: { campaignId } });
   if (list.length > 0) {
     await prisma.newsletterCampaignRecipient.createMany({
@@ -576,8 +595,13 @@ export async function buildCampaignRecipients(campaignId: string): Promise<{ cou
       })),
     });
   }
+  if (directRows.length > 0) {
+    await prisma.newsletterCampaignRecipient.createMany({ data: directRows });
+  }
+
+  const total = list.length + directRows.length;
   revalidatePath(`${NEWSLETTER_PATH}/campaigns`);
-  return { count: list.length };
+  return { count: total };
 }
 
 /** Send a test/preview email for a campaign to a single address. Uses template HTML + subject from params. */
@@ -612,6 +636,25 @@ export async function sendNewsletterTestEmail(params: {
 }
 
 export type SendCampaignResult = { success: boolean; sent: number; failed: number; errors: string[] };
+
+export type NewsletterWizardTemplate = {
+  id: string
+  name: string
+  description: string | null
+  content: any
+  updatedAt: string
+}
+
+export type NewsletterWizardBaseTemplate = {
+  id: string
+  name: string
+  description: string | null
+  htmlDocument: string | null
+  fieldOverrides: any
+  updatedAt: string
+}
+
+export type NewsletterWizardBaseSettings = Record<string, string>
 
 /** Send campaign emails via Mailgun. Uses template HTML or fallback text. */
 export async function sendNewsletterCampaign(campaignId: string): Promise<SendCampaignResult> {
@@ -679,4 +722,27 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
 
   revalidatePath(`${NEWSLETTER_PATH}/campaigns`);
   return { success: failed === 0, sent, failed, errors: errors.slice(0, 20) };
+}
+
+export async function getNewsletterWizardData() {
+  const session = await auth()
+  if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized")
+
+  const [templates, baseTemplates, baseSettings] = await Promise.all([
+    prisma.newsletterTemplate.findMany({
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, name: true, description: true, content: true, updatedAt: true },
+    }),
+    prisma.newsletterBaseTemplate.findMany({
+      orderBy: { updatedAt: "desc" },
+      select: { id: true, name: true, description: true, htmlDocument: true, fieldOverrides: true, updatedAt: true },
+    }),
+    prisma.newsletterBaseSettings.findUnique({ where: { id: "default" } }),
+  ])
+
+  return JSON.parse(JSON.stringify({
+    templates,
+    baseTemplates,
+    baseSettings: (baseSettings?.fields as Record<string, string>) ?? {},
+  }))
 }
