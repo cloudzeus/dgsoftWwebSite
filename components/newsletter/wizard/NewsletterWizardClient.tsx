@@ -34,24 +34,27 @@ import { CustomerMultiSelect, type CustomerOption } from "@/components/newslette
 import { MultiSelectFilter } from "@/components/newsletter/multi-select-filter";
 import { VisualDesigner } from "@/components/newsletter/visual-designer";
 import type { NewsletterContent } from "@/lib/newsletter-blocks";
-import { createBlock } from "@/lib/newsletter-blocks";
+import { createBlock, renderBlocksToHtml } from "@/lib/newsletter-blocks";
+import { NewsletterMediaPickerDialog } from "@/components/newsletter/newsletter-media-picker-dialog";
+import { applyBaseTemplateFields, mergeBaseTemplateWithDynamicContent } from "@/lib/newsletter-dynamic-placeholder";
+import { ImagesIcon } from "lucide-react";
 
 // ——— Types ———
 
-const BASE_FIELD_LABELS: Record<string, string> = {
-  companyName: "Όνομα εταιρείας",
-  logoUrl: "URL Λογότυπου",
-  facebookUrl: "URL Facebook",
-  instagramUrl: "URL Instagram",
-  linkedinUrl: "URL LinkedIn",
-  xUrl: "URL X (Twitter)",
-  tagline: "Υπότιτλος",
-  addressLine: "Διεύθυνση",
-  contactEmail: "Email επικοινωνίας",
-  privacyPolicyUrl: "URL Πολιτικής Απορρήτου",
-  termsUrl: "URL Όρων Χρήσης",
-  unsubscribeUrl: "URL Κατάργησης Εγγραφής",
-};
+const BASE_FIELD_META: { key: string; label: string; media: boolean }[] = [
+  { key: "companyName",      label: "Όνομα εταιρείας",              media: false },
+  { key: "logoUrl",          label: "URL Λογότυπου",                 media: true  },
+  { key: "facebookUrl",      label: "URL Facebook",                  media: true  },
+  { key: "instagramUrl",     label: "URL Instagram",                 media: true  },
+  { key: "linkedinUrl",      label: "URL LinkedIn",                  media: true  },
+  { key: "xUrl",             label: "URL X (Twitter)",               media: true  },
+  { key: "tagline",          label: "Υπότιτλος",                     media: false },
+  { key: "addressLine",      label: "Διεύθυνση",                     media: false },
+  { key: "contactEmail",     label: "Email επικοινωνίας",            media: false },
+  { key: "privacyPolicyUrl", label: "URL Πολιτικής Απορρήτου",       media: true  },
+  { key: "termsUrl",         label: "URL Όρων Χρήσης",               media: true  },
+  { key: "unsubscribeUrl",   label: "URL Κατάργησης Εγγραφής",       media: true  },
+];
 
 type WizardState = {
   name: string;
@@ -311,6 +314,74 @@ function Step2({
   );
 }
 
+// ——— Patch Panel (field overrides with media picker) ———
+
+function PatchPanel({
+  patches,
+  onChange,
+}: {
+  patches: Record<string, string>;
+  onChange: (patches: Record<string, string>) => void;
+}) {
+  const [mediaTarget, setMediaTarget] = React.useState<string | null>(null);
+
+  const update = (key: string, value: string) => onChange({ ...patches, [key]: value });
+
+  return (
+    <div className="border-t border-[#EDEBE9] p-4 space-y-3 bg-[#F3F2F1]">
+      <p className="text-[11px] text-[#A19F9D]">
+        Τα πεδία που συμπληρώνετε εδώ αντικαθιστούν τις προεπιλεγμένες τιμές μόνο για αυτή την εκστρατεία.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {BASE_FIELD_META.map(({ key, label, media }) => (
+          <div key={key} className="space-y-1">
+            <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
+              {label}
+            </Label>
+            <div className="flex gap-1.5">
+              <Input
+                value={patches[key] ?? ""}
+                onChange={(e) => update(key, e.target.value)}
+                placeholder="(προεπιλεγμένη τιμή)"
+                className="h-8 text-sm border-[#C8C6C4] bg-white focus-visible:ring-[#0078D4]"
+              />
+              {media && (
+                <button
+                  type="button"
+                  onClick={() => setMediaTarget(key)}
+                  title="Επιλογή από γκαλερί"
+                  className="h-8 w-8 shrink-0 flex items-center justify-center border border-[#C8C6C4] rounded bg-white hover:bg-[#EDEBE9] text-[#605E5C] transition-colors"
+                >
+                  <ImagesIcon className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      {Object.keys(patches).length > 0 && (
+        <button
+          type="button"
+          onClick={() => onChange({})}
+          className="text-[11px] text-red-500 hover:text-red-700"
+        >
+          Επαναφορά όλων
+        </button>
+      )}
+
+      <NewsletterMediaPickerDialog
+        open={mediaTarget !== null}
+        onOpenChange={(o) => !o && setMediaTarget(null)}
+        title={mediaTarget ? `Επιλογή για: ${BASE_FIELD_META.find((f) => f.key === mediaTarget)?.label ?? mediaTarget}` : undefined}
+        onSelect={(url) => {
+          if (mediaTarget) update(mediaTarget, url);
+          setMediaTarget(null);
+        }}
+      />
+    </div>
+  );
+}
+
 // ——— Step 3: Base Template (with on-the-fly field overrides) ———
 
 function Step3({
@@ -418,35 +489,10 @@ function Step3({
           </button>
 
           {patchOpen && (
-            <div className="border-t border-[#EDEBE9] p-4 space-y-3 bg-[#F3F2F1]">
-              <p className="text-[11px] text-[#A19F9D]">
-                Τα πεδία που συμπληρώνετε εδώ αντικαθιστούν τις προεπιλεγμένες τιμές μόνο για αυτή την εκστρατεία.
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {Object.entries(BASE_FIELD_LABELS).map(([key, label]) => (
-                  <div key={key} className="space-y-1">
-                    <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
-                      {label}
-                    </Label>
-                    <Input
-                      value={state.baseTemplatePatches[key] ?? ""}
-                      onChange={(e) => updatePatch(key, e.target.value)}
-                      placeholder="(προεπιλεγμένη τιμή)"
-                      className="h-8 text-sm border-[#C8C6C4] bg-white focus-visible:ring-[#0078D4]"
-                    />
-                  </div>
-                ))}
-              </div>
-              {Object.keys(state.baseTemplatePatches).length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => onChange({ baseTemplatePatches: {} })}
-                  className="text-[11px] text-red-500 hover:text-red-700"
-                >
-                  Επαναφορά όλων
-                </button>
-              )}
-            </div>
+            <PatchPanel
+              patches={state.baseTemplatePatches}
+              onChange={(patches) => onChange({ baseTemplatePatches: patches })}
+            />
           )}
         </div>
       )}
@@ -791,11 +837,29 @@ function Step5({
 
   const patchCount = Object.keys(state.baseTemplatePatches).length;
 
-  const previewSrc = selectedBase?.htmlDocument
-    ? selectedBase.htmlDocument
-    : selectedTemplate
-    ? `<html><body style="font-family:sans-serif;padding:24px;max-width:600px;margin:0 auto"><p style="color:#888;font-size:12px">Προεπισκόπηση: ${selectedTemplate.name}</p></body></html>`
-    : `<html><body style="font-family:sans-serif;padding:24px;color:#A19F9D;text-align:center"><p>Δεν επιλέχθηκε πρότυπο</p></body></html>`;
+  // Build dynamic content HTML from inline design or existing template
+  const dynamicHtml = React.useMemo(() => {
+    if (state.inlineTemplate) return renderBlocksToHtml(state.inlineTemplate);
+    if (selectedTemplate?.content) return renderBlocksToHtml(selectedTemplate.content as NewsletterContent);
+    if (selectedTemplate) return `<p style="font-family:sans-serif;color:#888;font-size:12px">Περιεχόμενο: ${selectedTemplate.name}</p>`;
+    return "";
+  }, [state.inlineTemplate, selectedTemplate]);
+
+  // Merge dynamic content into base template with field patches applied
+  const previewSrc = React.useMemo(() => {
+    if (selectedBase?.htmlDocument) {
+      const merged = mergeBaseTemplateWithDynamicContent(
+        applyBaseTemplateFields(selectedBase.htmlDocument, {
+          ...(selectedBase.fieldOverrides as Record<string, string> ?? {}),
+          ...state.baseTemplatePatches,
+        }),
+        dynamicHtml || "<p style='color:#A19F9D;font-size:12px;font-family:sans-serif'>Δεν επιλέχθηκε περιεχόμενο</p>"
+      );
+      return merged;
+    }
+    if (dynamicHtml) return `<html><body style="font-family:sans-serif;padding:24px;max-width:600px;margin:0 auto">${dynamicHtml}</body></html>`;
+    return `<html><body style="font-family:sans-serif;padding:24px;color:#A19F9D;text-align:center"><p>Δεν επιλέχθηκε πρότυπο</p></body></html>`;
+  }, [selectedBase, dynamicHtml, state.baseTemplatePatches]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
