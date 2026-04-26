@@ -32,6 +32,7 @@ import {
   ShieldIcon,
   CookieIcon,
   Wand2Icon,
+  BuildingIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -175,6 +176,11 @@ const navData = {
       title: "Λίστες ΕΕ",
       url: "/admin/newsletter/eu-lists",
       icon: ListIcon,
+    },
+    {
+      title: "Εταιρείες Αποστολής",
+      url: "/admin/newsletter/companies",
+      icon: BuildingIcon,
     },
     {
       title: "Αναφορές",

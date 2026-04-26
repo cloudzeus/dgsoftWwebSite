@@ -662,6 +662,27 @@ export type NewsletterWizardEuProgram = {
   kadCodes: string[]
 }
 
+export type NewsletterWizardSenderProfile = {
+  id: string
+  presenceId: string
+  presenceName: string
+  presenceLogo: string | null
+  senderName: string
+  senderEmail: string
+  logoUrl: string
+  tagline: string
+  facebookUrl: string
+  instagramUrl: string
+  linkedinUrl: string
+  xUrl: string
+  addressLine: string
+  phone: string
+  contactEmail: string
+  privacyPolicyUrl: string
+  termsUrl: string
+  unsubscribeUrl: string
+}
+
 /** Send campaign emails via Mailgun. Uses template HTML or fallback text. */
 export async function sendNewsletterCampaign(campaignId: string): Promise<SendCampaignResult> {
   const session = await auth();
@@ -734,7 +755,7 @@ export async function getNewsletterWizardData() {
   const session = await auth()
   if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized")
 
-  const [templates, baseTemplates, baseSettings, euPrograms] = await Promise.all([
+  const [templates, baseTemplates, baseSettings, euPrograms, senderProfiles] = await Promise.all([
     prisma.newsletterTemplate.findMany({
       orderBy: { updatedAt: "desc" },
       select: { id: true, name: true, description: true, content: true, updatedAt: true },
@@ -752,6 +773,10 @@ export async function getNewsletterWizardData() {
         kads: { select: { kad: { select: { code: true } } } },
       },
     }),
+    prisma.newsletterSenderProfile.findMany({
+      orderBy: { presence: { nameEL: "asc" } },
+      include: { presence: { select: { nameEL: true, logo: true } } },
+    }),
   ])
 
   return JSON.parse(JSON.stringify({
@@ -762,6 +787,26 @@ export async function getNewsletterWizardData() {
       id: p.id,
       nameEL: p.nameEL,
       kadCodes: p.kads.map((k) => k.kad.code),
+    })),
+    senderProfiles: senderProfiles.map((p) => ({
+      id: p.id,
+      presenceId: p.presenceId,
+      presenceName: p.presence.nameEL,
+      presenceLogo: p.presence.logo,
+      senderName: p.senderName ?? "",
+      senderEmail: p.senderEmail ?? "",
+      logoUrl: p.logoUrl ?? "",
+      tagline: p.tagline ?? "",
+      facebookUrl: p.facebookUrl ?? "",
+      instagramUrl: p.instagramUrl ?? "",
+      linkedinUrl: p.linkedinUrl ?? "",
+      xUrl: p.xUrl ?? "",
+      addressLine: p.addressLine ?? "",
+      phone: p.phone ?? "",
+      contactEmail: p.contactEmail ?? "",
+      privacyPolicyUrl: p.privacyPolicyUrl ?? "",
+      termsUrl: p.termsUrl ?? "",
+      unsubscribeUrl: p.unsubscribeUrl ?? "",
     })),
   }))
 }

@@ -29,6 +29,7 @@ import {
   type NewsletterWizardBaseTemplate,
   type NewsletterWizardBaseSettings,
   type NewsletterWizardEuProgram,
+  type NewsletterWizardSenderProfile,
 } from "@/app/lib/actions/newsletter";
 import { CustomerMultiSelect, type CustomerOption } from "@/components/newsletter/customer-multi-select";
 import { MultiSelectFilter } from "@/components/newsletter/multi-select-filter";
@@ -37,7 +38,7 @@ import type { NewsletterContent } from "@/lib/newsletter-blocks";
 import { createBlock, renderBlocksToHtml } from "@/lib/newsletter-blocks";
 import { NewsletterMediaPickerDialog } from "@/components/newsletter/newsletter-media-picker-dialog";
 import { applyBaseTemplateFields, mergeBaseTemplateWithDynamicContent } from "@/lib/newsletter-dynamic-placeholder";
-import { ImagesIcon } from "lucide-react";
+import { ImagesIcon, BuildingIcon } from "lucide-react";
 
 // ——— Types ———
 
@@ -59,6 +60,7 @@ const BASE_FIELD_META: { key: string; label: string; media: boolean }[] = [
 type WizardState = {
   name: string;
   subject: string;
+  senderProfileId: string | null;
   templateId: string | null;
   inlineTemplate: NewsletterContent | null;
   baseTemplateId: string | null;
@@ -127,33 +129,128 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-// ——— Step 1: Campaign Details ———
+// ——— Step 1: Campaign Details + Company selector ———
 
-function Step1({ state, onChange }: { state: WizardState; onChange: (p: Partial<WizardState>) => void }) {
+function Step1({
+  state,
+  onChange,
+  senderProfiles,
+}: {
+  state: WizardState;
+  onChange: (p: Partial<WizardState>) => void;
+  senderProfiles: NewsletterWizardSenderProfile[];
+}) {
+  const selected = senderProfiles.find((p) => p.id === state.senderProfileId) ?? null;
+
+  const handlePickProfile = (profileId: string) => {
+    const profile = senderProfiles.find((p) => p.id === profileId);
+    if (!profile) {
+      onChange({ senderProfileId: null, baseTemplatePatches: {} });
+      return;
+    }
+    // Auto-fill base template patches from profile fields
+    onChange({
+      senderProfileId: profile.id,
+      baseTemplatePatches: {
+        companyName: profile.senderName,
+        logoUrl: profile.logoUrl,
+        tagline: profile.tagline,
+        facebookUrl: profile.facebookUrl,
+        instagramUrl: profile.instagramUrl,
+        linkedinUrl: profile.linkedinUrl,
+        xUrl: profile.xUrl,
+        addressLine: profile.addressLine,
+        contactEmail: profile.contactEmail,
+        privacyPolicyUrl: profile.privacyPolicyUrl,
+        termsUrl: profile.termsUrl,
+        unsubscribeUrl: profile.unsubscribeUrl,
+      },
+    });
+  };
+
   return (
-    <div className="bg-white border border-[#EDEBE9] rounded-lg p-5 space-y-4">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Στοιχεία Εκστρατείας</p>
-      <div className="space-y-1">
-        <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
-          Όνομα εκστρατείας <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          value={state.name}
-          onChange={(e) => onChange({ name: e.target.value })}
-          placeholder="π.χ. Ενημερωτικό Δελτίο Q1 2025"
-          className="h-9 text-sm border-[#C8C6C4] focus-visible:ring-[#0078D4]"
-        />
-      </div>
-      <div className="space-y-1">
-        <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
-          Θέμα email <span className="text-red-500">*</span>
-        </Label>
-        <Input
-          value={state.subject}
-          onChange={(e) => onChange({ subject: e.target.value })}
-          placeholder="Γραμμή θέματος"
-          className="h-9 text-sm border-[#C8C6C4] focus-visible:ring-[#0078D4]"
-        />
+    <div className="space-y-4">
+      {/* Company selector */}
+      {senderProfiles.length > 0 && (
+        <div className="bg-white border border-[#EDEBE9] rounded-lg p-5 space-y-3">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Εταιρεία Αποστολής</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* None option */}
+            <button
+              type="button"
+              onClick={() => onChange({ senderProfileId: null, baseTemplatePatches: {} })}
+              className={`flex items-center gap-2.5 p-3 border-2 rounded-lg text-left transition-colors ${
+                !state.senderProfileId
+                  ? "border-[#0078D4] bg-[#EFF6FC]"
+                  : "border-[#EDEBE9] hover:border-[#C8C6C4]"
+              }`}
+            >
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                !state.senderProfileId ? "border-[#0078D4] bg-[#0078D4]" : "border-[#C8C6C4]"
+              }`}>
+                {!state.senderProfileId && <CheckIcon className="w-3 h-3 text-white" />}
+              </div>
+              <span className="text-sm font-semibold text-[#605E5C]">Χωρίς εταιρεία</span>
+            </button>
+
+            {senderProfiles.map((p) => {
+              const isSelected = state.senderProfileId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => handlePickProfile(p.id)}
+                  className={`flex items-center gap-2.5 p-3 border-2 rounded-lg text-left transition-colors ${
+                    isSelected ? "border-[#0078D4] bg-[#EFF6FC]" : "border-[#EDEBE9] hover:border-[#C8C6C4]"
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden shrink-0 flex items-center justify-center">
+                    {p.logoUrl || p.presenceLogo
+                      ? <img src={p.logoUrl || p.presenceLogo!} alt="" className="w-full h-full object-contain" />
+                      : <BuildingIcon className="w-3.5 h-3.5 text-[#A19F9D]" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#201F1E] truncate">{p.senderName || p.presenceName}</p>
+                    <p className="text-[11px] text-[#A19F9D] truncate">{p.senderEmail || "—"}</p>
+                  </div>
+                  {isSelected && <CheckIcon className="w-4 h-4 text-[#0078D4] shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+          {selected && (
+            <p className="text-[11px] text-[#0078D4]">
+              Τα στοιχεία της εταιρείας θα προεπιληφθούν στα πεδία του βασικού προτύπου (βήμα 3).
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Campaign details */}
+      <div className="bg-white border border-[#EDEBE9] rounded-lg p-5 space-y-4">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D]">Στοιχεία Εκστρατείας</p>
+        <div className="space-y-1">
+          <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
+            Όνομα εκστρατείας <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            value={state.name}
+            onChange={(e) => onChange({ name: e.target.value })}
+            placeholder="π.χ. Ενημερωτικό Δελτίο Q1 2025"
+            className="h-9 text-sm border-[#C8C6C4] focus-visible:ring-[#0078D4]"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">
+            Θέμα email <span className="text-red-500">*</span>
+          </Label>
+          <Input
+            value={state.subject}
+            onChange={(e) => onChange({ subject: e.target.value })}
+            placeholder="Γραμμή θέματος"
+            className="h-9 text-sm border-[#C8C6C4] focus-visible:ring-[#0078D4]"
+          />
+        </div>
       </div>
     </div>
   );
@@ -940,11 +1037,13 @@ export function NewsletterWizardClient({
   baseTemplates,
   baseSettings: _baseSettings,
   euPrograms,
+  senderProfiles,
 }: {
   templates: NewsletterWizardTemplate[];
   baseTemplates: NewsletterWizardBaseTemplate[];
   baseSettings: NewsletterWizardBaseSettings;
   euPrograms: NewsletterWizardEuProgram[];
+  senderProfiles: NewsletterWizardSenderProfile[];
 }) {
   const router = useRouter();
   const [step, setStep] = React.useState(1);
@@ -954,6 +1053,7 @@ export function NewsletterWizardClient({
   const [state, setState] = React.useState<WizardState>({
     name: "",
     subject: "",
+    senderProfileId: null,
     templateId: null,
     inlineTemplate: null,
     baseTemplateId: null,
@@ -1041,7 +1141,7 @@ export function NewsletterWizardClient({
       {/* Content */}
       <div className="p-5 max-w-4xl mx-auto">
         <div className="mb-5">
-          {step === 1 && <Step1 state={state} onChange={onChange} />}
+          {step === 1 && <Step1 state={state} onChange={onChange} senderProfiles={senderProfiles} />}
           {step === 2 && <Step2 templates={templates} state={state} onChange={onChange} />}
           {step === 3 && <Step3 baseTemplates={baseTemplates} state={state} onChange={onChange} />}
           {step === 4 && (

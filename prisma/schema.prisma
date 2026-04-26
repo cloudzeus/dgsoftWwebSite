@@ -334,6 +334,36 @@ model Presence {
   order     Int     @default(0)
   published Boolean @default(true)
 
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  newsletterProfile NewsletterSenderProfile?
+}
+
+model NewsletterSenderProfile {
+  id         String   @id @default(cuid())
+  presenceId String   @unique
+  presence   Presence @relation(fields: [presenceId], references: [id], onDelete: Cascade)
+
+  // Sender identity
+  senderName  String? @db.VarChar(255)
+  senderEmail String? @db.VarChar(255)
+  logoUrl     String? @db.Text
+  tagline     String? @db.Text
+
+  // Social links
+  facebookUrl  String? @db.Text
+  instagramUrl String? @db.Text
+  linkedinUrl  String? @db.Text
+  xUrl         String? @db.Text
+
+  // Footer
+  addressLine      String? @db.Text
+  phone            String? @db.VarChar(100)
+  contactEmail     String? @db.VarChar(255)
+  privacyPolicyUrl String? @db.Text
+  termsUrl         String? @db.Text
+  unsubscribeUrl   String? @db.Text
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
