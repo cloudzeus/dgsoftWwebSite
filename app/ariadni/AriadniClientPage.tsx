@@ -72,11 +72,11 @@ export default function AriadniClientPage({
               <p className="text-lg sm:text-xl md:text-2xl text-monks-light max-w-2xl leading-relaxed">
                 {c.tagline}
               </p>
-              <p className="text-sm text-white/80 max-w-2xl leading-relaxed">
-                {locale === "el"
-                  ? "Το έργο υλοποιήθηκε στο πλαίσιο του προγράμματος «Ανάπτυξη Ψηφιακών Προϊόντων και Υπηρεσιών» του Ταμείου Ανάκαμψης και Ανθεκτικότητας «Ελλάδα 2.0» με τη χρηματοδότηση της Ευρωπαϊκής Ένωσης – NextGenerationEU."
-                  : "The project was implemented under the programme «Development of Digital Products and Services» of the Recovery and Resilience Fund «Greece 2.0», funded by the European Union – NextGenerationEU."}
-              </p>
+              {c.heroSubtext && (
+                <p className="text-sm text-white/80 max-w-2xl leading-relaxed">
+                  {c.heroSubtext}
+                </p>
+              )}
             </div>
 
             {/* Single glass panel: logo + stats + ESPA banner (same width) */}

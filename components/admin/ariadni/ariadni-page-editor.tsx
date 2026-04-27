@@ -247,6 +247,14 @@ function LocaleFields({
             className="text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] resize-none"
           />
         </FieldRow>
+        <FieldRow label="Υποκείμενο κείμενο hero (επιχορήγηση / disclaimer)">
+          <Textarea
+            value={c.heroSubtext ?? ""}
+            onChange={(e) => onChange({ heroSubtext: e.target.value })}
+            rows={3}
+            className="text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] resize-none"
+          />
+        </FieldRow>
       </SectionCard>
 
       {/* Stats */}

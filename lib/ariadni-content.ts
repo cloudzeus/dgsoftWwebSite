@@ -10,6 +10,7 @@ export const ariadniLocaleContentSchema = z.object({
   title: z.string(),
   stats: z.array(statSchema).length(2),
   tagline: z.string(),
+  heroSubtext: z.string().optional().default(""),
   intro: z.string(),
   apiLeadIn: z.string(),
   integrationLines: z.array(z.string()),
@@ -46,6 +47,8 @@ export const defaultAriadniContentEL: AriadniLocaleContent = {
   ],
   tagline:
     "Ένας κόμβος διασύνδεσης υπηρεσιών για τις επιχειρήσεις του αύριο.",
+  heroSubtext:
+    "Το έργο υλοποιήθηκε στο πλαίσιο του προγράμματος «Ανάπτυξη Ψηφιακών Προϊόντων και Υπηρεσιών» του Ταμείου Ανάκαμψης και Ανθεκτικότητας «Ελλάδα 2.0» με τη χρηματοδότηση της Ευρωπαϊκής Ένωσης – NextGenerationEU.",
   intro: `Στη σημερινή ψηφιακή εποχή, η ταχύτητα με την οποία εξελίσσονται οι επιχειρηματικές ανάγκες απαιτεί ευελιξία, απλότητα και έξυπνη αξιοποίηση της τεχνολογίας. Το Ariadne Service Hub της DGSOFT έχει σχεδιαστεί ακριβώς για αυτόν τον σκοπό: να λειτουργήσει ως ένας ισχυρός κόμβος που ενώνει κρίσιμες επιχειρηματικές υπηρεσίες σε ένα ενιαίο περιβάλλον, προσφέροντας εύκολη πρόσβαση σε δεδομένα και εφαρμογές, χωρίς περίπλοκες διαδικασίες και υψηλά κόστη.`,
   apiLeadIn: "Μέσα από ένα κοινό API, οι επιχειρήσεις αποκτούν άμεση σύνδεση με:",
   integrationLines: [
@@ -95,6 +98,8 @@ export const defaultAriadniContentEN: AriadniLocaleContent = {
     { label: "EU FUNDING", value: "€233,440.50" },
   ],
   tagline: "A service hub connecting the businesses of tomorrow.",
+  heroSubtext:
+    "The project was implemented under the programme «Development of Digital Products and Services» of the Recovery and Resilience Fund «Greece 2.0», funded by the European Union – NextGenerationEU.",
   intro: `In today’s digital era, the pace of evolving business needs demands flexibility, simplicity and smart use of technology. DGSOFT’s Ariadne Service Hub is built for exactly that: to operate as a powerful hub that unites critical business services in one environment—giving easy access to data and applications without complex processes or high cost.`,
   apiLeadIn:
     "Through a common API, businesses gain direct connectivity with:",

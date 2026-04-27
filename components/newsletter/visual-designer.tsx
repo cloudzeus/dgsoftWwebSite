@@ -19,6 +19,7 @@ import {
   type BlockType,
   type NewsletterContent,
   type BodyOptions,
+  type Theme,
 } from "@/lib/newsletter-blocks";
 import {
   GripVerticalIcon,
@@ -206,38 +207,66 @@ function BodyStyleEditor({ bodyOptions, onChange }: BodyStyleEditorProps) {
   React.useEffect(() => {
     if (mediaOpen) getNewsletterMedia().then(setMediaList);
   }, [mediaOpen]);
+
+  const theme: Theme = bodyOptions.theme ?? "light";
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="space-y-3">
+      {/* Theme toggle */}
       <div>
-        <Label className="text-xs">Background color</Label>
-        <div className="mt-1 flex gap-2">
-          <input
-            type="color"
-            value={bodyOptions.backgroundColor || "#ffffff"}
-            onChange={(e) => onChange({ backgroundColor: e.target.value })}
-            className="h-8 w-12 cursor-pointer rounded border"
-          />
-          <Input
-            value={bodyOptions.backgroundColor ?? ""}
-            onChange={(e) => onChange({ backgroundColor: e.target.value || undefined })}
-            placeholder="#ffffff"
-            className="h-8 flex-1 font-mono text-xs"
-          />
+        <Label className="text-xs">Θέμα (Light / Dark)</Label>
+        <div className="mt-1 flex gap-1.5">
+          {(["light", "dark"] as Theme[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => onChange({ theme: t })}
+              className={`flex-1 h-8 rounded border text-[11px] font-semibold transition-colors ${
+                theme === t
+                  ? t === "dark"
+                    ? "bg-[#1a1a2e] border-[#374151] text-white"
+                    : "bg-white border-[#0078D4] text-[#0078D4]"
+                  : "bg-[#F3F2F1] border-[#EDEBE9] text-[#605E5C] hover:border-[#C8C6C4]"
+              }`}
+            >
+              {t === "light" ? "☀️ Light" : "🌙 Dark"}
+            </button>
+          ))}
         </div>
       </div>
-      <div>
-        <Label className="text-xs">Background image (URL)</Label>
-        <div className="mt-1 flex gap-2">
-          <Input
-            value={bodyOptions.backgroundImage ?? ""}
-            onChange={(e) => onChange({ backgroundImage: e.target.value || undefined })}
-            placeholder="https://... or pick from library"
-            className="h-8 flex-1 text-xs"
-          />
-          <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => setMediaOpen(true)}>
-            <Images className="h-4 w-4" />
-            Library
-          </Button>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <Label className="text-xs">Χρώμα φόντου</Label>
+          <div className="mt-1 flex gap-2">
+            <input
+              type="color"
+              value={bodyOptions.backgroundColor || (theme === "dark" ? "#1a1a2e" : "#ffffff")}
+              onChange={(e) => onChange({ backgroundColor: e.target.value })}
+              className="h-8 w-12 cursor-pointer rounded border"
+            />
+            <Input
+              value={bodyOptions.backgroundColor ?? ""}
+              onChange={(e) => onChange({ backgroundColor: e.target.value || undefined })}
+              placeholder={theme === "dark" ? "#1a1a2e" : "#ffffff"}
+              className="h-8 flex-1 font-mono text-xs"
+            />
+          </div>
+        </div>
+        <div>
+          <Label className="text-xs">Εικόνα φόντου (URL)</Label>
+          <div className="mt-1 flex gap-2">
+            <Input
+              value={bodyOptions.backgroundImage ?? ""}
+              onChange={(e) => onChange({ backgroundImage: e.target.value || undefined })}
+              placeholder="https://... ή από γκαλερί"
+              className="h-8 flex-1 text-xs"
+            />
+            <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => setMediaOpen(true)}>
+              <Images className="h-4 w-4" />
+              Γκαλερί
+            </Button>
+          </div>
         </div>
       </div>
       <MediaLibraryDialog

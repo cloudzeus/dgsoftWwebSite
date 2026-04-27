@@ -754,11 +754,12 @@ model NewsletterCampaign {
   subject    String              @db.VarChar(512)
   templateId     String?
   template       NewsletterTemplate?     @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  baseTemplateId String?
-  baseTemplate   NewsletterBaseTemplate? @relation(fields: [baseTemplateId], references: [id], onDelete: SetNull)
-  status         String                  @default("draft") @db.VarChar(32) // draft, sending, sent, failed
-  filters    Json? // { regionIds, nomosIds, dimosIds, cities, legalStatuses, kadCodes, trdpGroupIds, trdBusinessIds }
-  sentAt     DateTime?
+  baseTemplateId      String?
+  baseTemplate        NewsletterBaseTemplate? @relation(fields: [baseTemplateId], references: [id], onDelete: SetNull)
+  baseTemplatePatches Json?  // per-campaign field overrides applied on top of base template
+  status              String @default("draft") @db.VarChar(32) // draft, sending, sent, failed
+  filters             Json?  // { regionIds, nomosIds, dimosIds, cities, legalStatuses, kadCodes, trdpGroupIds, trdBusinessIds }
+  sentAt              DateTime?
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
 

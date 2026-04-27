@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createNewsletterCampaign,
+  createNewsletterTemplate,
   buildCampaignRecipients,
   sendNewsletterCampaign,
   sendNewsletterTestEmail,
@@ -901,7 +902,10 @@ function Step5({
     setTestSending(true);
     try {
       const result = await sendNewsletterTestEmail({
-        templateId: state.templateId,
+        templateId: state.inlineTemplate ? null : state.templateId,
+        inlineHtml: state.inlineTemplate ? dynamicHtml : null,
+        baseTemplateId: state.baseTemplateId,
+        baseTemplatePatches: Object.keys(state.baseTemplatePatches).length > 0 ? state.baseTemplatePatches : null,
         subject: state.subject || "Newsletter preview",
         to: email,
       });
@@ -1088,10 +1092,23 @@ export function NewsletterWizardClient({
   const handleSend = async () => {
     setSending(true);
     try {
+      // If the user designed inline, auto-save it as a named template first
+      let resolvedTemplateId = state.templateId;
+      if (state.inlineTemplate && state.inlineTemplate.blocks?.length > 0) {
+        const saved = await createNewsletterTemplate({
+          name: `[Auto] ${state.name || "Campaign"} ${new Date().toLocaleDateString("el-GR")}`,
+          description: "Αυτόματα αποθηκευμένο από τον οδηγό",
+          content: state.inlineTemplate,
+        });
+        resolvedTemplateId = saved.id;
+      }
+
       const campaign = await createNewsletterCampaign({
         name: state.name,
         subject: state.subject,
-        templateId: state.templateId,
+        templateId: resolvedTemplateId,
+        baseTemplateId: state.baseTemplateId,
+        baseTemplatePatches: Object.keys(state.baseTemplatePatches).length > 0 ? state.baseTemplatePatches : null,
         filters: {
           ...state.filters,
           directEmails: state.excelEmails.length > 0 ? state.excelEmails : undefined,

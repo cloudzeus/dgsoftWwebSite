@@ -8,6 +8,7 @@ import { sendMailgun } from "@/lib/mailgun";
 import { normalizeAddressKey } from "@/lib/address-region-utils";
 import { renderBlocksToHtml, type EmailBlock, type NewsletterContent } from "@/lib/newsletter-blocks";
 import { getEmailsForCustomer, type EmailFieldKey } from "@/lib/customer-emails";
+import { applyBaseTemplateFields, mergeBaseTemplateWithDynamicContent } from "@/lib/newsletter-dynamic-placeholder";
 
 export type { EmailFieldKey } from "@/lib/customer-emails";
 
@@ -525,6 +526,7 @@ export async function createNewsletterCampaign(data: {
   subject: string;
   templateId?: string | null;
   baseTemplateId?: string | null;
+  baseTemplatePatches?: Record<string, string> | null;
   filters?: NewsletterFilters | null;
 }) {
   const session = await auth();
@@ -535,6 +537,9 @@ export async function createNewsletterCampaign(data: {
       subject: data.subject,
       templateId: data.templateId ?? null,
       baseTemplateId: data.baseTemplateId ?? null,
+      baseTemplatePatches: (data.baseTemplatePatches && Object.keys(data.baseTemplatePatches).length > 0)
+        ? data.baseTemplatePatches as object
+        : undefined,
       filters: (data.filters ?? {}) as object,
     },
   });
@@ -606,7 +611,11 @@ export async function buildCampaignRecipients(campaignId: string): Promise<{ cou
 
 /** Send a test/preview email for a campaign to a single address. Uses template HTML + subject from params. */
 export async function sendNewsletterTestEmail(params: {
-  templateId: string | null;
+  templateId?: string | null;
+  /** Pre-rendered HTML from inline (wizard-designed) content — bypasses template lookup. */
+  inlineHtml?: string | null;
+  baseTemplateId?: string | null;
+  baseTemplatePatches?: Record<string, string> | null;
   subject: string;
   to: string;
 }): Promise<{ success: boolean; error?: string }> {
@@ -618,15 +627,33 @@ export async function sendNewsletterTestEmail(params: {
   if (!to) return { success: false, error: "Email address is required" };
   const subject = params.subject?.trim() || "Newsletter preview";
 
-  let html = "<p>No template selected.</p>";
-  if (params.templateId) {
+  let dynamicHtml = params.inlineHtml ?? "<p>No template selected.</p>";
+  if (!params.inlineHtml && params.templateId) {
     const template = await prisma.newsletterTemplate.findUnique({
       where: { id: params.templateId },
     });
-    if (template?.htmlCache) html = template.htmlCache;
+    if (template?.htmlCache) dynamicHtml = template.htmlCache;
     else if (template?.content) {
       const content = template.content as NewsletterContent;
-      html = renderBlocksToHtml(content);
+      dynamicHtml = renderBlocksToHtml(content);
+    }
+  }
+
+  let html = dynamicHtml;
+
+  // Merge into base template if provided
+  if (params.baseTemplateId) {
+    const [baseTemplate, baseSettings] = await Promise.all([
+      prisma.newsletterBaseTemplate.findUnique({ where: { id: params.baseTemplateId } }),
+      prisma.newsletterBaseSettings.findUnique({ where: { id: "default" } }),
+    ]);
+    if (baseTemplate?.htmlDocument) {
+      const globalFields = (baseSettings?.fields as Record<string, string> | null) ?? {};
+      const templateOverrides = (baseTemplate.fieldOverrides as Record<string, string> | null) ?? {};
+      const campaignPatches = params.baseTemplatePatches ?? {};
+      const mergedFields = { ...globalFields, ...templateOverrides, ...campaignPatches };
+      const withFields = applyBaseTemplateFields(baseTemplate.htmlDocument, mergedFields);
+      html = mergeBaseTemplateWithDynamicContent(withFields, dynamicHtml);
     }
   }
 
@@ -692,7 +719,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
 
   const campaign = await prisma.newsletterCampaign.findUnique({
     where: { id: campaignId },
-    include: { template: true, recipients: true },
+    include: { template: true, baseTemplate: true, recipients: true },
   });
   if (!campaign) return { success: false, sent: 0, failed: 0, errors: ["Campaign not found"] };
 
@@ -701,11 +728,24 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
     return { success: true, sent: 0, failed: 0, errors: [] };
   }
 
-  let html = campaign.template?.htmlCache ?? "";
-  if (!html && campaign.template?.content) {
-    html = renderBlocksToHtml(campaign.template.content as NewsletterContent);
+  // Build dynamic (content) HTML from the content template
+  let dynamicHtml = campaign.template?.htmlCache ?? "";
+  if (!dynamicHtml && campaign.template?.content) {
+    dynamicHtml = renderBlocksToHtml(campaign.template.content as NewsletterContent);
   }
-  if (!html) html = "<p>No content.</p>";
+  if (!dynamicHtml) dynamicHtml = "<p>No content.</p>";
+
+  // Merge into base template if one is assigned
+  let html = dynamicHtml;
+  if (campaign.baseTemplate?.htmlDocument) {
+    const baseSettings = await prisma.newsletterBaseSettings.findUnique({ where: { id: "default" } });
+    const globalFields = (baseSettings?.fields as Record<string, string> | null) ?? {};
+    const templateOverrides = (campaign.baseTemplate.fieldOverrides as Record<string, string> | null) ?? {};
+    const campaignPatches = (campaign.baseTemplatePatches as Record<string, string> | null) ?? {};
+    const mergedFields = { ...globalFields, ...templateOverrides, ...campaignPatches };
+    const withFields = applyBaseTemplateFields(campaign.baseTemplate.htmlDocument, mergedFields);
+    html = mergeBaseTemplateWithDynamicContent(withFields, dynamicHtml);
+  }
 
   await prisma.newsletterCampaign.update({
     where: { id: campaignId },

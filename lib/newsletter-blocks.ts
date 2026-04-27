@@ -5,9 +5,18 @@
 
 export type BlockType = "heading" | "paragraph" | "image" | "button" | "divider" | "spacer" | "html";
 
+export type Theme = "light" | "dark";
+
 export type BodyOptions = {
   backgroundColor?: string;
   backgroundImage?: string;
+  theme?: Theme;
+};
+
+// Default colours per theme
+const THEME_DEFAULTS: Record<Theme, { bg: string; text: string; divider: string; buttonBg: string }> = {
+  light: { bg: "#ffffff", text: "#1f2937", divider: "#e5e7eb", buttonBg: "#2563eb" },
+  dark:  { bg: "#1a1a2e", text: "#e5e7eb", divider: "#374151", buttonBg: "#3b82f6" },
 };
 
 export type BlockBase = { id: string; type: BlockType };
@@ -52,23 +61,21 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function renderBlock(block: EmailBlock): string {
+function renderBlock(block: EmailBlock, td: typeof THEME_DEFAULTS["light"]): string {
   switch (block.type) {
     case "heading": {
       const level = block.props?.level ?? 1;
       const align = block.props?.align ?? "left";
       const text = block.props?.text ?? "";
-      const color = (block.props as { color?: string }).color;
-      const colorStyle = color ? `color: ${escapeHtml(color)};` : "";
+      const color = (block.props as { color?: string }).color ?? td.text;
       const tag = `h${level}`;
-      return `<table ${defaultTableAttrs}><tr><td style="padding: 12px 0; text-align: ${align};"><${tag} style="margin: 0; font-size: ${level === 1 ? "24" : level === 2 ? "20" : "16"}px; ${colorStyle}">${escapeHtml(text)}</${tag}></td></tr></table>`;
+      return `<table ${defaultTableAttrs}><tr><td style="padding: 12px 0; text-align: ${align};"><${tag} style="margin: 0; font-size: ${level === 1 ? "24" : level === 2 ? "20" : "16"}px; color: ${escapeHtml(color)};">${escapeHtml(text)}</${tag}></td></tr></table>`;
     }
     case "paragraph": {
       const align = block.props?.align ?? "left";
       const text = escapeHtml(block.props?.text ?? "").replace(/\n/g, "<br>");
-      const color = (block.props as { color?: string }).color;
-      const colorStyle = color ? `color: ${escapeHtml(color)};` : "";
-      return `<table ${defaultTableAttrs}><tr><td style="padding: 8px 0; text-align: ${align}; line-height: 1.5; ${colorStyle}">${text}</td></tr></table>`;
+      const color = (block.props as { color?: string }).color ?? td.text;
+      return `<table ${defaultTableAttrs}><tr><td style="padding: 8px 0; text-align: ${align}; line-height: 1.5; color: ${escapeHtml(color)};">${text}</td></tr></table>`;
     }
     case "image": {
       const src = block.props?.src ?? "";
@@ -77,21 +84,19 @@ function renderBlock(block: EmailBlock): string {
       const width = block.props?.width ?? 600;
       const align = block.props?.align ?? "center";
       const img = `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" width="${width}" style="max-width: 100%; height: auto; display: block;" />`;
-      const cell = href
-        ? `<a href="${escapeHtml(href)}" style="display: inline-block;">${img}</a>`
-        : img;
+      const cell = href ? `<a href="${escapeHtml(href)}" style="display: inline-block;">${img}</a>` : img;
       return `<table ${defaultTableAttrs}><tr><td style="padding: 12px 0; text-align: ${align};">${cell}</td></tr></table>`;
     }
     case "button": {
       const text = block.props?.text ?? "Button";
       const href = block.props?.href ?? "#";
       const align = block.props?.align ?? "center";
-      const bgColor = (block.props as { backgroundColor?: string }).backgroundColor ?? "#2563eb";
+      const bgColor = (block.props as { backgroundColor?: string }).backgroundColor ?? td.buttonBg;
       const textColor = (block.props as { textColor?: string }).textColor ?? "#ffffff";
       return `<table ${defaultTableAttrs}><tr><td style="padding: 16px 0; text-align: ${align};"><a href="${escapeHtml(href)}" style="display: inline-block; padding: 12px 24px; background: ${escapeHtml(bgColor)}; color: ${escapeHtml(textColor)} !important; text-decoration: none; border-radius: 6px; font-weight: 600;">${escapeHtml(text)}</a></td></tr></table>`;
     }
     case "divider":
-      return `<table ${defaultTableAttrs}><tr><td style="padding: 16px 0;"><hr style="border: none; border-top: 1px solid #e5e7eb; margin: 0;" /></td></tr></table>`;
+      return `<table ${defaultTableAttrs}><tr><td style="padding: 16px 0;"><hr style="border: none; border-top: 1px solid ${td.divider}; margin: 0;" /></td></tr></table>`;
     case "spacer": {
       const height = block.props?.height ?? 24;
       return `<table ${defaultTableAttrs}><tr><td style="padding: ${height}px 0; line-height: 0; font-size: 0;">&nbsp;</td></tr></table>`;
@@ -113,12 +118,19 @@ export function renderBlocksToHtml(contentOrBlocks: NewsletterContent | EmailBlo
     : contentOrBlocks;
   const blocks = content.blocks ?? [];
   const bodyOptions = content.bodyOptions ?? {};
-  const parts = blocks.map((b) => renderBlock(b));
+  const theme: Theme = bodyOptions.theme ?? "light";
+  const td = THEME_DEFAULTS[theme];
+
+  const parts = blocks.map((b) => renderBlock(b, td));
   const innerHtml = parts.join("");
-  const bgStyle: string[] = ["font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;", "color: #1f2937;"];
-  if (bodyOptions.backgroundColor) {
-    bgStyle.push(`background-color: ${bodyOptions.backgroundColor};`);
-  }
+
+  const bg = bodyOptions.backgroundColor ?? td.bg;
+  const bgStyle: string[] = [
+    `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;`,
+    `color: ${td.text};`,
+    `background-color: ${bg};`,
+    `padding: 24px;`,
+  ];
   if (bodyOptions.backgroundImage) {
     bgStyle.push(`background-image: url(${escapeHtml(bodyOptions.backgroundImage)}); background-size: cover; background-repeat: no-repeat;`);
   }
