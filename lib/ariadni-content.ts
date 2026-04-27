@@ -156,6 +156,8 @@ export function mergeAriadniContent(
   return {
     ...defaults,
     ...parsed,
+    // Fall back to default text when the field was absent from a previously-saved record
+    heroSubtext: parsed.heroSubtext?.trim() ? parsed.heroSubtext : defaults.heroSubtext,
     stats:
       parsed.stats?.length === 2
         ? parsed.stats
