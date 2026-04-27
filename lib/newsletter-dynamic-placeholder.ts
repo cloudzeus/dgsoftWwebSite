@@ -9,6 +9,7 @@ export type NewsletterBaseTemplateFields = {
   xUrl: string;
   tagline: string;
   addressLine: string;
+  phone: string;
   contactEmail: string;
   privacyPolicyUrl: string;
   termsUrl: string;
@@ -24,6 +25,7 @@ export const NEWSLETTER_BASE_TEMPLATE_DEFAULT_FIELDS: NewsletterBaseTemplateFiel
   xUrl: "#",
   tagline: "Innovation in every pixel.",
   addressLine: "123 Digital Avenue, Tech District, 10001",
+  phone: "",
   contactEmail: "contact@dgsmart.gr",
   privacyPolicyUrl: "#",
   termsUrl: "#",
@@ -49,6 +51,7 @@ export function applyBaseTemplateFields(templateHtml: string, fieldsInput?: Part
     .split("{{x_url}}").join(f.xUrl)
     .split("{{tagline}}").join(f.tagline)
     .split("{{address_line}}").join(f.addressLine)
+    .split("{{phone}}").join(f.phone)
     .split("{{contact_email}}").join(f.contactEmail)
     .split("{{privacy_policy_url}}").join(f.privacyPolicyUrl)
     .split("{{terms_url}}").join(f.termsUrl)

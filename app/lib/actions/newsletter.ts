@@ -527,6 +527,7 @@ export async function createNewsletterCampaign(data: {
   templateId?: string | null;
   baseTemplateId?: string | null;
   baseTemplatePatches?: Record<string, string> | null;
+  senderProfileId?: string | null;
   filters?: NewsletterFilters | null;
 }) {
   const session = await auth();
@@ -540,6 +541,7 @@ export async function createNewsletterCampaign(data: {
       baseTemplatePatches: (data.baseTemplatePatches && Object.keys(data.baseTemplatePatches).length > 0)
         ? data.baseTemplatePatches as object
         : undefined,
+      senderProfileId: data.senderProfileId ?? null,
       filters: (data.filters ?? {}) as object,
     },
   });
@@ -616,6 +618,7 @@ export async function sendNewsletterTestEmail(params: {
   inlineHtml?: string | null;
   baseTemplateId?: string | null;
   baseTemplatePatches?: Record<string, string> | null;
+  senderProfileId?: string | null;
   subject: string;
   to: string;
 }): Promise<{ success: boolean; error?: string }> {
@@ -641,6 +644,28 @@ export async function sendNewsletterTestEmail(params: {
 
   let html = dynamicHtml;
 
+  // Load sender profile if provided
+  const senderProfile = params.senderProfileId
+    ? await prisma.newsletterSenderProfile.findUnique({ where: { id: params.senderProfileId } })
+    : null;
+
+  const spFields: Record<string, string> = {};
+  if (senderProfile) {
+    if (senderProfile.logoUrl)          spFields.logoUrl          = senderProfile.logoUrl;
+    if (senderProfile.tagline)          spFields.tagline          = senderProfile.tagline;
+    if (senderProfile.facebookUrl)      spFields.facebookUrl      = senderProfile.facebookUrl;
+    if (senderProfile.instagramUrl)     spFields.instagramUrl     = senderProfile.instagramUrl;
+    if (senderProfile.linkedinUrl)      spFields.linkedinUrl      = senderProfile.linkedinUrl;
+    if (senderProfile.xUrl)             spFields.xUrl             = senderProfile.xUrl;
+    if (senderProfile.addressLine)      spFields.addressLine      = senderProfile.addressLine;
+    if (senderProfile.phone)            spFields.phone            = senderProfile.phone;
+    if (senderProfile.contactEmail)     spFields.contactEmail     = senderProfile.contactEmail;
+    if (senderProfile.privacyPolicyUrl) spFields.privacyPolicyUrl = senderProfile.privacyPolicyUrl;
+    if (senderProfile.termsUrl)         spFields.termsUrl         = senderProfile.termsUrl;
+    if (senderProfile.unsubscribeUrl)   spFields.unsubscribeUrl   = senderProfile.unsubscribeUrl;
+    if (senderProfile.senderName)       spFields.companyName      = senderProfile.senderName;
+  }
+
   // Merge into base template if provided
   if (params.baseTemplateId) {
     const [baseTemplate, baseSettings] = await Promise.all([
@@ -651,13 +676,17 @@ export async function sendNewsletterTestEmail(params: {
       const globalFields = (baseSettings?.fields as Record<string, string> | null) ?? {};
       const templateOverrides = (baseTemplate.fieldOverrides as Record<string, string> | null) ?? {};
       const campaignPatches = params.baseTemplatePatches ?? {};
-      const mergedFields = { ...globalFields, ...templateOverrides, ...campaignPatches };
+      const mergedFields = { ...globalFields, ...templateOverrides, ...spFields, ...campaignPatches };
       const withFields = applyBaseTemplateFields(baseTemplate.htmlDocument, mergedFields);
       html = mergeBaseTemplateWithDynamicContent(withFields, dynamicHtml);
     }
   }
 
-  const result = await sendMailgun({ to, subject, html });
+  const result = await sendMailgun({
+    to, subject, html,
+    ...(senderProfile?.senderEmail ? { from: senderProfile.senderEmail } : {}),
+    ...(senderProfile?.senderName  ? { fromName: senderProfile.senderName } : {}),
+  });
   if (result.success) return { success: true };
   return { success: false, error: (result as { error: string }).error };
 }
@@ -719,7 +748,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
 
   const campaign = await prisma.newsletterCampaign.findUnique({
     where: { id: campaignId },
-    include: { template: true, baseTemplate: true, recipients: true },
+    include: { template: true, baseTemplate: true, senderProfile: true, recipients: true },
   });
   if (!campaign) return { success: false, sent: 0, failed: 0, errors: ["Campaign not found"] };
 
@@ -735,6 +764,25 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
   }
   if (!dynamicHtml) dynamicHtml = "<p>No content.</p>";
 
+  // Build sender profile fields (overrides global defaults + template patches)
+  const sp = campaign.senderProfile;
+  const senderFields: Record<string, string> = {};
+  if (sp) {
+    if (sp.logoUrl)         senderFields.logoUrl         = sp.logoUrl;
+    if (sp.tagline)         senderFields.tagline         = sp.tagline;
+    if (sp.facebookUrl)     senderFields.facebookUrl     = sp.facebookUrl;
+    if (sp.instagramUrl)    senderFields.instagramUrl    = sp.instagramUrl;
+    if (sp.linkedinUrl)     senderFields.linkedinUrl     = sp.linkedinUrl;
+    if (sp.xUrl)            senderFields.xUrl            = sp.xUrl;
+    if (sp.addressLine)     senderFields.addressLine     = sp.addressLine;
+    if (sp.phone)           senderFields.phone           = sp.phone;
+    if (sp.contactEmail)    senderFields.contactEmail    = sp.contactEmail;
+    if (sp.privacyPolicyUrl) senderFields.privacyPolicyUrl = sp.privacyPolicyUrl;
+    if (sp.termsUrl)        senderFields.termsUrl        = sp.termsUrl;
+    if (sp.unsubscribeUrl)  senderFields.unsubscribeUrl  = sp.unsubscribeUrl;
+    if (sp.senderName)      senderFields.companyName     = sp.senderName;
+  }
+
   // Merge into base template if one is assigned
   let html = dynamicHtml;
   if (campaign.baseTemplate?.htmlDocument) {
@@ -742,7 +790,8 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
     const globalFields = (baseSettings?.fields as Record<string, string> | null) ?? {};
     const templateOverrides = (campaign.baseTemplate.fieldOverrides as Record<string, string> | null) ?? {};
     const campaignPatches = (campaign.baseTemplatePatches as Record<string, string> | null) ?? {};
-    const mergedFields = { ...globalFields, ...templateOverrides, ...campaignPatches };
+    // Priority: global < template overrides < sender profile < campaign patches
+    const mergedFields = { ...globalFields, ...templateOverrides, ...senderFields, ...campaignPatches };
     const withFields = applyBaseTemplateFields(campaign.baseTemplate.htmlDocument, mergedFields);
     html = mergeBaseTemplateWithDynamicContent(withFields, dynamicHtml);
   }
@@ -761,6 +810,8 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
       to: rec.email,
       subject: campaign.subject,
       html,
+      ...(sp?.senderEmail ? { from: sp.senderEmail } : {}),
+      ...(sp?.senderName  ? { fromName: sp.senderName } : {}),
     });
     if (result.success) {
       sent++;

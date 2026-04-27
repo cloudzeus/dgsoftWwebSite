@@ -52,6 +52,7 @@ const BASE_FIELD_META: { key: string; label: string; media: boolean }[] = [
   { key: "xUrl",             label: "URL X (Twitter)",               media: true  },
   { key: "tagline",          label: "Υπότιτλος",                     media: false },
   { key: "addressLine",      label: "Διεύθυνση",                     media: false },
+  { key: "phone",            label: "Τηλέφωνο",                      media: false },
   { key: "contactEmail",     label: "Email επικοινωνίας",            media: false },
   { key: "privacyPolicyUrl", label: "URL Πολιτικής Απορρήτου",       media: true  },
   { key: "termsUrl",         label: "URL Όρων Χρήσης",               media: true  },
@@ -906,6 +907,7 @@ function Step5({
         inlineHtml: state.inlineTemplate ? dynamicHtml : null,
         baseTemplateId: state.baseTemplateId,
         baseTemplatePatches: Object.keys(state.baseTemplatePatches).length > 0 ? state.baseTemplatePatches : null,
+        senderProfileId: state.senderProfileId,
         subject: state.subject || "Newsletter preview",
         to: email,
       });
@@ -1109,6 +1111,7 @@ export function NewsletterWizardClient({
         templateId: resolvedTemplateId,
         baseTemplateId: state.baseTemplateId,
         baseTemplatePatches: Object.keys(state.baseTemplatePatches).length > 0 ? state.baseTemplatePatches : null,
+        senderProfileId: state.senderProfileId,
         filters: {
           ...state.filters,
           directEmails: state.excelEmails.length > 0 ? state.excelEmails : undefined,

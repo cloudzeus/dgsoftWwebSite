@@ -366,6 +366,8 @@ model NewsletterSenderProfile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  campaigns NewsletterCampaign[]
 }
 
 model EuProgram {
@@ -757,6 +759,8 @@ model NewsletterCampaign {
   baseTemplateId      String?
   baseTemplate        NewsletterBaseTemplate? @relation(fields: [baseTemplateId], references: [id], onDelete: SetNull)
   baseTemplatePatches Json?  // per-campaign field overrides applied on top of base template
+  senderProfileId     String?
+  senderProfile       NewsletterSenderProfile? @relation(fields: [senderProfileId], references: [id], onDelete: SetNull)
   status              String @default("draft") @db.VarChar(32) // draft, sending, sent, failed
   filters             Json?  // { regionIds, nomosIds, dimosIds, cities, legalStatuses, kadCodes, trdpGroupIds, trdBusinessIds }
   sentAt              DateTime?
