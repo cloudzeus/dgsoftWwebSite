@@ -249,13 +249,12 @@ function LocaleFields({
           />
         </FieldRow>
         <FieldRow label="Υποκείμενο κείμενο hero (επιχορήγηση / disclaimer)">
-          <div className="[&_.ProseMirror]:min-h-[80px]">
-            <TiptapEditor
-              value={c.heroSubtext ?? ""}
-              onChange={(html) => onChange({ heroSubtext: html })}
-              placeholder="Κείμενο επιχορήγησης / disclaimer…"
-            />
-          </div>
+          <TiptapEditor
+            value={c.heroSubtext ?? ""}
+            onChange={(html) => onChange({ heroSubtext: html })}
+            placeholder="Κείμενο επιχορήγησης / disclaimer…"
+            editorClassName="bg-white prose prose-sm max-w-none px-3 py-2 min-h-[72px] focus-within:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[56px] [&_.ProseMirror]:text-[#201F1E] [&_.ProseMirror]:text-sm [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[#A19F9D] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0"
+          />
         </FieldRow>
       </SectionCard>
 

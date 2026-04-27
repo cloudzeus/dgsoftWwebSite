@@ -33,9 +33,11 @@ type Props = {
   value: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  /** Extra classes applied to the editor content area (overrides min-h etc.) */
+  editorClassName?: string;
 };
 
-export function TiptapEditor({ value, onChange, placeholder }: Props) {
+export function TiptapEditor({ value, onChange, placeholder, editorClassName }: Props) {
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -311,13 +313,7 @@ export function TiptapEditor({ value, onChange, placeholder }: Props) {
       {/* Editor area */}
       <EditorContent
         editor={editor}
-        className="bg-white prose prose-sm max-w-none p-5 min-h-[320px] focus-within:outline-none
-          [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[300px] [&_.ProseMirror]:text-[#201F1E]
-          [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[#A19F9D]
-          [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]
-          [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left
-          [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none
-          [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0"
+        className={editorClassName ?? "bg-white prose prose-sm max-w-none p-5 min-h-[320px] focus-within:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[300px] [&_.ProseMirror]:text-[#201F1E] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[#A19F9D] [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0"}
       />
     </div>
   );
