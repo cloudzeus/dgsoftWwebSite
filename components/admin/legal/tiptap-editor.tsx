@@ -8,6 +8,7 @@ import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Bold,
   Italic,
@@ -27,6 +28,8 @@ import {
   Minus,
   Undo,
   Redo,
+  Check,
+  X,
 } from "lucide-react";
 
 type Props = {
@@ -38,6 +41,10 @@ type Props = {
 };
 
 export function TiptapEditor({ value, onChange, placeholder, editorClassName }: Props) {
+  const [linkInputOpen, setLinkInputOpen] = React.useState(false);
+  const [linkUrl, setLinkUrl] = React.useState("");
+  const linkInputRef = React.useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -64,20 +71,24 @@ export function TiptapEditor({ value, onChange, placeholder, editorClassName }: 
 
   if (!editor) return null;
 
-  function setLink() {
+  function openLinkInput() {
     const prev = editor!.getAttributes("link").href ?? "";
-    const url = window.prompt("URL", prev);
-    if (url === null) return;
-    if (url === "") {
+    setLinkUrl(prev);
+    setLinkInputOpen(true);
+    setTimeout(() => linkInputRef.current?.focus(), 50);
+  }
+
+  function applyLink() {
+    if (linkUrl === "") {
       editor!.chain().focus().extendMarkRange("link").unsetLink().run();
     } else {
-      editor!
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: url })
-        .run();
+      editor!.chain().focus().extendMarkRange("link").setLink({ href: linkUrl }).run();
     }
+    setLinkInputOpen(false);
+  }
+
+  function cancelLink() {
+    setLinkInputOpen(false);
   }
 
   const btn =
@@ -254,7 +265,7 @@ export function TiptapEditor({ value, onChange, placeholder, editorClassName }: 
           size="icon"
           className={btn}
           data-active={editor.isActive("link")}
-          onClick={setLink}
+          onClick={openLinkInput}
           title="Add link"
         >
           <LinkIcon className="w-4 h-4" />
@@ -309,6 +320,27 @@ export function TiptapEditor({ value, onChange, placeholder, editorClassName }: 
           <Redo className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Inline link input bar */}
+      {linkInputOpen && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-[#EDEBE9] bg-[#EFF6FC]">
+          <LinkIcon className="w-3.5 h-3.5 text-[#0078D4] shrink-0" />
+          <Input
+            ref={linkInputRef}
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyLink(); } if (e.key === "Escape") cancelLink(); }}
+            placeholder="https://…"
+            className="h-7 text-sm flex-1 border-[#C7E0F4] focus-visible:ring-[#0078D4]"
+          />
+          <button type="button" onClick={applyLink} className="h-7 w-7 flex items-center justify-center rounded bg-[#0078D4] hover:bg-[#106EBE] text-white shrink-0">
+            <Check className="w-3.5 h-3.5" />
+          </button>
+          <button type="button" onClick={cancelLink} className="h-7 w-7 flex items-center justify-center rounded border border-[#EDEBE9] bg-white hover:bg-[#F3F2F1] text-[#605E5C] shrink-0">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Editor area */}
       <EditorContent
