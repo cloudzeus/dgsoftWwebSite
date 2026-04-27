@@ -113,13 +113,13 @@ export default function AriadniClientPage({
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-white/10 bg-monks-black/50">
-                  {/* Banner → opens digitalsme.gov.gr */}
+                  {/* Banner → opens greece20.gov.gr */}
                   <a
-                    href="https://digitalsme.gov.gr/"
+                    href="https://greece20.gov.gr/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group block bg-[#0c0e12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent"
-                    aria-label={locale === "el" ? "Άνοιγμα digitalsme.gov.gr σε νέο παράθυρο" : "Open digitalsme.gov.gr in a new window"}
+                    aria-label={locale === "el" ? "Άνοιγμα greece20.gov.gr σε νέο παράθυρο" : "Open greece20.gov.gr in a new window"}
                   >
                     {!bannerFailed ? (
                       // eslint-disable-next-line @next/next/no-img-element -- natural dimensions required for exact height
