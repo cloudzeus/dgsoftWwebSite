@@ -27,10 +27,27 @@ export const NEWSLETTER_BASE_TEMPLATE_DEFAULT_FIELDS: NewsletterBaseTemplateFiel
   addressLine: "123 Digital Avenue, Tech District, 10001",
   phone: "",
   contactEmail: "contact@dgsmart.gr",
-  privacyPolicyUrl: "https://www.dgsmart.gr/privacy-policy",
-  termsUrl: "https://www.dgsmart.gr/terms",
+  privacyPolicyUrl: "/privacy-policy",
+  termsUrl: "/terms",
   unsubscribeUrl: "", // filled per-recipient in sendNewsletterCampaign
 };
+
+/**
+ * Resolve a URL that may be an absolute URL, a root-relative path (/foo),
+ * or a placeholder (#). Root-relative paths are prefixed with
+ * NEXT_PUBLIC_SITE_URL (available in both browser and Node.js server contexts).
+ * Falls back to "https://www.dgsmart.gr" if the env var is not set.
+ */
+export function resolveUrl(url: string): string {
+  if (!url || url === "#" || url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:")) {
+    return url;
+  }
+  if (url.startsWith("/")) {
+    const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.dgsmart.gr").replace(/\/$/, "");
+    return `${base}${url}`;
+  }
+  return url;
+}
 
 export function baseTemplateContainsPlaceholder(html: string): boolean {
   return html.includes(NEWSLETTER_DYNAMIC_CONTENT_PLACEHOLDER);
@@ -45,17 +62,17 @@ export function applyBaseTemplateFields(templateHtml: string, fieldsInput?: Part
   return templateHtml
     .split("{{company_name}}").join(f.companyName)
     .split("{{logo_url}}").join(f.logoUrl)
-    .split("{{facebook_url}}").join(f.facebookUrl)
-    .split("{{instagram_url}}").join(f.instagramUrl)
-    .split("{{linkedin_url}}").join(f.linkedinUrl)
-    .split("{{x_url}}").join(f.xUrl)
+    .split("{{facebook_url}}").join(resolveUrl(f.facebookUrl))
+    .split("{{instagram_url}}").join(resolveUrl(f.instagramUrl))
+    .split("{{linkedin_url}}").join(resolveUrl(f.linkedinUrl))
+    .split("{{x_url}}").join(resolveUrl(f.xUrl))
     .split("{{tagline}}").join(f.tagline)
     .split("{{address_line}}").join(f.addressLine)
     .split("{{phone}}").join(f.phone)
     .split("{{contact_email}}").join(f.contactEmail)
-    .split("{{privacy_policy_url}}").join(f.privacyPolicyUrl)
-    .split("{{terms_url}}").join(f.termsUrl)
-    .split("{{unsubscribe_url}}").join(f.unsubscribeUrl);
+    .split("{{privacy_policy_url}}").join(resolveUrl(f.privacyPolicyUrl))
+    .split("{{terms_url}}").join(resolveUrl(f.termsUrl))
+    .split("{{unsubscribe_url}}").join(resolveUrl(f.unsubscribeUrl));
 }
 
 export function mergeBaseTemplateWithDynamicContent(templateHtml: string, dynamicHtml: string): string {
