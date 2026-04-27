@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getLegalPage } from "@/app/lib/actions/legal";
 
-const ALLOWED = ["privacy-policy", "cookie-policy"];
+const ALLOWED = ["privacy-policy", "cookie-policy", "terms"];
 
 export async function GET(
   _req: NextRequest,

@@ -145,6 +145,11 @@ const navData = {
       url: "/admin/legal/cookie-policy",
       icon: CookieIcon,
     },
+    {
+      title: "Όροι Χρήσης",
+      url: "/admin/legal/terms",
+      icon: FileTextIcon,
+    },
   ],
   navNewsletter: [
     {

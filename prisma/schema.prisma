@@ -824,11 +824,19 @@ model SiteFooter {
 
 /// Bilingual legal pages (privacy policy, cookie policy) — rich HTML content.
 model LegalPage {
-  id        String   @id // 'privacy-policy' | 'cookie-policy'
+  id        String   @id // 'privacy-policy' | 'cookie-policy' | 'terms'
   titleEl   String   @db.VarChar(255)
   titleEn   String   @db.VarChar(255)
   contentEl String   @db.LongText
   contentEn String   @db.LongText
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+}
+
+model NewsletterUnsubscribe {
+  id        String   @id @default(cuid())
+  email     String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  @@index([email])
 }

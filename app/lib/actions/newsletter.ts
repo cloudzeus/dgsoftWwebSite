@@ -662,7 +662,7 @@ export async function sendNewsletterTestEmail(params: {
     if (senderProfile.contactEmail)     spFields.contactEmail     = senderProfile.contactEmail;
     if (senderProfile.privacyPolicyUrl) spFields.privacyPolicyUrl = senderProfile.privacyPolicyUrl;
     if (senderProfile.termsUrl)         spFields.termsUrl         = senderProfile.termsUrl;
-    if (senderProfile.unsubscribeUrl)   spFields.unsubscribeUrl   = senderProfile.unsubscribeUrl;
+    // unsubscribeUrl is NOT set here — filled per-recipient below
     if (senderProfile.senderName)       spFields.companyName      = senderProfile.senderName;
   }
 
@@ -682,8 +682,16 @@ export async function sendNewsletterTestEmail(params: {
     }
   }
 
+  // Apply per-recipient unsubscribe URL for the test recipient
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.dgsmart.gr";
+  const token = Buffer.from(to).toString("base64url");
+  const recipientHtml = html.replace(
+    /\{\{unsubscribe_url\}\}/g,
+    `${siteUrl}/newsletter/unsubscribe?t=${token}`
+  );
+
   const result = await sendMailgun({
-    to, subject, html,
+    to, subject, html: recipientHtml,
     ...(senderProfile?.senderEmail ? { from: senderProfile.senderEmail } : {}),
     ...(senderProfile?.senderName  ? { fromName: senderProfile.senderName } : {}),
   });
@@ -765,6 +773,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
   if (!dynamicHtml) dynamicHtml = "<p>No content.</p>";
 
   // Build sender profile fields (overrides global defaults + template patches)
+  // Note: unsubscribeUrl is intentionally excluded here — it is filled per-recipient in the send loop.
   const sp = campaign.senderProfile;
   const senderFields: Record<string, string> = {};
   if (sp) {
@@ -779,7 +788,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
     if (sp.contactEmail)    senderFields.contactEmail    = sp.contactEmail;
     if (sp.privacyPolicyUrl) senderFields.privacyPolicyUrl = sp.privacyPolicyUrl;
     if (sp.termsUrl)        senderFields.termsUrl        = sp.termsUrl;
-    if (sp.unsubscribeUrl)  senderFields.unsubscribeUrl  = sp.unsubscribeUrl;
+    // unsubscribeUrl is NOT set here — filled per-recipient below
     if (sp.senderName)      senderFields.companyName     = sp.senderName;
   }
 
@@ -796,6 +805,12 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
     html = mergeBaseTemplateWithDynamicContent(withFields, dynamicHtml);
   }
 
+  // Load unsubscribed emails to skip
+  const unsubscribed = await prisma.newsletterUnsubscribe.findMany({ select: { email: true } });
+  const unsubSet = new Set(unsubscribed.map((u) => u.email.toLowerCase()));
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.dgsmart.gr";
+
   await prisma.newsletterCampaign.update({
     where: { id: campaignId },
     data: { status: "sending" },
@@ -806,10 +821,26 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
   const errors: string[] = [];
 
   for (const rec of pending) {
+    // Skip unsubscribed recipients
+    if (unsubSet.has(rec.email.toLowerCase())) {
+      await prisma.newsletterCampaignRecipient.update({
+        where: { id: rec.id },
+        data: { status: "unsubscribed" },
+      });
+      continue;
+    }
+
+    // Build per-recipient unsubscribe URL
+    const token = Buffer.from(rec.email).toString("base64url");
+    const recipientHtml = html.replace(
+      /\{\{unsubscribe_url\}\}/g,
+      `${siteUrl}/newsletter/unsubscribe?t=${token}`
+    );
+
     const result = await sendMailgun({
       to: rec.email,
       subject: campaign.subject,
-      html,
+      html: recipientHtml,
       ...(sp?.senderEmail ? { from: sp.senderEmail } : {}),
       ...(sp?.senderName  ? { fromName: sp.senderName } : {}),
     });

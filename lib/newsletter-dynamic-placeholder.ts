@@ -27,9 +27,9 @@ export const NEWSLETTER_BASE_TEMPLATE_DEFAULT_FIELDS: NewsletterBaseTemplateFiel
   addressLine: "123 Digital Avenue, Tech District, 10001",
   phone: "",
   contactEmail: "contact@dgsmart.gr",
-  privacyPolicyUrl: "#",
-  termsUrl: "#",
-  unsubscribeUrl: "#",
+  privacyPolicyUrl: "https://www.dgsmart.gr/privacy-policy",
+  termsUrl: "https://www.dgsmart.gr/terms",
+  unsubscribeUrl: "", // filled per-recipient in sendNewsletterCampaign
 };
 
 export function baseTemplateContainsPlaceholder(html: string): boolean {

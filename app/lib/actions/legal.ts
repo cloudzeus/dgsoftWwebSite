@@ -27,6 +27,13 @@ const DEFAULTS: Record<string, LegalPageData> = {
     contentEl: "<p>Περιεχόμενο πολιτικής cookies...</p>",
     contentEn: "<p>Cookie policy content...</p>",
   },
+  "terms": {
+    id: "terms",
+    titleEl: "Όροι Χρήσης",
+    titleEn: "Terms of Use",
+    contentEl: "<p>Όροι Χρήσης — επεξεργαστείτε από τον πίνακα διαχείρισης.</p>",
+    contentEn: "<p>Terms of Use — edit from the admin panel.</p>",
+  },
 };
 
 export async function getLegalPage(id: string): Promise<LegalPageData> {
