@@ -73,9 +73,10 @@ export default function AriadniClientPage({
                 {c.tagline}
               </p>
               {c.heroSubtext && (
-                <p className="text-sm text-white/80 max-w-2xl leading-relaxed">
-                  {c.heroSubtext}
-                </p>
+                <div
+                  className="text-sm text-white/80 max-w-2xl leading-relaxed prose prose-sm prose-invert prose-p:my-1 prose-a:text-white/90 prose-strong:text-white"
+                  dangerouslySetInnerHTML={{ __html: c.heroSubtext }}
+                />
               )}
             </div>
 

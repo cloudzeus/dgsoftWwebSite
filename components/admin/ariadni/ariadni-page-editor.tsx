@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TiptapEditor } from "@/components/admin/legal/tiptap-editor";
 import { updateAriadniPageAction } from "@/app/lib/actions/ariadni";
 import type { AriadniLocaleContent } from "@/lib/ariadni-content";
 import { toast } from "sonner";
@@ -248,12 +249,13 @@ function LocaleFields({
           />
         </FieldRow>
         <FieldRow label="Υποκείμενο κείμενο hero (επιχορήγηση / disclaimer)">
-          <Textarea
-            value={c.heroSubtext ?? ""}
-            onChange={(e) => onChange({ heroSubtext: e.target.value })}
-            rows={3}
-            className="text-sm rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] resize-none"
-          />
+          <div className="[&_.ProseMirror]:min-h-[80px]">
+            <TiptapEditor
+              value={c.heroSubtext ?? ""}
+              onChange={(html) => onChange({ heroSubtext: html })}
+              placeholder="Κείμενο επιχορήγησης / disclaimer…"
+            />
+          </div>
         </FieldRow>
       </SectionCard>
 
