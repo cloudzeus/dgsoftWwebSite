@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   Loader2Icon, MailIcon, Wand2Icon, CheckIcon, UploadIcon, XIcon,
-  ChevronDownIcon, ChevronUpIcon, UsersIcon, PencilIcon,
+  ChevronDownIcon, ChevronUpIcon, UsersIcon, PencilIcon, Maximize2Icon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   createNewsletterCampaign,
   createNewsletterTemplate,
@@ -882,12 +883,14 @@ function Step5({
   state,
   templates,
   baseTemplates,
+  senderProfiles,
   onSend,
   sending,
 }: {
   state: WizardState;
   templates: NewsletterWizardTemplate[];
   baseTemplates: NewsletterWizardBaseTemplate[];
+  senderProfiles: NewsletterWizardSenderProfile[];
   onSend: () => void;
   sending: boolean;
 }) {
@@ -896,6 +899,7 @@ function Step5({
 
   const selectedTemplate = templates.find((t) => t.id === state.templateId) ?? null;
   const selectedBase = baseTemplates.find((bt) => bt.id === state.baseTemplateId) ?? null;
+  const selectedProfile = senderProfiles.find((p) => p.id === state.senderProfileId) ?? null;
 
   const handleTest = async () => {
     const email = testEmail.trim();
@@ -964,19 +968,70 @@ function Step5({
     return `<html><body style="font-family:sans-serif;padding:24px;color:#A19F9D;text-align:center"><p>Δεν επιλέχθηκε πρότυπο</p></body></html>`;
   }, [selectedBase, dynamicHtml, state.baseTemplatePatches]);
 
+  const [previewModalOpen, setPreviewModalOpen] = React.useState(false);
+
   return (
+    <>
+    {/* Full-size preview modal */}
+    <Dialog open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
+      <DialogContent className="max-w-3xl w-full h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-5 py-3 border-b border-[#EDEBE9] bg-[#F3F2F1] shrink-0">
+          <DialogTitle className="text-[13px] font-semibold text-[#201F1E]">Προεπισκόπηση email — {state.subject || "Χωρίς θέμα"}</DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 overflow-hidden bg-[#F3F2F1] p-4">
+          <div className="h-full rounded-lg overflow-hidden border border-[#EDEBE9] shadow-[0_2px_12px_rgba(0,0,0,0.08)] bg-white">
+            <iframe
+              srcDoc={previewSrc}
+              title="Email preview full"
+              className="border-0 w-full h-full"
+            />
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       {/* Left: Preview */}
-      <div className="space-y-3">
-        <p className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Προεπισκόπηση email</p>
-        <div className="bg-white border border-[#EDEBE9] rounded-lg overflow-hidden">
-          <iframe
-            srcDoc={previewSrc}
-            title="Email preview"
-            className="border-0"
-            style={{ width: "100%", height: 480, pointerEvents: "none" }}
-          />
+      <div className="space-y-2">
+        {/* Preview toolbar */}
+        <div className="flex items-center justify-between">
+          <p className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Προεπισκόπηση email</p>
+          <button
+            type="button"
+            onClick={() => setPreviewModalOpen(true)}
+            className="flex items-center gap-1.5 h-7 px-3 rounded border border-[#C8C6C4] bg-white hover:bg-[#F3F2F1] text-[11px] font-semibold text-[#605E5C] transition-colors"
+          >
+            <Maximize2Icon className="w-3 h-3" />
+            Πλήρης προβολή
+          </button>
         </div>
+
+        {/* Email client chrome */}
+        <div className="rounded-lg overflow-hidden border border-[#EDEBE9] shadow-[0_2px_8px_rgba(0,0,0,0.06)] bg-white">
+          {/* Fake email client header */}
+          <div className="bg-[#F3F2F1] border-b border-[#EDEBE9] px-4 py-2.5 space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-semibold text-[#A19F9D] w-10 shrink-0">Από:</span>
+              <span className="text-[11px] text-[#201F1E] font-medium">
+                {selectedProfile ? `${selectedProfile.senderName} <${selectedProfile.senderEmail}>` : "—"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-semibold text-[#A19F9D] w-10 shrink-0">Θέμα:</span>
+              <span className="text-[11px] text-[#201F1E] font-semibold truncate">{state.subject || "—"}</span>
+            </div>
+          </div>
+          {/* Iframe — scrollable */}
+          <div className="overflow-hidden" style={{ height: 520 }}>
+            <iframe
+              srcDoc={previewSrc}
+              title="Email preview"
+              className="border-0 w-full h-full"
+              style={{ minHeight: 520 }}
+            />
+          </div>
+        </div>
+
         <p className="text-[11px] text-[#A19F9D]">Παραλήπτες: {recipientSummary}</p>
       </div>
 
@@ -1033,6 +1088,7 @@ function Step5({
         </Button>
       </div>
     </div>
+    </>
   );
 }
 
@@ -1177,6 +1233,7 @@ export function NewsletterWizardClient({
               state={state}
               templates={templates}
               baseTemplates={baseTemplates}
+              senderProfiles={senderProfiles}
               onSend={handleSend}
               sending={sending}
             />
