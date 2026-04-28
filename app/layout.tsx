@@ -4,6 +4,7 @@ import SmoothScroll from "./components/SmoothScroll";
 import LocaleProviderWrapper from "./components/LocaleProviderWrapper";
 import { FooterProvider } from "./context/FooterContext";
 import { getPublicFooter } from "./lib/actions/footer";
+import { CookieBanner } from "@/components/cookies/CookieBanner";
 
 const FAVICON_URL = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
 
@@ -34,6 +35,7 @@ export default async function RootLayout({
             <SmoothScroll>
               {children}
             </SmoothScroll>
+            <CookieBanner />
           </FooterProvider>
         </LocaleProviderWrapper>
       </body>
