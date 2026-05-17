@@ -2,6 +2,7 @@
 
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
+import { Video } from "@/app/components/Video";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
 import Link from "next/link";
@@ -157,9 +158,9 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                                 {article.media.filter((m: any) => m.url !== article.featureImage).map((m: any, i: number) => (
                                     <div key={i} className="aspect-video rounded-xl overflow-hidden border border-white/10 group">
                                         {m.type === "VIDEO" ? (
-                                            <video src={m.url} className="w-full h-full object-cover" controls muted />
+                                            <Video src={m.url} priority="gallery" ariaLabel={`${title} — video ${i + 1}`} />
                                         ) : (
-                                            <img src={m.url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <img src={m.url} alt={`${title} — image ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                         )}
                                     </div>
                                 ))}

@@ -1,16 +1,21 @@
 import { getPublicDownloads } from "../lib/queries/public-downloads";
 import DownloadsClient from "./DownloadsClient";
-import type { Metadata } from "next";
+import { CollectionPageSeo } from "@/app/components/PageSeo";
+import { buildCollectionMetadataFor } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-    title: "Λήψεις & Οδηγοί | DGSOFT",
-    description: "Κατεβάστε δωρεάν εξειδικευμένους οδηγούς, whitepapers και αρχεία που σας βοηθούν να κατανοήσετε την ψηφιακή μετάβαση της επιχείρησής σας.",
+export const metadata = {
+    ...buildCollectionMetadataFor("download"),
     keywords: "downloads, οδηγοί, whitepapers, ERP, DGSOFT, PDF, λήψεις",
 };
 
 export default async function DownloadsPage() {
     const downloads = await getPublicDownloads();
-    return <DownloadsClient downloads={downloads as any[]} />;
+    return (
+        <>
+            <CollectionPageSeo type="download" />
+            <DownloadsClient downloads={downloads as any[]} />
+        </>
+    );
 }

@@ -7,6 +7,7 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale } from "../context/LocaleContext";
+import { Video } from "../components/Video";
 
 export type SolutionService = {
   id: string;
@@ -19,39 +20,10 @@ export type SolutionService = {
   category: { nameEL: string; nameEN: string | null };
 };
 
-function SolutionCardVideo({ src }: { src: string }) {
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
-    video.muted = true;
-    video.loop = true;
-    video.playsInline = true;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) video.play().catch(() => {});
-          else video.pause();
-        });
-      },
-      { threshold: 0.25, rootMargin: "50px" }
-    );
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [src]);
+function SolutionCardVideo({ src, name }: { src: string; name: string }) {
   return (
-    <div ref={containerRef} className="absolute inset-0 z-0">
-      <video
-        ref={videoRef}
-        src={src}
-        className="w-full h-full object-cover"
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
+    <div className="absolute inset-0 z-0">
+      <Video src={src} priority="card" ariaLabel={name} />
     </div>
   );
 }
@@ -112,11 +84,11 @@ export default function Solutions({ services }: { services: SolutionService[] })
                       {service.featureImage ? (
                         <>
                           {service.featureImage.endsWith(".mp4") ? (
-                            <SolutionCardVideo src={service.featureImage} />
+                            <SolutionCardVideo src={service.featureImage} name={name(service)} />
                           ) : (
                             <Image
                               src={service.featureImage}
-                              alt=""
+                              alt={name(service)}
                               fill
                               className="object-cover"
                               sizes="(max-width: 768px) 100vw, 50vw"

@@ -8,6 +8,7 @@ import { CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useLocale } from "@/app/context/LocaleContext"
+import { Video } from "@/app/components/Video"
 
 export type PublicServiceDetail = {
     id: string
@@ -41,13 +42,9 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
     const hasContent = service.descriptionEL || service.descriptionEN || service.features?.length || benefits.length
 
     React.useEffect(() => {
-        const video = heroVideoRef.current
-        if (video && service.featureImage?.endsWith(".mp4")) {
-            video.muted = true
-            video.loop = true
-            video.playsInline = true
-            video.play().catch(() => {})
-        }
+        // Hero playback now handled by <Video priority="hero">; this is a no-op kept for backwards compat.
+        void heroVideoRef.current;
+        void service.featureImage;
     }, [service.featureImage])
 
     return (
@@ -98,19 +95,16 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                             {service.featureImage ? (
                                 <div className="relative aspect-video rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl bg-monks-gray">
                                     {service.featureImage.endsWith(".mp4") ? (
-                                        <video
-                                            ref={heroVideoRef}
+                                        <Video
                                             src={service.featureImage}
-                                            className="w-full h-full object-cover"
-                                            autoPlay
-                                            loop
-                                            muted
-                                            playsInline
+                                            priority="hero"
+                                            poster={service.brandLogo || undefined}
+                                            ariaLabel={name}
                                         />
                                     ) : (
                                         <Image
                                             src={service.featureImage}
-                                            alt=""
+                                            alt={name}
                                             fill
                                             className="object-cover"
                                             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -180,9 +174,9 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                                     {service.media.map((m) => (
                                         <div key={m.id} className="relative aspect-video rounded-2xl overflow-hidden bg-monks-gray border border-white/10">
                                             {m.mediaType === "VIDEO" ? (
-                                                <video src={m.url} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                                                <Video src={m.url} priority="gallery" ariaLabel={`${name} — media`} />
                                             ) : (
-                                                <Image src={m.url} alt="" fill className="object-cover" sizes="(max-width: 640px) 100vw, 50vw" />
+                                                <Image src={m.url} alt={`${name} — media`} fill className="object-cover" sizes="(max-width: 640px) 100vw, 50vw" />
                                             )}
                                         </div>
                                     ))}
@@ -194,7 +188,7 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                             <div className="pt-8 border-t border-white/10 flex items-center gap-4">
                                 {service.brandLogo && (
                                     <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white/5 flex-shrink-0">
-                                        <Image src={service.brandLogo} alt="" fill className="object-contain p-2" sizes="64px" />
+                                        <Image src={service.brandLogo} alt={service.brandName ? `${service.brandName} logo` : `${name} brand logo`} fill className="object-contain p-2" sizes="64px" />
                                     </div>
                                 )}
                                 {service.brandName && (

@@ -1,15 +1,22 @@
 import ClientPage from "./ClientPage";
+import db from "../../../data/db.json";
+import { PageSeo } from "@/app/components/PageSeo";
+import { buildMetadataFor } from "@/lib/seo/metadata";
+
+const programs = ((db as any).euPrograms || []) as Array<{ slug: string }>;
 
 export function generateStaticParams() {
-    return [
-        { slug: "digital-tools" },
-        { slug: "digital-transactions" },
-        { slug: "innovation-grants" },
-        { slug: "smart-manufacturing" }
-    ];
+    return programs.map((p) => ({ slug: p.slug }));
 }
 
+export const generateMetadata = buildMetadataFor("euProgram");
+
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-    const resolvedParams = await params;
-    return <ClientPage slug={resolvedParams.slug} />;
+    const { slug } = await params;
+    return (
+        <>
+            <PageSeo type="euProgram" slug={slug} />
+            <ClientPage slug={slug} />
+        </>
+    );
 }

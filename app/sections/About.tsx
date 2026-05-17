@@ -58,28 +58,84 @@ export default function About({ contentEL, contentEN }: AboutProps) {
           className="mb-32"
         >
           <span className="section-number">{a.sectionLabel}</span>
-          <h2 className="text-display-lg font-bold text-white max-w-5xl mb-12">
+          <h2 className="text-display-md font-bold text-white max-w-4xl mb-16 leading-[1.15]">
             {a.headingPrefix}
             <span className="gradient-text">{a.headingHighlight}</span>
             {a.headingSuffix}
           </h2>
-          <div className="grid md:grid-cols-2 gap-12 max-w-4xl">
-            <p className="text-xl text-monks-light leading-relaxed">
-              {a.paragraphs[0]}
-            </p>
-            <div className="flex flex-col items-start gap-8">
-              {a.paragraphs.slice(1).map((p, i) => (
-                <p key={i} className="text-xl text-monks-light leading-relaxed">
-                  {p}
-                </p>
-              ))}
-              <Link
-                href={a.joinCta.href}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-monks-black font-semibold rounded-full hover:bg-monks-accent hover:text-white transition-all duration-300 group"
-              >
-                {a.joinCta.label}
-                <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+
+          {/* Editorial layout: decorative year anchor + single prose column.
+              Single-column prose keeps reading flow natural regardless of paragraph count. */}
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
+            {/* Decorative sidebar — hidden on mobile, sticky on desktop */}
+            <aside className="hidden lg:flex lg:col-span-3 lg:sticky lg:top-32 lg:self-start flex-col">
+              <div className="relative">
+                <div className="text-[5rem] xl:text-[6rem] font-black leading-[0.85] tracking-tighter gradient-text select-none">
+                  &apos;06
+                </div>
+                <div className="mt-6 flex items-center gap-3 text-monks-light text-xs tracking-[0.3em] uppercase">
+                  <div className="h-px w-10 bg-monks-accent" />
+                  <span>{locale === "el" ? "Από Τότε" : "Since Then"}</span>
+                </div>
+                <div className="mt-10 space-y-3 text-sm text-monks-light/80 max-w-[200px]">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-monks-accent font-bold tabular-nums">15+</span>
+                    <span>{locale === "el" ? "χρόνια εμπειρίας" : "years of experience"}</span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-monks-accent font-bold tabular-nums">6</span>
+                    <span>{locale === "el" ? "κόμβοι σε GR & CY" : "hubs across GR & CY"}</span>
+                  </div>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-monks-accent font-bold tabular-nums">1</span>
+                    <span>{locale === "el" ? "πιστοποιημένος SoftOne partner" : "certified SoftOne partner"}</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* Prose column with editorial type hierarchy */}
+            <div className="lg:col-span-9 max-w-3xl">
+              <div className="space-y-7">
+                {a.paragraphs.map((p, i) => (
+                  <p
+                    key={i}
+                    className={
+                      i === 0
+                        ? "text-2xl md:text-[1.65rem] text-white leading-[1.5] font-light tracking-tight"
+                        : "text-lg md:text-xl text-monks-light leading-[1.7]"
+                    }
+                  >
+                    {i === 0 ? (
+                      <>
+                        <span className="float-left mr-3 mt-1 text-5xl md:text-6xl font-bold leading-none text-monks-accent">
+                          {p.charAt(0)}
+                        </span>
+                        {p.slice(1)}
+                      </>
+                    ) : (
+                      p
+                    )}
+                  </p>
+                ))}
+              </div>
+
+              <div className="mt-12 flex items-center gap-6 flex-wrap">
+                <Link
+                  href={a.joinCta.href}
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-white text-monks-black font-semibold rounded-full hover:bg-monks-accent hover:text-white transition-all duration-300 group"
+                >
+                  {a.joinCta.label}
+                  <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  href="/works"
+                  className="inline-flex items-center gap-2 px-6 py-4 text-white border border-white/20 rounded-full hover:border-monks-accent hover:text-monks-accent transition-all duration-300 group text-sm font-medium tracking-wide"
+                >
+                  {locale === "el" ? "Δες τα έργα μας" : "See our work"}
+                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
           </div>
         </motion.div>

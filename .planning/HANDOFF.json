@@ -1,0 +1,162 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-17T05:51:29.026Z",
+  "source": "auto-postool",
+  "partial": false,
+  "phase": null,
+  "phase_name": null,
+  "phase_dir": null,
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "auto-checkpoint",
+  "completed_tasks": [],
+  "remaining_tasks": [],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [],
+  "uncommitted_files": [
+    {
+      "status": "D",
+      "path": ".claude/worktrees/magical-murdock-750a5e"
+    },
+    {
+      "status": "M",
+      "path": "app/ariadni/AriadniClientPage.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/blog/[slug]/ArticleDetailClient.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/blog/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/blog/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/careers/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/careers/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/components/EspaPdfBanner.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/downloads/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/downloads/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/eu-programs/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/layout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/sections/About.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/sections/Solutions.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/services/ServicesGrid.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/services/[slug]/ClientPage.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/services/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/services/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/works/[slug]/ClientPage.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/works/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/works/page.tsx"
+    },
+    {
+      "status": "??",
+      "path": ".claude/launch.json"
+    },
+    {
+      "status": "??",
+      "path": ".planning/"
+    },
+    {
+      "status": "??",
+      "path": "app/components/JsonLd.tsx"
+    },
+    {
+      "status": "??",
+      "path": "app/components/PageSeo.tsx"
+    },
+    {
+      "status": "??",
+      "path": "app/components/Video.tsx"
+    },
+    {
+      "status": "??",
+      "path": "app/eu-programs/layout.tsx"
+    },
+    {
+      "status": "??",
+      "path": "app/llms-full.txt/"
+    },
+    {
+      "status": "??",
+      "path": "app/llms.txt/"
+    },
+    {
+      "status": "??",
+      "path": "app/robots.ts"
+    },
+    {
+      "status": "??",
+      "path": "app/sitemap.ts"
+    },
+    {
+      "status": "??",
+      "path": "lib/jsonld.ts"
+    },
+    {
+      "status": "??",
+      "path": "lib/seo/"
+    },
+    {
+      "status": "??",
+      "path": "lib/site-url.ts"
+    }
+  ],
+  "next_action": null,
+  "context_notes": "Recent commits:\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner\n7ad2572 feat: use relative paths for internal URLs, resolve via NEXT_PUBLIC_SITE_URL\nd5104a0 Add newsletter unsubscribe flow, legal pages, and per-recipient email tokens\ne24db3e feat: step 5 preview — scrollable iframe, email chrome, fullscreen modal\ndf350e2 feat: sender profile email/from, phone placeholder, STUDIO→ADDRESS in templates"
+}

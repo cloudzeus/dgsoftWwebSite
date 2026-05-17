@@ -125,7 +125,7 @@ export default function AriadniClientPage({
                       // eslint-disable-next-line @next/next/no-img-element -- natural dimensions required for exact height
                       <img
                         src={espaPdfBannerUrl}
-                        alt=""
+                        alt={locale === "el" ? "Πλατφόρμα greece20.gov.gr — banner προγράμματος Αριάδνη" : "greece20.gov.gr platform — Ariadne programme banner"}
                         className="block w-full h-auto max-w-full transition-transform duration-500 ease-out group-hover:scale-[1.02]"
                         decoding="async"
                         onError={() => setBannerFailed(true)}

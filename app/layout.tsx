@@ -1,20 +1,148 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import SmoothScroll from "./components/SmoothScroll";
 import LocaleProviderWrapper from "./components/LocaleProviderWrapper";
 import { FooterProvider } from "./context/FooterContext";
 import { getPublicFooter } from "./lib/actions/footer";
 import { CookieBanner } from "@/components/cookies/CookieBanner";
+import { getSiteUrl } from "@/lib/site-url";
 
 const FAVICON_URL = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
+const SITE_URL = getSiteUrl();
+const SITE_NAME = "DGSOFT";
+const DEFAULT_TITLE = "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes";
+const DEFAULT_DESCRIPTION =
+  "DGSOFT designs and ships bespoke software, SoftOne ERP integrations, web platforms, and ΕΣΠΑ/EU funding deliveries for businesses across Greece and Cyprus.";
 
 export const metadata: Metadata = {
-  title: "DGSOFT — Digital Innovation Studio",
-  description: "We accelerate growth through technology and creative innovation. Your trusted partner for digital transformation.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: DEFAULT_TITLE,
+    template: "%s | DGSOFT",
+  },
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
+  generator: "Next.js",
+  keywords: [
+    "DGSOFT",
+    "DGSMART",
+    "digital innovation",
+    "software development Greece",
+    "EU programmes",
+    "ΕΣΠΑ",
+    "Ariadni",
+    "Αριάδνη",
+    "ERP",
+    "SoftOne",
+    "web development",
+  ],
+  authors: [{ name: "DGSOFT", url: SITE_URL }],
+  creator: "DGSOFT",
+  publisher: "DGSOFT",
+  formatDetection: { email: false, address: false, telephone: false },
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "el_GR",
+    alternateLocale: ["en_US"],
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: [
+      {
+        url: FAVICON_URL,
+        width: 1200,
+        height: 630,
+        alt: "DGSOFT — Digital Innovation Studio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: [FAVICON_URL],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: FAVICON_URL,
     shortcut: FAVICON_URL,
     apple: FAVICON_URL,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": ["Organization", "LocalBusiness", "ProfessionalService"],
+  "@id": `${SITE_URL}/#organization`,
+  name: "DGSOFT",
+  alternateName: "DGSMART",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.svg`,
+  image: `${SITE_URL}/logo.svg`,
+  description: DEFAULT_DESCRIPTION,
+  sameAs: ["https://dgsoft.gr", "https://www.dgsmart.gr"],
+  telephone: "+302105711581",
+  email: "connect@dgsmart.gr",
+  priceRange: "€€",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Λεωφ. Κηφισού 48, 1ος όροφος",
+    addressLocality: "Περιστέρι",
+    addressRegion: "Αττική",
+    postalCode: "12133",
+    addressCountry: "GR",
+  },
+  areaServed: [
+    { "@type": "Country", name: "Greece" },
+    { "@type": "Country", name: "Cyprus" },
+    { "@type": "Place", name: "European Union" },
+  ],
+  knowsLanguage: ["el", "en"],
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      telephone: "+302105711581",
+      email: "connect@dgsmart.gr",
+      contactType: "customer support",
+      areaServed: ["GR", "CY"],
+      availableLanguage: ["Greek", "English"],
+    },
+  ],
+};
+
+const websiteLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  name: SITE_NAME,
+  url: SITE_URL,
+  publisher: { "@id": `${SITE_URL}/#organization` },
+  inLanguage: ["el-GR", "en-US"],
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${SITE_URL}/blog?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
   },
 };
 
@@ -25,8 +153,20 @@ export default async function RootLayout({
 }>) {
   const footer = await getPublicFooter();
   return (
-    <html lang="el" suppressHydrationWarning>
+    <html lang="el" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="antialiased bg-monks-black text-white">
+        <script
+          id="ld-organization"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+          suppressHydrationWarning
+        />
+        <script
+          id="ld-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+          suppressHydrationWarning
+        />
         <LocaleProviderWrapper>
           <FooterProvider
             contentEL={footer.contentEL}

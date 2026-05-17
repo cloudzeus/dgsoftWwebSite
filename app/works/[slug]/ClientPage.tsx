@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Navigation from "../../components/Navigation";
 import Footer from "../../components/Footer";
+import { Video } from "@/app/components/Video";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Server, Activity, Lock, Cpu, CheckCircle, TrendingUp, Clock, Users, BarChart2, Database, Zap, Shield, Globe, Award } from "lucide-react";
 import Link from "next/link";
@@ -230,9 +231,9 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
                                         className="relative aspect-video rounded-2xl overflow-hidden bg-monks-gray border border-white/5"
                                     >
                                         {isVideo ? (
-                                            <video src={m.url} className="w-full h-full object-cover" controls muted playsInline />
+                                            <Video src={m.url} priority="gallery" ariaLabel={`${data.title} — video ${i + 1}`} />
                                         ) : (
-                                            <img src={m.url} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                            <img src={m.url} alt={`${data.title} — image ${i + 1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                         )}
                                     </motion.div>
                                 );

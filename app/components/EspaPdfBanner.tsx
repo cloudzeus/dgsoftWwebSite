@@ -44,7 +44,7 @@ export function EspaPdfBanner({
           // eslint-disable-next-line @next/next/no-img-element -- intrinsic height
           <img
             src={imageUrl}
-            alt=""
+            alt={caption}
             className="block h-auto w-full max-w-full transition-transform duration-500 ease-out group-hover:scale-[1.02]"
             decoding="async"
             onError={() => setFailed(true)}

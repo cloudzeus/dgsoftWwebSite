@@ -1,15 +1,18 @@
 import { getPublicPositions } from "../lib/actions/career";
 import CareersClient from "./CareersClient";
-import type { Metadata } from "next";
+import { CollectionPageSeo } from "@/app/components/PageSeo";
+import { buildCollectionMetadataFor } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-    title: "Καριέρα | DGSOFT",
-    description: "Ανοιχτές θέσεις εργασίας στη DGSOFT. Γίνε μέλος της ομάδας μας.",
-};
+export const metadata = buildCollectionMetadataFor("position");
 
 export default async function CareersPage() {
     const positions = await getPublicPositions();
-    return <CareersClient positions={positions as any[]} />;
+    return (
+        <>
+            <CollectionPageSeo type="position" />
+            <CareersClient positions={positions as any[]} />
+        </>
+    );
 }

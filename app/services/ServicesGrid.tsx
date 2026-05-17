@@ -6,6 +6,7 @@ import { motion } from "framer-motion"
 import { ArrowUpRight } from "lucide-react"
 import Image from "next/image"
 import { useLocale } from "@/app/context/LocaleContext"
+import { Video } from "@/app/components/Video"
 
 export type PublicServiceItem = {
     id: string
@@ -18,39 +19,10 @@ export type PublicServiceItem = {
     category: { nameEL: string; nameEN: string | null }
 }
 
-function ServiceCardVideo({ src }: { src: string }) {
-    const ref = React.useRef<HTMLVideoElement>(null)
-    const containerRef = React.useRef<HTMLDivElement>(null)
-    React.useEffect(() => {
-        const video = ref.current
-        const container = containerRef.current
-        if (!video || !container) return
-        video.muted = true
-        video.loop = true
-        video.playsInline = true
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) video.play().catch(() => {})
-                    else video.pause()
-                })
-            },
-            { threshold: 0.25, rootMargin: "50px" }
-        )
-        observer.observe(container)
-        return () => observer.disconnect()
-    }, [src])
+function ServiceCardVideo({ src, name }: { src: string; name: string }) {
     return (
-        <div ref={containerRef} className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 bg-white/5">
-            <video
-                ref={ref}
-                src={src}
-                className="w-full h-full object-cover"
-                autoPlay
-                loop
-                muted
-                playsInline
-            />
+        <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 bg-white/5">
+            <Video src={src} priority="card" ariaLabel={name} />
         </div>
     )
 }
@@ -87,12 +59,12 @@ export function ServicesGrid({ services }: { services: PublicServiceItem[] }) {
 
                             {service.featureImage && (
                                 service.featureImage.endsWith(".mp4") ? (
-                                    <ServiceCardVideo src={service.featureImage} />
+                                    <ServiceCardVideo src={service.featureImage} name={name(service)} />
                                 ) : (
                                     <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-6 bg-white/5">
                                         <Image
                                             src={service.featureImage}
-                                            alt=""
+                                            alt={name(service)}
                                             fill
                                             className="object-cover"
                                             sizes="(max-width: 768px) 100vw, 33vw"

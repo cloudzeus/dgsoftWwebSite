@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 import Navigation from "./components/Navigation";
+import { StaticPageSeo } from "./components/PageSeo";
+
+export const metadata: Metadata = {
+  title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
+  description:
+    "DGSOFT accelerates business growth through bespoke software, EU funding programmes (ΕΣΠΑ), SoftOne ERP integrations, and digital transformation services across Greece and Cyprus.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
+    description:
+      "Bespoke software, EU funding programmes, SoftOne ERP, and digital transformation — built in Greece, deployed across the EU.",
+  },
+};
 import Hero from "./sections/Hero";
 import Solutions from "./sections/Solutions";
 import Work from "./sections/Work";
@@ -26,8 +42,14 @@ export default async function Home() {
     ]);
 
   return (
-    <main className="min-h-screen bg-monks-black">
-      <Navigation />
+    <>
+      <StaticPageSeo
+        url="/"
+        name="DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes"
+        description="DGSOFT designs and ships bespoke software, SoftOne ERP integrations, web platforms, and ΕΣΠΑ/EU funding deliveries for businesses across Greece and Cyprus."
+      />
+      <main className="min-h-screen bg-monks-black">
+        <Navigation />
       <Hero
         contentEL={homeContent.contentEL}
         contentEN={homeContent.contentEN}
@@ -43,6 +65,7 @@ export default async function Home() {
       <LatestInsights />
       <Contact />
       <Footer />
-    </main>
+      </main>
+    </>
   );
 }
