@@ -103,7 +103,10 @@ export default function Solutions({ services }: { services: SolutionService[] })
 
                       {/* Number Badge */}
                       <div className="absolute top-6 left-6 z-20">
-                        <span className="text-6xl font-bold text-white/10 group-hover:text-monks-accent/30 transition-colors">
+                        <span
+                          className="text-6xl font-bold text-white/10 group-hover:text-monks-accent/30 transition-colors"
+                          aria-hidden="true"
+                        >
                           {number}
                         </span>
                       </div>

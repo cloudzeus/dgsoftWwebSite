@@ -4,16 +4,17 @@ import Navigation from "./components/Navigation";
 import { StaticPageSeo } from "./components/PageSeo";
 
 export const metadata: Metadata = {
+  // Keep title 50–60 chars and meta description 150–160 chars for SERP truncation rules.
   title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
   description:
-    "DGSOFT accelerates business growth through bespoke software, EU funding programmes (ΕΣΠΑ), SoftOne ERP integrations, and digital transformation services across Greece and Cyprus.",
+    "DGSOFT delivers bespoke software, SoftOne ERP integrations, web platforms, and ΕΣΠΑ/EU funding programmes for businesses in Greece and Cyprus.",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: "/",
     title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
     description:
-      "Bespoke software, EU funding programmes, SoftOne ERP, and digital transformation — built in Greece, deployed across the EU.",
+      "Bespoke software, SoftOne ERP, web platforms & ΕΣΠΑ deliveries — built in Greece, deployed across the EU.",
   },
 };
 import Hero from "./sections/Hero";

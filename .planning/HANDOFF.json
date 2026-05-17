@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-17T07:02:02.601Z",
+  "timestamp": "2026-05-17T07:27:30.414Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,29 +22,25 @@
     },
     {
       "status": "M",
+      "path": "app/layout.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/robots.ts"
+    },
+    {
+      "status": "M",
       "path": "app/sections/About.tsx"
     },
     {
       "status": "M",
-      "path": "app/sections/Hero.tsx"
-    },
-    {
-      "status": "M",
-      "path": "next.config.js"
-    },
-    {
-      "status": "M",
-      "path": "package-lock.json"
-    },
-    {
-      "status": "M",
-      "path": "package.json"
-    },
-    {
-      "status": "??",
-      "path": ".browserslistrc"
+      "path": "lib/footer-content.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n17efa67 seo optimize\n83a2c15 seo optimize\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner\n7ad2572 feat: use relative paths for internal URLs, resolve via NEXT_PUBLIC_SITE_URL\nd5104a0 Add newsletter unsubscribe flow, legal pages, and per-recipient email tokens"
+  "context_notes": "Recent commits:\nb941758 seo optimize\n17efa67 seo optimize\n83a2c15 seo optimize\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner\n7ad2572 feat: use relative paths for internal URLs, resolve via NEXT_PUBLIC_SITE_URL"
 }

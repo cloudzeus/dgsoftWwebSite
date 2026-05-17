@@ -161,7 +161,10 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                 transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
                 className="group"
               >
-                <div className="text-5xl font-bold text-white/10 group-hover:text-monks-accent/30 transition-colors mb-4">
+                <div
+                  className="text-5xl font-bold text-white/10 group-hover:text-monks-accent/30 transition-colors mb-4"
+                  aria-hidden="true"
+                >
                   0{index + 1}
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">{award.title}</h4>

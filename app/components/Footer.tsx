@@ -100,7 +100,7 @@ export default function Footer() {
             {/* Links Columns */}
             {c.columns.map((col, colIdx) => (
               <div key={colIdx}>
-                <h4 className="text-white font-semibold mb-6">{col.heading}</h4>
+                <h3 className="text-white font-semibold mb-6">{col.heading}</h3>
                 <ul className="space-y-4">
                   {col.links.map((link, i) => {
                     const slug = modalSlug(link.href);

@@ -62,16 +62,16 @@ export const defaultFooterContentEL: FooterLocaleContent = {
     },
     {
       icon: "linkedin",
-      href: "https://www.linkedin.com/company/dgsoft/posts/?feedView=all",
+      href: "https://www.linkedin.com/company/dgsoft",
       label: "LinkedIn",
     },
-    { icon: "twitter", href: "#", label: "Twitter" },
     {
       icon: "instagram",
-      href: "https://www.instagram.com/direct/t/17843988246377755/",
+      // FIXME: replace with actual Instagram profile URL. The previous value
+      // was a Direct-Message thread link (/direct/t/...) which is broken.
+      href: "https://www.instagram.com/dgsoft.gr/",
       label: "Instagram",
     },
-    { icon: "github", href: "#", label: "GitHub" },
   ],
   columns: [
     {
@@ -120,16 +120,15 @@ export const defaultFooterContentEN: FooterLocaleContent = {
     },
     {
       icon: "linkedin",
-      href: "https://www.linkedin.com/company/dgsoft/posts/?feedView=all",
+      href: "https://www.linkedin.com/company/dgsoft",
       label: "LinkedIn",
     },
-    { icon: "twitter", href: "#", label: "Twitter" },
     {
       icon: "instagram",
-      href: "https://www.instagram.com/direct/t/17843988246377755/",
+      // FIXME: replace with actual Instagram profile URL.
+      href: "https://www.instagram.com/dgsoft.gr/",
       label: "Instagram",
     },
-    { icon: "github", href: "#", label: "GitHub" },
   ],
   columns: [
     {

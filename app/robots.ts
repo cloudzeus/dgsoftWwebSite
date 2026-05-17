@@ -36,12 +36,15 @@ export default function robots(): MetadataRoute.Robots {
     disallow,
   }));
 
+  // Note: do NOT emit a `host:` directive. It's a Yandex-specific extension
+  // that Google ignores and that strict robots.txt validators (Lighthouse,
+  // Search Console) flag as a syntax error. Canonicalization is handled by
+  // the www → non-www redirect in next.config.js instead.
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow },
       ...aiRules,
     ],
     sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl,
   };
 }
