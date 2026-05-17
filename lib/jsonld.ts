@@ -187,12 +187,18 @@ export function videoObjectLd(input: {
   thumbnailUrl?: string | null;
   uploadDate?: Date | string | null;
   duration?: string | null;
+  /** Set to true for silent / video-only content. Defaults to true since all
+   *  DGSOFT videos are decorative loops with no audio track. */
+  silent?: boolean;
+  /** Spoken-content language; ignored when silent. */
+  inLanguage?: string;
 }) {
   const abs = absoluteUrl(input.url);
   const upload =
     input.uploadDate ?
       new Date(input.uploadDate).toISOString() :
       new Date().toISOString();
+  const silent = input.silent ?? true;
   return {
     "@context": "https://schema.org",
     "@type": "VideoObject",
@@ -206,6 +212,21 @@ export function videoObjectLd(input: {
     ...(input.duration ? { duration: input.duration } : {}),
     publisher: { "@id": ORG_ID },
     isFamilyFriendly: true,
+    // Schema.org accessibility signals for silent video-only content (WCAG SC 1.2.1).
+    // Tells search engines + assistive tech that captions are not applicable
+    // because the visual track is the entire content.
+    ...(silent
+      ? {
+          accessMode: ["visual"],
+          accessModeSufficient: [{ "@type": "ItemList", itemListElement: ["visual"] }],
+          accessibilityFeature: ["captions/none-required"],
+          // Greek market: spoken language is not applicable to silent video,
+          // but inLanguage = el covers the surrounding context.
+          inLanguage: input.inLanguage ?? "el",
+        }
+      : {
+          inLanguage: input.inLanguage ?? "el",
+        }),
   };
 }
 

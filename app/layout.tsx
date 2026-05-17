@@ -111,8 +111,10 @@ const organizationLd = {
   image: `${SITE_URL}/logo.svg`,
   description: DEFAULT_DESCRIPTION,
   sameAs: [
+    // www.dgsmart.gr removed — DNS doesn't resolve (NXDOMAIN). Add back once
+    // a CNAME/A record is set up for the www subdomain.
     "https://dgsoft.gr",
-    "https://www.dgsmart.gr",
+    "https://dgsmart.gr",
     "https://www.facebook.com/softsoftwaredg",
     "https://www.linkedin.com/company/dgsoft",
     "https://www.instagram.com/dgsoft.gr/",

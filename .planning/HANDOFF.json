@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-17T07:27:30.414Z",
+  "timestamp": "2026-05-17T12:46:25.894Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,6 +22,10 @@
     },
     {
       "status": "M",
+      "path": "app/components/Video.tsx"
+    },
+    {
+      "status": "M",
       "path": "app/layout.tsx"
     },
     {
@@ -30,17 +34,17 @@
     },
     {
       "status": "M",
-      "path": "app/robots.ts"
+      "path": "lib/jsonld.ts"
     },
     {
       "status": "M",
-      "path": "app/sections/About.tsx"
+      "path": "lib/seo/metadata.ts"
     },
     {
-      "status": "M",
-      "path": "lib/footer-content.ts"
+      "status": "??",
+      "path": "app/.well-known/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb941758 seo optimize\n17efa67 seo optimize\n83a2c15 seo optimize\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner\n7ad2572 feat: use relative paths for internal URLs, resolve via NEXT_PUBLIC_SITE_URL"
+  "context_notes": "Recent commits:\n83688d3 seo optimize\nb941758 seo optimize\n17efa67 seo optimize\n83a2c15 seo optimize\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner"
 }

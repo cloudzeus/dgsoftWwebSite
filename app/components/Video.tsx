@@ -24,10 +24,14 @@ type Props = {
   priority: VideoPriority;
   poster?: string;
   className?: string;
-  /** Aria/accessibility label. Falls back to "video". */
+  /** Aria/accessibility label. Falls back to a silent-video description. */
   ariaLabel?: string;
   /** Override the default object-fit class */
   fit?: "cover" | "contain";
+  /** Defaults to true — all DGSOFT videos are silent decorative loops, so
+   *  the gallery variant suppresses its mute/unmute control to avoid implying
+   *  audio exists. Set false if you ever ship a video with an audio track. */
+  silent?: boolean;
 };
 
 const PRELOAD_BY_PRIORITY: Record<VideoPriority, "none" | "metadata" | "auto"> = {
@@ -52,6 +56,7 @@ export function Video({
   className = "",
   ariaLabel,
   fit = "cover",
+  silent = true,
 }: Props) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -106,6 +111,11 @@ export function Video({
   const isAutoplayPriority = priority === "hero" || priority === "card";
   const showControls = priority === "gallery";
 
+  // Silent gallery videos: suppress the audio control so the user doesn't try
+  // to unmute and hear nothing. Hero/card variants are always muted-by-default.
+  const controlsList = silent && showControls ? "nodownload nofullscreen novolumecontrol" : undefined;
+  const effectiveLabel = ariaLabel ?? (silent ? "Silent decorative video" : "Video");
+
   return (
     <div ref={containerRef} className={`relative w-full h-full ${className}`}>
       <video
@@ -114,12 +124,14 @@ export function Video({
         poster={poster}
         preload={hasEntered ? PRELOAD_BY_PRIORITY[priority] : "none"}
         className={`w-full h-full ${fitClass}`}
-        muted={isAutoplayPriority}
+        muted={silent || isAutoplayPriority}
         loop={isAutoplayPriority}
         playsInline
         autoPlay={priority === "hero"}
         controls={showControls}
-        aria-label={ariaLabel ?? "video"}
+        controlsList={controlsList}
+        disableRemotePlayback
+        aria-label={effectiveLabel}
       />
     </div>
   );

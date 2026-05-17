@@ -3,18 +3,36 @@ export const dynamic = "force-dynamic";
 import Navigation from "./components/Navigation";
 import { StaticPageSeo } from "./components/PageSeo";
 
+// Open Graph fallback image — surfaced on social platforms and in audit checks.
+// Replace with a purpose-built 1200×630 social card when available.
+const OG_IMAGE = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
+
 export const metadata: Metadata = {
   // Keep title 50–60 chars and meta description 150–160 chars for SERP truncation rules.
   title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
   description:
     "DGSOFT delivers bespoke software, SoftOne ERP integrations, web platforms, and ΕΣΠΑ/EU funding programmes for businesses in Greece and Cyprus.",
   alternates: { canonical: "/" },
+  // Important: Next.js does NOT merge `openGraph` from the parent layout —
+  // overriding here replaces the whole object. Always include siteName + images
+  // so audits (Facebook, LinkedIn previews) see them.
   openGraph: {
     type: "website",
+    siteName: "DGSOFT",
+    locale: "el_GR",
+    alternateLocale: ["en_US"],
     url: "/",
     title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
     description:
       "Bespoke software, SoftOne ERP, web platforms & ΕΣΠΑ deliveries — built in Greece, deployed across the EU.",
+    images: [
+      {
+        url: OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: "DGSOFT — Digital Innovation Studio",
+      },
+    ],
   },
 };
 import Hero from "./sections/Hero";

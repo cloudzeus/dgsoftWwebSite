@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { getContentType } from "./registry";
 
+// Fallback OG image shared across pages that don't supply their own.
+const FALLBACK_OG_IMAGE =
+  "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
+
 /**
  * Returns a Next.js `generateMetadata` function for a detail page.
  *
@@ -32,6 +36,7 @@ export function buildMetadataFor(typeKey: string) {
       `${item.title} — ${config.breadcrumb.singular} by DGSOFT.`;
     const ogType = config.ogType ?? "article";
 
+    const ogImage = item.image || FALLBACK_OG_IMAGE;
     return {
       title: item.title,
       description,
@@ -41,13 +46,16 @@ export function buildMetadataFor(typeKey: string) {
         description,
         url,
         type: ogType,
-        ...(item.image ? { images: [{ url: item.image, alt: item.title }] } : {}),
+        siteName: "DGSOFT",
+        locale: "el_GR",
+        alternateLocale: ["en_US"],
+        images: [{ url: ogImage, alt: item.title, width: 1200, height: 630 }],
       },
       twitter: {
-        card: item.image ? "summary_large_image" : "summary",
+        card: "summary_large_image",
         title: item.title,
         description,
-        ...(item.image ? { images: [item.image] } : {}),
+        images: [ogImage],
       },
     };
   };
@@ -67,6 +75,17 @@ export function buildCollectionMetadataFor(typeKey: string): Metadata {
       description: config.collection.description,
       url: config.basePath,
       type: "website",
+      siteName: "DGSOFT",
+      locale: "el_GR",
+      alternateLocale: ["en_US"],
+      images: [
+        {
+          url: FALLBACK_OG_IMAGE,
+          alt: config.collection.name,
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
   };
 }
