@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLocale, useSetLocale } from "../context/LocaleContext";
 import { ContactModal } from "@/components/contact/ContactModal";
@@ -77,7 +78,14 @@ export default function Navigation() {
             {/* Logo */}
             <Link href="/" className="relative z-50">
               <motion.div className="flex items-center" whileHover={{ scale: 1.02 }}>
-                <img src="/logo.svg" alt="DGSOFT Logo" className="h-[35px]" />
+                <Image
+                  src="/logo.svg"
+                  alt="DGSOFT Logo"
+                  width={120}
+                  height={35}
+                  priority
+                  className="h-[35px] w-auto"
+                />
               </motion.div>
             </Link>
 

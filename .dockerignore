@@ -1,0 +1,51 @@
+# Skip everything we don't need in the build context.
+
+# Build artifacts
+.next
+node_modules
+out
+dist
+build
+
+# Dev/test/local
+.git
+.gitignore
+.github
+.vscode
+.idea
+.cursor
+.claude
+.planning
+.s1session.json
+
+# Env files (set in Coolify UI; do NOT bake into the image)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Local data
+*.sqlite
+*.sqlite-journal
+prisma/dev.db
+prisma/dev.db-journal
+data/local-*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs / misc
+README.md
+*.md
+LICENSE
+
+# CI
+.github/workflows

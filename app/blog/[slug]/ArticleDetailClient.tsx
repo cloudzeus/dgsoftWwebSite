@@ -6,6 +6,7 @@ import { Video } from "@/app/components/Video";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLocale } from "../../context/LocaleContext";
 
 export default function ArticleDetailClient({ article }: { article: any }) {
@@ -160,7 +161,14 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                                         {m.type === "VIDEO" ? (
                                             <Video src={m.url} priority="gallery" ariaLabel={`${title} — video ${i + 1}`} />
                                         ) : (
-                                            <img src={m.url} alt={`${title} — image ${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <Image
+                                                src={m.url}
+                                                alt={`${title} — image ${i + 1}`}
+                                                fill
+                                                sizes="(max-width: 768px) 50vw, 33vw"
+                                                loading="lazy"
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
                                         )}
                                     </div>
                                 ))}

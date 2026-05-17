@@ -123,6 +123,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
             <div className="grid w-full max-w-[min(100%,22rem)] grid-cols-1 gap-3 sm:max-w-[min(100%,36rem)] sm:grid-cols-2 md:gap-4">
               <EspaPdfBanner
                 compact
+                priority
                 imageUrl={HOME_ESPA_BANNER_1.imageUrl}
                 pdfUrl={HOME_ESPA_BANNER_1.pdfUrl}
                 captionEl="Έγγραφο προγράμματος ΕΣΠΑ"

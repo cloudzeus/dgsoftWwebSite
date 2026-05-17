@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Tooltip,
   TooltipContent,
@@ -66,9 +67,13 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                   key={`${customer.id}-${i}`}
                   className="flex h-[100px] w-[180px] flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md"
                 >
-                  <img
+                  <Image
                     src={src}
                     alt={customer.NAME}
+                    width={180}
+                    height={100}
+                    loading="lazy"
+                    unoptimized={!src.startsWith("https://dgsmart.b-cdn.net") && !src.startsWith("https://ui-avatars.com")}
                     className="h-full w-full object-contain"
                     onError={(e) => (e.currentTarget.src = fallbackUrl)}
                   />
@@ -81,7 +86,7 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                       <a
                         href={website.startsWith("http") ? website : `https://${website}`}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="nofollow noopener noreferrer"
                         className="rounded-2xl focus:outline-none focus:ring-2 focus:ring-monks-accent/50"
                       >
                         {content}

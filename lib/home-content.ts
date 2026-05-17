@@ -173,8 +173,8 @@ const defaultAboutEN: AboutSection = {
 
 export const defaultHomeContentEL: HomeLocaleContent = {
   eyebrow: "Από το ERP στο ολοκληρωμένο ψηφιακό σου οικοσύστημα",
-  titlePrefix: "Business ",
-  titleHighlight: "Forward",
+  titlePrefix: "Move Your Business ",
+  titleHighlight: "Forward with SoftOne ERP",
   paragraphs: [
     "Η DGSOFT, επίσημος και πιστοποιημένος συνεργάτης της ENTERSOFTONE, είναι ένας δυναμικά αναπτυσσόμενος όμιλος τεχνολογίας με παρουσία στην ελληνική αγορά από το 2006.",
     "Προσφέρουμε προηγμένες λύσεις Business Software, Web & Mobile εφαρμογών, AI & IoT, καθώς και συμβουλευτική ψηφιακού μετασχηματισμού, ειδικά σχεδιασμένες για τις ανάγκες μικρομεσαίων και μεγάλων επιχειρήσεων σε Ελλάδα και Κύπρο.",
@@ -197,8 +197,8 @@ export const defaultHomeContentEL: HomeLocaleContent = {
 
 export const defaultHomeContentEN: HomeLocaleContent = {
   eyebrow: "From ERP to a complete digital ecosystem",
-  titlePrefix: "Business ",
-  titleHighlight: "Forward",
+  titlePrefix: "Move Your Business ",
+  titleHighlight: "Forward with SoftOne ERP",
   paragraphs: [
     "DGSOFT, an official and certified ENTERSOFTONE partner, is a fast-growing technology group with a presence in the Greek market since 2006.",
     "We deliver advanced Business Software, Web & Mobile applications, AI & IoT, and digital transformation consulting — tailored for the needs of SMEs and large enterprises across Greece and Cyprus.",

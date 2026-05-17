@@ -1,5 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin", "latin-ext", "greek"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+});
 import SmoothScroll from "./components/SmoothScroll";
 import LocaleProviderWrapper from "./components/LocaleProviderWrapper";
 import { FooterProvider } from "./context/FooterContext";
@@ -153,7 +162,11 @@ export default async function RootLayout({
 }>) {
   const footer = await getPublicFooter();
   return (
-    <html lang="el" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="el" data-scroll-behavior="smooth" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://dgsmart.b-cdn.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://dgsmart.b-cdn.net" />
+      </head>
       <body className="antialiased bg-monks-black text-white">
         <script
           id="ld-organization"

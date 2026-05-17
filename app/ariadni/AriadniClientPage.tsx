@@ -122,12 +122,15 @@ export default function AriadniClientPage({
                     aria-label={locale === "el" ? "Άνοιγμα greece20.gov.gr σε νέο παράθυρο" : "Open greece20.gov.gr in a new window"}
                   >
                     {!bannerFailed ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- natural dimensions required for exact height
-                      <img
+                      <Image
                         src={espaPdfBannerUrl}
                         alt={locale === "el" ? "Πλατφόρμα greece20.gov.gr — banner προγράμματος Αριάδνη" : "greece20.gov.gr platform — Ariadne programme banner"}
+                        width={1200}
+                        height={628}
+                        sizes="(max-width: 768px) 100vw, 600px"
+                        priority
+                        fetchPriority="high"
                         className="block w-full h-auto max-w-full transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                        decoding="async"
                         onError={() => setBannerFailed(true)}
                       />
                     ) : (

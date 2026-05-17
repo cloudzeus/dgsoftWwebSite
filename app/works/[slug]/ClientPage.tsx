@@ -7,6 +7,7 @@ import { Video } from "@/app/components/Video";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, Server, Activity, Lock, Cpu, CheckCircle, TrendingUp, Clock, Users, BarChart2, Database, Zap, Shield, Globe, Award } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLocale } from "../../context/LocaleContext";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -233,7 +234,14 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
                                         {isVideo ? (
                                             <Video src={m.url} priority="gallery" ariaLabel={`${data.title} — video ${i + 1}`} />
                                         ) : (
-                                            <img src={m.url} alt={`${data.title} — image ${i + 1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                            <Image
+                                                src={m.url}
+                                                alt={`${data.title} — image ${i + 1}`}
+                                                fill
+                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                loading="lazy"
+                                                className="object-cover"
+                                            />
                                         )}
                                     </motion.div>
                                 );

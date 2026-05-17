@@ -2,6 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 import { useLocale } from "@/app/context/LocaleContext";
 
 type Props = {
@@ -13,6 +14,8 @@ type Props = {
   ariaLabelEn: string;
   /** Smaller chrome (e.g. homepage hero at 50% width) */
   compact?: boolean;
+  /** Treat this banner as the LCP element — preload + high fetch priority */
+  priority?: boolean;
 };
 
 export function EspaPdfBanner({
@@ -23,6 +26,7 @@ export function EspaPdfBanner({
   ariaLabelEl,
   ariaLabelEn,
   compact = false,
+  priority = false,
 }: Props) {
   const locale = useLocale();
   const [failed, setFailed] = useState(false);
@@ -39,14 +43,18 @@ export function EspaPdfBanner({
       }`}
       aria-label={aria}
     >
-      <div className="bg-[#0c0e12]">
+      <div className="bg-[#0c0e12] relative">
         {!failed ? (
-          // eslint-disable-next-line @next/next/no-img-element -- intrinsic height
-          <img
+          <Image
             src={imageUrl}
             alt={caption}
+            width={1200}
+            height={628}
+            sizes={compact ? "(max-width: 640px) 90vw, 320px" : "(max-width: 768px) 100vw, 600px"}
+            priority={priority}
+            fetchPriority={priority ? "high" : "auto"}
+            loading={priority ? "eager" : "lazy"}
             className="block h-auto w-full max-w-full transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-            decoding="async"
             onError={() => setFailed(true)}
           />
         ) : (

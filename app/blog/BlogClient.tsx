@@ -5,6 +5,7 @@ import Footer from "../components/Footer";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLocale } from "../context/LocaleContext";
 
 export default function BlogClient({ initialArticles = [] }: { initialArticles: any[] }) {
@@ -68,7 +69,14 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                                     >
                                         {post.featureImage ? (
                                             <div className="h-64 w-full relative overflow-hidden border-b border-white/5">
-                                                <img src={post.featureImage} alt={title(post)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                                <Image
+                                                    src={post.featureImage}
+                                                    alt={title(post)}
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                                    loading="lazy"
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                                                />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-monks-black/80 to-transparent" />
                                             </div>
                                         ) : (
