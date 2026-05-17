@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-17T06:44:58.969Z",
+  "timestamp": "2026-05-17T07:02:02.601Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,35 +22,7 @@
     },
     {
       "status": "M",
-      "path": "app/ariadni/AriadniClientPage.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/blog/BlogClient.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/blog/[slug]/ArticleDetailClient.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/components/EspaPdfBanner.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/components/Navigation.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/globals.css"
-    },
-    {
-      "status": "M",
-      "path": "app/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/sections/Customers.tsx"
+      "path": "app/sections/About.tsx"
     },
     {
       "status": "M",
@@ -58,25 +30,21 @@
     },
     {
       "status": "M",
-      "path": "app/works/[slug]/ClientPage.tsx"
-    },
-    {
-      "status": "M",
-      "path": "lib/home-content.ts"
-    },
-    {
-      "status": "M",
       "path": "next.config.js"
     },
     {
-      "status": "??",
-      "path": ".dockerignore"
+      "status": "M",
+      "path": "package-lock.json"
+    },
+    {
+      "status": "M",
+      "path": "package.json"
     },
     {
       "status": "??",
-      "path": "Dockerfile"
+      "path": ".browserslistrc"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n83a2c15 seo optimize\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner\n7ad2572 feat: use relative paths for internal URLs, resolve via NEXT_PUBLIC_SITE_URL\nd5104a0 Add newsletter unsubscribe flow, legal pages, and per-recipient email tokens\ne24db3e feat: step 5 preview — scrollable iframe, email chrome, fullscreen modal"
+  "context_notes": "Recent commits:\n17efa67 seo optimize\n83a2c15 seo optimize\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner\n7ad2572 feat: use relative paths for internal URLs, resolve via NEXT_PUBLIC_SITE_URL\nd5104a0 Add newsletter unsubscribe flow, legal pages, and per-recipient email tokens"
 }

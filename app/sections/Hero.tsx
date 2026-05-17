@@ -11,10 +11,12 @@ import {
 import { useLocale } from "@/app/context/LocaleContext";
 import type { HomeLocaleContent } from "@/lib/home-content";
 
+// Text is visible from frame 1 (opacity stays at 1) so the H1 is paintable for
+// LCP measurement and crawlers without JS. The stagger animation is preserved
+// as a position-only effect — characters slide up in sequence.
 const textVariants = {
-  hidden: { opacity: 0, y: 50 },
+  hidden: { y: 30 },
   visible: {
-    opacity: 1,
     y: 0,
     transition: {
       duration: 0.8,
@@ -23,9 +25,8 @@ const textVariants = {
   }
 };
 const containerVariants = {
-  hidden: { opacity: 0 },
+  hidden: {},
   visible: {
-    opacity: 1,
     transition: {
       staggerChildren: 0.05,
       delayChildren: 0.2

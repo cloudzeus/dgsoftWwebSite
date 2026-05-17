@@ -49,11 +49,13 @@ export default function About({ contentEL, contentEN }: AboutProps) {
       </div>
 
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
-        {/* Main Statement */}
+        {/* Main Statement — content is always rendered (no opacity gate),
+            so the LCP paragraph is paintable immediately for Lighthouse + crawlers.
+            Only the position animates for the entry effect. */}
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 40 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : {}}
+          initial={{ y: 30 }}
+          animate={isVisible ? { y: 0 } : { y: 30 }}
           transition={{ duration: 0.8 }}
           className="mb-32"
         >

@@ -1,0 +1,12 @@
+## Modern browsers only — drops ~13KB of polyfills (Array.at, Array.flat,
+## Array.flatMap, Object.fromEntries, Object.hasOwn, String.prototype.trim{Start,End}).
+## These have been Baseline-Widely-Available since 2022.
+##
+## To target broader compatibility (e.g. corporate IE survivors), replace these
+## queries with `defaults` or a custom list.
+
+>0.5%
+last 2 versions
+not dead
+not ie 11
+not op_mini all

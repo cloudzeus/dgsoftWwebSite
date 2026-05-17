@@ -1,3 +1,9 @@
+// Bundle analyzer — enable with `ANALYZE=true npm run build`. Produces
+// .next/analyze/{client,nodejs,edge}.html reports for diagnosing JS bloat.
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Coolify/Docker: standalone output ships only what's needed.
@@ -66,4 +72,4 @@ const nextConfig = {
     ]
   },
 }
-module.exports = nextConfig
+module.exports = withBundleAnalyzer(nextConfig)
