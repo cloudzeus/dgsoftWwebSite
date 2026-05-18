@@ -35,15 +35,20 @@ export const metadata: Metadata = {
     ],
   },
 };
+import nextDynamic from "next/dynamic";
 import Hero from "./sections/Hero";
+import Customers from "./sections/Customers";
 import Solutions from "./sections/Solutions";
 import Work from "./sections/Work";
-import About from "./sections/About";
-import Customers from "./sections/Customers";
-import Locations from "./sections/Locations";
-import Contact from "./sections/Contact";
-import LatestInsights from "./sections/LatestInsights";
-import Footer from "./components/Footer";
+
+// Below-the-fold sections — split into their own client chunks so first-paint
+// JS doesn't include react-simple-maps / d3-geo / heavy framer-motion trees.
+// SSR stays enabled (default) so the HTML is still crawlable.
+const Locations = nextDynamic(() => import("./sections/Locations"));
+const About = nextDynamic(() => import("./sections/About"));
+const LatestInsights = nextDynamic(() => import("./sections/LatestInsights"));
+const Contact = nextDynamic(() => import("./sections/Contact"));
+const Footer = nextDynamic(() => import("./components/Footer"));
 import { getPublicLocations } from "./lib/actions/location";
 import { getPublicWorks } from "./lib/queries/work";
 import { getPublicServices } from "./lib/queries/public-services";

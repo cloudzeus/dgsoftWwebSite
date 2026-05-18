@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-17T12:46:25.894Z",
+  "timestamp": "2026-05-18T05:08:55.019Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,11 +22,11 @@
     },
     {
       "status": "M",
-      "path": "app/components/Video.tsx"
+      "path": "app/components/SmoothScroll.tsx"
     },
     {
       "status": "M",
-      "path": "app/layout.tsx"
+      "path": "app/globals.css"
     },
     {
       "status": "M",
@@ -34,17 +34,21 @@
     },
     {
       "status": "M",
-      "path": "lib/jsonld.ts"
+      "path": "app/sections/Hero.tsx"
     },
     {
       "status": "M",
-      "path": "lib/seo/metadata.ts"
+      "path": "next-env.d.ts"
     },
     {
-      "status": "??",
-      "path": "app/.well-known/"
+      "status": "M",
+      "path": "next.config.js"
+    },
+    {
+      "status": "M",
+      "path": "tsconfig.json"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n83688d3 seo optimize\nb941758 seo optimize\n17efa67 seo optimize\n83a2c15 seo optimize\n51068c1 feat: smart contact nav button, contact modal, EU cookie consent banner"
+  "context_notes": "Recent commits:\n28f1f8e seo optimize\n83688d3 seo optimize\nb941758 seo optimize\n17efa67 seo optimize\n83a2c15 seo optimize"
 }

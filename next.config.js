@@ -27,6 +27,27 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "25mb",
     },
+    // Tree-shake icon/animation barrel exports so unused symbols don't end up
+    // in the route bundle. Cuts ~50 KB off /app/page first-load JS.
+    optimizePackageImports: [
+      "framer-motion",
+      "lucide-react",
+      "@radix-ui/react-accordion",
+      "@radix-ui/react-avatar",
+      "@radix-ui/react-checkbox",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-label",
+      "@radix-ui/react-popover",
+      "@radix-ui/react-select",
+      "@radix-ui/react-separator",
+      "@radix-ui/react-slot",
+      "@radix-ui/react-switch",
+      "@radix-ui/react-tabs",
+      "@radix-ui/react-toggle",
+      "@radix-ui/react-toggle-group",
+      "@radix-ui/react-tooltip",
+    ],
   },
   // Ensures each deployment gets a unique build ID so the browser
   // always fetches fresh JS bundles — prevents "Failed to find Server Action"

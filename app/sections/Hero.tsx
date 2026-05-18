@@ -48,33 +48,10 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
 
   return (
     <section className="relative flex min-h-screen flex-col overflow-hidden bg-monks-black">
-      {/* Background Gradient Orbs */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute top-1/4 -left-32 w-[600px] h-[600px] bg-monks-accent/30 rounded-full blur-[120px]"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-          className="absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-monks-red-dark/30 rounded-full blur-[100px]"
-        />
+      {/* Background Gradient Orbs — CSS animations to avoid framer-motion main-thread work on first paint */}
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="hero-orb hero-orb-1 absolute top-1/4 -left-32 w-[600px] h-[600px] bg-monks-accent/30 rounded-full blur-[120px]" />
+        <div className="hero-orb hero-orb-2 absolute bottom-1/4 -right-32 w-[500px] h-[500px] bg-monks-red-dark/30 rounded-full blur-[100px]" />
       </div>
 
       {/* Grid Pattern Overlay */}
@@ -144,36 +121,22 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
             </div>
           </div>
 
-          {/* Subheadline */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-lg md:text-xl text-monks-light max-w-4xl mb-12 leading-relaxed space-y-4 text-justify"
-          >
+          {/* Subheadline — LCP element. Rendered visible from frame 1 (no opacity gate)
+              so it paints without waiting for framer-motion to hydrate. */}
+          <div className="text-lg md:text-xl text-monks-light max-w-4xl mb-12 leading-relaxed space-y-4 text-justify">
             {c.paragraphs.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
-          </motion.div>
+          </div>
 
           {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-wrap items-center gap-6"
-          >
+          <div className="flex flex-wrap items-center gap-6">
             <Link
               href={c.primaryCta.href}
               className="group px-8 py-4 bg-white text-monks-black font-semibold rounded-full hover:bg-monks-accent hover:text-white transition-all duration-300 flex items-center gap-3"
             >
               {c.primaryCta.label}
-              <motion.span
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                →
-              </motion.span>
+              <span className="hero-arrow-nudge">→</span>
             </Link>
 
             <Link
@@ -185,7 +148,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
               </div>
               <span className="font-medium">{c.secondaryCta.label}</span>
             </Link>
-          </motion.div>
+          </div>
 
           {/* Stats — after copy & CTAs */}
           <div className="mt-12 grid w-full grid-cols-2 gap-6 border-t border-white/10 pt-10 md:grid-cols-4 md:gap-10">
@@ -200,20 +163,12 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
           </div>
 
           {/* Scroll hint */}
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-center pb-6 pt-10"
-          >
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="flex flex-col items-center gap-2 text-monks-light"
-            >
+          <div className="flex justify-center pb-6 pt-10">
+            <div className="hero-scroll-hint flex flex-col items-center gap-2 text-monks-light">
               <span className="text-xs uppercase tracking-widest">Scroll</span>
               <ArrowDown className="h-4 w-4" />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
