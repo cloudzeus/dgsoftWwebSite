@@ -13,6 +13,8 @@ import SmoothScroll from "./components/SmoothScroll";
 import LocaleProviderWrapper from "./components/LocaleProviderWrapper";
 import { FooterProvider } from "./context/FooterContext";
 import { getPublicFooter } from "./lib/actions/footer";
+import { getPublicSiteSettings } from "./lib/actions/settings";
+import { TrackingTags } from "@/components/tracking/TrackingTags";
 import { CookieBanner } from "@/components/cookies/CookieBanner";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -169,6 +171,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const footer = await getPublicFooter();
+  const settings = await getPublicSiteSettings();
   return (
     <html lang="el" data-scroll-behavior="smooth" className={inter.variable} suppressHydrationWarning>
       <head>
@@ -176,6 +179,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://dgsmart.b-cdn.net" />
       </head>
       <body className="antialiased bg-monks-black text-white">
+        <TrackingTags tags={settings.trackingTags} />
         <script
           id="ld-organization"
           type="application/ld+json"

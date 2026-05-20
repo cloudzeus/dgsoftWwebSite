@@ -235,7 +235,7 @@ const navData = {
   navSecondary: [
     {
       title: "Ρυθμίσεις",
-      url: "#",
+      url: "/admin/settings",
       icon: SettingsIcon,
     },
     {

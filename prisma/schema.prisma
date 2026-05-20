@@ -822,6 +822,15 @@ model SiteFooter {
   createdAt DateTime @default(now())
 }
 
+/// Site-wide settings (tracking tags, analytics, pixels, etc.).
+model SiteSettings {
+  id String @id @default("settings")
+  /// See lib/site-settings.ts — { trackingTags: TrackingTag[] }
+  data Json?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
 /// Bilingual legal pages (privacy policy, cookie policy) — rich HTML content.
 model LegalPage {
   id        String   @id // 'privacy-policy' | 'cookie-policy' | 'terms'

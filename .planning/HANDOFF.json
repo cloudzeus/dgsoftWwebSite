@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-18T05:08:55.019Z",
+  "timestamp": "2026-05-20T04:47:16.398Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,33 +22,33 @@
     },
     {
       "status": "M",
-      "path": "app/components/SmoothScroll.tsx"
+      "path": "app/layout.tsx"
     },
     {
       "status": "M",
-      "path": "app/globals.css"
+      "path": "prisma/schema.prisma"
     },
     {
-      "status": "M",
-      "path": "app/page.tsx"
+      "status": "??",
+      "path": "app/admin/(dashboard)/settings/"
     },
     {
-      "status": "M",
-      "path": "app/sections/Hero.tsx"
+      "status": "??",
+      "path": "app/lib/actions/settings.ts"
     },
     {
-      "status": "M",
-      "path": "next-env.d.ts"
+      "status": "??",
+      "path": "components/admin/settings/"
     },
     {
-      "status": "M",
-      "path": "next.config.js"
+      "status": "??",
+      "path": "components/tracking/"
     },
     {
-      "status": "M",
-      "path": "tsconfig.json"
+      "status": "??",
+      "path": "lib/site-settings.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n28f1f8e seo optimize\n83688d3 seo optimize\nb941758 seo optimize\n17efa67 seo optimize\n83a2c15 seo optimize"
+  "context_notes": "Recent commits:\n0919114 mode seo and geo\n28f1f8e seo optimize\n83688d3 seo optimize\nb941758 seo optimize\n17efa67 seo optimize"
 }
