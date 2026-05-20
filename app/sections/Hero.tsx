@@ -48,6 +48,24 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
 
   return (
     <section className="relative flex min-h-screen flex-col overflow-hidden bg-monks-black">
+      {/* Background video — wrapper enforces full-bleed; video keeps aspect ratio & is cropped to cover */}
+      <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <video
+          className="pointer-events-none h-full w-full object-cover object-center opacity-70"
+          src="https://dgsoft.b-cdn.net/dgsoftBackground.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+        />
+      </div>
+      {/* Dark overlay to keep text legible on top of the video */}
+      <div
+        className="absolute inset-0 z-0 bg-monks-black/40"
+        aria-hidden="true"
+      />
+
       {/* Background Gradient Orbs — CSS animations to avoid framer-motion main-thread work on first paint */}
       <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="hero-orb hero-orb-1 absolute top-1/4 -left-32 w-[600px] h-[600px] bg-monks-accent/30 rounded-full blur-[120px]" />
@@ -96,31 +114,6 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
             ))}
           </motion.h1>
 
-          {/* ESPA banners — left-aligned, ~half content width */}
-          <div className="mb-10 w-full">
-            <div className="grid w-full max-w-[min(100%,22rem)] grid-cols-1 gap-3 sm:max-w-[min(100%,36rem)] sm:grid-cols-2 md:gap-4">
-              <EspaPdfBanner
-                compact
-                priority
-                imageUrl={HOME_ESPA_BANNER_1.imageUrl}
-                pdfUrl={HOME_ESPA_BANNER_1.pdfUrl}
-                captionEl="Έγγραφο προγράμματος ΕΣΠΑ"
-                captionEn="ESPA programme document"
-                ariaLabelEl="Άνοιγμα εγγράφου προγράμματος PDF σε νέο παράθυρο"
-                ariaLabelEn="Open programme PDF in a new window"
-              />
-              <EspaPdfBanner
-                compact
-                imageUrl={HOME_ESPA_BANNER_2.imageUrl}
-                pdfUrl={HOME_ESPA_BANNER_2.pdfUrl}
-                captionEl="Έγγραφο προγράμματος ΕΣΠΑ II"
-                captionEn="ESPA programme document II"
-                ariaLabelEl="Άνοιγμα δεύτερου εγγράφου PDF σε νέο παράθυρο"
-                ariaLabelEn="Open second programme PDF in a new window"
-              />
-            </div>
-          </div>
-
           {/* Subheadline — LCP element. Rendered visible from frame 1 (no opacity gate)
               so it paints without waiting for framer-motion to hydrate. */}
           <div className="text-lg md:text-xl text-monks-light max-w-4xl mb-12 leading-relaxed space-y-4 text-justify">
@@ -148,6 +141,31 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
               </div>
               <span className="font-medium">{c.secondaryCta.label}</span>
             </Link>
+          </div>
+
+          {/* ESPA banners — left-aligned, ~half content width */}
+          <div className="mt-10 w-full">
+            <div className="grid w-full max-w-[min(100%,22rem)] grid-cols-1 gap-3 sm:max-w-[min(100%,36rem)] sm:grid-cols-2 md:gap-4">
+              <EspaPdfBanner
+                compact
+                priority
+                imageUrl={HOME_ESPA_BANNER_1.imageUrl}
+                pdfUrl={HOME_ESPA_BANNER_1.pdfUrl}
+                captionEl="Έγγραφο προγράμματος ΕΣΠΑ"
+                captionEn="ESPA programme document"
+                ariaLabelEl="Άνοιγμα εγγράφου προγράμματος PDF σε νέο παράθυρο"
+                ariaLabelEn="Open programme PDF in a new window"
+              />
+              <EspaPdfBanner
+                compact
+                imageUrl={HOME_ESPA_BANNER_2.imageUrl}
+                pdfUrl={HOME_ESPA_BANNER_2.pdfUrl}
+                captionEl="Έγγραφο προγράμματος ΕΣΠΑ II"
+                captionEn="ESPA programme document II"
+                ariaLabelEl="Άνοιγμα δεύτερου εγγράφου PDF σε νέο παράθυρο"
+                ariaLabelEn="Open second programme PDF in a new window"
+              />
+            </div>
           </div>
 
           {/* Stats — after copy & CTAs */}
