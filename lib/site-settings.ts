@@ -8,6 +8,13 @@ export const TRACKING_TAG_STRATEGIES = [
 
 export const TRACKING_TAG_TYPES = ["custom", "pixel-id"] as const;
 
+export const TRACKING_TAG_CATEGORIES = [
+  "necessary",
+  "analytics",
+  "marketing",
+] as const;
+export type TrackingTagCategory = (typeof TRACKING_TAG_CATEGORIES)[number];
+
 export const trackingTagSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).max(120),
@@ -24,6 +31,8 @@ export const trackingTagSchema = z.object({
   noscriptBody: z.string().max(5000).optional().default(""),
   strategy: z.enum(TRACKING_TAG_STRATEGIES).default("afterInteractive"),
   enabled: z.boolean().default(true),
+  /** Cookie‑consent category that gates this tag. */
+  category: z.enum(TRACKING_TAG_CATEGORIES).default("marketing"),
 });
 
 export type TrackingTag = z.infer<typeof trackingTagSchema>;

@@ -2,44 +2,41 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Cookie, X } from "lucide-react";
+import { Cookie, X, Settings2 } from "lucide-react";
 import { useLocale } from "@/app/context/LocaleContext";
 import { LegalModal } from "@/components/legal/legal-modal";
-
-const STORAGE_KEY = "dg-cookie-consent";
-
-type ConsentValue = { analytics: boolean; marketing: boolean; ts: number };
-
-function getStored(): ConsentValue | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as ConsentValue;
-  } catch {
-    return null;
-  }
-}
-
-function store(val: ConsentValue) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(val));
-  } catch {}
-}
+import { readConsent, writeConsent } from "@/lib/cookie-consent";
 
 const T = {
   el: {
     title: "Χρησιμοποιούμε cookies",
-    body: "Χρησιμοποιούμε cookies για να βελτιώσουμε την εμπειρία πλοήγησής σας, να αναλύσουμε την επισκεψιμότητα και να προσαρμόσουμε το περιεχόμενο. Μπορείτε να επιλέξετε ποια cookies αποδέχεστε.",
+    body: "Χρησιμοποιούμε cookies για να βελτιώσουμε την εμπειρία πλοήγησης, να αναλύσουμε την επισκεψιμότητα και για marketing. Επιλέξτε ποια αποδέχεστε.",
     policyLink: "Πολιτική Cookies",
     acceptAll: "Αποδοχή Όλων",
     necessary: "Μόνο Αναγκαία",
+    customize: "Προσαρμογή",
+    save: "Αποθήκευση επιλογών",
+    catNecessary: "Αναγκαία",
+    catNecessaryDesc: "Απαραίτητα για τη λειτουργία του site. Πάντα ενεργά.",
+    catAnalytics: "Analytics",
+    catAnalyticsDesc: "Μας βοηθούν να καταλάβουμε πώς χρησιμοποιείται το site (π.χ. Google Analytics).",
+    catMarketing: "Marketing",
+    catMarketingDesc: "Παρακολούθηση καμπανιών & εξατομικευμένες διαφημίσεις (π.χ. Facebook Pixel).",
   },
   en: {
     title: "We use cookies",
-    body: "We use cookies to enhance your browsing experience, analyse traffic and personalise content. You can choose which cookies to accept.",
+    body: "We use cookies to enhance browsing, analyse traffic and for marketing. Choose which to accept.",
     policyLink: "Cookie Policy",
     acceptAll: "Accept All",
     necessary: "Necessary Only",
+    customize: "Customize",
+    save: "Save preferences",
+    catNecessary: "Necessary",
+    catNecessaryDesc: "Required for the site to work. Always on.",
+    catAnalytics: "Analytics",
+    catAnalyticsDesc: "Help us understand how the site is used (e.g. Google Analytics).",
+    catMarketing: "Marketing",
+    catMarketingDesc: "Campaign tracking & personalised ads (e.g. Facebook Pixel).",
   },
 };
 
@@ -48,22 +45,29 @@ export function CookieBanner() {
   const t = T[locale] ?? T.el;
   const [visible, setVisible] = useState(false);
   const [policyOpen, setPolicyOpen] = useState(false);
+  const [customizing, setCustomizing] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
+  const [marketing, setMarketing] = useState(false);
 
   useEffect(() => {
-    // Small delay so it doesn't flash on first paint
     const timer = setTimeout(() => {
-      if (!getStored()) setVisible(true);
+      if (!readConsent()) setVisible(true);
     }, 800);
     return () => clearTimeout(timer);
   }, []);
 
   function acceptAll() {
-    store({ analytics: true, marketing: true, ts: Date.now() });
+    writeConsent({ analytics: true, marketing: true });
     setVisible(false);
   }
 
   function acceptNecessary() {
-    store({ analytics: false, marketing: false, ts: Date.now() });
+    writeConsent({ analytics: false, marketing: false });
+    setVisible(false);
+  }
+
+  function saveCustom() {
+    writeConsent({ analytics, marketing });
     setVisible(false);
   }
 
@@ -83,12 +87,10 @@ export function CookieBanner() {
           >
             <div className="max-w-4xl mx-auto bg-[#18181c] border border-white/10 rounded-2xl shadow-[0_8px_64px_rgba(0,0,0,0.6)] p-5 md:p-6">
               <div className="flex items-start gap-4">
-                {/* Icon */}
                 <div className="shrink-0 w-10 h-10 rounded-full bg-monks-accent/10 border border-monks-accent/20 flex items-center justify-center mt-0.5">
                   <Cookie className="w-5 h-5 text-monks-accent" />
                 </div>
 
-                {/* Content */}
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-semibold text-sm mb-1">{t.title}</p>
                   <p className="text-monks-light text-xs leading-relaxed">
@@ -102,24 +104,72 @@ export function CookieBanner() {
                     .
                   </p>
 
-                  {/* Buttons */}
+                  {customizing && (
+                    <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
+                      <CategoryRow
+                        title={t.catNecessary}
+                        desc={t.catNecessaryDesc}
+                        checked
+                        disabled
+                        onChange={() => {}}
+                      />
+                      <CategoryRow
+                        title={t.catAnalytics}
+                        desc={t.catAnalyticsDesc}
+                        checked={analytics}
+                        onChange={setAnalytics}
+                      />
+                      <CategoryRow
+                        title={t.catMarketing}
+                        desc={t.catMarketingDesc}
+                        checked={marketing}
+                        onChange={setMarketing}
+                      />
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-3 mt-4">
-                    <button
-                      onClick={acceptAll}
-                      className="px-5 py-2.5 bg-monks-accent text-white text-sm font-semibold rounded-full hover:bg-monks-accent/90 transition-colors"
-                    >
-                      {t.acceptAll}
-                    </button>
-                    <button
-                      onClick={acceptNecessary}
-                      className="px-5 py-2.5 bg-white/10 text-white text-sm font-medium rounded-full hover:bg-white/15 transition-colors border border-white/10"
-                    >
-                      {t.necessary}
-                    </button>
+                    {!customizing ? (
+                      <>
+                        <button
+                          onClick={acceptAll}
+                          className="px-5 py-2.5 bg-monks-accent text-white text-sm font-semibold rounded-full hover:bg-monks-accent/90 transition-colors"
+                        >
+                          {t.acceptAll}
+                        </button>
+                        <button
+                          onClick={acceptNecessary}
+                          className="px-5 py-2.5 bg-white/10 text-white text-sm font-medium rounded-full hover:bg-white/15 transition-colors border border-white/10"
+                        >
+                          {t.necessary}
+                        </button>
+                        <button
+                          onClick={() => setCustomizing(true)}
+                          className="px-5 py-2.5 text-white/80 text-sm font-medium rounded-full hover:bg-white/5 transition-colors inline-flex items-center gap-2"
+                        >
+                          <Settings2 className="w-3.5 h-3.5" />
+                          {t.customize}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={saveCustom}
+                          className="px-5 py-2.5 bg-monks-accent text-white text-sm font-semibold rounded-full hover:bg-monks-accent/90 transition-colors"
+                        >
+                          {t.save}
+                        </button>
+                        <button
+                          onClick={acceptAll}
+                          className="px-5 py-2.5 bg-white/10 text-white text-sm font-medium rounded-full hover:bg-white/15 transition-colors border border-white/10"
+                        >
+                          {t.acceptAll}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                {/* Close (same as necessary) */}
                 <button
                   onClick={acceptNecessary}
                   className="shrink-0 w-7 h-7 rounded-full border border-white/10 flex items-center justify-center text-monks-light hover:text-white hover:bg-white/10 transition-all mt-0.5"
@@ -139,5 +189,35 @@ export function CookieBanner() {
         onClose={() => setPolicyOpen(false)}
       />
     </>
+  );
+}
+
+function CategoryRow({
+  title,
+  desc,
+  checked,
+  disabled,
+  onChange,
+}: {
+  title: string;
+  desc: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex items-start gap-3 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-1 accent-monks-accent"
+      />
+      <div>
+        <p className="text-white text-xs font-semibold">{title}</p>
+        <p className="text-monks-light text-[11px] leading-snug">{desc}</p>
+      </div>
+    </label>
   );
 }

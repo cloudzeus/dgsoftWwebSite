@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { updateSiteSettingsAction } from "@/app/lib/actions/settings";
 import {
+  TRACKING_TAG_CATEGORIES,
   TRACKING_TAG_STRATEGIES,
   type SiteSettings,
   type TrackingTag,
@@ -38,7 +39,19 @@ function newTag(): TrackingTag {
     noscriptBody: "",
     strategy: "afterInteractive",
     enabled: true,
+    category: "marketing",
   };
+}
+
+const CATEGORY_LABEL: Record<(typeof TRACKING_TAG_CATEGORIES)[number], string> = {
+  necessary: "Αναγκαία (πάντα φορτώνει)",
+  analytics: "Analytics (απαιτεί consent)",
+  marketing: "Marketing (απαιτεί consent)",
+};
+
+function defaultCategoryFor(provider: TrackingTag["provider"]): TrackingTag["category"] {
+  if (provider === "google-analytics") return "analytics";
+  return "marketing";
 }
 
 export function SettingsPageEditor({ initial }: { initial: SiteSettings }) {
@@ -180,9 +193,10 @@ function TagCard({
             <Label className="mb-1 block">Πάροχος</Label>
             <Select
               value={tag.provider ?? "other"}
-              onValueChange={(v) =>
-                onChange({ provider: v as TrackingTag["provider"] })
-              }
+              onValueChange={(v) => {
+                const provider = v as TrackingTag["provider"];
+                onChange({ provider, category: defaultCategoryFor(provider) });
+              }}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -242,6 +256,26 @@ function TagCard({
               {TRACKING_TAG_STRATEGIES.map((s) => (
                 <SelectItem key={s} value={s}>
                   {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="mb-1 block">Κατηγορία Cookie / Consent</Label>
+          <Select
+            value={tag.category}
+            onValueChange={(v) =>
+              onChange({ category: v as TrackingTag["category"] })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TRACKING_TAG_CATEGORIES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {CATEGORY_LABEL[c]}
                 </SelectItem>
               ))}
             </SelectContent>

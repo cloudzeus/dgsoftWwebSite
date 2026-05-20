@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-20T04:47:16.398Z",
+  "timestamp": "2026-05-20T04:56:08.301Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,33 +22,25 @@
     },
     {
       "status": "M",
-      "path": "app/layout.tsx"
+      "path": "components/admin/settings/settings-page-editor.tsx"
     },
     {
       "status": "M",
-      "path": "prisma/schema.prisma"
+      "path": "components/cookies/CookieBanner.tsx"
     },
     {
-      "status": "??",
-      "path": "app/admin/(dashboard)/settings/"
+      "status": "M",
+      "path": "components/tracking/TrackingTags.tsx"
     },
     {
-      "status": "??",
-      "path": "app/lib/actions/settings.ts"
-    },
-    {
-      "status": "??",
-      "path": "components/admin/settings/"
-    },
-    {
-      "status": "??",
-      "path": "components/tracking/"
-    },
-    {
-      "status": "??",
+      "status": "M",
       "path": "lib/site-settings.ts"
+    },
+    {
+      "status": "??",
+      "path": "lib/cookie-consent.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n0919114 mode seo and geo\n28f1f8e seo optimize\n83688d3 seo optimize\nb941758 seo optimize\n17efa67 seo optimize"
+  "context_notes": "Recent commits:\n6641385 facebook id\n0919114 mode seo and geo\n28f1f8e seo optimize\n83688d3 seo optimize\nb941758 seo optimize"
 }
