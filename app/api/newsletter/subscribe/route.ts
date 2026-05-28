@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { sendMailgun } from "@/lib/mailgun";
 
 const LOGO_URL =
-  "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404552985-q91g8r.webp";
+  "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404619932-zl85vx.webp";
 
 function buildThankYouHtml(name: string | null, unsubscribeUrl: string): string {
   const greeting = name ? `Γεια σας, ${name}!` : "Γεια σας!";
@@ -20,7 +20,7 @@ function buildThankYouHtml(name: string | null, unsubscribeUrl: string): string 
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(10,15,24,0.08);">
         <tr>
           <td style="background:linear-gradient(135deg,#0a0f18 0%,#1a2236 100%);padding:40px 40px 32px;text-align:left;">
-            <img src="${LOGO_URL}" alt="DGSOFT" style="height:36px;display:block;margin-bottom:24px;" />
+            <img src="${LOGO_URL}" alt="DGSOFT" style="height:85px;display:block;margin-bottom:24px;" />
             <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;line-height:1.3;">
               Ευχαριστούμε για την εγγραφή σας!
             </h1>

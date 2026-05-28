@@ -37,6 +37,7 @@ export default async function NewsletterSubscribersPage() {
               <TableHead>Όνομα</TableHead>
               <TableHead>Αποδοχή όρων</TableHead>
               <TableHead>IP</TableHead>
+              <TableHead>User Agent</TableHead>
               <TableHead>Πηγή</TableHead>
               <TableHead>Ημερομηνία</TableHead>
             </TableRow>
@@ -44,7 +45,7 @@ export default async function NewsletterSubscribersPage() {
           <TableBody>
             {subs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
                   Δεν υπάρχουν εγγραφές ακόμη.
                 </TableCell>
               </TableRow>
@@ -62,6 +63,9 @@ export default async function NewsletterSubscribersPage() {
                   </TableCell>
                   <TableCell className="font-mono text-xs">
                     {s.ipAddress || <span className="text-muted-foreground">—</span>}
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground max-w-[260px] truncate" title={s.userAgent || ""}>
+                    {s.userAgent || <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {s.source || "—"}

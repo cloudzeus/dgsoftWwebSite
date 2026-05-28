@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-28T05:19:12.476Z",
+  "timestamp": "2026-05-28T05:41:41.084Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,13 @@
     },
     {
       "status": "M",
-      "path": "app/components/NewsletterSignup.tsx"
+      "path": "app/admin/(dashboard)/newsletter/subscribers/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/api/newsletter/subscribe/route.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n10699d6 newsletter\nd7196cd axiologisi\n49382d8 new video background\n39108a7 facebook id\n8afab4c facebook id"
+  "context_notes": "Recent commits:\n15ef3c2 newsletter\n10699d6 newsletter\nd7196cd axiologisi\n49382d8 new video background\n39108a7 facebook id"
 }
