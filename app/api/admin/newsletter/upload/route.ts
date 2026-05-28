@@ -15,28 +15,37 @@ export async function POST(req: Request) {
     if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
 
     const isImage = file.type.startsWith("image/");
-    if (!isImage) {
-      return NextResponse.json({ error: "Only image files are allowed" }, { status: 400 });
+    const isVideo = file.type.startsWith("video/");
+    if (!isImage && !isVideo) {
+      return NextResponse.json({ error: "Only image or video files are allowed" }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
     let processedBuffer: Buffer;
-    let contentType = "image/webp";
-    let extension = "webp";
+    let contentType: string;
+    let extension: string;
 
-    try {
-      let sharpInstance = sharp(buffer);
-      const metadata = await sharpInstance.metadata();
-      const maxWidth = 1200;
-      if (metadata.width && metadata.width > maxWidth) {
-        sharpInstance = sharpInstance.resize({ width: maxWidth, withoutEnlargement: true });
-      }
-      processedBuffer = await sharpInstance.webp({ quality: 85 }).toBuffer();
-    } catch {
+    if (isVideo) {
       processedBuffer = buffer;
-      contentType = file.type;
-      extension = file.name.split(".").pop() || "bin";
+      contentType = file.type || "video/mp4";
+      extension = file.name.split(".").pop() || "mp4";
+    } else {
+      contentType = "image/webp";
+      extension = "webp";
+      try {
+        let sharpInstance = sharp(buffer);
+        const metadata = await sharpInstance.metadata();
+        const maxWidth = 1200;
+        if (metadata.width && metadata.width > maxWidth) {
+          sharpInstance = sharpInstance.resize({ width: maxWidth, withoutEnlargement: true });
+        }
+        processedBuffer = await sharpInstance.webp({ quality: 85 }).toBuffer();
+      } catch {
+        processedBuffer = buffer;
+        contentType = file.type;
+        extension = file.name.split(".").pop() || "bin";
+      }
     }
 
     const filename = `newsletter-${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;

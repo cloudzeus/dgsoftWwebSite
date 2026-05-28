@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-20T05:15:06.287Z",
+  "timestamp": "2026-05-28T03:31:47.600Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,21 @@
     },
     {
       "status": "M",
-      "path": "app/sections/Hero.tsx"
+      "path": "app/admin/(dashboard)/eu-programs/periferies/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/admin/(dashboard)/newsletter/media/NewsletterMediaClient.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/api/admin/newsletter/upload/route.ts"
+    },
+    {
+      "status": "??",
+      "path": "app/admin/eu-programs/periferies/ExportPeriferiesJsonButton.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n8afab4c facebook id\n6641385 facebook id\n0919114 mode seo and geo\n28f1f8e seo optimize\n83688d3 seo optimize"
+  "context_notes": "Recent commits:\n39108a7 facebook id\n8afab4c facebook id\n6641385 facebook id\n0919114 mode seo and geo\n28f1f8e seo optimize"
 }

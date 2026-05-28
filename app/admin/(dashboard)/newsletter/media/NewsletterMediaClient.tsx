@@ -57,6 +57,13 @@ type MediaItem = {
 
 type FolderFilter = "all" | "uncategorized" | string; // string = folder id
 
+const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "ogg", "ogv", "m4v"];
+function isVideoUrl(url: string): boolean {
+  const clean = url.split("?")[0].split("#")[0].toLowerCase();
+  const ext = clean.split(".").pop();
+  return !!ext && VIDEO_EXTENSIONS.includes(ext);
+}
+
 /** Serialized shape from RSC (createdAt as string). */
 type SerializedFolderItem = { id: string; name: string; createdAt: string; _count: { media: number } };
 
@@ -115,9 +122,9 @@ export function NewsletterMediaClient({
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     e.target.value = "";
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    if (imageFiles.length === 0) {
-      toast.error(files.length > 0 ? "Επιτρέπονται μόνο αρχεία εικόνας" : "Παρακαλώ επιλέξτε ένα ή περισσότερα αρχεία εικόνας");
+    const mediaFiles = files.filter((f) => f.type.startsWith("image/") || f.type.startsWith("video/"));
+    if (mediaFiles.length === 0) {
+      toast.error(files.length > 0 ? "Επιτρέπονται μόνο αρχεία εικόνας ή βίντεο" : "Παρακαλώ επιλέξτε ένα ή περισσότερα αρχεία");
       return;
     }
     setUploading(true);
@@ -126,8 +133,8 @@ export function NewsletterMediaClient({
     let uploaded = 0;
     let failed = 0;
     try {
-      for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i];
+      for (let i = 0; i < mediaFiles.length; i++) {
+        const file = mediaFiles[i];
         try {
           const formData = new FormData();
           formData.append("file", file);
@@ -353,7 +360,7 @@ export function NewsletterMediaClient({
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               multiple
               className="hidden"
               onChange={handleUpload}
@@ -390,27 +397,38 @@ export function NewsletterMediaClient({
                     key={item.id}
                     className="group relative flex w-full max-w-full flex-col overflow-hidden rounded-lg border bg-muted/30 transition hover:border-primary"
                   >
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="aspect-square w-full min-w-0 bg-muted">
+                    {isVideoUrl(item.url) ? (
+                      <div className="aspect-square w-full min-w-0 bg-black">
+                        <video
+                          src={item.url}
+                          controls
+                          preload="metadata"
+                          className="h-full w-full max-w-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="aspect-square w-full min-w-0 bg-muted">
+                            <img
+                              src={item.url}
+                              alt={item.name ?? "Media"}
+                              className="h-full w-full max-w-full object-contain"
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="max-w-none border border-border bg-background p-0 shadow-lg"
+                        >
                           <img
                             src={item.url}
-                            alt={item.name ?? "Media"}
-                            className="h-full w-full max-w-full object-contain"
+                            alt={item.name ?? "Preview"}
+                            className="h-[800px] w-[800px] max-h-[80vh] max-w-[90vw] object-contain"
                           />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="right"
-                        className="max-w-none border border-border bg-background p-0 shadow-lg"
-                      >
-                        <img
-                          src={item.url}
-                          alt={item.name ?? "Preview"}
-                          className="h-[800px] w-[800px] max-h-[80vh] max-w-[90vw] object-contain"
-                        />
-                      </TooltipContent>
-                    </Tooltip>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                     <div className="flex items-center justify-between gap-1 p-2">
                     <span
                       className="min-w-0 flex-1 truncate text-xs"
