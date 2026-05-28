@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-28T04:14:30.224Z",
+  "timestamp": "2026-05-28T05:19:12.476Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,29 +22,9 @@
     },
     {
       "status": "M",
-      "path": "app/components/Footer.tsx"
-    },
-    {
-      "status": "M",
-      "path": "components/app-sidebar.tsx"
-    },
-    {
-      "status": "M",
-      "path": "prisma/schema.prisma"
-    },
-    {
-      "status": "??",
-      "path": "app/admin/(dashboard)/newsletter/subscribers/"
-    },
-    {
-      "status": "??",
-      "path": "app/api/newsletter/"
-    },
-    {
-      "status": "??",
       "path": "app/components/NewsletterSignup.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nd7196cd axiologisi\n49382d8 new video background\n39108a7 facebook id\n8afab4c facebook id\n6641385 facebook id"
+  "context_notes": "Recent commits:\n10699d6 newsletter\nd7196cd axiologisi\n49382d8 new video background\n39108a7 facebook id\n8afab4c facebook id"
 }
