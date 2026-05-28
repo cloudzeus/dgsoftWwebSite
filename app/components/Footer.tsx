@@ -22,6 +22,7 @@ import {
 import { useFooterContent } from "../context/FooterContext";
 import { useLocale } from "../context/LocaleContext";
 import { LegalModal } from "@/components/legal/legal-modal";
+import NewsletterSignup from "./NewsletterSignup";
 
 /** TikTok has no official lucide icon in older versions — Music2 is used as a stand-in. */
 const SOCIAL_ICON_MAP: Record<FooterSocialIcon, LucideIcon> = {
@@ -75,6 +76,8 @@ export default function Footer() {
                 </span>
               </Link>
               <p className="text-monks-light max-w-sm mb-8">{c.tagline}</p>
+
+              <NewsletterSignup />
 
               {/* Social Links */}
               <div className="flex gap-4 flex-wrap">

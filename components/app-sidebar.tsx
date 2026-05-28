@@ -192,6 +192,11 @@ const navData = {
       url: "/admin/newsletter/reports",
       icon: BarChartIcon,
     },
+    {
+      title: "Εγγραφές Newsletter",
+      url: "/admin/newsletter/subscribers",
+      icon: UsersIcon,
+    },
   ],
   navFunding: [
     {

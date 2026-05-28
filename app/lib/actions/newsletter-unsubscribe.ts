@@ -10,12 +10,19 @@ export async function unsubscribeEmail(
   }
 
   try {
+    const lower = email.toLowerCase();
+
     // Upsert in DB
     await prisma.newsletterUnsubscribe.upsert({
-      where: { email: email.toLowerCase() },
-      create: { email: email.toLowerCase() },
+      where: { email: lower },
+      create: { email: lower },
       update: {},
     });
+
+    // Remove from footer subscribers list (if exists)
+    await (prisma as any).newsletterSubscriber
+      .delete({ where: { email: lower } })
+      .catch(() => {});
 
     // Add to Mailgun suppressions
     const apiKey = process.env.MAILGUN_API_KEY;

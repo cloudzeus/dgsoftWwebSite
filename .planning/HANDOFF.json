@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-28T04:01:23.257Z",
+  "timestamp": "2026-05-28T04:14:30.224Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,17 +22,29 @@
     },
     {
       "status": "M",
-      "path": "app/sections/Hero.tsx"
+      "path": "app/components/Footer.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/app-sidebar.tsx"
+    },
+    {
+      "status": "M",
+      "path": "prisma/schema.prisma"
     },
     {
       "status": "??",
-      "path": "app/api/digital-maturity/"
+      "path": "app/admin/(dashboard)/newsletter/subscribers/"
     },
     {
       "status": "??",
-      "path": "components/DigitalMaturityModal.tsx"
+      "path": "app/api/newsletter/"
+    },
+    {
+      "status": "??",
+      "path": "app/components/NewsletterSignup.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n49382d8 new video background\n39108a7 facebook id\n8afab4c facebook id\n6641385 facebook id\n0919114 mode seo and geo"
+  "context_notes": "Recent commits:\nd7196cd axiologisi\n49382d8 new video background\n39108a7 facebook id\n8afab4c facebook id\n6641385 facebook id"
 }

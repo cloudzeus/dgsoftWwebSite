@@ -849,3 +849,18 @@ model NewsletterUnsubscribe {
 
   @@index([email])
 }
+
+model NewsletterSubscriber {
+  id          String   @id @default(cuid())
+  email       String   @unique @db.VarChar(255)
+  name        String?  @db.VarChar(255)
+  termsAccepted Boolean  @default(false)
+  ipAddress   String?  @db.VarChar(64)
+  userAgent   String?  @db.VarChar(512)
+  source      String?  @db.VarChar(64)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([email])
+  @@index([createdAt])
+}
