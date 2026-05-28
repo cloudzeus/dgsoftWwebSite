@@ -254,7 +254,7 @@ export function NewsletterCampaignsClient({
   const dimosOptions = filterOptions.dimoi.map((r) => ({ value: r.id, label: r.path || r.nameEL }));
   const cityOptions = filterOptions.cities.map((c) => ({ value: c.value, label: c.value }));
   const legalOptions = filterOptions.legalStatuses.map((l) => ({ value: l.value, label: l.value }));
-  const kadOptions = filterOptions.kadCodes.map((k) => ({ value: k.value, label: k.value }));
+  const kadOptions = filterOptions.kadCodes.map((k) => ({ value: k.value, label: k.label, chipLabel: k.value }));
   const trdpOptions = filterOptions.trdpGroups.map((t) => ({ value: String(t.code), label: t.name ?? `Code ${t.code}` }));
   const trdbOptions = filterOptions.trdBusinesses.map((t) => ({ value: String(t.code), label: t.name ?? `Code ${t.code}` }));
 

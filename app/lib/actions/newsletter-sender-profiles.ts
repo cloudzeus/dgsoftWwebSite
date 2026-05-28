@@ -136,3 +136,74 @@ export async function deleteNewsletterSenderProfile(id: string): Promise<void> {
   await prisma.newsletterSenderProfile.delete({ where: { id } })
   revalidatePath("/admin/newsletter/companies")
 }
+
+/**
+ * One-shot creation of a brand-new sender company from the wizard:
+ * provisions both the `Presence` row and the `NewsletterSenderProfile` row in a single
+ * transaction, then returns the fully-formed SenderProfileDto so the wizard can prepend
+ * it to its local list and auto-select it.
+ */
+export async function createNewsletterCompanyInline(
+  fields: Partial<SenderProfileFields> & { presenceName: string }
+): Promise<SenderProfileDto> {
+  await requireAdmin()
+  const name = fields.presenceName.trim()
+  if (!name) throw new Error("Το όνομα εταιρείας είναι υποχρεωτικό")
+
+  const created = await prisma.$transaction(async (tx) => {
+    const presence = await tx.presence.create({
+      data: {
+        nameEL: name,
+        email: fields.contactEmail || null,
+        phone: fields.phone || null,
+        addressEL: fields.addressLine || null,
+        logo: fields.logoUrl || null,
+        published: false, // hidden from public site by default
+      },
+    })
+    const profile = await tx.newsletterSenderProfile.create({
+      data: {
+        presenceId: presence.id,
+        senderName: fields.senderName || name,
+        senderEmail: fields.senderEmail || "",
+        logoUrl: fields.logoUrl || "",
+        tagline: fields.tagline || "",
+        facebookUrl: fields.facebookUrl || "",
+        instagramUrl: fields.instagramUrl || "",
+        linkedinUrl: fields.linkedinUrl || "",
+        xUrl: fields.xUrl || "",
+        addressLine: fields.addressLine || "",
+        phone: fields.phone || "",
+        contactEmail: fields.contactEmail || "",
+        privacyPolicyUrl: fields.privacyPolicyUrl || "",
+        termsUrl: fields.termsUrl || "",
+        unsubscribeUrl: fields.unsubscribeUrl || "",
+      },
+      include: { presence: { select: { nameEL: true, logo: true } } },
+    })
+    return profile
+  })
+
+  revalidatePath("/admin/newsletter/companies")
+
+  return {
+    id: created.id,
+    presenceId: created.presenceId,
+    presenceName: created.presence.nameEL,
+    presenceLogoFallback: created.presence.logo,
+    senderName: created.senderName ?? "",
+    senderEmail: created.senderEmail ?? "",
+    logoUrl: created.logoUrl ?? "",
+    tagline: created.tagline ?? "",
+    facebookUrl: created.facebookUrl ?? "",
+    instagramUrl: created.instagramUrl ?? "",
+    linkedinUrl: created.linkedinUrl ?? "",
+    xUrl: created.xUrl ?? "",
+    addressLine: created.addressLine ?? "",
+    phone: created.phone ?? "",
+    contactEmail: created.contactEmail ?? "",
+    privacyPolicyUrl: created.privacyPolicyUrl ?? "",
+    termsUrl: created.termsUrl ?? "",
+    unsubscribeUrl: created.unsubscribeUrl ?? "",
+  }
+}

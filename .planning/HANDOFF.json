@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-28T05:41:41.084Z",
+  "timestamp": "2026-05-28T08:45:01.944Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,13 +22,49 @@
     },
     {
       "status": "M",
-      "path": "app/admin/(dashboard)/newsletter/subscribers/page.tsx"
+      "path": "app/admin/(dashboard)/newsletter/campaigns/NewsletterCampaignsClient.tsx"
     },
     {
       "status": "M",
-      "path": "app/api/newsletter/subscribe/route.ts"
+      "path": "app/lib/actions/newsletter-sender-profiles.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/lib/actions/newsletter.ts"
+    },
+    {
+      "status": "M",
+      "path": "components/newsletter/multi-select-filter.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/newsletter/wizard/NewsletterWizardClient.tsx"
+    },
+    {
+      "status": "M",
+      "path": "package-lock.json"
+    },
+    {
+      "status": "M",
+      "path": "package.json"
+    },
+    {
+      "status": "??",
+      "path": "components/newsletter/region-tree-filter.tsx"
+    },
+    {
+      "status": "??",
+      "path": "components/newsletter/wizard/StepAudience.tsx"
+    },
+    {
+      "status": "??",
+      "path": "docs/"
+    },
+    {
+      "status": "??",
+      "path": "scripts/generate-wizard-guide.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n15ef3c2 newsletter\n10699d6 newsletter\nd7196cd axiologisi\n49382d8 new video background\n39108a7 facebook id"
+  "context_notes": "Recent commits:\n5fefed9 changes to email logo\n15ef3c2 newsletter\n10699d6 newsletter\nd7196cd axiologisi\n49382d8 new video background"
 }

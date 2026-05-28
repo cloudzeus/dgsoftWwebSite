@@ -14,6 +14,18 @@ export type { EmailFieldKey } from "@/lib/customer-emails";
 
 const NEWSLETTER_PATH = "/admin/newsletter";
 
+/**
+ * The primary source the user picked in the wizard's Audience step.
+ * Metadata only — actual recipient resolution combines all populated fields.
+ */
+export type AudienceSource =
+  | "eu"            // EU programme beneficiaries (segmentation narrowed by programme KAD)
+  | "segmentation"  // Customer DB segmentation (geo/KAD/legal/business)
+  | "subscribers"   // Newsletter list (site signups)
+  | "excel"         // Uploaded email list
+  | "manual"        // Hand-picked customers
+  | "mixed";        // Combination of multiple sources
+
 export type NewsletterFilters = {
   regionIds?: string[];
   nomosIds?: string[];
@@ -29,6 +41,14 @@ export type NewsletterFilters = {
   emailFields?: EmailFieldKey[];
   /** Plain email addresses uploaded directly (e.g. from Excel). */
   directEmails?: string[];
+  /** Newsletter subscriber IDs (site signups) to include. */
+  subscriberIds?: string[];
+  /** If true, include ALL newsletter subscribers (subject to unsubscribe list). */
+  allSubscribers?: boolean;
+  /** EU programme id selected in wizard — narrows KAD list and tags audience. */
+  euProgramId?: string | null;
+  /** UI metadata: which source card the user picked first. Does not affect resolution. */
+  audienceSource?: AudienceSource;
 };
 
 /** Resolve region/nomos/dimos selection to set of level-5 (dimos) periferia IDs. */
@@ -184,7 +204,93 @@ export async function buildRecipientList(filters: NewsletterFilters): Promise<{ 
     }
   }
 
+  // Newsletter subscribers (site signups). Tagged with trdrId = "subscriber:<id>"
+  // so downstream code can distinguish them from TRDR-sourced recipients.
+  if (filters.allSubscribers || filters.subscriberIds?.length) {
+    const subs = await prisma.newsletterSubscriber.findMany({
+      where: filters.allSubscribers
+        ? {}
+        : { id: { in: filters.subscriberIds! } },
+      select: { id: true, email: true },
+    });
+    // Honour the global unsubscribe list.
+    const unsubs = await prisma.newsletterUnsubscribe.findMany({ select: { email: true } });
+    const unsubSet = new Set(unsubs.map((u) => u.email.toLowerCase()));
+    for (const s of subs) {
+      const e = s.email.trim();
+      if (!e) continue;
+      const key = e.toLowerCase();
+      if (seen.has(key) || unsubSet.has(key)) continue;
+      seen.add(key);
+      list.push({ email: e, trdrId: `subscriber:${s.id}` });
+    }
+  }
+
   return list;
+}
+
+/** Subscriber picker option for the wizard's Audience step. */
+export type NewsletterSubscriberOption = {
+  id: string;
+  email: string;
+  name: string | null;
+  source: string | null;
+  createdAt: string;
+};
+
+/** Lightweight count for the source-picker card. */
+export async function getNewsletterSubscriberSummary(): Promise<{ total: number }> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return { total: 0 };
+  const total = await prisma.newsletterSubscriber.count();
+  return { total };
+}
+
+export async function searchNewsletterSubscribers(
+  query: string,
+  limit = 50
+): Promise<NewsletterSubscriberOption[]> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return [];
+  const q = query.trim();
+  const subs = await prisma.newsletterSubscriber.findMany({
+    where: q
+      ? {
+          OR: [
+            { email: { contains: q } },
+            { name: { contains: q } },
+          ],
+        }
+      : undefined,
+    orderBy: { createdAt: "desc" },
+    take: Math.min(Math.max(limit, 1), 200),
+    select: { id: true, email: true, name: true, source: true, createdAt: true },
+  });
+  return subs.map((s) => ({
+    id: s.id,
+    email: s.email,
+    name: s.name,
+    source: s.source,
+    createdAt: s.createdAt.toISOString(),
+  }));
+}
+
+export async function getNewsletterSubscribersByIds(
+  ids: string[]
+): Promise<NewsletterSubscriberOption[]> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN" || ids.length === 0) return [];
+  const subs = await prisma.newsletterSubscriber.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, email: true, name: true, source: true, createdAt: true },
+  });
+  return subs.map((s) => ({
+    id: s.id,
+    email: s.email,
+    name: s.name,
+    source: s.source,
+    createdAt: s.createdAt.toISOString(),
+  }));
 }
 
 /** Search customers (TRDR) by name, code, or email for newsletter recipient picker. */
@@ -252,10 +358,10 @@ export async function getNewsletterCustomersByIds(
 
 // ——— Filter options for UI ———
 
-export type RegionOption = { id: string; nameEL: string; level: number; path: string };
+export type RegionOption = { id: string; nameEL: string; level: number; path: string; code: string; parentCode: string | null };
 export type CityOption = { value: string };
 export type LegalOption = { value: string };
-export type KadOption = { value: string };
+export type KadOption = { value: string; label: string; description: string };
 export type TrdpOption = { id: string; code: number; name: string | null };
 export type TrdBusinessOption = { id: string; code: number; name: string | null };
 
@@ -280,7 +386,7 @@ export async function getNewsletterFilterOptions(): Promise<{
     prisma.periferia.findMany({ orderBy: [{ level: "asc" }, { nameEL: "asc" }], select: { id: true, code: true, nameEL: true, level: true, parentCode: true } }),
     prisma.tRDR.findMany({ where: { CITY: { not: null, notIn: [""] } }, select: { CITY: true }, distinct: ["CITY"] }),
     prisma.tRDR.findMany({ where: { legalStatus: { not: null, notIn: [""] } }, select: { legalStatus: true }, distinct: ["legalStatus"] }),
-    prisma.trdrKad.findMany({ select: { firm_act_code: true }, distinct: ["firm_act_code"] }),
+    prisma.trdrKad.findMany({ select: { firm_act_code: true, firm_act_descr: true }, distinct: ["firm_act_code"] }),
     prisma.softOneTrdpGroup.findMany({ orderBy: { code: "asc" }, select: { id: true, code: true, name: true } }),
     prisma.softOneTrdBusiness.findMany({ orderBy: { code: "asc" }, select: { id: true, code: true, name: true } }),
   ]);
@@ -296,13 +402,39 @@ export async function getNewsletterFilterOptions(): Promise<{
     return parts.join(" → ");
   }
 
-  const regions = periferies.filter((p) => p.level === 3).map((p) => ({ id: p.id, nameEL: p.nameEL, level: p.level, path: pathFor(p) }));
-  const nomoi = periferies.filter((p) => p.level === 4).map((p) => ({ id: p.id, nameEL: p.nameEL, level: p.level, path: pathFor(p) }));
-  const dimoi = periferies.filter((p) => p.level === 5).map((p) => ({ id: p.id, nameEL: p.nameEL, level: p.level, path: pathFor(p) }));
+  const toOpt = (p: typeof periferies[number]) => ({
+    id: p.id, nameEL: p.nameEL, level: p.level, path: pathFor(p), code: p.code, parentCode: p.parentCode,
+  });
+  const regions = periferies.filter((p) => p.level === 3).map(toOpt);
+  const nomoi = periferies.filter((p) => p.level === 4).map(toOpt);
+  const dimoi = periferies.filter((p) => p.level === 5).map(toOpt);
 
   const cities = citiesRaw.map((c) => ({ value: c.CITY! })).filter((c) => c.value.trim());
   const legalStatuses = legalRaw.map((l) => ({ value: l.legalStatus! })).filter((l) => l.value.trim());
-  const kadCodes = kadsRaw.map((k) => ({ value: k.firm_act_code }));
+  // Enrich KAD codes with descriptions from the master Kad table (preferred),
+  // falling back to the per-customer firm_act_descr.
+  const allCodes = Array.from(new Set(kadsRaw.map((k) => k.firm_act_code)));
+  const masterKads = await prisma.kad.findMany({
+    where: { code: { in: allCodes } },
+    select: { code: true, nameEL: true },
+  });
+  const descByCode = new Map<string, string>();
+  for (const m of masterKads) if (m.nameEL) descByCode.set(m.code, m.nameEL);
+  for (const k of kadsRaw) {
+    if (!descByCode.has(k.firm_act_code) && k.firm_act_descr) {
+      descByCode.set(k.firm_act_code, k.firm_act_descr);
+    }
+  }
+  const kadCodes = kadsRaw
+    .map((k) => {
+      const description = descByCode.get(k.firm_act_code) ?? "";
+      return {
+        value: k.firm_act_code,
+        description,
+        label: description ? `${k.firm_act_code} — ${description}` : k.firm_act_code,
+      };
+    })
+    .sort((a, b) => a.value.localeCompare(b.value));
 
   return {
     regions,
@@ -877,7 +1009,7 @@ export async function getNewsletterWizardData() {
   const session = await auth()
   if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized")
 
-  const [templates, baseTemplates, baseSettings, euPrograms, senderProfiles] = await Promise.all([
+  const [templates, baseTemplates, baseSettings, euPrograms, senderProfiles, subscriberCount] = await Promise.all([
     prisma.newsletterTemplate.findMany({
       orderBy: { updatedAt: "desc" },
       select: { id: true, name: true, description: true, content: true, updatedAt: true },
@@ -899,6 +1031,7 @@ export async function getNewsletterWizardData() {
       orderBy: { presence: { nameEL: "asc" } },
       include: { presence: { select: { nameEL: true, logo: true } } },
     }),
+    prisma.newsletterSubscriber.count(),
   ])
 
   return JSON.parse(JSON.stringify({
@@ -930,6 +1063,7 @@ export async function getNewsletterWizardData() {
       termsUrl: p.termsUrl ?? "",
       unsubscribeUrl: p.unsubscribeUrl ?? "",
     })),
+    subscriberCount,
   }))
 }
 
