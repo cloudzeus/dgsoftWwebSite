@@ -3,7 +3,9 @@
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { EspaPdfBanner } from "@/app/components/EspaPdfBanner";
+import { DigitalMaturityModal } from "@/components/DigitalMaturityModal";
 import {
   HOME_ESPA_BANNER_1,
   HOME_ESPA_BANNER_2,
@@ -42,6 +44,7 @@ type HeroProps = {
 export default function Hero({ contentEL, contentEN }: HeroProps) {
   const locale = useLocale();
   const c = locale === "en" ? contentEN : contentEL;
+  const [maturityOpen, setMaturityOpen] = useState(false);
 
   const prefixChars = c.titlePrefix.split("");
   const highlightChars = c.titleHighlight.split("");
@@ -132,15 +135,16 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
               <span className="hero-arrow-nudge">→</span>
             </Link>
 
-            <Link
-              href={c.secondaryCta.href}
+            <button
+              type="button"
+              onClick={() => setMaturityOpen(true)}
               className="group flex items-center gap-3 text-white hover:text-monks-accent transition-colors"
             >
               <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center group-hover:border-monks-accent transition-colors">
                 <ArrowDown className="w-5 h-5" />
               </div>
-              <span className="font-medium">{c.secondaryCta.label}</span>
-            </Link>
+              <span className="font-medium text-left">{c.secondaryCta.label}</span>
+            </button>
           </div>
 
           {/* ESPA banners — left-aligned, ~half content width */}
@@ -189,6 +193,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
           </div>
         </div>
       </div>
+      <DigitalMaturityModal open={maturityOpen} onOpenChange={setMaturityOpen} />
     </section>
   );
 }

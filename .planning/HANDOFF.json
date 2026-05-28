@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-28T03:31:47.600Z",
+  "timestamp": "2026-05-28T04:01:23.257Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,17 @@
     },
     {
       "status": "M",
-      "path": "app/admin/(dashboard)/eu-programs/periferies/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/admin/(dashboard)/newsletter/media/NewsletterMediaClient.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/api/admin/newsletter/upload/route.ts"
+      "path": "app/sections/Hero.tsx"
     },
     {
       "status": "??",
-      "path": "app/admin/eu-programs/periferies/ExportPeriferiesJsonButton.tsx"
+      "path": "app/api/digital-maturity/"
+    },
+    {
+      "status": "??",
+      "path": "components/DigitalMaturityModal.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n39108a7 facebook id\n8afab4c facebook id\n6641385 facebook id\n0919114 mode seo and geo\n28f1f8e seo optimize"
+  "context_notes": "Recent commits:\n49382d8 new video background\n39108a7 facebook id\n8afab4c facebook id\n6641385 facebook id\n0919114 mode seo and geo"
 }
