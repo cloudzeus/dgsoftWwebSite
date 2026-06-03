@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { updateSiteSettingsAction } from "@/app/lib/actions/settings";
 import {
+  GA4_ID_PATTERN,
   TRACKING_TAG_CATEGORIES,
   TRACKING_TAG_STRATEGIES,
   type SiteSettings,
@@ -56,7 +57,11 @@ function defaultCategoryFor(provider: TrackingTag["provider"]): TrackingTag["cat
 
 export function SettingsPageEditor({ initial }: { initial: SiteSettings }) {
   const [tags, setTags] = React.useState<TrackingTag[]>(initial.trackingTags);
+  const [ga4Id, setGa4Id] = React.useState(initial.ga4MeasurementId ?? "");
   const [saving, setSaving] = React.useState(false);
+
+  const ga4Trimmed = ga4Id.trim();
+  const ga4Invalid = ga4Trimmed.length > 0 && !GA4_ID_PATTERN.test(ga4Trimmed);
 
   function update(id: string, patch: Partial<TrackingTag>) {
     setTags((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
@@ -67,8 +72,15 @@ export function SettingsPageEditor({ initial }: { initial: SiteSettings }) {
   }
 
   async function save() {
+    if (ga4Invalid) {
+      toast.error("Μη έγκυρο GA4 Measurement ID (μορφή: G-XXXXXXXXXX)");
+      return;
+    }
     setSaving(true);
-    const res = await updateSiteSettingsAction({ trackingTags: tags });
+    const res = await updateSiteSettingsAction({
+      trackingTags: tags,
+      ga4MeasurementId: ga4Trimmed,
+    });
     setSaving(false);
     if (res.success) toast.success("Οι ρυθμίσεις αποθηκεύτηκαν");
     else toast.error(res.error || "Σφάλμα αποθήκευσης");
@@ -93,10 +105,46 @@ export function SettingsPageEditor({ initial }: { initial: SiteSettings }) {
         </Button>
       </div>
 
-      <Tabs defaultValue="tracking" className="w-full">
+      <Tabs defaultValue="seo" className="w-full">
         <TabsList>
+          <TabsTrigger value="seo">SEO & Analytics</TabsTrigger>
           <TabsTrigger value="tracking">Tracking Tags</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="seo" className="space-y-4">
+          <div className="rounded-lg border bg-card p-4 space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Google Analytics 4</h2>
+              <p className="text-sm text-muted-foreground">
+                Εισάγετε το Measurement ID του GA4. Το script φορτώνεται αυτόματα
+                σε όλες τις σελίδες (εκτός /admin) μόλις ο επισκέπτης αποδεχθεί τα
+                cookies analytics.
+              </p>
+            </div>
+            <div className="max-w-md">
+              <Label htmlFor="ga4-id" className="mb-1 block">
+                GA4 Measurement ID
+              </Label>
+              <Input
+                id="ga4-id"
+                value={ga4Id}
+                onChange={(e) => setGa4Id(e.target.value)}
+                placeholder="G-XXXXXXXXXX"
+                aria-invalid={ga4Invalid}
+              />
+              {ga4Invalid ? (
+                <p className="mt-1 text-xs text-destructive">
+                  Μη έγκυρη μορφή. Αναμενόμενη: G-XXXXXXXXXX
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Θα το βρείτε στο Google Analytics → Admin → Data Streams →
+                  (το stream σας).
+                </p>
+              )}
+            </div>
+          </div>
+        </TabsContent>
 
         <TabsContent value="tracking" className="space-y-4">
           <div className="flex items-center justify-between">

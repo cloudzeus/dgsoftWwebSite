@@ -15,6 +15,7 @@ import { FooterProvider } from "./context/FooterContext";
 import { getPublicFooter } from "./lib/actions/footer";
 import { getPublicSiteSettings } from "./lib/actions/settings";
 import { TrackingTags } from "@/components/tracking/TrackingTags";
+import { resolveTrackingTags } from "@/lib/site-settings";
 import { CookieBanner } from "@/components/cookies/CookieBanner";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -179,7 +180,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://dgsmart.b-cdn.net" />
       </head>
       <body className="antialiased bg-monks-black text-white">
-        <TrackingTags tags={settings.trackingTags} />
+        <TrackingTags tags={resolveTrackingTags(settings)} />
         <script
           id="ld-organization"
           type="application/ld+json"

@@ -39,11 +39,50 @@ export type TrackingTag = z.infer<typeof trackingTagSchema>;
 
 export const siteSettingsSchema = z.object({
   trackingTags: z.array(trackingTagSchema).default([]),
+  /** Dedicated Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX). */
+  ga4MeasurementId: z.string().max(120).optional().default(""),
 });
 
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 
-export const defaultSiteSettings: SiteSettings = { trackingTags: [] };
+export const defaultSiteSettings: SiteSettings = {
+  trackingTags: [],
+  ga4MeasurementId: "",
+};
+
+/** Basic GA4 Measurement ID shape: G- followed by alphanumerics. */
+export const GA4_ID_PATTERN = /^G-[A-Z0-9]+$/i;
+
+/**
+ * Turn the dedicated GA4 Measurement ID into a synthetic tracking tag so it
+ * flows through the same consent-gated injection pipeline as the other tags.
+ * Returns null when no ID is configured.
+ */
+export function buildGa4Tag(measurementId: string): TrackingTag | null {
+  const id = (measurementId || "").trim();
+  if (!id) return null;
+  return {
+    id: "ga4",
+    name: "Google Analytics 4",
+    type: "pixel-id",
+    provider: "google-analytics",
+    pixelId: id,
+    scriptBody: "",
+    noscriptBody: "",
+    strategy: "afterInteractive",
+    enabled: true,
+    category: "analytics",
+  };
+}
+
+/**
+ * The full list of tracking tags to inject: the dedicated GA4 tag (if set)
+ * followed by any manually configured tags.
+ */
+export function resolveTrackingTags(settings: SiteSettings): TrackingTag[] {
+  const ga4 = buildGa4Tag(settings.ga4MeasurementId || "");
+  return ga4 ? [ga4, ...settings.trackingTags] : settings.trackingTags;
+}
 
 export function parseSiteSettings(raw: unknown): SiteSettings {
   const result = siteSettingsSchema.safeParse(raw ?? {});
