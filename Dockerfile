@@ -43,11 +43,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modul
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
+# Prisma CLI so the entrypoint can run `prisma db push` at startup (schema sync on deploy)
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
+
 # Image-optimization cache directory (mount a persistent volume here in Coolify)
 RUN mkdir -p .next/cache && chown -R nextjs:nodejs .next
 
 USER nextjs
 EXPOSE 3000
 
-# Standalone bundle ships its own minimal server
-CMD ["node", "server.js"]
+# Entrypoint runs `prisma db push` then starts the standalone server
+CMD ["./docker-entrypoint.sh"]
