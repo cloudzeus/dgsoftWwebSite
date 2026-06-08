@@ -28,6 +28,7 @@ import {
   updateNewsletterCampaign,
   buildCampaignRecipients,
   sendNewsletterCampaign,
+  resetNewsletterCampaign,
   sendNewsletterTestEmail,
   getNewsletterCampaigns,
   getNewsletterCampaign,
@@ -253,6 +254,24 @@ export function NewsletterCampaignsClient({
     }
   };
 
+  const handleReset = async (campaignId: string) => {
+    setSending(campaignId);
+    try {
+      const result = await resetNewsletterCampaign(campaignId);
+      if (!result.success) {
+        toast.error(result.error ?? "Αποτυχία επαναφοράς");
+        return;
+      }
+      toast.success("Η αποστολή σταμάτησε. Μπορείτε να ξαναδοκιμάσετε.");
+      const list = await getNewsletterCampaigns();
+      setCampaigns(list as Campaign[]);
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Αποτυχία επαναφοράς");
+    } finally {
+      setSending(null);
+    }
+  };
+
   const openStats = async (c: Campaign) => {
     const detail = await getNewsletterCampaign(c.id);
     if (detail?.recipients) {
@@ -336,6 +355,17 @@ export function NewsletterCampaignsClient({
                   {sending === c.id ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <SendIcon className="h-4 w-4" />}
                   Αποστολή
                 </Button>
+                {c.status === "sending" && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleReset(c.id)}
+                    disabled={sending === c.id}
+                    title="Διακοπή / επαναφορά κολλημένης αποστολής"
+                  >
+                    Διακοπή
+                  </Button>
+                )}
                 <Button size="sm" variant="ghost" onClick={() => openStats(c)}>
                   Στατιστικά
                 </Button>

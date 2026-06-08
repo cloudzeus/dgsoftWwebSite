@@ -937,6 +937,22 @@ export type NewsletterWizardSenderProfile = {
   unsubscribeUrl: string
 }
 
+/** Stop/reset a campaign that is stuck on "sending" so it can be retried. Sent recipients stay "sent". */
+export async function resetNewsletterCampaign(campaignId: string): Promise<{ success: boolean; error?: string }> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  try {
+    await prisma.newsletterCampaign.update({
+      where: { id: campaignId },
+      data: { status: "draft" },
+    });
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : "Reset failed" };
+  }
+  revalidatePath(`${NEWSLETTER_PATH}/campaigns`);
+  return { success: true };
+}
+
 /** Send campaign emails via Mailgun. Uses template HTML or fallback text. */
 export async function sendNewsletterCampaign(campaignId: string): Promise<SendCampaignResult> {
   const session = await auth();
