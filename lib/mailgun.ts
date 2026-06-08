@@ -13,6 +13,11 @@ export type SendMailgunOptions = {
   replyTo?: string;
   cc?: string | string[];
   bcc?: string | string[];
+  /** Mailgun tags (o:tag) — used to group a campaign's messages for stats/events. */
+  tags?: string[];
+  /** Enable Mailgun open/click tracking for this message (needed for opened/clicked stats). */
+  trackOpens?: boolean;
+  trackClicks?: boolean;
 };
 
 function getConfig() {
@@ -59,6 +64,9 @@ export async function sendMailgun(options: SendMailgunOptions): Promise<
   if (options.replyTo?.trim()) form.append("h:Reply-To", options.replyTo.trim());
   if (options.cc?.length) form.append("cc", Array.isArray(options.cc) ? options.cc.join(", ") : options.cc);
   if (options.bcc?.length) form.append("bcc", Array.isArray(options.bcc) ? options.bcc.join(", ") : options.bcc);
+  for (const tag of options.tags ?? []) if (tag.trim()) form.append("o:tag", tag.trim());
+  if (options.trackOpens) form.append("o:tracking-opens", "yes");
+  if (options.trackClicks) form.append("o:tracking-clicks", "htmlonly");
 
   try {
     const res = await fetch(url, {

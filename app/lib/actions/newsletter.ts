@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { sendMailgun } from "@/lib/mailgun";
+import { fetchCampaignDeliveryEvents } from "@/lib/mailgun-reporting";
 import { normalizeAddressKey } from "@/lib/address-region-utils";
 import { renderBlocksToHtml, type EmailBlock, type NewsletterContent } from "@/lib/newsletter-blocks";
 import { getEmailsForCustomer, type EmailFieldKey } from "@/lib/customer-emails";
@@ -711,6 +712,127 @@ export async function getNewsletterCampaign(id: string) {
   }
 }
 
+export type CampaignStats = {
+  totals: {
+    recipients: number;
+    sent: number;
+    failed: number;
+    pending: number;
+    unsubscribed: number;
+    delivered: number;
+    opened: number; // unique recipients who opened
+    clicked: number; // unique recipients who clicked
+    complained: number;
+  };
+  deliveryRate: number; // delivered / sent
+  openRate: number; // opened / delivered
+  clickRate: number; // clicked / delivered
+  timeline: { t: string; opened: number; clicked: number }[];
+  mailgunError?: string;
+};
+
+/** Live per-campaign engagement stats pulled from Mailgun's Events API (no webhook needed). */
+export async function getCampaignMailgunStats(campaignId: string): Promise<CampaignStats | null> {
+  const session = await auth();
+  if (!session || session.user?.role !== "ADMIN") return null;
+
+  const campaign = await prisma.newsletterCampaign.findUnique({
+    where: { id: campaignId },
+    select: { id: true, sentAt: true, createdAt: true, recipients: { select: { email: true, status: true } } },
+  });
+  if (!campaign) return null;
+
+  const recs = campaign.recipients;
+  const totals = {
+    recipients: recs.length,
+    sent: recs.filter((r) => r.status === "sent" || r.status === "opened" || r.status === "clicked").length,
+    failed: recs.filter((r) => r.status === "failed").length,
+    pending: recs.filter((r) => r.status === "pending").length,
+    unsubscribed: recs.filter((r) => r.status === "unsubscribed").length,
+    delivered: 0,
+    opened: 0,
+    clicked: 0,
+    complained: 0,
+  };
+
+  const recipientSet = new Set(recs.map((r) => r.email.toLowerCase()));
+  const beginEpoch = Math.floor(new Date(campaign.sentAt ?? campaign.createdAt).getTime() / 1000) - 3600;
+
+  const ev = await fetchCampaignDeliveryEvents({
+    beginEpoch,
+    recipients: recipientSet,
+    tag: `campaign-${campaignId}`,
+    maxPages: 8,
+  });
+
+  if (!ev.ok) {
+    return {
+      totals,
+      deliveryRate: 0,
+      openRate: 0,
+      clickRate: 0,
+      timeline: [],
+      mailgunError: ev.error,
+    };
+  }
+
+  const delivered = new Set<string>();
+  const opened = new Set<string>();
+  const clicked = new Set<string>();
+  const complained = new Set<string>();
+  // hour bucket -> { opened, clicked }
+  const buckets = new Map<string, { opened: number; clicked: number }>();
+
+  for (const it of ev.items) {
+    const r = it.recipient?.toLowerCase();
+    if (!r) continue;
+    const ts = it.timestamp ? new Date(it.timestamp * 1000) : null;
+    const hour = ts ? `${ts.toISOString().slice(0, 13)}:00` : null;
+    switch (it.event) {
+      case "delivered":
+        delivered.add(r);
+        break;
+      case "opened":
+        opened.add(r);
+        if (hour) {
+          const b = buckets.get(hour) ?? { opened: 0, clicked: 0 };
+          b.opened++;
+          buckets.set(hour, b);
+        }
+        break;
+      case "clicked":
+        clicked.add(r);
+        if (hour) {
+          const b = buckets.get(hour) ?? { opened: 0, clicked: 0 };
+          b.clicked++;
+          buckets.set(hour, b);
+        }
+        break;
+      case "complained":
+        complained.add(r);
+        break;
+    }
+  }
+
+  totals.delivered = delivered.size;
+  totals.opened = opened.size;
+  totals.clicked = clicked.size;
+  totals.complained = complained.size;
+
+  const timeline = [...buckets.entries()]
+    .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+    .map(([t, v]) => ({ t, opened: v.opened, clicked: v.clicked }));
+
+  const denom = totals.delivered || totals.sent || 1;
+  return {
+    totals,
+    deliveryRate: totals.sent ? Math.round((totals.delivered / totals.sent) * 100) : 0,
+    openRate: Math.round((totals.opened / denom) * 100),
+    clickRate: Math.round((totals.clicked / denom) * 100),
+    timeline,
+  };
+}
+
 export async function createNewsletterCampaign(data: {
   name: string;
   subject: string;
@@ -1064,6 +1186,9 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
       to: rec.email,
       subject: campaign.subject,
       html: recipientHtml,
+      tags: [`campaign-${campaignId}`],
+      trackOpens: true,
+      trackClicks: true,
       ...(sp?.senderEmail ? { from: sp.senderEmail } : {}),
       ...(sp?.senderName  ? { fromName: sp.senderName } : {}),
     });

@@ -138,6 +138,66 @@ export async function fetchMailgunEvents(options: {
   return { ok: true, body: res.data };
 }
 
+/** Follow a Mailgun paging.next URL (already absolute) with auth. */
+async function mailgunGetAbsolute<T>(fullUrl: string): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
+  const { apiKey } = getConfig();
+  if (!apiKey) return { ok: false, error: "MAILGUN_API_KEY is not set" };
+  const res = await fetch(fullUrl, {
+    method: "GET",
+    headers: { Authorization: basicAuthHeader(apiKey), Accept: "application/json" },
+    cache: "no-store",
+  });
+  const text = await res.text();
+  let data: unknown;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    return { ok: false, error: text.slice(0, 300) || res.statusText };
+  }
+  if (!res.ok) return { ok: false, error: text.slice(0, 300) || res.statusText };
+  return { ok: true, data: data as T };
+}
+
+/**
+ * Collect delivery events for a campaign by paging the Events API since `beginEpoch`.
+ * Filters server-side by `tag` when given, and client-side by the recipient set.
+ */
+export async function fetchCampaignDeliveryEvents(opts: {
+  beginEpoch: number;
+  recipients: Set<string>; // lowercased emails; empty = keep all
+  tag?: string;
+  maxPages?: number;
+}): Promise<{ ok: true; items: MailgunEventItem[] } | { ok: false; error: string }> {
+  const { domain } = getConfig();
+  if (!domain) return { ok: false, error: "MAILGUN_DOMAIN is not set" };
+  const maxPages = opts.maxPages ?? 8;
+
+  const search = new URLSearchParams();
+  search.set("limit", "300");
+  search.set("begin", String(Math.floor(opts.beginEpoch)));
+  search.set("ascending", "yes");
+  if (opts.tag) search.set("tags", opts.tag);
+
+  const collected: MailgunEventItem[] = [];
+  let page = await mailgunGet<MailgunEventsResponse>(`/v3/${encodeURIComponent(domain)}/events`, search);
+  let pages = 0;
+  while (page.ok) {
+    const items = page.data.items ?? [];
+    for (const it of items) {
+      const r = it.recipient?.toLowerCase();
+      if (opts.recipients.size === 0 || (r && opts.recipients.has(r))) collected.push(it);
+    }
+    pages++;
+    const next = page.data.paging?.next;
+    if (!next || items.length === 0 || pages >= maxPages) break;
+    const np = await mailgunGetAbsolute<MailgunEventsResponse>(next);
+    if (!np.ok) return { ok: false, error: np.error };
+    page = { ok: true, data: np.data };
+  }
+  if (!page.ok) return { ok: false, error: page.error };
+  return { ok: true, items: collected };
+}
+
 export type MailgunDomainInfo = {
   domain?: {
     name?: string;

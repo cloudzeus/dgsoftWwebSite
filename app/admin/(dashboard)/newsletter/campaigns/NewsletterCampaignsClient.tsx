@@ -32,6 +32,8 @@ import {
   sendNewsletterTestEmail,
   getNewsletterCampaigns,
   getNewsletterCampaign,
+  getCampaignMailgunStats,
+  type CampaignStats,
   getNewsletterCustomersByIds,
   type NewsletterFilters,
   type EmailFieldKey,
@@ -43,6 +45,7 @@ import {
   type TrdBusinessOption,
 } from "@/app/lib/actions/newsletter";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CampaignStatsPanel } from "@/components/newsletter/campaign-stats-panel";
 import { PlusIcon, SendIcon, UsersIcon, Loader2Icon, PencilIcon, MailIcon, Wand2Icon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -110,6 +113,8 @@ export function NewsletterCampaignsClient({
     id: string;
     recipients: { status: string; email: string; error: string | null }[];
   } | null>(null);
+  const [campaignStats, setCampaignStats] = React.useState<CampaignStats | null>(null);
+  const [statsLoading, setStatsLoading] = React.useState(false);
 
   const updateFilter = <K extends keyof NewsletterFilters>(key: K, value: NewsletterFilters[K]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -274,10 +279,21 @@ export function NewsletterCampaignsClient({
 
   const openStats = async (c: Campaign) => {
     const detail = await getNewsletterCampaign(c.id);
-    if (detail?.recipients) {
-      setCampaignDetail({ id: c.id, recipients: detail.recipients });
-    } else {
+    if (!detail?.recipients) {
       setCampaignDetail(null);
+      setCampaignStats(null);
+      return;
+    }
+    setCampaignDetail({ id: c.id, recipients: detail.recipients });
+    setCampaignStats(null);
+    setStatsLoading(true);
+    try {
+      const stats = await getCampaignMailgunStats(c.id);
+      setCampaignStats(stats);
+    } catch {
+      setCampaignStats(null);
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -379,59 +395,15 @@ export function NewsletterCampaignsClient({
       </div>
 
       {campaignDetail && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm">Στατιστικά εκστρατείας</CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => setCampaignDetail(null)}>Κλείσιμο</Button>
-          </CardHeader>
-          <CardContent>
-            {(() => {
-              const recs = campaignDetail.recipients;
-              const pending = recs.filter((r) => r.status === "pending").length;
-              const sent = recs.filter((r) => r.status === "sent").length;
-              const failed = recs.filter((r) => r.status === "failed").length;
-              const opened = recs.filter((r) => r.status === "opened").length;
-              const clicked = recs.filter((r) => r.status === "clicked").length;
-              const failedRecs = recs.filter((r) => r.status === "failed");
-              return (
-                <div className="space-y-4">
-                  <div className="grid gap-2 text-sm sm:grid-cols-2 md:grid-cols-5">
-                    <div>Σύνολο: <strong>{recs.length}</strong></div>
-                    <div>Εκκρεμή: <strong>{pending}</strong></div>
-                    <div>Εστάλησαν: <strong>{sent}</strong></div>
-                    <div>Απέτυχαν: <strong>{failed}</strong></div>
-                    <div>Ανοίχτηκαν / Κλικ: <strong>{opened} / {clicked}</strong></div>
-                  </div>
-                  {failedRecs.length > 0 && (
-                    <div>
-                      <p className="mb-1 text-xs font-semibold text-red-700">
-                        Αρχείο σφαλμάτων ({failedRecs.length})
-                      </p>
-                      <div className="max-h-64 overflow-y-auto rounded border border-red-200 bg-red-50/50">
-                        <table className="w-full text-left text-[11px]">
-                          <thead className="sticky top-0 bg-red-100 text-red-800">
-                            <tr>
-                              <th className="px-2 py-1 font-semibold">Email</th>
-                              <th className="px-2 py-1 font-semibold">Σφάλμα</th>
-                            </tr>
-                          </thead>
-                          <tbody className="font-mono text-red-700">
-                            {failedRecs.map((r, i) => (
-                              <tr key={i} className="border-t border-red-200/60 align-top">
-                                <td className="px-2 py-1 whitespace-nowrap">{r.email}</td>
-                                <td className="px-2 py-1 break-words">{r.error ?? "—"}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-          </CardContent>
-        </Card>
+        <CampaignStatsPanel
+          recipients={campaignDetail.recipients}
+          stats={campaignStats}
+          loading={statsLoading}
+          onClose={() => {
+            setCampaignDetail(null);
+            setCampaignStats(null);
+          }}
+        />
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
