@@ -63,6 +63,15 @@ type Campaign = {
   failedCount?: number;
 };
 
+/** Renders a localized date only after mount — server renders nothing, so it can never cause a hydration mismatch. */
+function ClientDate({ value }: { value: Date | string }) {
+  const [text, setText] = React.useState("");
+  React.useEffect(() => {
+    setText(new Date(value).toLocaleString("el-GR", { timeZone: "Europe/Athens" }));
+  }, [value]);
+  return <span suppressHydrationWarning>{text}</span>;
+}
+
 type FilterOptions = {
   regions: RegionOption[];
   nomoi: RegionOption[];
@@ -296,8 +305,8 @@ export function NewsletterCampaignsClient({
                 {(c.companyCount ?? 0) > 0 && ` · Εταιρείες: ${c.companyCount}`}
               </p>
               {c.sentAt && (
-                <p className="text-xs text-muted-foreground" suppressHydrationWarning>
-                  Εστάλη {new Date(c.sentAt).toLocaleString("el-GR", { timeZone: "Europe/Athens" })}
+                <p className="text-xs text-muted-foreground">
+                  Εστάλη <ClientDate value={c.sentAt} />
                   {(c.sentCount ?? 0) > 0 || (c.failedCount ?? 0) > 0
                     ? ` · OK: ${c.sentCount ?? 0} · Σφάλματα: ${c.failedCount ?? 0}`
                     : ""}
