@@ -7,7 +7,7 @@
     "postinstall": "prisma generate",
     "build": "prisma generate && next build",
     "analyze": "ANALYZE=true npm run build",
-    "start": "next start",
+    "start": "prisma db push --skip-generate || true && next start",
     "db:push": "prisma db push",
     "db:push:accept-data-loss": "prisma db push --accept-data-loss",
     "db:studio": "prisma studio",

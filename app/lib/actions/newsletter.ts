@@ -617,16 +617,51 @@ export async function setNewsletterMediaFolder(mediaId: string, folderId: string
 
 // ——— Campaigns ———
 
+/** Prisma error for "column does not exist" — happens when the DB hasn't been migrated yet. */
+function isMissingColumnError(e: unknown): boolean {
+  return !!e && typeof e === "object" && (e as { code?: string }).code === "P2022";
+}
+
+/** Stable campaign columns that exist on every deployed schema (excludes lastError/sentCount/failedCount). */
+const CAMPAIGN_STABLE_SELECT = {
+  id: true,
+  name: true,
+  subject: true,
+  status: true,
+  sentAt: true,
+  filters: true,
+  templateId: true,
+  baseTemplateId: true,
+  baseTemplatePatches: true,
+  senderProfileId: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 export async function getNewsletterCampaigns() {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return [];
-  const campaigns = await prisma.newsletterCampaign.findMany({
-    orderBy: { updatedAt: "desc" },
-    include: {
-      _count: { select: { recipients: true } },
-      template: { select: { name: true } },
-    },
-  });
+  let campaigns;
+  try {
+    campaigns = await prisma.newsletterCampaign.findMany({
+      orderBy: { updatedAt: "desc" },
+      include: {
+        _count: { select: { recipients: true } },
+        template: { select: { name: true } },
+      },
+    });
+  } catch (e) {
+    if (!isMissingColumnError(e)) throw e;
+    // DB not yet migrated (missing lastError/sentCount/failedCount) — degrade gracefully.
+    campaigns = await prisma.newsletterCampaign.findMany({
+      orderBy: { updatedAt: "desc" },
+      select: {
+        ...CAMPAIGN_STABLE_SELECT,
+        _count: { select: { recipients: true } },
+        template: { select: { name: true } },
+      },
+    });
+  }
   if (campaigns.length === 0) return [];
   const rows = await prisma.$queryRaw<{ campaignId: string; companyCount: bigint }[]>`
     SELECT campaignId, COUNT(DISTINCT trdrId) as companyCount
@@ -644,13 +679,26 @@ export async function getNewsletterCampaigns() {
 export async function getNewsletterCampaign(id: string) {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return null;
-  return prisma.newsletterCampaign.findUnique({
-    where: { id },
-    include: {
-      template: true,
-      recipients: true,
-    },
-  });
+  try {
+    return await prisma.newsletterCampaign.findUnique({
+      where: { id },
+      include: {
+        template: true,
+        recipients: true,
+      },
+    });
+  } catch (e) {
+    if (!isMissingColumnError(e)) throw e;
+    // DB not yet migrated — return without the new columns so the stats view still works.
+    return prisma.newsletterCampaign.findUnique({
+      where: { id },
+      select: {
+        ...CAMPAIGN_STABLE_SELECT,
+        template: true,
+        recipients: true,
+      },
+    });
+  }
 }
 
 export async function createNewsletterCampaign(data: {
@@ -1006,16 +1054,25 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
           .slice(0, 2000)
       : null;
 
-  await prisma.newsletterCampaign.update({
-    where: { id: campaignId },
-    data: {
-      status: failed === pending.length ? "failed" : "sent",
-      sentAt: new Date(),
-      lastError,
-      sentCount: sent,
-      failedCount: failed,
-    },
-  });
+  try {
+    await prisma.newsletterCampaign.update({
+      where: { id: campaignId },
+      data: {
+        status: failed === pending.length ? "failed" : "sent",
+        sentAt: new Date(),
+        lastError,
+        sentCount: sent,
+        failedCount: failed,
+      },
+    });
+  } catch (e) {
+    if (!isMissingColumnError(e)) throw e;
+    // DB not yet migrated — still record status/sentAt (per-recipient errors are already saved).
+    await prisma.newsletterCampaign.update({
+      where: { id: campaignId },
+      data: { status: failed === pending.length ? "failed" : "sent", sentAt: new Date() },
+    });
+  }
 
   revalidatePath(`${NEWSLETTER_PATH}/campaigns`);
   return { success: failed === 0, sent, failed, errors: errors.slice(0, 20) };
