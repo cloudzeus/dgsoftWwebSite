@@ -67,11 +67,11 @@ function templateLedger(): string {
 </a>
 </td>
 <td valign="middle" align="right" style="width:45%;">
-<a href="{{facebook_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">Fb</a>
-<a href="{{instagram_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">Ig</a>
-<a href="{{linkedin_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">In</a>
-<a href="{{x_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">X</a>
-<a href="{{website_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">Web</a>
+<a href="{{facebook_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_facebook}}" width="18" height="18" alt="Facebook" style="display:block;border:0;" /></a>
+<a href="{{instagram_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_instagram}}" width="18" height="18" alt="Instagram" style="display:block;border:0;" /></a>
+<a href="{{linkedin_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_linkedin}}" width="18" height="18" alt="LinkedIn" style="display:block;border:0;" /></a>
+<a href="{{x_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_twitter}}" width="18" height="18" alt="Twitter" style="display:block;border:0;" /></a>
+<a href="{{website_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_website}}" width="18" height="18" alt="Website" style="display:block;border:0;" /></a>
 </td>
 </tr>
 </table>
@@ -212,11 +212,11 @@ function templateSpine(): string {
 <a href="mailto:{{contact_email}}" style="color:${C.accent};font-size:14px;font-weight:700;text-decoration:none;">{{contact_email}}</a>
 </td></tr>
 <tr><td style="padding:14px 0 0 0;font-size:12px;line-height:2;">
-<a href="{{facebook_url}}" style="color:${C.soft};text-decoration:none;">Facebook</a><br />
-<a href="{{instagram_url}}" style="color:${C.soft};text-decoration:none;">Instagram</a><br />
-<a href="{{linkedin_url}}" style="color:${C.soft};text-decoration:none;">LinkedIn</a><br />
-<a href="{{x_url}}" style="color:${C.soft};text-decoration:none;">X</a><br />
-<a href="{{website_url}}" style="color:${C.soft};text-decoration:none;">Website</a>
+<a href="{{facebook_url}}" style="display:inline-block;margin-right:10px;text-decoration:none;"><img src="{{icon_facebook}}" width="20" height="20" alt="Facebook" style="display:inline-block;vertical-align:middle;border:0;" /></a>
+<a href="{{instagram_url}}" style="display:inline-block;margin-right:10px;text-decoration:none;"><img src="{{icon_instagram}}" width="20" height="20" alt="Instagram" style="display:inline-block;vertical-align:middle;border:0;" /></a>
+<a href="{{linkedin_url}}" style="display:inline-block;margin-right:10px;text-decoration:none;"><img src="{{icon_linkedin}}" width="20" height="20" alt="LinkedIn" style="display:inline-block;vertical-align:middle;border:0;" /></a>
+<a href="{{x_url}}" style="display:inline-block;margin-right:10px;text-decoration:none;"><img src="{{icon_twitter}}" width="20" height="20" alt="Twitter" style="display:inline-block;vertical-align:middle;border:0;" /></a>
+<a href="{{website_url}}" style="display:inline-block;text-decoration:none;"><img src="{{icon_website}}" width="20" height="20" alt="Website" style="display:inline-block;vertical-align:middle;border:0;" /></a>
 </td></tr>
 </table>
 </td>
@@ -299,11 +299,11 @@ function templateHorizon(): string {
 <td valign="middle" align="right">
 <table role="presentation" border="0" cellspacing="0" cellpadding="0" align="right">
 <tr>
-<td style="padding-left:6px;"><a href="{{facebook_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:11px;font-weight:800;text-decoration:none;">f</a></td>
-<td style="padding-left:6px;"><a href="{{instagram_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:11px;font-weight:800;text-decoration:none;">in</a></td>
-<td style="padding-left:6px;"><a href="{{linkedin_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:10px;font-weight:800;text-decoration:none;">li</a></td>
-<td style="padding-left:6px;"><a href="{{x_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:11px;font-weight:800;text-decoration:none;">x</a></td>
-<td style="padding-left:6px;"><a href="{{website_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:10px;font-weight:800;text-decoration:none;">w</a></td>
+<td style="padding-left:6px;"><a href="{{facebook_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_facebook}}" width="18" height="18" alt="Facebook" style="display:inline-block;vertical-align:middle;border:0;" /></a></td>
+<td style="padding-left:6px;"><a href="{{instagram_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_instagram}}" width="18" height="18" alt="Instagram" style="display:inline-block;vertical-align:middle;border:0;" /></a></td>
+<td style="padding-left:6px;"><a href="{{linkedin_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_linkedin}}" width="18" height="18" alt="LinkedIn" style="display:inline-block;vertical-align:middle;border:0;" /></a></td>
+<td style="padding-left:6px;"><a href="{{x_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_twitter}}" width="18" height="18" alt="Twitter" style="display:inline-block;vertical-align:middle;border:0;" /></a></td>
+<td style="padding-left:6px;"><a href="{{website_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};text-decoration:none;"><img src="{{icon_website}}" width="18" height="18" alt="Website" style="display:inline-block;vertical-align:middle;border:0;" /></a></td>
 </tr>
 </table>
 </td>

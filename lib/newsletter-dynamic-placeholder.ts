@@ -107,6 +107,9 @@ export function applyBaseTemplateFields(templateHtml: string, fieldsInput?: Part
     if (isBlankLink(get(f))) html = stripEmptyLink(html, placeholder);
   }
 
+  // Social icon images (white lucide PNGs served from the app's /public — match the website).
+  const iconBase = `${(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.dgsmart.gr").replace(/\/$/, "")}/newsletter-icons`;
+
   return html
     .split("{{company_name}}").join(f.companyName)
     .split("{{logo_url}}").join(f.logoUrl)
@@ -115,6 +118,11 @@ export function applyBaseTemplateFields(templateHtml: string, fieldsInput?: Part
     .split("{{instagram_url}}").join(resolveUrl(f.instagramUrl))
     .split("{{linkedin_url}}").join(resolveUrl(f.linkedinUrl))
     .split("{{x_url}}").join(resolveUrl(f.xUrl))
+    .split("{{icon_facebook}}").join(`${iconBase}/facebook.png`)
+    .split("{{icon_instagram}}").join(`${iconBase}/instagram.png`)
+    .split("{{icon_linkedin}}").join(`${iconBase}/linkedin.png`)
+    .split("{{icon_twitter}}").join(`${iconBase}/twitter.png`)
+    .split("{{icon_website}}").join(`${iconBase}/website.png`)
     .split("{{tagline}}").join(f.tagline)
     .split("{{address_line}}").join(f.addressLine)
     .split("{{phone}}").join(f.phone)
