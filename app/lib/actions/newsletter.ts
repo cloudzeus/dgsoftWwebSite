@@ -622,6 +622,9 @@ function isMissingColumnError(e: unknown): boolean {
   return !!e && typeof e === "object" && (e as { code?: string }).code === "P2022";
 }
 
+/** A campaign stuck on "sending" longer than this is treated as a dead run (recoverable / clearable). */
+const STALE_SENDING_MS = 5 * 60 * 1000;
+
 /** Stable campaign columns that exist on every deployed schema (excludes lastError/sentCount/failedCount). */
 const CAMPAIGN_STABLE_SELECT = {
   id: true,
@@ -641,6 +644,13 @@ const CAMPAIGN_STABLE_SELECT = {
 export async function getNewsletterCampaigns() {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return [];
+  // Self-heal campaigns stuck on "sending" from a crashed/timed-out run, so the UI loader clears.
+  await prisma.newsletterCampaign
+    .updateMany({
+      where: { status: "sending", updatedAt: { lt: new Date(Date.now() - STALE_SENDING_MS) } },
+      data: { status: "failed" },
+    })
+    .catch(() => {});
   let campaigns;
   try {
     campaigns = await prisma.newsletterCampaign.findMany({
@@ -944,7 +954,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
   // updatedAt is set when status flips to "sending"; if it's recent, a run is still active.
   if (campaign.status === "sending") {
     const ageMs = Date.now() - new Date(campaign.updatedAt).getTime();
-    if (ageMs < 15 * 60 * 1000) {
+    if (ageMs < STALE_SENDING_MS) {
       return {
         success: false,
         sent: 0,
@@ -952,7 +962,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
         errors: ["Η αποστολή βρίσκεται ήδη σε εξέλιξη — περιμένετε να ολοκληρωθεί."],
       };
     }
-    // Older than 15 min → the previous run likely died; allow a retry (only "pending" recipients are sent).
+    // Older than the stale window → the previous run likely died; allow a retry (only "pending" recipients are sent).
   }
 
   const pending = campaign.recipients.filter((r) => r.status === "pending");
