@@ -36,6 +36,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -500,6 +501,7 @@ export function NewsletterMediaClient({
                 <FolderPlusIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
               <DialogTitle className="text-sm font-bold text-[#201F1E]">Νέος φάκελος</DialogTitle>
+              <DialogDescription className="sr-only">Δημιουργήστε έναν νέο φάκελο πολυμέσων.</DialogDescription>
             </div>
           </DialogHeader>
           <div className="bg-[#F3F2F1] px-5 py-4">
@@ -534,6 +536,7 @@ export function NewsletterMediaClient({
                 <PencilIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
               <DialogTitle className="text-sm font-bold text-[#201F1E]">Μετονομασία φακέλου</DialogTitle>
+              <DialogDescription className="sr-only">Αλλάξτε το όνομα του επιλεγμένου φακέλου.</DialogDescription>
             </div>
           </DialogHeader>
           <div className="bg-[#F3F2F1] px-5 py-4">

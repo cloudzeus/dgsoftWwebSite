@@ -85,6 +85,7 @@ export default function Navigation() {
                   height={35}
                   priority
                   className="h-[35px] w-auto"
+                  style={{ height: "35px", width: "auto" }}
                 />
               </motion.div>
             </Link>

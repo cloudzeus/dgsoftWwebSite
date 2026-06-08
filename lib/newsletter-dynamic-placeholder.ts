@@ -3,6 +3,7 @@ export const NEWSLETTER_DYNAMIC_CONTENT_PLACEHOLDER = "{{dynamic_content}}";
 export type NewsletterBaseTemplateFields = {
   companyName: string;
   logoUrl: string;
+  websiteUrl: string;
   facebookUrl: string;
   instagramUrl: string;
   linkedinUrl: string;
@@ -19,6 +20,7 @@ export type NewsletterBaseTemplateFields = {
 export const NEWSLETTER_BASE_TEMPLATE_DEFAULT_FIELDS: NewsletterBaseTemplateFields = {
   companyName: "DGSoft",
   logoUrl: "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404552985-q91g8r.webp",
+  websiteUrl: "",
   facebookUrl: "#",
   instagramUrl: "#",
   linkedinUrl: "#",
@@ -57,11 +59,58 @@ export function normalizeBaseTemplateFields(input?: Partial<NewsletterBaseTempla
   return { ...NEWSLETTER_BASE_TEMPLATE_DEFAULT_FIELDS, ...(input ?? {}) };
 }
 
+/** A blank link is one the admin left empty or at the placeholder "#" — its icon/link should be hidden. */
+function isBlankLink(value: string): boolean {
+  const v = (value ?? "").trim();
+  return v === "" || v === "#";
+}
+
+/**
+ * Remove the <a> that points at an empty placeholder so no broken/empty icon renders.
+ * Handles three template shapes: a table-cell-wrapped icon (<td><a>…</a></td>),
+ * a text-list item with a trailing <br />, and a plain inline icon.
+ */
+function stripEmptyLink(html: string, placeholder: string): string {
+  const ph = placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const anchor = `<a\\s+href="\\{\\{${ph}\\}\\}"[^>]*>[\\s\\S]*?<\\/a>`;
+  // table-cell variant: drop the whole single-purpose cell so no empty column remains
+  html = html.replace(new RegExp(`<td[^>]*>\\s*${anchor}\\s*</td>`, "g"), "");
+  // inline / text-list variant: drop the anchor plus a trailing <br /> if present
+  html = html.replace(new RegExp(`${anchor}\\s*(?:<br\\s*/?>)?`, "g"), "");
+  return html;
+}
+
+/** Placeholders whose enclosing link is removed entirely when the value is blank. */
+const LINKABLE_FIELDS: { placeholder: string; get: (f: NewsletterBaseTemplateFields) => string }[] = [
+  { placeholder: "facebook_url",  get: (f) => f.facebookUrl },
+  { placeholder: "instagram_url", get: (f) => f.instagramUrl },
+  { placeholder: "linkedin_url",  get: (f) => f.linkedinUrl },
+  { placeholder: "x_url",         get: (f) => f.xUrl },
+  { placeholder: "website_url",   get: (f) => f.websiteUrl },
+];
+
 export function applyBaseTemplateFields(templateHtml: string, fieldsInput?: Partial<NewsletterBaseTemplateFields> | null): string {
   const f = normalizeBaseTemplateFields(fieldsInput);
-  return templateHtml
+  let html = templateHtml;
+
+  // Point the logo (hard-coded href="#") at the main website when one is set.
+  const website = resolveUrl(f.websiteUrl);
+  if (website && website !== "#") {
+    html = html.replace(
+      /<a href="#"(\s+style="text-decoration:none;">\s*<img src="\{\{logo_url\}\}")/g,
+      `<a href="${website}"$1`
+    );
+  }
+
+  // Hide any social/website icon whose URL is blank, before substituting values in.
+  for (const { placeholder, get } of LINKABLE_FIELDS) {
+    if (isBlankLink(get(f))) html = stripEmptyLink(html, placeholder);
+  }
+
+  return html
     .split("{{company_name}}").join(f.companyName)
     .split("{{logo_url}}").join(f.logoUrl)
+    .split("{{website_url}}").join(resolveUrl(f.websiteUrl))
     .split("{{facebook_url}}").join(resolveUrl(f.facebookUrl))
     .split("{{instagram_url}}").join(resolveUrl(f.instagramUrl))
     .split("{{linkedin_url}}").join(resolveUrl(f.linkedinUrl))

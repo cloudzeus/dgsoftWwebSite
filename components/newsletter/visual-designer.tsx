@@ -51,6 +51,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -75,6 +76,7 @@ type VisualDesignerProps = {
 export function VisualDesigner({ value, onChange, className }: VisualDesignerProps) {
   const blocks = value?.blocks ?? [];
   const bodyOptions = value?.bodyOptions ?? {};
+  const theme: Theme = bodyOptions.theme ?? "light";
   const [previewHtml, setPreviewHtml] = React.useState<string>("");
   const [previewOpen, setPreviewOpen] = React.useState(false);
 
@@ -167,6 +169,7 @@ export function VisualDesigner({ value, onChange, className }: VisualDesignerPro
               key={block.id}
               block={block}
               index={index}
+              theme={theme}
               onUpdate={(b) => updateBlock(index, b)}
               onRemove={() => removeBlock(index)}
               onMoveUp={() => moveBlock(index, -1)}
@@ -241,14 +244,14 @@ function BodyStyleEditor({ bodyOptions, onChange }: BodyStyleEditorProps) {
           <div className="mt-1 flex gap-2">
             <input
               type="color"
-              value={bodyOptions.backgroundColor || (theme === "dark" ? "#1a1a2e" : "#ffffff")}
+              value={bodyOptions.backgroundColor || (theme === "dark" ? "#000000" : "#ffffff")}
               onChange={(e) => onChange({ backgroundColor: e.target.value })}
               className="h-8 w-12 cursor-pointer rounded border"
             />
             <Input
               value={bodyOptions.backgroundColor ?? ""}
               onChange={(e) => onChange({ backgroundColor: e.target.value || undefined })}
-              placeholder={theme === "dark" ? "#1a1a2e" : "#ffffff"}
+              placeholder={theme === "dark" ? "#000000" : "#ffffff"}
               className="h-8 flex-1 font-mono text-xs"
             />
           </div>
@@ -298,6 +301,7 @@ function MediaLibraryDialog({ open, onOpenChange, items, onSelect }: MediaLibrar
             <Images className="h-5 w-5" />
             Media library
           </DialogTitle>
+          <DialogDescription className="sr-only">Επιλέξτε μια εικόνα από τη βιβλιοθήκη πολυμέσων.</DialogDescription>
         </DialogHeader>
         <div className="grid max-h-[60vh] grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
           {items.length === 0 && <p className="col-span-full py-4 text-center text-sm text-muted-foreground">No images yet. Upload from an Image block.</p>}
@@ -321,6 +325,7 @@ function MediaLibraryDialog({ open, onOpenChange, items, onSelect }: MediaLibrar
 type BlockEditorProps = {
   block: EmailBlock;
   index: number;
+  theme: Theme;
   onUpdate: (block: EmailBlock) => void;
   onRemove: () => void;
   onMoveUp: () => void;
@@ -331,6 +336,7 @@ type BlockEditorProps = {
 
 function BlockEditor({
   block,
+  theme,
   onUpdate,
   onRemove,
   onMoveUp,
@@ -397,10 +403,10 @@ function BlockEditor({
       {common}
       <div className="p-3">
         {block.type === "heading" && (
-          <HeadingEditor block={block} onUpdate={onUpdate} />
+          <HeadingEditor block={block} onUpdate={onUpdate} theme={theme} />
         )}
         {block.type === "paragraph" && (
-          <ParagraphEditor block={block} onUpdate={onUpdate} />
+          <ParagraphEditor block={block} onUpdate={onUpdate} theme={theme} />
         )}
         {block.type === "image" && (
           <ImageEditor block={block} onUpdate={onUpdate} />
@@ -420,12 +426,52 @@ function BlockEditor({
   );
 }
 
+/** Theme-aware "Text color" control. In dark theme text is always white, so the picker is locked. */
+function TextColorControl({
+  color,
+  theme,
+  onChange,
+}: {
+  color: string;
+  theme: Theme;
+  onChange: (value: string | undefined) => void;
+}) {
+  return (
+    <>
+      <Label className="text-xs">Text color</Label>
+      {theme === "dark" ? (
+        <div className="mt-1 flex items-center gap-2">
+          <span className="h-8 w-12 rounded border" style={{ backgroundColor: "#ffffff" }} aria-hidden />
+          <p className="text-[11px] text-muted-foreground">Πάντα άσπρο (dark theme)</p>
+        </div>
+      ) : (
+        <div className="mt-1 flex gap-2">
+          <input
+            type="color"
+            value={color || "#000000"}
+            onChange={(e) => onChange(e.target.value)}
+            className="h-8 w-12 cursor-pointer rounded border"
+          />
+          <Input
+            value={color}
+            onChange={(e) => onChange(e.target.value || undefined)}
+            placeholder="#000000"
+            className="h-8 flex-1 font-mono text-xs"
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
 function HeadingEditor({
   block,
   onUpdate,
+  theme,
 }: {
   block: EmailBlock;
   onUpdate: (b: EmailBlock) => void;
+  theme: Theme;
 }) {
   if (block.type !== "heading") return null;
   const props = block.props ?? { text: "", level: 1 as const, align: "left" as const };
@@ -475,21 +521,11 @@ function HeadingEditor({
       </div>
       <div className="sm:col-span-2 flex items-end gap-2">
         <div className="flex-1">
-          <Label className="text-xs">Text color</Label>
-          <div className="mt-1 flex gap-2">
-            <input
-              type="color"
-              value={color || "#000000"}
-              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value } })}
-              className="h-8 w-12 cursor-pointer rounded border"
-            />
-            <Input
-              value={color}
-              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value || undefined } })}
-              placeholder="#000000"
-              className="h-8 flex-1 font-mono text-xs"
-            />
-          </div>
+          <TextColorControl
+            color={color}
+            theme={theme}
+            onChange={(v) => onUpdate({ ...block, props: { ...props, color: v } })}
+          />
         </div>
       </div>
     </div>
@@ -499,9 +535,11 @@ function HeadingEditor({
 function ParagraphEditor({
   block,
   onUpdate,
+  theme,
 }: {
   block: EmailBlock;
   onUpdate: (b: EmailBlock) => void;
+  theme: Theme;
 }) {
   if (block.type !== "paragraph") return null;
   const props = block.props ?? { text: "", align: "left" as const };
@@ -534,21 +572,11 @@ function ParagraphEditor({
           </Select>
         </div>
         <div>
-          <Label className="text-xs">Text color</Label>
-          <div className="mt-1 flex gap-2">
-            <input
-              type="color"
-              value={color || "#000000"}
-              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value } })}
-              className="h-8 w-12 cursor-pointer rounded border"
-            />
-            <Input
-              value={color}
-              onChange={(e) => onUpdate({ ...block, props: { ...props, color: e.target.value || undefined } })}
-              placeholder="#000000"
-              className="h-8 flex-1 font-mono text-xs"
-            />
-          </div>
+          <TextColorControl
+            color={color}
+            theme={theme}
+            onChange={(v) => onUpdate({ ...block, props: { ...props, color: v } })}
+          />
         </div>
       </div>
     </div>

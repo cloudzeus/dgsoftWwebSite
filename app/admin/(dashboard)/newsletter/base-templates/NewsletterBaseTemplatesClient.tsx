@@ -28,7 +28,7 @@ import { NewsletterMediaPickerDialog } from "@/components/newsletter/newsletter-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,6 +44,7 @@ const FIELD_META: {
 }[] = [
   { key: "companyName", label: "Όνομα εταιρείας", mediaGallery: false },
   { key: "logoUrl", label: "URL Λογότυπου", mediaGallery: true },
+  { key: "websiteUrl", label: "URL Ιστοσελίδας (κεντρικό site)", mediaGallery: false },
   { key: "facebookUrl", label: "URL Facebook", mediaGallery: true },
   { key: "instagramUrl", label: "URL Instagram", mediaGallery: true },
   { key: "linkedinUrl", label: "URL LinkedIn", mediaGallery: true },
@@ -359,6 +360,7 @@ export function NewsletterBaseTemplatesClient({
         <DialogContent className="flex h-[96vh] max-h-[96vh] w-[min(100vw-1rem,620px)] max-w-none flex-col gap-0 overflow-hidden p-0 sm:max-w-none">
           <DialogHeader className="shrink-0 border-b px-4 py-3 text-left">
             <DialogTitle className="text-sm">{fullPreview?.title ?? "Προεπισκόπηση"}</DialogTitle>
+            <DialogDescription className="sr-only">Πλήρης προεπισκόπηση του βασικού προτύπου.</DialogDescription>
             <p className="mt-1 text-xs font-normal text-muted-foreground">Προεπισκόπηση ~600px πλάτος· δεν είναι ταυτόσημη με την εμφάνιση στο email client.</p>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-muted/40">
@@ -384,6 +386,7 @@ export function NewsletterBaseTemplatesClient({
                 <Copy className="w-4 h-4 text-[#0078D4]" />
               </div>
               <DialogTitle className="text-sm font-bold text-[#201F1E]">Αντιγραφή βασικού προτύπου</DialogTitle>
+              <DialogDescription className="sr-only">Δημιουργήστε αντίγραφο του επιλεγμένου βασικού προτύπου.</DialogDescription>
             </div>
           </DialogHeader>
           <div className="bg-[#F3F2F1] px-5 py-4 space-y-3">
@@ -446,6 +449,7 @@ export function NewsletterBaseTemplatesClient({
                 <MailIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
               <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Επεξεργασία" : "Δημιουργία"} βασικού προτύπου</DialogTitle>
+              <DialogDescription className="sr-only">Επεξεργαστείτε το HTML και τα πεδία του βασικού προτύπου.</DialogDescription>
             </div>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-[#F3F2F1] px-5 py-4">

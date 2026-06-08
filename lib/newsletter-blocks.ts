@@ -16,7 +16,7 @@ export type BodyOptions = {
 // Default colours per theme
 const THEME_DEFAULTS: Record<Theme, { bg: string; text: string; divider: string; buttonBg: string }> = {
   light: { bg: "#ffffff", text: "#1f2937", divider: "#e5e7eb", buttonBg: "#2563eb" },
-  dark:  { bg: "#1a1a2e", text: "#e5e7eb", divider: "#374151", buttonBg: "#3b82f6" },
+  dark:  { bg: "#000000", text: "#ffffff", divider: "#374151", buttonBg: "#3b82f6" },
 };
 
 export type BlockBase = { id: string; type: BlockType };
@@ -61,20 +61,26 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function renderBlock(block: EmailBlock, td: typeof THEME_DEFAULTS["light"]): string {
+function renderBlock(block: EmailBlock, td: typeof THEME_DEFAULTS["light"], theme: Theme): string {
+  // In dark theme text is always white — ignore any per-block colour so text never
+  // ends up dark-on-black. In light theme an explicit block colour wins.
+  const resolveTextColor = (raw?: string): string => {
+    if (theme === "dark") return td.text;
+    return raw && raw.trim() ? raw : td.text;
+  };
   switch (block.type) {
     case "heading": {
       const level = block.props?.level ?? 1;
       const align = block.props?.align ?? "left";
       const text = block.props?.text ?? "";
-      const color = (block.props as { color?: string }).color ?? td.text;
+      const color = resolveTextColor((block.props as { color?: string }).color);
       const tag = `h${level}`;
       return `<table ${defaultTableAttrs}><tr><td style="padding: 12px 0; text-align: ${align};"><${tag} style="margin: 0; font-size: ${level === 1 ? "24" : level === 2 ? "20" : "16"}px; color: ${escapeHtml(color)};">${escapeHtml(text)}</${tag}></td></tr></table>`;
     }
     case "paragraph": {
       const align = block.props?.align ?? "left";
       const text = escapeHtml(block.props?.text ?? "").replace(/\n/g, "<br>");
-      const color = (block.props as { color?: string }).color ?? td.text;
+      const color = resolveTextColor((block.props as { color?: string }).color);
       return `<table ${defaultTableAttrs}><tr><td style="padding: 8px 0; text-align: ${align}; line-height: 1.5; color: ${escapeHtml(color)};">${text}</td></tr></table>`;
     }
     case "image": {
@@ -121,7 +127,7 @@ export function renderBlocksToHtml(contentOrBlocks: NewsletterContent | EmailBlo
   const theme: Theme = bodyOptions.theme ?? "light";
   const td = THEME_DEFAULTS[theme];
 
-  const parts = blocks.map((b) => renderBlock(b, td));
+  const parts = blocks.map((b) => renderBlock(b, td, theme));
   const innerHtml = parts.join("");
 
   const bg = bodyOptions.backgroundColor ?? td.bg;

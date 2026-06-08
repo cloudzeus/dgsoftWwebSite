@@ -14,6 +14,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -365,6 +366,7 @@ export function NewsletterCampaignsClient({
                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
                   {editingId ? "Επεξεργασία εκστρατείας" : "Νέα εκστρατεία"}
                 </DialogTitle>
+                <DialogDescription className="sr-only">Ρύθμιση παραληπτών και προτύπου για την εκστρατεία.</DialogDescription>
                 <p className="text-[11px] text-[#A19F9D]">Ρύθμιση παραληπτών και προτύπου</p>
               </div>
             </div>

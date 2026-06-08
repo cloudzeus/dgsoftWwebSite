@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -154,6 +155,7 @@ export function NewsletterTemplatesClient({
                 <PlusIcon className="w-4 h-4 text-[#0078D4]" />
               </div>
               <DialogTitle className="text-sm font-bold text-[#201F1E]">{editingId ? "Επεξεργασία προτύπου" : "Νέο πρότυπο"}</DialogTitle>
+              <DialogDescription className="sr-only">Επεξεργαστείτε το όνομα και το περιεχόμενο του προτύπου.</DialogDescription>
             </div>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-[#F3F2F1] px-5 py-4 space-y-3">

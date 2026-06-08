@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   createNewsletterCampaign,
   createNewsletterTemplate,
@@ -313,6 +313,7 @@ function CompanyForm({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-sm">Νέα εταιρεία αποστολής</DialogTitle>
+          <DialogDescription className="sr-only">Συμπληρώστε τα στοιχεία της νέας εταιρείας αποστολής.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -528,6 +529,7 @@ function StepDetails({
             <DialogContent className="max-w-xl">
               <DialogHeader>
                 <DialogTitle className="text-sm">Επιλέξτε εταιρεία αποστολής</DialogTitle>
+                <DialogDescription className="sr-only">Επιλέξτε μια υπάρχουσα εταιρεία αποστολής ή δημιουργήστε νέα.</DialogDescription>
               </DialogHeader>
               <div className="space-y-2 max-h-[60vh] overflow-y-auto">
                 {/* Create-new tile */}
@@ -596,7 +598,7 @@ function StepContent({
   const [designerOpen, setDesignerOpen] = React.useState(false);
 
   const emptyContent: NewsletterContent = React.useMemo(
-    () => ({ blocks: [createBlock("paragraph")], bodyOptions: { backgroundColor: "#ffffff" } }),
+    () => ({ blocks: [createBlock("paragraph")], bodyOptions: { theme: "dark" } }),
     []
   );
 
@@ -626,16 +628,19 @@ function StepContent({
 
   return (
     <>
-      {/* Full-screen designer modal */}
+      {/* Designer modal — 80% of the viewport, centered */}
       <Dialog open={designerOpen} onOpenChange={setDesignerOpen}>
         <DialogContent
-          className="!max-w-none w-screen h-screen p-0 gap-0 rounded-none border-0 flex flex-col"
-          style={{ width: "100vw", height: "100vh" }}
+          className="!max-w-none p-0 gap-0 overflow-hidden flex flex-col"
+          style={{ width: "80vw", height: "80vh" }}
         >
           <DialogHeader className="px-5 py-3 border-b border-[#EDEBE9] bg-white shrink-0 flex-row items-center justify-between space-y-0">
             <DialogTitle className="text-[13px] font-semibold text-[#201F1E]">
               Visual Designer — Σχεδιασμός περιεχομένου
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Σχεδιάστε το περιεχόμενο του newsletter προσθέτοντας μπλοκ κειμένου, εικόνων και κουμπιών.
+            </DialogDescription>
             <Button
               size="sm"
               onClick={() => setDesignerOpen(false)}
@@ -1101,6 +1106,7 @@ function StepReview({
             <DialogTitle className="text-[13px] font-semibold text-[#201F1E]">
               Πλήρης προεπισκόπηση — {state.subject || "Χωρίς θέμα"}
             </DialogTitle>
+            <DialogDescription className="sr-only">Πλήρης προεπισκόπηση του newsletter όπως θα εμφανιστεί στους παραλήπτες.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-hidden bg-[#F3F2F1] p-4">
             <div className="h-full rounded-lg overflow-hidden border border-[#EDEBE9] shadow bg-white">
@@ -1336,6 +1342,7 @@ function TestSendDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-sm">Αποστολή δοκιμαστικού email</DialogTitle>
+          <DialogDescription className="sr-only">Στείλτε ένα δοκιμαστικό email σε μια διεύθυνση για προεπισκόπηση.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <Input
@@ -1618,6 +1625,7 @@ export function NewsletterWizardClient({
             <DialogTitle className="text-[13px] font-semibold text-[#201F1E]">
               Προεπισκόπηση email — {state.subject || "Χωρίς θέμα"}
             </DialogTitle>
+            <DialogDescription className="sr-only">Προεπισκόπηση του email όπως θα εμφανιστεί στους παραλήπτες.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-hidden bg-[#F3F2F1] p-4">
             <div className="h-full rounded-lg overflow-hidden border border-[#EDEBE9] shadow bg-white">

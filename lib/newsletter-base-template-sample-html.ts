@@ -71,6 +71,7 @@ function templateLedger(): string {
 <a href="{{instagram_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">Ig</a>
 <a href="{{linkedin_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">In</a>
 <a href="{{x_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">X</a>
+<a href="{{website_url}}" style="display:inline-block;margin:2px 0 2px 6px;padding:9px 12px;background-color:${C.gray};border:1px solid ${C.line};color:${C.soft};font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;text-decoration:none;">Web</a>
 </td>
 </tr>
 </table>
@@ -214,7 +215,8 @@ function templateSpine(): string {
 <a href="{{facebook_url}}" style="color:${C.soft};text-decoration:none;">Facebook</a><br />
 <a href="{{instagram_url}}" style="color:${C.soft};text-decoration:none;">Instagram</a><br />
 <a href="{{linkedin_url}}" style="color:${C.soft};text-decoration:none;">LinkedIn</a><br />
-<a href="{{x_url}}" style="color:${C.soft};text-decoration:none;">X</a>
+<a href="{{x_url}}" style="color:${C.soft};text-decoration:none;">X</a><br />
+<a href="{{website_url}}" style="color:${C.soft};text-decoration:none;">Website</a>
 </td></tr>
 </table>
 </td>
@@ -301,6 +303,7 @@ function templateHorizon(): string {
 <td style="padding-left:6px;"><a href="{{instagram_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:11px;font-weight:800;text-decoration:none;">in</a></td>
 <td style="padding-left:6px;"><a href="{{linkedin_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:10px;font-weight:800;text-decoration:none;">li</a></td>
 <td style="padding-left:6px;"><a href="{{x_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:11px;font-weight:800;text-decoration:none;">x</a></td>
+<td style="padding-left:6px;"><a href="{{website_url}}" style="display:block;width:36px;height:36px;line-height:36px;text-align:center;background-color:${C.gray};border:1px solid ${C.line};color:${C.white};font-size:10px;font-weight:800;text-decoration:none;">w</a></td>
 </tr>
 </table>
 </td>
