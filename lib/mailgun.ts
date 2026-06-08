@@ -71,7 +71,16 @@ export async function sendMailgun(options: SendMailgunOptions): Promise<
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const msg = (data as { message?: string }).message ?? data?.error ?? res.statusText ?? "Mailgun request failed";
+      // 401/403 = Mailgun rejected the credentials. The body is usually plain text
+      // ("Forbidden") so res.statusText would otherwise surface a bare "Unauthorized".
+      if (res.status === 401 || res.status === 403) {
+        const region = endpoint.includes("api.eu.") ? "EU" : "US";
+        return {
+          success: false,
+          error: `Mailgun auth failed (HTTP ${res.status}). Check MAILGUN_API_KEY and that MAILGUN_ENDPOINT matches the domain's region (currently ${region}: ${endpoint}).`,
+        };
+      }
+      const msg = (data as { message?: string }).message ?? (data as { error?: string }).error ?? res.statusText ?? "Mailgun request failed";
       return { success: false, error: typeof msg === "string" ? msg : JSON.stringify(msg) };
     }
     return { success: true, id: (data as { id?: string }).id };
