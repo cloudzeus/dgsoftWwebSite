@@ -764,6 +764,9 @@ model NewsletterCampaign {
   status              String @default("draft") @db.VarChar(32) // draft, sending, sent, failed
   filters             Json?  // { regionIds, nomosIds, dimosIds, cities, legalStatuses, kadCodes, trdpGroupIds, trdBusinessIds }
   sentAt              DateTime?
+  lastError           String?  @db.Text // summary of the last send's failures (distinct error messages + counts)
+  sentCount           Int      @default(0) // recipients sent in the last send
+  failedCount         Int      @default(0) // recipients failed in the last send
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
 

@@ -58,6 +58,9 @@ type Campaign = {
   _count: { recipients: number };
   template: { name: string } | null;
   companyCount?: number;
+  lastError?: string | null;
+  sentCount?: number;
+  failedCount?: number;
 };
 
 type FilterOptions = {
@@ -95,7 +98,7 @@ export function NewsletterCampaignsClient({
   const [testSending, setTestSending] = React.useState(false);
   const [campaignDetail, setCampaignDetail] = React.useState<{
     id: string;
-    recipients: { status: string }[];
+    recipients: { status: string; email: string; error: string | null }[];
   } | null>(null);
 
   const updateFilter = <K extends keyof NewsletterFilters>(key: K, value: NewsletterFilters[K]) => {
@@ -295,7 +298,16 @@ export function NewsletterCampaignsClient({
               {c.sentAt && (
                 <p className="text-xs text-muted-foreground">
                   Εστάλη {new Date(c.sentAt).toLocaleString()}
+                  {(c.sentCount ?? 0) > 0 || (c.failedCount ?? 0) > 0
+                    ? ` · OK: ${c.sentCount ?? 0} · Σφάλματα: ${c.failedCount ?? 0}`
+                    : ""}
                 </p>
+              )}
+              {c.lastError && (
+                <div className="rounded border border-red-200 bg-red-50 p-2 text-[11px] leading-snug text-red-700">
+                  <p className="font-semibold">Σφάλματα αποστολής{(c.failedCount ?? 0) > 0 ? ` (${c.failedCount})` : ""}</p>
+                  <p className="mt-0.5 max-h-16 overflow-y-auto break-words font-mono">{c.lastError}</p>
+                </div>
               )}
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -341,13 +353,41 @@ export function NewsletterCampaignsClient({
               const failed = recs.filter((r) => r.status === "failed").length;
               const opened = recs.filter((r) => r.status === "opened").length;
               const clicked = recs.filter((r) => r.status === "clicked").length;
+              const failedRecs = recs.filter((r) => r.status === "failed");
               return (
-                <div className="grid gap-2 text-sm sm:grid-cols-2 md:grid-cols-5">
-                  <div>Σύνολο: <strong>{recs.length}</strong></div>
-                  <div>Εκκρεμή: <strong>{pending}</strong></div>
-                  <div>Εστάλησαν: <strong>{sent}</strong></div>
-                  <div>Απέτυχαν: <strong>{failed}</strong></div>
-                  <div>Ανοίχτηκαν / Κλικ: <strong>{opened} / {clicked}</strong></div>
+                <div className="space-y-4">
+                  <div className="grid gap-2 text-sm sm:grid-cols-2 md:grid-cols-5">
+                    <div>Σύνολο: <strong>{recs.length}</strong></div>
+                    <div>Εκκρεμή: <strong>{pending}</strong></div>
+                    <div>Εστάλησαν: <strong>{sent}</strong></div>
+                    <div>Απέτυχαν: <strong>{failed}</strong></div>
+                    <div>Ανοίχτηκαν / Κλικ: <strong>{opened} / {clicked}</strong></div>
+                  </div>
+                  {failedRecs.length > 0 && (
+                    <div>
+                      <p className="mb-1 text-xs font-semibold text-red-700">
+                        Αρχείο σφαλμάτων ({failedRecs.length})
+                      </p>
+                      <div className="max-h-64 overflow-y-auto rounded border border-red-200 bg-red-50/50">
+                        <table className="w-full text-left text-[11px]">
+                          <thead className="sticky top-0 bg-red-100 text-red-800">
+                            <tr>
+                              <th className="px-2 py-1 font-semibold">Email</th>
+                              <th className="px-2 py-1 font-semibold">Σφάλμα</th>
+                            </tr>
+                          </thead>
+                          <tbody className="font-mono text-red-700">
+                            {failedRecs.map((r, i) => (
+                              <tr key={i} className="border-t border-red-200/60 align-top">
+                                <td className="px-2 py-1 whitespace-nowrap">{r.email}</td>
+                                <td className="px-2 py-1 break-words">{r.error ?? "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })()}

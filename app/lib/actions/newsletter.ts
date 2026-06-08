@@ -951,6 +951,7 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
   let sent = 0;
   let failed = 0;
   const errors: string[] = [];
+  const errorCounts = new Map<string, number>(); // distinct error message -> count
 
   for (const rec of pending) {
     // Skip unsubscribed recipients
@@ -984,20 +985,35 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
       });
     } else {
       failed++;
-      errors.push(`${rec.email}: ${(result as { error: string }).error}`);
+      const msg = (result as { error: string }).error;
+      errors.push(`${rec.email}: ${msg}`);
+      errorCounts.set(msg, (errorCounts.get(msg) ?? 0) + 1);
       await prisma.newsletterCampaignRecipient.update({
         where: { id: rec.id },
-        data: { status: "failed", error: (result as { error: string }).error },
+        data: { status: "failed", error: msg },
       });
     }
     await new Promise((r) => setTimeout(r, 100));
   }
+
+  // Persist a compact summary of distinct failures (most frequent first) on the campaign.
+  const lastError =
+    errorCounts.size > 0
+      ? [...errorCounts.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .map(([msg, n]) => `${msg} (×${n})`)
+          .join("; ")
+          .slice(0, 2000)
+      : null;
 
   await prisma.newsletterCampaign.update({
     where: { id: campaignId },
     data: {
       status: failed === pending.length ? "failed" : "sent",
       sentAt: new Date(),
+      lastError,
+      sentCount: sent,
+      failedCount: failed,
     },
   });
 
