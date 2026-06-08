@@ -296,8 +296,8 @@ export function NewsletterCampaignsClient({
                 {(c.companyCount ?? 0) > 0 && ` · Εταιρείες: ${c.companyCount}`}
               </p>
               {c.sentAt && (
-                <p className="text-xs text-muted-foreground">
-                  Εστάλη {new Date(c.sentAt).toLocaleString()}
+                <p className="text-xs text-muted-foreground" suppressHydrationWarning>
+                  Εστάλη {new Date(c.sentAt).toLocaleString("el-GR", { timeZone: "Europe/Athens" })}
                   {(c.sentCount ?? 0) > 0 || (c.failedCount ?? 0) > 0
                     ? ` · OK: ${c.sentCount ?? 0} · Σφάλματα: ${c.failedCount ?? 0}`
                     : ""}
