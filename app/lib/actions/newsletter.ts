@@ -940,6 +940,21 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
   });
   if (!campaign) return { success: false, sent: 0, failed: 0, errors: ["Campaign not found"] };
 
+  // Guard against a second send starting while one is in progress (double-click / page refresh).
+  // updatedAt is set when status flips to "sending"; if it's recent, a run is still active.
+  if (campaign.status === "sending") {
+    const ageMs = Date.now() - new Date(campaign.updatedAt).getTime();
+    if (ageMs < 15 * 60 * 1000) {
+      return {
+        success: false,
+        sent: 0,
+        failed: 0,
+        errors: ["Η αποστολή βρίσκεται ήδη σε εξέλιξη — περιμένετε να ολοκληρωθεί."],
+      };
+    }
+    // Older than 15 min → the previous run likely died; allow a retry (only "pending" recipients are sent).
+  }
+
   const pending = campaign.recipients.filter((r) => r.status === "pending");
   if (pending.length === 0) {
     return { success: true, sent: 0, failed: 0, errors: [] };
@@ -1001,14 +1016,15 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
   const errors: string[] = [];
   const errorCounts = new Map<string, number>(); // distinct error message -> count
 
-  for (const rec of pending) {
+  // Send a single recipient and persist its outcome.
+  const sendOne = async (rec: (typeof pending)[number]) => {
     // Skip unsubscribed recipients
     if (unsubSet.has(rec.email.toLowerCase())) {
       await prisma.newsletterCampaignRecipient.update({
         where: { id: rec.id },
         data: { status: "unsubscribed" },
       });
-      continue;
+      return;
     }
 
     // Build per-recipient unsubscribe URL
@@ -1041,37 +1057,42 @@ export async function sendNewsletterCampaign(campaignId: string): Promise<SendCa
         data: { status: "failed", error: msg },
       });
     }
-    await new Promise((r) => setTimeout(r, 100));
-  }
+  };
 
-  // Persist a compact summary of distinct failures (most frequent first) on the campaign.
-  const lastError =
-    errorCounts.size > 0
-      ? [...errorCounts.entries()]
-          .sort((a, b) => b[1] - a[1])
-          .map(([msg, n]) => `${msg} (×${n})`)
-          .join("; ")
-          .slice(0, 2000)
-      : null;
+  // Finalize the campaign status — runs even if the loop throws, so it never stays stuck on "sending".
+  const finalize = async () => {
+    const terminalStatus = sent === 0 && failed > 0 ? "failed" : "sent";
+    const lastError =
+      errorCounts.size > 0
+        ? [...errorCounts.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .map(([msg, n]) => `${msg} (×${n})`)
+            .join("; ")
+            .slice(0, 2000)
+        : null;
+    try {
+      await prisma.newsletterCampaign.update({
+        where: { id: campaignId },
+        data: { status: terminalStatus, sentAt: new Date(), lastError, sentCount: sent, failedCount: failed },
+      });
+    } catch (e) {
+      if (!isMissingColumnError(e)) throw e;
+      // DB not yet migrated — still record status/sentAt (per-recipient errors are already saved).
+      await prisma.newsletterCampaign.update({
+        where: { id: campaignId },
+        data: { status: terminalStatus, sentAt: new Date() },
+      });
+    }
+  };
 
+  // Send in concurrency-limited batches (much faster than one-at-a-time, no artificial delay).
+  const CONCURRENCY = 10;
   try {
-    await prisma.newsletterCampaign.update({
-      where: { id: campaignId },
-      data: {
-        status: failed === pending.length ? "failed" : "sent",
-        sentAt: new Date(),
-        lastError,
-        sentCount: sent,
-        failedCount: failed,
-      },
-    });
-  } catch (e) {
-    if (!isMissingColumnError(e)) throw e;
-    // DB not yet migrated — still record status/sentAt (per-recipient errors are already saved).
-    await prisma.newsletterCampaign.update({
-      where: { id: campaignId },
-      data: { status: failed === pending.length ? "failed" : "sent", sentAt: new Date() },
-    });
+    for (let i = 0; i < pending.length; i += CONCURRENCY) {
+      await Promise.all(pending.slice(i, i + CONCURRENCY).map(sendOne));
+    }
+  } finally {
+    await finalize();
   }
 
   revalidatePath(`${NEWSLETTER_PATH}/campaigns`);

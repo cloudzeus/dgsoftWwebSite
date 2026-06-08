@@ -331,10 +331,10 @@ export function NewsletterCampaignsClient({
                 <Button
                   size="sm"
                   onClick={() => handleSend(c.id)}
-                  disabled={sending === c.id || c.status === "sending" || (c._count?.recipients ?? 0) === 0}
+                  disabled={sending === c.id || (c._count?.recipients ?? 0) === 0}
                 >
-                  {sending === c.id ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <SendIcon className="h-4 w-4" />}
-                  Αποστολή
+                  {sending === c.id || c.status === "sending" ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <SendIcon className="h-4 w-4" />}
+                  {c.status === "sending" && sending !== c.id ? "Σε εξέλιξη…" : "Αποστολή"}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => openStats(c)}>
                   Στατιστικά
