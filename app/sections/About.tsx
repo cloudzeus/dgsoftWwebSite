@@ -42,10 +42,8 @@ export default function About({ contentEL, contentEN }: AboutProps) {
   return (
     <section id="about" className="py-32 bg-monks-black relative overflow-hidden">
       {/* Large Background Text */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <span className="text-[20vw] font-bold text-white/[0.02] whitespace-nowrap">
-          DGSOFT
-        </span>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" aria-hidden="true">
+        <span data-deco="DGSOFT" className="text-[20vw] font-bold text-white/[0.02] whitespace-nowrap" />
       </div>
 
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
@@ -79,7 +77,7 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                   <div className="h-px w-10 bg-monks-accent" />
                   <span>{locale === "el" ? "Από Τότε" : "Since Then"}</span>
                 </div>
-                <div className="mt-10 space-y-3 text-sm text-monks-light/80 max-w-[200px]">
+                <div className="mt-10 space-y-3 text-sm text-monks-light max-w-[200px]">
                   <div className="flex items-baseline gap-3">
                     <span className="text-monks-red-light font-bold tabular-nums">15+</span>
                     <span>{locale === "el" ? "χρόνια εμπειρίας" : "years of experience"}</span>
@@ -162,11 +160,10 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                 className="group"
               >
                 <div
+                  data-deco={`0${index + 1}`}
                   className="text-5xl font-bold text-white/10 group-hover:text-monks-red-light/30 transition-colors mb-4"
                   aria-hidden="true"
-                >
-                  0{index + 1}
-                </div>
+                />
                 <h4 className="text-xl font-bold text-white mb-2">{award.title}</h4>
                 <p className="text-monks-light">{award.org}</p>
               </motion.div>

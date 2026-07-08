@@ -160,7 +160,7 @@ export default function NewsletterSignup() {
                     </div>
                     <div>
                       <label htmlFor="newsletter-name" className="block text-xs uppercase tracking-wider text-monks-light mb-2 font-semibold">
-                        Όνομα <span className="text-monks-light/60 normal-case font-normal">(προαιρετικό)</span>
+                        Όνομα <span className="text-monks-light normal-case font-normal">(προαιρετικό)</span>
                       </label>
                       <input
                         id="newsletter-name"

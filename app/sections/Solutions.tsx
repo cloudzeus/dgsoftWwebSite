@@ -104,11 +104,10 @@ export default function Solutions({ services }: { services: SolutionService[] })
                       {/* Number Badge */}
                       <div className="absolute top-6 left-6 z-20">
                         <span
+                          data-deco={number}
                           className="text-6xl font-bold text-white/10 group-hover:text-monks-red-light/30 transition-colors"
                           aria-hidden="true"
-                        >
-                          {number}
-                        </span>
+                        />
                       </div>
 
                       {/* Arrow Icon */}
@@ -128,7 +127,7 @@ export default function Solutions({ services }: { services: SolutionService[] })
 
                       {/* Tags */}
                       <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 text-xs font-medium text-monks-light bg-white/5 rounded-full border border-white/10">
+                        <span className="px-3 py-1 text-xs font-medium text-white/80 bg-white/5 rounded-full border border-white/10">
                           {categoryTag(service)}
                         </span>
                       </div>

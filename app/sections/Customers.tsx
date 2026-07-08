@@ -58,6 +58,9 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
             className="flex whitespace-nowrap gap-16 py-8"
           >
             {[...items, ...items].map((customer, i) => {
+              // Second copy is a visual-only clone for the seamless marquee loop —
+              // hide it from assistive tech so links/alt text aren't announced twice.
+              const isClone = i >= items.length;
               const logo = customer.logo?.trim();
               const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(customer.NAME ?? "")}&background=334155&color=94a3b8`;
               const src = logo || fallbackUrl;
@@ -69,7 +72,7 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                 >
                   <Image
                     src={src}
-                    alt={customer.NAME}
+                    alt={isClone ? "" : customer.NAME}
                     width={180}
                     height={100}
                     loading="lazy"
@@ -87,12 +90,19 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                         href={website.startsWith("http") ? website : `https://${website}`}
                         target="_blank"
                         rel="nofollow noopener noreferrer"
+                        aria-hidden={isClone || undefined}
+                        tabIndex={isClone ? -1 : undefined}
+                        aria-label={
+                          isClone
+                            ? undefined
+                            : `${customer.NAME} (ανοίγει σε νέο παράθυρο)`
+                        }
                         className="rounded-2xl focus:outline-none focus:ring-2 focus:ring-monks-accent/50"
                       >
                         {content}
                       </a>
                     ) : (
-                      <span className="block">{content}</span>
+                      <span className="block" aria-hidden={isClone || undefined}>{content}</span>
                     )}
                   </TooltipTrigger>
                   <TooltipContent side="top" className="rounded-lg border-0 bg-zinc-800 px-2.5 py-1.5 text-white shadow-lg">
