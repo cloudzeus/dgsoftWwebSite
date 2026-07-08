@@ -38,7 +38,7 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
     };
 
     const SERVICE_BADGE_COLORS = [
-        "bg-monks-accent/20 text-monks-accent border-monks-accent/50",
+        "bg-monks-accent/20 text-monks-red-light border-monks-accent/50",
         "bg-emerald-500/20 text-emerald-400 border-emerald-500/50",
         "bg-blue-500/20 text-blue-400 border-blue-500/50",
         "bg-amber-500/20 text-amber-400 border-amber-500/50",
@@ -111,7 +111,7 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, ease: "easeOut" }}
                             >
-                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-monks-gray/50 border border-white/10 text-monks-accent text-sm font-bold tracking-wider mb-8">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-monks-gray/50 border border-white/10 text-monks-red-light text-sm font-bold tracking-wider mb-8">
                                     <Server className="w-4 h-4" /> {locale === "el" ? "Μελέτη Περίπτωσης" : "Case Study"}
                                 </div>
                                 <h1 className="text-5xl md:text-6xl lg:text-7xl leading-[1.1] font-black text-white mb-8">
@@ -160,7 +160,7 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
                                         transition={{ delay: i * 0.1 }}
                                         className="border border-white/5 rounded-[2rem] p-8 bg-monks-black hover:border-monks-accent/30 transition-colors"
                                     >
-                                        <MetricIcon className="w-8 h-8 text-monks-accent mb-6" />
+                                        <MetricIcon className="w-8 h-8 text-monks-red-light mb-6" />
                                         <span className="block text-4xl text-white font-black mb-2">{metric.title}</span>
                                         <span className="text-xs text-monks-light tracking-widest leading-tight block">{metric.desc}</span>
                                     </motion.div>
@@ -172,7 +172,7 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
-                        className="w-full text-2xl md:text-3xl text-monks-light font-light leading-relaxed text-justify"
+                        className="w-full text-2xl md:text-3xl text-monks-light font-light leading-relaxed"
                     >
                         <span className="text-white font-bold">{locale === "el" ? "Η Πρόκληση:" : "The Challenge:"}</span> {data.challenge}
                     </motion.div>
@@ -192,7 +192,7 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
                                     ref={el => { if (el) milestoneItemsRef.current[i] = el as HTMLDivElement; }}
                                     className="flex items-center gap-4 text-lg text-white font-medium bg-monks-black/50 p-4 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl"
                                 >
-                                    <CheckCircle className="w-6 h-6 text-monks-accent flex-shrink-0" />
+                                    <CheckCircle className="w-6 h-6 text-monks-red-light flex-shrink-0" />
                                     <span>{feat}</span>
                                 </div>
                             ))}
@@ -204,7 +204,7 @@ export default function ClientPage({ initialWork }: { initialWork: any }) {
                             <div className="relative w-48 h-48 lg:w-64 lg:h-64 border-[0.5px] border-monks-accent/30 rounded-full animate-[spin_40s_linear_infinite] flex items-center justify-center">
                                 <div className="w-32 h-32 lg:w-48 lg:h-48 border-[1px] border-white/10 rounded-full animate-[spin_25s_linear_reverse_infinite] flex items-center justify-center divide-x divide-white/10">
                                     <div className="w-20 h-20 lg:w-32 lg:h-32 bg-monks-black rounded-full shadow-[0_0_40px_rgba(230,57,70,0.2)] flex items-center justify-center border border-monks-accent/20">
-                                        <Cpu className="w-8 h-8 lg:w-12 lg:h-12 text-monks-accent" />
+                                        <Cpu className="w-8 h-8 lg:w-12 lg:h-12 text-monks-red-light" />
                                     </div>
                                 </div>
                             </div>

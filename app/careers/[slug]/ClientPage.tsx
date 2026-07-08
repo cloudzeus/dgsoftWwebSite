@@ -34,17 +34,17 @@ export default function ClientPage({ slug }: { slug: string }) {
 
                     <div className="flex flex-wrap items-center gap-6 md:gap-12 mt-4 bg-white/5 py-4 px-6 md:px-8 rounded-full border border-white/10 w-fit">
                         <div className="flex items-center gap-2 text-monks-light font-medium">
-                            <BriefcaseBusiness className="w-4 h-4 text-monks-accent" />
+                            <BriefcaseBusiness className="w-4 h-4 text-monks-red-light" />
                             Τμήμα Υλοποίησης
                         </div>
                         <div className="hidden md:block w-1 h-4 bg-white/10" />
                         <div className="flex items-center gap-2 text-monks-light font-medium">
-                            <MapPin className="w-4 h-4 text-monks-accent" />
+                            <MapPin className="w-4 h-4 text-monks-red-light" />
                             Αθήνα / Θεσσαλονίκη / Remote
                         </div>
                         <div className="hidden md:block w-1 h-4 bg-white/10" />
                         <div className="flex items-center gap-2 text-monks-light font-medium">
-                            <Clock className="w-4 h-4 text-monks-accent" />
+                            <Clock className="w-4 h-4 text-monks-red-light" />
                             Πλήρης Απασχόληση
                         </div>
                     </div>
@@ -76,7 +76,7 @@ export default function ClientPage({ slug }: { slug: string }) {
                                     'Παρακολούθηση και διασφάλιση εύρυθμης λειτουργίας συστημάτων.'
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-start gap-4">
-                                        <CheckCircle2 className="w-6 h-6 text-monks-accent mt-0.5 flex-shrink-0" />
+                                        <CheckCircle2 className="w-6 h-6 text-monks-red-light mt-0.5 flex-shrink-0" />
                                         <span>{item}</span>
                                     </li>
                                 ))}
@@ -88,7 +88,7 @@ export default function ClientPage({ slug }: { slug: string }) {
                             <ul className="space-y-4">
                                 {['Αποδεδειγμένη εργασιακή εμπειρία σε IT οργανισμούς και επιχειρηματικό λογισμικό.', 'Καλή γνώση συστημάτων RDBMS (π.χ. SQL Server, Oracle).', 'Ισχυρές αναλυτικές δεξιότητες και ικανότητα επίλυσης προβλημάτων.', 'Πτυχίο ΑΕΙ/ΤΕΙ Κατεύθυνσης Πληροφορικής ή Οικονομικής. '].map((item, i) => (
                                     <li key={i} className="flex items-start gap-4">
-                                        <CheckCircle2 className="w-6 h-6 text-monks-accent mt-0.5 flex-shrink-0" />
+                                        <CheckCircle2 className="w-6 h-6 text-monks-red-light mt-0.5 flex-shrink-0" />
                                         <span>{item}</span>
                                     </li>
                                 ))}

@@ -104,11 +104,10 @@ export default function Solutions({ services }: { services: SolutionService[] })
                       {/* Number Badge */}
                       <div className="absolute top-6 left-6 z-20">
                         <span
-                          className="text-6xl font-bold text-white/10 group-hover:text-monks-accent/30 transition-colors"
+                          data-deco={number}
+                          className="text-6xl font-bold text-white/10 group-hover:text-monks-red-light/30 transition-colors"
                           aria-hidden="true"
-                        >
-                          {number}
-                        </span>
+                        />
                       </div>
 
                       {/* Arrow Icon */}
@@ -119,16 +118,16 @@ export default function Solutions({ services }: { services: SolutionService[] })
 
                     {/* Content */}
                     <div className="p-8 flex flex-col flex-grow">
-                      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-monks-accent transition-colors">
+                      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-monks-red-light transition-colors">
                         {name(service)}
                       </h3>
-                      <p className="text-monks-light mb-6 leading-relaxed flex-grow line-clamp-3 text-justify">
+                      <p className="text-monks-light mb-6 leading-relaxed flex-grow line-clamp-3">
                         {desc(service)}
                       </p>
 
                       {/* Tags */}
                       <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 text-xs font-medium text-monks-light bg-white/5 rounded-full border border-white/10">
+                        <span className="px-3 py-1 text-xs font-medium text-white/80 bg-white/5 rounded-full border border-white/10">
                           {categoryTag(service)}
                         </span>
                       </div>
@@ -148,7 +147,7 @@ export default function Solutions({ services }: { services: SolutionService[] })
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="mt-20 text-center"
         >
-          <p className="text-monks-light mb-8 max-w-2xl mx-auto text-justify">
+          <p className="text-monks-light mb-8 max-w-2xl mx-auto">
             {ctaText}
           </p>
           <Link href="/services" className="inline-block px-8 py-4 border border-white/20 text-white font-semibold rounded-full hover:bg-white hover:text-monks-black transition-all duration-300">

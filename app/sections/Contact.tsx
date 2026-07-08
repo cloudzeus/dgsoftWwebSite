@@ -45,7 +45,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="text-sm text-monks-light">Email</div>
-                  <div className="text-white font-medium group-hover:text-monks-accent transition-colors">
+                  <div className="text-white font-medium group-hover:text-monks-red-light transition-colors">
                     info@dgsoft.gr
                   </div>
                 </div>
@@ -57,7 +57,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <div className="text-sm text-monks-light">Τηλέφωνο</div>
-                  <div className="text-white font-medium group-hover:text-monks-accent transition-colors">
+                  <div className="text-white font-medium group-hover:text-monks-red-light transition-colors">
                     210 5711581
                   </div>
                 </div>

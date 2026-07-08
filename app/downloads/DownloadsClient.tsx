@@ -8,11 +8,11 @@ import { useLocale } from "../context/LocaleContext";
 
 function getFileIcon(fileType: string | null | undefined) {
     const t = (fileType || "").toLowerCase();
-    if (t.includes("pdf")) return <FileCheck className="w-8 h-8 text-white/50 group-hover:text-monks-accent transition-colors duration-500" />;
-    if (t.includes("ppt") || t.includes("presentation")) return <Monitor className="w-8 h-8 text-white/50 group-hover:text-monks-accent transition-colors duration-500" />;
-    if (t.includes("xls") || t.includes("sheet") || t.includes("csv")) return <FileSpreadsheet className="w-8 h-8 text-white/50 group-hover:text-monks-accent transition-colors duration-500" />;
-    if (t.includes("zip") || t.includes("rar")) return <Archive className="w-8 h-8 text-white/50 group-hover:text-monks-accent transition-colors duration-500" />;
-    return <FileText className="w-8 h-8 text-white/50 group-hover:text-monks-accent transition-colors duration-500" />;
+    if (t.includes("pdf")) return <FileCheck className="w-8 h-8 text-white/50 group-hover:text-monks-red-light transition-colors duration-500" />;
+    if (t.includes("ppt") || t.includes("presentation")) return <Monitor className="w-8 h-8 text-white/50 group-hover:text-monks-red-light transition-colors duration-500" />;
+    if (t.includes("xls") || t.includes("sheet") || t.includes("csv")) return <FileSpreadsheet className="w-8 h-8 text-white/50 group-hover:text-monks-red-light transition-colors duration-500" />;
+    if (t.includes("zip") || t.includes("rar")) return <Archive className="w-8 h-8 text-white/50 group-hover:text-monks-red-light transition-colors duration-500" />;
+    return <FileText className="w-8 h-8 text-white/50 group-hover:text-monks-red-light transition-colors duration-500" />;
 }
 
 export default function DownloadsClient({ downloads = [] }: { downloads: any[] }) {
@@ -34,11 +34,11 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     className="max-w-4xl"
                 >
-                    <span className="text-monks-accent font-medium tracking-widest mb-4 block text-sm">{locale === "el" ? "Χρήσιμο Υλικό" : "Useful Resources"}</span>
+                    <span className="text-monks-red-light font-medium tracking-widest mb-4 block text-sm">{locale === "el" ? "Χρήσιμο Υλικό" : "Useful Resources"}</span>
                     <h1 className="text-[clamp(3rem,5vw,5rem)] font-black text-white capitalize mb-8 leading-[1.1]">
-                        {locale === "el" ? <>Λήψεις & <span className="text-monks-accent">Οδηγοί</span></> : <>Downloads & <span className="text-monks-accent">Guides</span></>}
+                        {locale === "el" ? <>Λήψεις & <span className="text-monks-red-light">Οδηγοί</span></> : <>Downloads & <span className="text-monks-red-light">Guides</span></>}
                     </h1>
-                    <p className="text-xl text-monks-light leading-relaxed text-justify">
+                    <p className="text-xl text-monks-light leading-relaxed">
                         {locale === "el"
                             ? "Κατεβάστε δωρεάν εξειδικευμένους οδηγούς, whitepapers και αρχεία που σας βοηθούν να κατανοήσετε την ψηφιακή μετάβαση της επιχειρησής σας."
                             : "Download free guides, whitepapers and files to help you understand your business digital transition."}
@@ -47,8 +47,9 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
             </section>
 
             {/* Downloads Grid */}
-            <section className="relative pb-32 flex-grow bg-[#0a0f18] border-t border-white/5 pt-24">
+            <section className="relative pb-32 flex-grow bg-[#0a0f18] border-t border-white/5 pt-24" aria-labelledby="downloads-heading">
                 <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+                    <h2 id="downloads-heading" className="sr-only">{locale === "el" ? "Διαθέσιμες λήψεις" : "Available downloads"}</h2>
                     {downloads.length === 0 ? (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -56,7 +57,7 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                             className="text-center py-24 text-monks-light"
                         >
                             <Download className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                            <p className="text-lg text-justify">{locale === "el" ? "Δεν υπάρχουν διαθέσιμες λήψεις αυτή τη στιγμή." : "No downloads available at the moment."}</p>
+                            <p className="text-lg">{locale === "el" ? "Δεν υπάρχουν διαθέσιμες λήψεις αυτή τη στιγμή." : "No downloads available at the moment."}</p>
                         </motion.div>
                     ) : (
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -67,6 +68,7 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                                     rel="noopener noreferrer"
                                     key={item.id || index}
                                     download
+                                    aria-label={`${name(item)}${item.fileType ? ` (${item.fileType})` : ""} — ${locale === "el" ? "λήψη αρχείου" : "download file"}`}
                                 >
                                     <motion.div
                                         initial={{ opacity: 0, y: 20 }}
@@ -82,12 +84,12 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                                             </div>
                                             <div className="text-right flex flex-col items-end gap-2">
                                                 {item.fileSize && (
-                                                    <span className="px-3 py-1 bg-white/5 rounded-full text-xs font-bold text-white/40 border border-white/5">
+                                                    <span className="px-3 py-1 bg-white/5 rounded-full text-xs font-bold text-white/70 border border-white/5">
                                                         {item.fileSize}
                                                     </span>
                                                 )}
                                                 {item.fileType && (
-                                                    <span className="px-3 py-1 bg-monks-accent/10 rounded-full text-xs font-bold text-monks-accent border border-monks-accent/20">
+                                                    <span className="px-3 py-1 bg-monks-accent/10 rounded-full text-xs font-bold text-monks-red-light border border-monks-accent/20">
                                                         {item.fileType}
                                                     </span>
                                                 )}
@@ -95,23 +97,23 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                                         </div>
 
                                         {item.category && (
-                                            <span className="text-white/40 text-sm font-bold tracking-wider mb-2 block">
+                                            <span className="text-white/70 text-sm font-bold tracking-wider mb-2 block">
                                                 {item.category}
                                             </span>
                                         )}
 
-                                        <h3 className="text-2xl font-bold text-white mb-6 group-hover:text-monks-accent transition-colors duration-500 line-clamp-2">
+                                        <h3 className="text-2xl font-bold text-white mb-6 group-hover:text-monks-red-light transition-colors duration-500 line-clamp-2">
                                             {name(item)}
                                         </h3>
 
                                         {description(item) && (
-                                            <p className="text-monks-light text-sm leading-relaxed flex-grow mb-8 line-clamp-3 text-justify">
+                                            <p className="text-monks-light text-sm leading-relaxed flex-grow mb-8 line-clamp-3">
                                                 {description(item)}
                                             </p>
                                         )}
 
                                         <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between group-hover:border-white/10 transition-colors cursor-pointer">
-                                            <span className="text-white font-bold group-hover:text-monks-accent transition-colors flex items-center gap-2 text-sm">
+                                            <span className="text-white font-bold group-hover:text-monks-red-light transition-colors flex items-center gap-2 text-sm">
                                                 <Download className="w-4 h-4" /> {locale === "el" ? "Λήψη Αρχείου" : "Download File"}
                                             </span>
                                             <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-monks-accent transition-colors transform group-hover:translate-x-1">

@@ -66,6 +66,7 @@ export default function Navigation() {
   return (
     <>
       <motion.nav
+        aria-label={lang === "el" ? "Κύρια πλοήγηση" : "Main navigation"}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -80,12 +81,11 @@ export default function Navigation() {
               <motion.div className="flex items-center" whileHover={{ scale: 1.02 }}>
                 <Image
                   src="/logo.svg"
-                  alt="DGSOFT Logo"
-                  width={120}
+                  alt="DGSOFT"
+                  width={168}
                   height={35}
                   priority
                   className="h-[35px] w-auto"
-                  style={{ height: "35px", width: "auto" }}
                 />
               </motion.div>
             </Link>
@@ -104,7 +104,7 @@ export default function Navigation() {
                     href={link.href}
                     className={`text-sm font-bold tracking-wider transition-colors line-animation ${
                       activeVal
-                        ? "text-monks-accent"
+                        ? "text-monks-red-light"
                         : "text-monks-light hover:text-white"
                     }`}
                   >
@@ -116,6 +116,7 @@ export default function Navigation() {
               <div className="flex items-center gap-4 border-l border-white/20 pl-4">
                 <button
                   onClick={() => setLang(lang === "el" ? "en" : "el")}
+                  aria-label={lang === "el" ? "Switch to English" : "Αλλαγή σε Ελληνικά"}
                   className="text-sm font-semibold text-monks-light hover:text-white transition-colors"
                 >
                   {lang === "el" ? "EN" : "EL"}
@@ -134,12 +135,19 @@ export default function Navigation() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={
+                isMenuOpen
+                  ? lang === "el" ? "Κλείσιμο μενού" : "Close menu"
+                  : lang === "el" ? "Άνοιγμα μενού" : "Open menu"
+              }
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu-overlay"
               className="md:hidden relative z-50 p-2"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6 text-white" />
+                <X className="w-6 h-6 text-white" aria-hidden="true" />
               ) : (
-                <Menu className="w-6 h-6 text-white" />
+                <Menu className="w-6 h-6 text-white" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -150,13 +158,17 @@ export default function Navigation() {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
+            id="mobile-menu-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-40 bg-monks-black"
           >
-            <div className="flex flex-col items-center justify-center h-full gap-8">
+            <nav
+              aria-label={lang === "el" ? "Πλοήγηση κινητού" : "Mobile navigation"}
+              className="flex flex-col items-center justify-center h-full gap-8"
+            >
               {navLinks.map((link, index) => {
                 const isActive =
                   pathname === link.href || pathname?.startsWith(`${link.href}/`);
@@ -176,7 +188,7 @@ export default function Navigation() {
                       onClick={() => setIsMenuOpen(false)}
                       className={`text-5xl font-black transition-colors ${
                         activeVal
-                          ? "text-monks-accent"
+                          ? "text-monks-red-light"
                           : "text-white hover:text-monks-light"
                       }`}
                     >
@@ -207,7 +219,7 @@ export default function Navigation() {
                   {contactLabel}
                 </motion.button>
               </div>
-            </div>
+            </nav>
           </motion.div>
         )}
       </AnimatePresence>

@@ -103,6 +103,9 @@ export default function NewsletterSignup() {
                 <div className="absolute inset-0 bg-monks-black/80 backdrop-blur-sm" />
 
                 <motion.div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="newsletter-modal-title"
                   initial={{ opacity: 0, y: 24, scale: 0.97 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 24, scale: 0.97 }}
@@ -112,7 +115,7 @@ export default function NewsletterSignup() {
                   {/* Header */}
                   <div className="flex items-start justify-between p-6 md:p-8 pb-0">
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-black text-white mb-1">
+                      <h2 id="newsletter-modal-title" className="text-2xl md:text-3xl font-black text-white mb-1">
                         Εγγραφή στο newsletter
                       </h2>
                       <p className="text-monks-light text-sm">
@@ -124,13 +127,13 @@ export default function NewsletterSignup() {
                       className="ml-4 shrink-0 w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-monks-light hover:text-white hover:bg-white/10 transition-all"
                       aria-label="Κλείσιμο"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
 
                   {/* Privacy note */}
                   <div className="flex items-start gap-3 px-6 md:px-8 pt-5">
-                    <ShieldCheck className="w-4 h-4 text-monks-accent shrink-0 mt-0.5" />
+                    <ShieldCheck className="w-4 h-4 text-monks-red-light shrink-0 mt-0.5" aria-hidden="true" />
                     <p className="text-xs text-monks-light leading-relaxed">
                       Σεβόμαστε την ιδιωτικότητά σας. Δεν μοιραζόμαστε τα στοιχεία σας με τρίτους.
                     </p>
@@ -141,10 +144,11 @@ export default function NewsletterSignup() {
                   {/* Form */}
                   <form onSubmit={submit} className="px-6 md:px-8 pb-8 space-y-5">
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-monks-light mb-2 font-semibold">
+                      <label htmlFor="newsletter-email" className="block text-xs uppercase tracking-wider text-monks-light mb-2 font-semibold">
                         Email *
                       </label>
                       <input
+                        id="newsletter-email"
                         type="email"
                         required
                         value={email}
@@ -155,10 +159,11 @@ export default function NewsletterSignup() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-monks-light mb-2 font-semibold">
-                        Όνομα <span className="text-monks-light/60 normal-case font-normal">(προαιρετικό)</span>
+                      <label htmlFor="newsletter-name" className="block text-xs uppercase tracking-wider text-monks-light mb-2 font-semibold">
+                        Όνομα <span className="text-monks-light normal-case font-normal">(προαιρετικό)</span>
                       </label>
                       <input
+                        id="newsletter-name"
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -177,7 +182,7 @@ export default function NewsletterSignup() {
                           required
                         />
                         <span className="w-5 h-5 rounded-md border border-white/20 bg-monks-gray peer-checked:bg-monks-accent peer-checked:border-monks-accent transition-colors flex items-center justify-center">
-                          {accepted && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                          {accepted && <CheckCircle2 className="w-3.5 h-3.5 text-white" aria-hidden="true" />}
                         </span>
                       </span>
                       <span className="text-sm text-monks-light leading-relaxed">
@@ -186,18 +191,20 @@ export default function NewsletterSignup() {
                           href="/terms"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-accent transition-colors"
+                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-red-light transition-colors"
                         >
                           όρους
+                          <span className="sr-only"> (ανοίγει σε νέο παράθυρο)</span>
                         </a>{" "}
                         και την{" "}
                         <a
                           href="/privacy-policy"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-accent transition-colors"
+                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-red-light transition-colors"
                         >
                           πολιτική απορρήτου
+                          <span className="sr-only"> (ανοίγει σε νέο παράθυρο)</span>
                         </a>{" "}
                         για τη λήψη του newsletter.
                       </span>
@@ -205,6 +212,7 @@ export default function NewsletterSignup() {
 
                     {message && (
                       <div
+                        role={state === "error" ? "alert" : "status"}
                         className={`text-sm rounded-xl px-4 py-3 border ${
                           state === "success"
                             ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
@@ -252,14 +260,15 @@ export default function NewsletterSignup() {
       </h3>
       <form onSubmit={openModal} className="flex gap-2">
         <div className="relative flex-1">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-monks-light pointer-events-none" />
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-monks-light pointer-events-none" aria-hidden="true" />
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Το email σας"
-            className="w-full pl-9 pr-3 py-2.5 rounded-full bg-monks-gray text-white text-sm placeholder:text-monks-light/60 outline-none border border-white/10 focus:border-monks-accent transition-colors"
+            aria-label="Email για εγγραφή στο newsletter"
+            className="w-full pl-9 pr-3 py-2.5 rounded-full bg-monks-gray text-white text-sm placeholder:text-monks-light outline-none border border-white/10 focus:border-monks-accent transition-colors"
           />
         </div>
         <button

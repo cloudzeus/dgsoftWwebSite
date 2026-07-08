@@ -119,7 +119,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
 
           {/* Subheadline — LCP element. Rendered visible from frame 1 (no opacity gate)
               so it paints without waiting for framer-motion to hydrate. */}
-          <div className="text-lg md:text-xl text-monks-light max-w-4xl mb-12 leading-relaxed space-y-4 text-justify">
+          <div className="text-lg md:text-xl text-monks-light max-w-4xl mb-12 leading-relaxed space-y-4">
             {c.paragraphs.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -138,7 +138,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
             <button
               type="button"
               onClick={() => setMaturityOpen(true)}
-              className="group flex items-center gap-3 text-white hover:text-monks-accent transition-colors"
+              className="group flex items-center gap-3 text-white hover:text-monks-red-light transition-colors"
             >
               <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center group-hover:border-monks-accent transition-colors">
                 <ArrowDown className="w-5 h-5" />

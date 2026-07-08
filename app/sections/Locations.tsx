@@ -41,7 +41,7 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                         <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
                             {locale === "el" ? <>Δίπλα σας, όπου κι αν <span className="gradient-text">βρίσκεστε.</span></> : <>Next to you, wherever <span className="gradient-text">you are.</span></>}
                         </h2>
-                        <p className="text-monks-light text-lg max-w-lg mb-8 text-justify">
+                        <p className="text-monks-light text-lg max-w-lg mb-8">
                             {locale === "el"
                                 ? "Η παρουσία μας σε Ελλάδα και Κύπρο διασφαλίζει άμεση τηλεφωνική, απομακρυσμένη και επιτόπια εξυπηρέτηση."
                                 : "Our presence in Greece and Cyprus ensures immediate phone, remote and on-site support."}
@@ -76,15 +76,15 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                                 aria-label={locName(loc)}
                                             />
                                         )}
-                                        <MapPin className={`w-8 h-8 shrink-0 mt-1 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/40"}`} />
+                                        <MapPin aria-hidden="true" className={`w-8 h-8 shrink-0 mt-1 transition-colors ${activeId === loc.id ? "text-monks-red-light" : "text-white/50"}`} />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <h3 className="font-bold text-white text-xl">{displayCity || locName(loc)}</h3>
                                                 {loc.website && (
-                                                    <ExternalLink className={`w-4 h-4 shrink-0 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/30"}`} />
+                                                    <ExternalLink aria-hidden="true" className={`w-4 h-4 shrink-0 transition-colors ${activeId === loc.id ? "text-monks-red-light" : "text-white/50"}`} />
                                                 )}
                                             </div>
-                                            <p className="text-monks-light text-base mt-1 text-justify">{locName(loc)}</p>
+                                            <p className="text-monks-light text-base mt-1">{locName(loc)}</p>
                                         </div>
                                     </motion.div>
                                 )
@@ -97,9 +97,10 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                         whileInView={{ opacity: 1, scale: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.3 }}
                         transition={{ duration: 0.9, delay: 0.2, ease: "backOut" }}
+                        aria-hidden="true"
                         className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-[3/4] xl:aspect-square bg-[#0a0b0d] rounded-[3rem] border border-white/5 overflow-hidden flex items-center justify-center shadow-2xl"
                     >
-                        {/* Outline Map of Greece & Cyprus using react-simple-maps */}
+                        {/* Outline Map of Greece & Cyprus using react-simple-maps (decorative — location list above is the accessible source) */}
                         <ComposableMap
                             projection="geoMercator"
                             projectionConfig={{
@@ -166,20 +167,20 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                             >
                                                 <h4 className="text-white font-bold text-base border-b border-white/10 pb-2 mb-1">{locCity(loc) || locName(loc)}</h4>
                                                 <div className="flex items-center gap-3 text-sm text-monks-light">
-                                                    <Map className="w-4 h-4 text-monks-accent shrink-0" />
+                                                    <Map className="w-4 h-4 text-monks-red-light shrink-0" />
                                                     <span className="truncate">{[locAddress(loc), loc.zip, locCity(loc)].filter(Boolean).join(", ")}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 text-sm text-monks-light">
-                                                    <Phone className="w-4 h-4 text-monks-accent shrink-0" />
+                                                    <Phone className="w-4 h-4 text-monks-red-light shrink-0" />
                                                     <span>{loc.phone || "-"}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 text-sm text-monks-light">
-                                                    <Mail className="w-4 h-4 text-monks-accent shrink-0" />
+                                                    <Mail className="w-4 h-4 text-monks-red-light shrink-0" />
                                                     <span className="truncate">{loc.email || "-"}</span>
                                                 </div>
                                                 {loc.website && (
                                                     <div className="flex items-center gap-3 text-sm text-monks-light">
-                                                        <ExternalLink className="w-4 h-4 text-monks-accent shrink-0" />
+                                                        <ExternalLink className="w-4 h-4 text-monks-red-light shrink-0" />
                                                         <span className="truncate">{loc.website}</span>
                                                     </div>
                                                 )}

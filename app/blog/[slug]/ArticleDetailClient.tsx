@@ -90,7 +90,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                             {backLabel}
                         </Link>
                         <div className="flex gap-3 mb-5">
-                            <span className="px-3 py-1 bg-monks-accent/20 text-monks-accent text-xs font-bold rounded-full border border-monks-accent/20">
+                            <span className="px-3 py-1 bg-monks-accent/20 text-monks-red-light text-xs font-bold rounded-full border border-monks-accent/20">
                                 {categoryName}
                             </span>
                         </div>
@@ -133,7 +133,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
 
                     {/* Short Description pull-quote */}
                     {(shortDescription) && (
-                        <p className="text-lg text-monks-light leading-relaxed mb-10 border-l-4 border-monks-accent pl-6 italic text-justify">
+                        <p className="text-lg text-monks-light leading-relaxed mb-10 border-l-4 border-monks-accent pl-6 italic">
                             {shortDescription}
                         </p>
                     )}
@@ -141,12 +141,12 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                     {/* Main Content */}
                     {description && (
                         <div
-                            className="prose prose-invert prose-lg max-w-none text-monks-light text-justify [&_p]:text-justify [&_li]:text-justify
+                            className="prose prose-invert prose-lg max-w-none text-monks-light
                                 prose-h2:text-white prose-h2:font-bold prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
                                 prose-h3:text-white prose-h3:font-semibold prose-h3:text-xl
                                 prose-p:leading-relaxed prose-p:text-monks-light
                                 prose-strong:text-white prose-strong:font-bold
-                                prose-ul:text-monks-light prose-li:marker:text-monks-accent"
+                                prose-ul:text-monks-light prose-li:marker:text-monks-red-light"
                             dangerouslySetInnerHTML={{ __html: description }}
                         />
                     )}
@@ -154,7 +154,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                     {/* Media Gallery — non-cover items */}
                     {article.media && article.media.filter((m: any) => m.url !== article.featureImage).length > 0 && (
                         <div className="mt-16 border-t border-white/10 pt-12">
-                            <h3 className="text-white text-xl font-bold mb-6">{photosLabel}</h3>
+                            <h2 className="text-white text-xl font-bold mb-6">{photosLabel}</h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {article.media.filter((m: any) => m.url !== article.featureImage).map((m: any, i: number) => (
                                     <div key={i} className="aspect-video rounded-xl overflow-hidden border border-white/10 group">

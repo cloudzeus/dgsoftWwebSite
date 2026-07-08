@@ -29,11 +29,11 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                 <div className="absolute top-0 right-1/3 w-[500px] h-[500px] bg-monks-accent/5 rounded-full blur-[150px] -translate-y-1/2" />
                 <div className="grid lg:grid-cols-2 gap-16 items-center">
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-                        <span className="text-monks-accent font-medium tracking-widest mb-4 block text-sm">{locale === "el" ? "Καριέρα" : "Careers"}</span>
+                        <span className="text-monks-red-light font-medium tracking-widest mb-4 block text-sm">{locale === "el" ? "Καριέρα" : "Careers"}</span>
                         <h1 className="text-[clamp(3rem,6vw,6rem)] leading-[0.9] font-black text-white capitalize mb-8">
-                            {locale === "el" ? <>Χτίστε το <span className="text-monks-accent">Μέλλον</span> Μαζί μας</> : <>Build the <span className="text-monks-accent">Future</span> With Us</>}
+                            {locale === "el" ? <>Χτίστε το <span className="text-monks-red-light">Μέλλον</span> Μαζί μας</> : <>Build the <span className="text-monks-red-light">Future</span> With Us</>}
                         </h1>
-                        <p className="text-xl text-monks-light leading-relaxed text-justify">
+                        <p className="text-xl text-monks-light leading-relaxed">
                             {locale === "el"
                                 ? "Γίνε μέλος μιας ομάδας ψηφιακών πρωτοπόρων. Στη DGSOFT σχεδιάζουμε enterprise-grade ecosystems που αλλάζουν τον τρόπο λειτουργίας των επιχειρήσεων."
                                 : "Join a team of digital pioneers. At DGSOFT we build enterprise-grade ecosystems that change the way businesses operate."}
@@ -43,7 +43,7 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                         className="relative lg:h-[500px] hidden lg:flex items-center justify-center p-8">
                         <div className="absolute top-1/4 right-0 w-64 h-80 bg-monks-gray border border-white/5 rounded-3xl -rotate-6 shadow-2xl overflow-hidden">
                             <div className="w-full h-full bg-gradient-to-tr from-monks-dark/80 to-transparent flex items-end p-6">
-                                <span className="text-xs font-bold uppercase tracking-widest text-monks-accent">Athens HQ</span>
+                                <span className="text-xs font-bold uppercase tracking-widest text-monks-red-light">Athens HQ</span>
                             </div>
                         </div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-80 bg-[#111318] border border-monks-accent/20 rounded-3xl rotate-3 z-20 shadow-[0_30px_60px_-15px_rgba(230,57,70,0.3)] overflow-hidden">
@@ -60,7 +60,7 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                 <div className="max-w-[1500px] mx-auto px-6 md:px-12 pt-24">
                     <div className="flex items-center justify-between mb-16 border-b border-white/10 pb-8">
                         <h2 className="text-3xl md:text-5xl font-bold text-white">{locale === "el" ? "Ανοιχτές Θέσεις" : "Open Positions"}</h2>
-                        <span className="px-4 py-2 bg-monks-accent/10 text-monks-accent rounded-full text-sm font-bold">
+                        <span className="px-4 py-2 bg-monks-accent/10 text-monks-red-light rounded-full text-sm font-bold">
                             {positions.length} {locale === "el" ? (positions.length === 1 ? "Θέση" : "Θέσεις") : (positions.length === 1 ? "Position" : "Positions")}
                         </span>
                     </div>
@@ -68,7 +68,7 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                     {positions.length === 0 ? (
                         <div className="text-center py-24 text-monks-light">
                             <UserPlus className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                            <p className="text-lg mb-8 text-justify">{locale === "el" ? "Δεν υπάρχουν ανοιχτές θέσεις αυτή τη στιγμή." : "No open positions at the moment."}</p>
+                            <p className="text-lg mb-8">{locale === "el" ? "Δεν υπάρχουν ανοιχτές θέσεις αυτή τη στιγμή." : "No open positions at the moment."}</p>
                             <button onClick={() => setApplyModal({ titleEL: "Γενική Αίτηση", titleEN: "General Application", id: null })}
                                 className="px-8 py-3 rounded-full bg-monks-accent text-white font-bold hover:bg-monks-accent/90 transition-all">
                                 {locale === "el" ? "Αποστολή Αυθόρμητης Αίτησης" : "Send Spontaneous Application"}
@@ -95,14 +95,14 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                                             </div>
                                             <div className="md:col-span-5">
                                                 {posDept(pos) && (
-                                                    <span className="text-monks-accent text-xs font-bold uppercase tracking-wider mb-1 block">{posDept(pos)}</span>
+                                                    <span className="text-monks-red-light text-xs font-bold uppercase tracking-wider mb-1 block">{posDept(pos)}</span>
                                                 )}
                                                 <h3 className="text-xl md:text-2xl font-bold text-white">{posTitle(pos)}</h3>
                                             </div>
                                             <div className="md:col-span-3 flex flex-wrap gap-3">
                                                 {posCity(pos) && (
                                                     <span className="flex items-center gap-1 text-xs text-monks-light border border-white/10 rounded-full px-3 py-1">
-                                                        <MapPin className="w-3 h-3 text-monks-accent" />{posCity(pos)}
+                                                        <MapPin className="w-3 h-3 text-monks-red-light" />{posCity(pos)}
                                                     </span>
                                                 )}
                                                 {posType(pos) && (
@@ -114,7 +114,7 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                                             <div className="md:col-span-3 flex items-center justify-end gap-3">
                                                 <button
                                                     onClick={() => setExpandedId(isExpanded ? null : pos.id)}
-                                                    className="flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors border border-white/10 rounded-full px-3 py-2">
+                                                    className="flex items-center gap-1 text-xs text-white/70 hover:text-white transition-colors border border-white/10 rounded-full px-3 py-2">
                                                     {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                                                     {locale === "el" ? "Λεπτομέρειες" : "Details"}
                                                 </button>
@@ -138,7 +138,7 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                                                     <div className="p-8 md:p-10 md:pl-28 space-y-10">
 
                                                         {posDesc(pos) && (
-                                                            <p className="text-monks-light text-base leading-[1.8] text-justify">{posDesc(pos)}</p>
+                                                            <p className="text-monks-light text-base leading-[1.8]">{posDesc(pos)}</p>
                                                         )}
 
                                                         <div className="grid md:grid-cols-2 gap-10">
@@ -150,8 +150,8 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                                                                     </h4>
                                                                     <ul className="space-y-4">
                                                                         {posDuties(pos).map((d: string, idx: number) => (
-                                                                            <li key={idx} className="flex gap-4 text-monks-light text-base leading-relaxed text-justify">
-                                                                                <span className="text-monks-accent text-2xl leading-none flex-shrink-0 mt-0.5">▸</span>
+                                                                            <li key={idx} className="flex gap-4 text-monks-light text-base leading-relaxed">
+                                                                                <span className="text-monks-red-light text-2xl leading-none flex-shrink-0 mt-0.5">▸</span>
                                                                                 <span>{d}</span>
                                                                             </li>
                                                                         ))}
@@ -167,8 +167,8 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                                                                     </h4>
                                                                     <ul className="space-y-4">
                                                                         {posSkills(pos).map((s: string, idx: number) => (
-                                                                            <li key={idx} className="flex gap-4 text-monks-light text-base leading-relaxed text-justify">
-                                                                                <span className="text-monks-accent text-2xl leading-none flex-shrink-0 mt-0.5">▸</span>
+                                                                            <li key={idx} className="flex gap-4 text-monks-light text-base leading-relaxed">
+                                                                                <span className="text-monks-red-light text-2xl leading-none flex-shrink-0 mt-0.5">▸</span>
                                                                                 <span>{s}</span>
                                                                             </li>
                                                                         ))}
@@ -194,7 +194,7 @@ export default function CareersClient({ positions }: { positions: any[] }) {
                     {positions.length > 0 && (
                         <div className="mt-16 p-8 border border-white/5 rounded-3xl text-center bg-monks-gray/30">
                             <h3 className="text-white font-bold text-xl mb-2">{locale === "el" ? "Δεν βρήκες κατάλληλη θέση;" : "No suitable position?"}</h3>
-                            <p className="text-monks-light text-sm mb-5 text-justify">{locale === "el" ? "Στείλε μας το βιογραφικό σου και θα επικοινωνήσουμε μαζί σου όταν ανοίξει σχετική θέση." : "Send us your CV and we will contact you when a relevant position opens."}</p>
+                            <p className="text-monks-light text-sm mb-5">{locale === "el" ? "Στείλε μας το βιογραφικό σου και θα επικοινωνήσουμε μαζί σου όταν ανοίξει σχετική θέση." : "Send us your CV and we will contact you when a relevant position opens."}</p>
                             <button onClick={() => setApplyModal({ titleEL: "Γενική Αίτηση", titleEN: "General Application", id: null })}
                                 className="px-8 py-3 rounded-full border border-white/20 text-white font-bold hover:bg-white hover:text-monks-black transition-all inline-flex items-center gap-2">
                                 <ArrowUpRight className="w-4 h-4" /> {locale === "el" ? "Αυθόρμητη Αίτηση" : "Spontaneous Application"}
@@ -255,19 +255,20 @@ function CvModal({ position, onClose }: { position: any; onClose: () => void }) 
             onClick={onClose}>
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                role="dialog" aria-modal="true" aria-labelledby="careers-modal-title"
                 className="w-full max-w-md bg-[#0d1117] border border-white/10 rounded-3xl p-8 shadow-2xl"
                 onClick={e => e.stopPropagation()}>
 
                 {submitted ? (
-                    <div className="text-center py-6">
+                    <div role="status" className="text-center py-6">
                         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.1 }}>
-                            <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                            <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" aria-hidden="true" />
                         </motion.div>
-                        <h3 className="text-2xl font-black text-white mb-2">{locale === "el" ? "Ευχαριστούμε!" : "Thank you!"}</h3>
-                        <p className="text-monks-light leading-relaxed mb-2 text-justify">
+                        <h3 id="careers-modal-title" className="text-2xl font-black text-white mb-2">{locale === "el" ? "Ευχαριστούμε!" : "Thank you!"}</h3>
+                        <p className="text-monks-light leading-relaxed mb-2">
                             {locale === "el"
-                                ? <>Λάβαμε την αίτησή σας για τη θέση <span className="text-monks-accent font-bold">«{positionTitle}»</span>.</>
-                                : <>We received your application for <span className="text-monks-accent font-bold">«{positionTitle}»</span>.</>}
+                                ? <>Λάβαμε την αίτησή σας για τη θέση <span className="text-monks-red-light font-bold">«{positionTitle}»</span>.</>
+                                : <>We received your application for <span className="text-monks-red-light font-bold">«{positionTitle}»</span>.</>}
                         </p>
                         <p className="text-monks-light text-sm mb-6">
                             {locale === "el" ? "Θα επικοινωνήσουμε μαζί σας σύντομα στο " : "We will contact you soon at "}<span className="text-white">{form.email}</span>.
@@ -280,53 +281,53 @@ function CvModal({ position, onClose }: { position: any; onClose: () => void }) 
                     <>
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h3 className="text-xl font-black text-white">{locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</h3>
-                                <p className="text-monks-accent text-sm font-bold mt-0.5">«{positionTitle}»</p>
+                                <h3 id="careers-modal-title" className="text-xl font-black text-white">{locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</h3>
+                                <p className="text-monks-red-light text-sm font-bold mt-0.5">«{positionTitle}»</p>
                             </div>
-                            <button onClick={onClose} className="text-monks-light hover:text-white transition-colors p-1"><X className="w-5 h-5" /></button>
+                            <button type="button" onClick={onClose} aria-label={locale === "el" ? "Κλείσιμο" : "Close"} className="text-monks-light hover:text-white transition-colors p-1"><X className="w-5 h-5" aria-hidden="true" /></button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Όνομα *" : "First name *"}</label>
-                                    <input required placeholder={locale === "el" ? "Γιώργος" : "John"} value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                    <label htmlFor="careers-first-name" className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Όνομα *" : "First name *"}</label>
+                                    <input id="careers-first-name" required placeholder={locale === "el" ? "Γιώργος" : "John"} value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Επώνυμο *" : "Last name *"}</label>
-                                    <input required placeholder={locale === "el" ? "Παπαδόπουλος" : "Doe"} value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                    <label htmlFor="careers-last-name" className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Επώνυμο *" : "Last name *"}</label>
+                                    <input id="careers-last-name" required placeholder={locale === "el" ? "Παπαδόπουλος" : "Doe"} value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                                 </div>
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-monks-light block mb-1">Email *</label>
-                                <input required type="email" placeholder="example@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                <label htmlFor="careers-email" className="text-xs font-bold text-monks-light block mb-1">Email *</label>
+                                <input id="careers-email" required type="email" placeholder="example@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Τηλέφωνο" : "Phone"}</label>
-                                <input type="tel" placeholder="+30 694 000 0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                <label htmlFor="careers-phone" className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Τηλέφωνο" : "Phone"}</label>
+                                <input id="careers-phone" type="tel" placeholder="+30 694 000 0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Βιογραφικό (PDF / DOC) *" : "CV (PDF / DOC) *"}</label>
                                 <label className="flex items-center gap-3 w-full bg-white/5 border-2 border-dashed border-white/15 rounded-xl px-4 py-4 cursor-pointer hover:border-monks-accent/60 transition-colors group">
-                                    <Upload className="w-5 h-5 text-monks-light group-hover:text-monks-accent transition-colors flex-shrink-0" />
+                                    <Upload className="w-5 h-5 text-monks-light group-hover:text-monks-red-light transition-colors flex-shrink-0" aria-hidden="true" />
                                     <span className="text-sm text-monks-light group-hover:text-white transition-colors truncate">
                                         {cvFile ? cvFile.name : (locale === "el" ? "Επιλέξτε αρχείο..." : "Choose file...")}
                                     </span>
                                     <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={e => setCvFile(e.target.files?.[0] || null)} />
                                 </label>
                             </div>
-                            {error && <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-2">{error}</p>}
+                            {error && <p role="alert" className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-2">{error}</p>}
                             <button type="submit" disabled={uploading}
                                 className="w-full py-3.5 rounded-xl bg-monks-accent text-white font-black text-sm hover:bg-monks-accent/90 transition-all disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-monks-accent/20">
                                 {uploading
                                     ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {locale === "el" ? "Αποστολή..." : "Sending..."}</>
-                                    : <><Upload className="w-4 h-4" /> {locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</>}
+                                    : <><Upload className="w-4 h-4" aria-hidden="true" /> {locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</>}
                             </button>
-                            <p className="text-xs text-center text-white/20 text-justify">{locale === "el" ? "Τα στοιχεία σας προστατεύονται και χρησιμοποιούνται μόνο για αξιολόγηση." : "Your data is protected and used only for evaluation."}</p>
+                            <p className="text-xs text-center text-white/20">{locale === "el" ? "Τα στοιχεία σας προστατεύονται και χρησιμοποιούνται μόνο για αξιολόγηση." : "Your data is protected and used only for evaluation."}</p>
                         </form>
                     </>
                 )}

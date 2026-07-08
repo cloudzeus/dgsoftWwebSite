@@ -69,13 +69,13 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                         className="grid lg:grid-cols-2 gap-16"
                     >
                         <div>
-                            <div className="mb-4 text-sm font-medium text-monks-accent tracking-wider uppercase">
+                            <div className="mb-4 text-sm font-medium text-monks-red-light tracking-wider uppercase">
                                 {categoryName}
                             </div>
                             <h1 className="text-5xl md:text-6xl font-bold text-white mb-8 leading-[1.1]">
                                 {name}
                             </h1>
-                            <p className="text-xl text-monks-light mb-12 leading-relaxed text-justify">
+                            <p className="text-xl text-monks-light mb-12 leading-relaxed">
                                 {shortDesc}
                             </p>
 
@@ -83,8 +83,8 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                                 <div className="flex flex-col gap-4">
                                     {benefits.map((benefit, i) => (
                                         <div key={i} className="flex items-center gap-3 text-white">
-                                            <CheckCircle className="w-5 h-5 text-monks-accent flex-shrink-0" />
-                                            <span className="text-justify">{benefit}</span>
+                                            <CheckCircle className="w-5 h-5 text-monks-red-light flex-shrink-0" />
+                                            <span className="text-left">{benefit}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -134,7 +134,7 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                                     {locale === "el" ? "Τι κάνει στην πράξη" : "What it does in practice"}
                                 </h2>
                                 <div
-                                    className="prose prose-invert prose-p:text-monks-light prose-li:text-monks-light max-w-none text-justify [&_p]:text-justify [&_li]:text-justify"
+                                    className="prose prose-invert prose-p:text-monks-light prose-li:text-monks-light max-w-none"
                                     dangerouslySetInnerHTML={{
                                         __html: description,
                                     }}
@@ -153,8 +153,8 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                                         const fDesc = locale === "en" && f.descriptionEN ? f.descriptionEN : (f.descriptionEL || f.descriptionEN)
                                         return (
                                         <li key={f.id} className="flex items-start gap-3">
-                                            <CheckCircle className="w-5 h-5 text-monks-accent flex-shrink-0 mt-0.5" />
-                                            <div className="text-justify">
+                                            <CheckCircle className="w-5 h-5 text-monks-red-light flex-shrink-0 mt-0.5" />
+                                            <div className="text-left">
                                                 <span className="font-medium text-white">{fName}</span>
                                                 {fDesc && (
                                                     <p className="text-monks-light mt-1">{fDesc}</p>
