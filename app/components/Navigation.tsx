@@ -81,12 +81,11 @@ export default function Navigation() {
               <motion.div className="flex items-center" whileHover={{ scale: 1.02 }}>
                 <Image
                   src="/logo.svg"
-                  alt="DGSOFT Logo"
-                  width={120}
+                  alt="DGSOFT"
+                  width={168}
                   height={35}
                   priority
                   className="h-[35px] w-auto"
-                  style={{ height: "35px", width: "auto" }}
                 />
               </motion.div>
             </Link>
