@@ -259,15 +259,18 @@ export default function NewsletterSignup() {
         Εγγραφή στο newsletter
       </h3>
       <form onSubmit={openModal} className="flex gap-2">
+        <label htmlFor="footer-newsletter-email" className="sr-only">
+          Email για εγγραφή στο newsletter
+        </label>
         <div className="relative flex-1">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-monks-light pointer-events-none" aria-hidden="true" />
           <input
+            id="footer-newsletter-email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Το email σας"
-            aria-label="Email για εγγραφή στο newsletter"
             className="w-full pl-9 pr-3 py-2.5 rounded-full bg-monks-gray text-white text-sm placeholder:text-monks-light outline-none border border-white/10 focus:border-monks-accent transition-colors"
           />
         </div>
