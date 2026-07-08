@@ -72,7 +72,7 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                 >
                   <Image
                     src={src}
-                    alt={isClone ? "" : customer.NAME}
+                    alt=""
                     width={180}
                     height={100}
                     loading="lazy"
@@ -82,6 +82,16 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                   />
                 </div>
               );
+              // Cloned track is a visual-only duplicate — render it as inert,
+              // aria-hidden decoration (no link/tooltip) so it isn't announced
+              // or flagged as an empty anchor.
+              if (isClone) {
+                return (
+                  <span key={`${customer.id}-${i}`} aria-hidden="true" className="block">
+                    {content}
+                  </span>
+                );
+              }
               return (
                 <Tooltip key={`${customer.id}-${i}`}>
                   <TooltipTrigger asChild>
@@ -90,19 +100,15 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                         href={website.startsWith("http") ? website : `https://${website}`}
                         target="_blank"
                         rel="nofollow noopener noreferrer"
-                        aria-hidden={isClone || undefined}
-                        tabIndex={isClone ? -1 : undefined}
-                        aria-label={
-                          isClone
-                            ? undefined
-                            : `${customer.NAME} (ανοίγει σε νέο παράθυρο)`
-                        }
                         className="rounded-2xl focus:outline-none focus:ring-2 focus:ring-monks-accent/50"
                       >
+                        <span className="sr-only">
+                          {customer.NAME} (ανοίγει σε νέο παράθυρο)
+                        </span>
                         {content}
                       </a>
                     ) : (
-                      <span className="block" aria-hidden={isClone || undefined}>{content}</span>
+                      <span className="block">{content}</span>
                     )}
                   </TooltipTrigger>
                   <TooltipContent side="top" className="rounded-lg border-0 bg-zinc-800 px-2.5 py-1.5 text-white shadow-lg">

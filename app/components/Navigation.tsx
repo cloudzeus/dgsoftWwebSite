@@ -78,10 +78,11 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-20 md:h-24">
             {/* Logo */}
             <Link href="/" className="relative z-50">
+              <span className="sr-only">{lang === "el" ? "DGSOFT — Αρχική σελίδα" : "DGSOFT — Home"}</span>
               <motion.div className="flex items-center" whileHover={{ scale: 1.02 }}>
                 <Image
                   src="/logo.svg"
-                  alt="DGSOFT"
+                  alt=""
                   width={168}
                   height={35}
                   priority

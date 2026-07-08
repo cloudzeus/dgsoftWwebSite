@@ -73,8 +73,9 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="absolute inset-0 z-10"
-                                                aria-label={locName(loc)}
-                                            />
+                                            >
+                                                <span className="sr-only">{locName(loc)} (ανοίγει σε νέο παράθυρο)</span>
+                                            </a>
                                         )}
                                         <MapPin aria-hidden="true" className={`w-8 h-8 shrink-0 mt-1 transition-colors ${activeId === loc.id ? "text-monks-red-light" : "text-white/50"}`} />
                                         <div className="flex-1 min-w-0">
