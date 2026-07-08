@@ -154,7 +154,7 @@ export default function ArticleDetailClient({ article }: { article: any }) {
                     {/* Media Gallery — non-cover items */}
                     {article.media && article.media.filter((m: any) => m.url !== article.featureImage).length > 0 && (
                         <div className="mt-16 border-t border-white/10 pt-12">
-                            <h3 className="text-white text-xl font-bold mb-6">{photosLabel}</h3>
+                            <h2 className="text-white text-xl font-bold mb-6">{photosLabel}</h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {article.media.filter((m: any) => m.url !== article.featureImage).map((m: any, i: number) => (
                                     <div key={i} className="aspect-video rounded-xl overflow-hidden border border-white/10 group">

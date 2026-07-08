@@ -88,12 +88,16 @@ export default function Footer() {
                     <a
                       key={index}
                       href={social.href}
-                      aria-label={social.label}
+                      aria-label={
+                        external
+                          ? `${social.label} (${locale === "en" ? "opens in new window" : "ανοίγει σε νέο παράθυρο"})`
+                          : social.label
+                      }
                       target={external ? "_blank" : undefined}
                       rel={external ? "noopener noreferrer" : undefined}
                       className="w-10 h-10 rounded-full bg-monks-gray flex items-center justify-center text-monks-light hover:bg-monks-accent hover:text-white transition-all duration-300"
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4" aria-hidden="true" />
                     </a>
                   );
                 })}
@@ -132,6 +136,13 @@ export default function Footer() {
                           className="text-monks-light hover:text-white transition-colors text-sm"
                         >
                           {link.name}
+                          {isExternal(link.href) && (
+                            <span className="sr-only">
+                              {locale === "en"
+                                ? " (opens in new window)"
+                                : " (ανοίγει σε νέο παράθυρο)"}
+                            </span>
+                          )}
                         </Link>
                       </li>
                     );

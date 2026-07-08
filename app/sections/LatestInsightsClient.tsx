@@ -79,7 +79,7 @@ export default function LatestInsightsClient({ articles = [] }: { articles: any[
                                                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-monks-light/10 text-monks-light group-hover:bg-monks-accent/20 group-hover:text-monks-accent transition-colors">
                                                         {locale === "el" ? "Άρθρο" : "Article"}
                                                     </span>
-                                                    <span className="px-3 py-1 rounded-full text-xs text-white/40 border border-white/5">
+                                                    <span className="px-3 py-1 rounded-full text-xs text-white/70 border border-white/5">
                                                         {catName}
                                                     </span>
                                                 </div>

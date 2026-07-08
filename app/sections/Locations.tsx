@@ -76,12 +76,12 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                                 aria-label={locName(loc)}
                                             />
                                         )}
-                                        <MapPin className={`w-8 h-8 shrink-0 mt-1 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/40"}`} />
+                                        <MapPin aria-hidden="true" className={`w-8 h-8 shrink-0 mt-1 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/50"}`} />
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <h3 className="font-bold text-white text-xl">{displayCity || locName(loc)}</h3>
                                                 {loc.website && (
-                                                    <ExternalLink className={`w-4 h-4 shrink-0 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/30"}`} />
+                                                    <ExternalLink aria-hidden="true" className={`w-4 h-4 shrink-0 transition-colors ${activeId === loc.id ? "text-monks-accent" : "text-white/50"}`} />
                                                 )}
                                             </div>
                                             <p className="text-monks-light text-base mt-1 text-justify">{locName(loc)}</p>
@@ -97,9 +97,10 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                         whileInView={{ opacity: 1, scale: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.3 }}
                         transition={{ duration: 0.9, delay: 0.2, ease: "backOut" }}
+                        aria-hidden="true"
                         className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-[3/4] xl:aspect-square bg-[#0a0b0d] rounded-[3rem] border border-white/5 overflow-hidden flex items-center justify-center shadow-2xl"
                     >
-                        {/* Outline Map of Greece & Cyprus using react-simple-maps */}
+                        {/* Outline Map of Greece & Cyprus using react-simple-maps (decorative — location list above is the accessible source) */}
                         <ComposableMap
                             projection="geoMercator"
                             projectionConfig={{

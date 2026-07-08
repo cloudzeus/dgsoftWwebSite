@@ -255,15 +255,16 @@ function CvModal({ position, onClose }: { position: any; onClose: () => void }) 
             onClick={onClose}>
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                role="dialog" aria-modal="true" aria-labelledby="careers-modal-title"
                 className="w-full max-w-md bg-[#0d1117] border border-white/10 rounded-3xl p-8 shadow-2xl"
                 onClick={e => e.stopPropagation()}>
 
                 {submitted ? (
-                    <div className="text-center py-6">
+                    <div role="status" className="text-center py-6">
                         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.1 }}>
-                            <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                            <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" aria-hidden="true" />
                         </motion.div>
-                        <h3 className="text-2xl font-black text-white mb-2">{locale === "el" ? "Ευχαριστούμε!" : "Thank you!"}</h3>
+                        <h3 id="careers-modal-title" className="text-2xl font-black text-white mb-2">{locale === "el" ? "Ευχαριστούμε!" : "Thank you!"}</h3>
                         <p className="text-monks-light leading-relaxed mb-2 text-justify">
                             {locale === "el"
                                 ? <>Λάβαμε την αίτησή σας για τη θέση <span className="text-monks-accent font-bold">«{positionTitle}»</span>.</>
@@ -280,51 +281,51 @@ function CvModal({ position, onClose }: { position: any; onClose: () => void }) 
                     <>
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h3 className="text-xl font-black text-white">{locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</h3>
+                                <h3 id="careers-modal-title" className="text-xl font-black text-white">{locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</h3>
                                 <p className="text-monks-accent text-sm font-bold mt-0.5">«{positionTitle}»</p>
                             </div>
-                            <button onClick={onClose} className="text-monks-light hover:text-white transition-colors p-1"><X className="w-5 h-5" /></button>
+                            <button type="button" onClick={onClose} aria-label={locale === "el" ? "Κλείσιμο" : "Close"} className="text-monks-light hover:text-white transition-colors p-1"><X className="w-5 h-5" aria-hidden="true" /></button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Όνομα *" : "First name *"}</label>
-                                    <input required placeholder={locale === "el" ? "Γιώργος" : "John"} value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                    <label htmlFor="careers-first-name" className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Όνομα *" : "First name *"}</label>
+                                    <input id="careers-first-name" required placeholder={locale === "el" ? "Γιώργος" : "John"} value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Επώνυμο *" : "Last name *"}</label>
-                                    <input required placeholder={locale === "el" ? "Παπαδόπουλος" : "Doe"} value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                    <label htmlFor="careers-last-name" className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Επώνυμο *" : "Last name *"}</label>
+                                    <input id="careers-last-name" required placeholder={locale === "el" ? "Παπαδόπουλος" : "Doe"} value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                                 </div>
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-monks-light block mb-1">Email *</label>
-                                <input required type="email" placeholder="example@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                <label htmlFor="careers-email" className="text-xs font-bold text-monks-light block mb-1">Email *</label>
+                                <input id="careers-email" required type="email" placeholder="example@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                             </div>
                             <div>
-                                <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Τηλέφωνο" : "Phone"}</label>
-                                <input type="tel" placeholder="+30 694 000 0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-monks-accent transition-colors" />
+                                <label htmlFor="careers-phone" className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Τηλέφωνο" : "Phone"}</label>
+                                <input id="careers-phone" type="tel" placeholder="+30 694 000 0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-monks-accent transition-colors" />
                             </div>
                             <div>
                                 <label className="text-xs font-bold text-monks-light block mb-1">{locale === "el" ? "Βιογραφικό (PDF / DOC) *" : "CV (PDF / DOC) *"}</label>
                                 <label className="flex items-center gap-3 w-full bg-white/5 border-2 border-dashed border-white/15 rounded-xl px-4 py-4 cursor-pointer hover:border-monks-accent/60 transition-colors group">
-                                    <Upload className="w-5 h-5 text-monks-light group-hover:text-monks-accent transition-colors flex-shrink-0" />
+                                    <Upload className="w-5 h-5 text-monks-light group-hover:text-monks-accent transition-colors flex-shrink-0" aria-hidden="true" />
                                     <span className="text-sm text-monks-light group-hover:text-white transition-colors truncate">
                                         {cvFile ? cvFile.name : (locale === "el" ? "Επιλέξτε αρχείο..." : "Choose file...")}
                                     </span>
                                     <input type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={e => setCvFile(e.target.files?.[0] || null)} />
                                 </label>
                             </div>
-                            {error && <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-2">{error}</p>}
+                            {error && <p role="alert" className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-2">{error}</p>}
                             <button type="submit" disabled={uploading}
                                 className="w-full py-3.5 rounded-xl bg-monks-accent text-white font-black text-sm hover:bg-monks-accent/90 transition-all disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-monks-accent/20">
                                 {uploading
                                     ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {locale === "el" ? "Αποστολή..." : "Sending..."}</>
-                                    : <><Upload className="w-4 h-4" /> {locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</>}
+                                    : <><Upload className="w-4 h-4" aria-hidden="true" /> {locale === "el" ? "Αποστολή Αίτησης" : "Submit Application"}</>}
                             </button>
                             <p className="text-xs text-center text-white/20 text-justify">{locale === "el" ? "Τα στοιχεία σας προστατεύονται και χρησιμοποιούνται μόνο για αξιολόγηση." : "Your data is protected and used only for evaluation."}</p>
                         </form>

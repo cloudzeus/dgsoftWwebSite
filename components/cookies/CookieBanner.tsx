@@ -88,7 +88,7 @@ export function CookieBanner() {
             <div className="max-w-4xl mx-auto bg-[#18181c] border border-white/10 rounded-2xl shadow-[0_8px_64px_rgba(0,0,0,0.6)] p-5 md:p-6">
               <div className="flex items-start gap-4">
                 <div className="shrink-0 w-10 h-10 rounded-full bg-monks-accent/10 border border-monks-accent/20 flex items-center justify-center mt-0.5">
-                  <Cookie className="w-5 h-5 text-monks-accent" />
+                  <Cookie className="w-5 h-5 text-monks-accent" aria-hidden="true" />
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -147,7 +147,7 @@ export function CookieBanner() {
                           onClick={() => setCustomizing(true)}
                           className="px-5 py-2.5 text-white/80 text-sm font-medium rounded-full hover:bg-white/5 transition-colors inline-flex items-center gap-2"
                         >
-                          <Settings2 className="w-3.5 h-3.5" />
+                          <Settings2 className="w-3.5 h-3.5" aria-hidden="true" />
                           {t.customize}
                         </button>
                       </>

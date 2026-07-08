@@ -51,8 +51,9 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
             </section>
 
             {/* Articles Grid */}
-            <section className="py-24 relative flex-grow bg-[#0a0f18] z-10">
+            <section className="py-24 relative flex-grow bg-[#0a0f18] z-10" aria-labelledby="articles-heading">
                 <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+                    <h2 id="articles-heading" className="sr-only">{locale === "el" ? "Άρθρα" : "Articles"}</h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {initialArticles.map((post, index) => {
                             const catName = categoryName(post);

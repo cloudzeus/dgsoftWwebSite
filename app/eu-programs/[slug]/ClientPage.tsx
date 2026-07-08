@@ -100,7 +100,7 @@ export default function ClientPage({ slug }: { slug: string }) {
 
                                 <div className="text-center z-10">
                                     <div className="w-24 h-24 bg-[#FFD700]/10 backdrop-blur-md rounded-2xl shadow-[0_0_50px_rgba(255,215,0,0.1)] flex items-center justify-center mx-auto mb-6 text-[#FFD700]">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10" aria-hidden="true" focusable="false">
                                             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                                         </svg>
                                     </div>

@@ -67,9 +67,9 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
 
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center gap-5 py-12 text-center">
+      <div role="status" className="flex flex-col items-center justify-center gap-5 py-12 text-center">
         <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center">
-          <CheckCircle2 className="w-8 h-8 text-green-400" />
+          <CheckCircle2 className="w-8 h-8 text-green-400" aria-hidden="true" />
         </div>
         <div>
           <p className="text-xl font-semibold text-white mb-1">{t.successTitle}</p>
@@ -89,8 +89,9 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm text-monks-light mb-2">{t.name}</label>
+          <label htmlFor="cf-name" className="block text-sm text-monks-light mb-2">{t.name}</label>
           <input
+            id="cf-name"
             type="text"
             required
             value={form.name}
@@ -100,8 +101,9 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
           />
         </div>
         <div>
-          <label className="block text-sm text-monks-light mb-2">{t.email}</label>
+          <label htmlFor="cf-email" className="block text-sm text-monks-light mb-2">{t.email}</label>
           <input
+            id="cf-email"
             type="email"
             required
             value={form.email}
@@ -113,8 +115,9 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm text-monks-light mb-2">{t.company}</label>
+        <label htmlFor="cf-company" className="block text-sm text-monks-light mb-2">{t.company}</label>
         <input
+          id="cf-company"
           type="text"
           value={form.company}
           onChange={(e) => setForm({ ...form, company: e.target.value })}
@@ -124,8 +127,9 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm text-monks-light mb-2">{t.message}</label>
+        <label htmlFor="cf-message" className="block text-sm text-monks-light mb-2">{t.message}</label>
         <textarea
+          id="cf-message"
           rows={5}
           required
           value={form.message}
@@ -136,7 +140,7 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
       </div>
 
       {error && (
-        <p className="text-red-400 text-sm">{error}</p>
+        <p role="alert" className="text-red-400 text-sm">{error}</p>
       )}
 
       <button
@@ -146,13 +150,13 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
       >
         {loading ? (
           <>
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
             {t.sending}
           </>
         ) : (
           <>
             {t.send}
-            <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" aria-hidden="true" />
           </>
         )}
       </button>

@@ -137,7 +137,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
           <div className="absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-monks-red-dark/30 blur-3xl" aria-hidden />
           <DialogHeader className="relative">
             <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-widest text-monks-accent">
-              <Sparkles className="h-3.5 w-3.5" />
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               Δωρεάν εκτίμηση
             </div>
             <DialogTitle className="text-2xl font-bold leading-tight text-white sm:text-3xl">
@@ -150,9 +150,9 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
         </div>
 
         {success ? (
-          <div className="flex flex-col items-center gap-4 px-6 py-12 text-center sm:px-8">
+          <div role="status" className="flex flex-col items-center gap-4 px-6 py-12 text-center sm:px-8">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-monks-accent/20">
-              <CheckCircle2 className="h-9 w-9 text-monks-accent" />
+              <CheckCircle2 className="h-9 w-9 text-monks-accent" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-semibold text-white">Το αίτημά σας καταχωρήθηκε!</h3>
             <p className="max-w-md text-sm text-monks-light">
@@ -187,7 +187,9 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
                     setLookupError(null);
                   }}
                   onBlur={() => afm.length === 9 && !company && lookupAfm()}
-                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/40 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
+                  aria-invalid={!!lookupError}
+                  aria-describedby={lookupError ? "dm-afm-error" : undefined}
+                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/50 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
                 />
                 <button
                   type="button"
@@ -195,18 +197,18 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
                   disabled={lookupLoading || afm.length !== 9}
                   className="inline-flex h-11 items-center gap-2 rounded-md bg-monks-accent px-4 text-sm font-semibold text-white transition hover:bg-monks-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {lookupLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                  {lookupLoading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}
                   Αναζήτηση
                 </button>
               </div>
-              {lookupError && <p className="text-xs text-red-400">{lookupError}</p>}
+              {lookupError && <p id="dm-afm-error" role="alert" className="text-xs text-red-400">{lookupError}</p>}
             </div>
 
             {/* Company info card */}
             {company && (
               <div className="rounded-xl border border-monks-accent/30 bg-monks-accent/5 p-4">
                 <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-monks-accent">
-                  <Building2 className="h-4 w-4" />
+                  <Building2 className="h-4 w-4" aria-hidden="true" />
                   Στοιχεία Επιχείρησης
                 </div>
                 <div className="space-y-1 text-sm">
@@ -312,7 +314,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
             </div>
 
             {submitError && (
-              <div className="rounded-md border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              <div role="alert" className="rounded-md border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
                 {submitError}
               </div>
             )}

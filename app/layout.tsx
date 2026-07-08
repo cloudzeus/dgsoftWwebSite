@@ -180,6 +180,12 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://dgsmart.b-cdn.net" />
       </head>
       <body className="antialiased bg-monks-black text-white">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-monks-black focus:font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-monks-black focus:ring-white"
+        >
+          Μετάβαση στο περιεχόμενο
+        </a>
         <TrackingTags tags={resolveTrackingTags(settings)} />
         <script
           id="ld-organization"
@@ -199,7 +205,9 @@ export default async function RootLayout({
             contentEN={footer.contentEN}
           >
             <SmoothScroll>
-              {children}
+              <div id="main-content" tabIndex={-1} className="outline-none">
+                {children}
+              </div>
             </SmoothScroll>
             <CookieBanner />
           </FooterProvider>

@@ -223,25 +223,31 @@ export default function EUProgramsPage() {
                 {isModalOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="eu-modal-title"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="bg-monks-gray border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 md:p-8 relative shadow-2xl"
                         >
                             <button
+                                type="button"
                                 onClick={() => setIsModalOpen(false)}
-                                className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
+                                aria-label={locale === "el" ? "Κλείσιμο" : "Close"}
+                                className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
                             >
-                                <X className="w-6 h-6" />
+                                <X className="w-6 h-6" aria-hidden="true" />
                             </button>
 
-                            <h2 className="text-2xl font-bold text-white mb-6">{locale === "el" ? "Στοιχεία Επικοινωνίας" : "Contact Details"}</h2>
+                            <h2 id="eu-modal-title" className="text-2xl font-bold text-white mb-6">{locale === "el" ? "Στοιχεία Επικοινωνίας" : "Contact Details"}</h2>
 
                             <div className="space-y-5">
                                 <div>
-                                    <label className="block text-sm font-medium text-monks-light mb-2">ΑΦΜ / VAT Number</label>
+                                    <label htmlFor="eu-vat" className="block text-sm font-medium text-monks-light mb-2">ΑΦΜ / VAT Number</label>
                                     <div className="flex gap-2">
                                         <input
+                                            id="eu-vat"
                                             type="text"
                                             value={vat}
                                             onChange={(e) => setVat(e.target.value)}
@@ -249,19 +255,22 @@ export default function EUProgramsPage() {
                                             className="flex-grow bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors"
                                         />
                                         <button
+                                            type="button"
                                             onClick={handleFetchVat}
                                             disabled={isLoading || !vat}
+                                            aria-label={locale === "el" ? "Αναζήτηση ΑΦΜ" : "Search VAT"}
                                             className="bg-white/10 hover:bg-white/20 text-white px-4 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
                                         >
-                                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-[#FFD700]" /> : <Search className="w-5 h-5" />}
+                                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin text-[#FFD700]" aria-hidden="true" /> : <Search className="w-5 h-5" aria-hidden="true" />}
                                         </button>
                                     </div>
                                     <p className="text-xs text-monks-light mt-1">{locale === "el" ? "Συμπληρώστε το ΑΦΜ και κάντε αναζήτηση για αυτόματη συμπλήρωση." : "Enter VAT number and search for auto-fill."}</p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Όνομα Εταιρίας" : "Company Name"}</label>
+                                    <label htmlFor="eu-company" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Όνομα Εταιρίας" : "Company Name"}</label>
                                     <input
+                                        id="eu-company"
                                         type="text"
                                         value={companyName}
                                         onChange={(e) => setCompanyName(e.target.value)}
@@ -271,8 +280,9 @@ export default function EUProgramsPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Διεύθυνση" : "Address"}</label>
+                                        <label htmlFor="eu-address" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Διεύθυνση" : "Address"}</label>
                                         <input
+                                            id="eu-address"
                                             type="text"
                                             value={address}
                                             onChange={(e) => setAddress(e.target.value)}
@@ -280,8 +290,9 @@ export default function EUProgramsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τ.Κ. (Zip Code)" : "Zip Code"}</label>
+                                        <label htmlFor="eu-zip" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τ.Κ. (Zip Code)" : "Zip Code"}</label>
                                         <input
+                                            id="eu-zip"
                                             type="text"
                                             value={zipCode}
                                             onChange={(e) => setZipCode(e.target.value)}
@@ -292,8 +303,9 @@ export default function EUProgramsPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τηλέφωνο Επικοινωνίας" : "Contact Phone"}</label>
+                                        <label htmlFor="eu-phone" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τηλέφωνο Επικοινωνίας" : "Contact Phone"}</label>
                                         <input
+                                            id="eu-phone"
                                             type="tel"
                                             value={phone}
                                             onChange={(e) => setPhone(e.target.value)}
@@ -302,8 +314,9 @@ export default function EUProgramsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">Email</label>
+                                        <label htmlFor="eu-email" className="block text-sm font-medium text-monks-light mb-2">Email</label>
                                         <input
+                                            id="eu-email"
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
@@ -315,8 +328,9 @@ export default function EUProgramsPage() {
 
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Εργαζόμενοι" : "Employees"}</label>
+                                        <label htmlFor="eu-employees" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Εργαζόμενοι" : "Employees"}</label>
                                         <input
+                                            id="eu-employees"
                                             type="number"
                                             value={employees}
                                             onChange={(e) => setEmployees(e.target.value)}
@@ -325,8 +339,9 @@ export default function EUProgramsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Κλεισμένες χρήσεις" : "Closed years"}</label>
+                                        <label htmlFor="eu-closed-years" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Κλεισμένες χρήσεις" : "Closed years"}</label>
                                         <input
+                                            id="eu-closed-years"
                                             type="number"
                                             value={closedYears}
                                             onChange={(e) => setClosedYears(e.target.value)}
@@ -335,8 +350,9 @@ export default function EUProgramsPage() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Μέσος κύκλος εργασιών (€)" : "Average turnover (€)"}</label>
+                                        <label htmlFor="eu-turnover" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Μέσος κύκλος εργασιών (€)" : "Average turnover (€)"}</label>
                                         <input
+                                            id="eu-turnover"
                                             type="number"
                                             value={avgTurnover}
                                             onChange={(e) => setAvgTurnover(e.target.value)}
@@ -348,8 +364,9 @@ export default function EUProgramsPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Ιδανική Ώρα Επικοινωνίας" : "Preferred Contact Time"}</label>
+                                        <label htmlFor="eu-contact-time" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Ιδανική Ώρα Επικοινωνίας" : "Preferred Contact Time"}</label>
                                         <select
+                                            id="eu-contact-time"
                                             value={contactTime}
                                             onChange={(e) => setContactTime(e.target.value)}
                                             className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFD700] transition-colors appearance-none"
@@ -360,11 +377,12 @@ export default function EUProgramsPage() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τρόπος Επικοινωνίας" : "Contact Method"}</label>
-                                        <div className="flex bg-white/5 border border-white/10 rounded-lg overflow-hidden p-1">
+                                        <span id="eu-contact-method-label" className="block text-sm font-medium text-monks-light mb-2">{locale === "el" ? "Τρόπος Επικοινωνίας" : "Contact Method"}</span>
+                                        <div role="group" aria-labelledby="eu-contact-method-label" className="flex bg-white/5 border border-white/10 rounded-lg overflow-hidden p-1">
                                             <button
                                                 type="button"
                                                 onClick={() => setContactMethod("phone")}
+                                                aria-pressed={contactMethod === 'phone'}
                                                 className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${contactMethod === 'phone' ? 'bg-[#FFD700] text-monks-black' : 'text-monks-light hover:text-white'}`}
                                             >
                                                 {locale === "el" ? "Τηλέφωνο" : "Phone"}
@@ -372,6 +390,7 @@ export default function EUProgramsPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setContactMethod("teams")}
+                                                aria-pressed={contactMethod === 'teams'}
                                                 className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${contactMethod === 'teams' ? 'bg-[#FFD700] text-monks-black' : 'text-monks-light hover:text-white'}`}
                                             >
                                                 Microsoft Teams
@@ -381,7 +400,7 @@ export default function EUProgramsPage() {
                                 </div>
 
                                 {submitError && (
-                                    <p className="text-sm text-red-400">{submitError}</p>
+                                    <p role="alert" className="text-sm text-red-400">{submitError}</p>
                                 )}
                                 <button
                                     type="button"

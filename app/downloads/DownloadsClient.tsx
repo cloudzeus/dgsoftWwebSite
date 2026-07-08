@@ -47,8 +47,9 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
             </section>
 
             {/* Downloads Grid */}
-            <section className="relative pb-32 flex-grow bg-[#0a0f18] border-t border-white/5 pt-24">
+            <section className="relative pb-32 flex-grow bg-[#0a0f18] border-t border-white/5 pt-24" aria-labelledby="downloads-heading">
                 <div className="max-w-[1500px] mx-auto px-6 md:px-12">
+                    <h2 id="downloads-heading" className="sr-only">{locale === "el" ? "Διαθέσιμες λήψεις" : "Available downloads"}</h2>
                     {downloads.length === 0 ? (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -67,6 +68,7 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                                     rel="noopener noreferrer"
                                     key={item.id || index}
                                     download
+                                    aria-label={`${name(item)}${item.fileType ? ` (${item.fileType})` : ""} — ${locale === "el" ? "λήψη αρχείου" : "download file"}`}
                                 >
                                     <motion.div
                                         initial={{ opacity: 0, y: 20 }}
@@ -82,7 +84,7 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                                             </div>
                                             <div className="text-right flex flex-col items-end gap-2">
                                                 {item.fileSize && (
-                                                    <span className="px-3 py-1 bg-white/5 rounded-full text-xs font-bold text-white/40 border border-white/5">
+                                                    <span className="px-3 py-1 bg-white/5 rounded-full text-xs font-bold text-white/70 border border-white/5">
                                                         {item.fileSize}
                                                     </span>
                                                 )}
@@ -95,7 +97,7 @@ export default function DownloadsClient({ downloads = [] }: { downloads: any[] }
                                         </div>
 
                                         {item.category && (
-                                            <span className="text-white/40 text-sm font-bold tracking-wider mb-2 block">
+                                            <span className="text-white/70 text-sm font-bold tracking-wider mb-2 block">
                                                 {item.category}
                                             </span>
                                         )}
