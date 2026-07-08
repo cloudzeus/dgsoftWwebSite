@@ -36,7 +36,7 @@ export function ServicesGrid({ services }: { services: PublicServiceItem[] }) {
 
     if (!services.length) {
         return (
-            <div className="py-24 text-center text-monks-light text-justify">
+            <div className="py-24 text-center text-monks-light">
                 <p className="text-lg">Δεν υπάρχουν διαθέσιμες υπηρεσίες προς το παρόν.</p>
             </div>
         )
@@ -54,7 +54,7 @@ export function ServicesGrid({ services }: { services: PublicServiceItem[] }) {
                     >
                         <div className="relative h-full flex flex-col overflow-hidden rounded-[2rem] bg-monks-gray border border-white/5 hover:border-monks-accent/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(230,57,70,0.15)] p-10">
                             <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-500">
-                                <ArrowUpRight className="w-8 h-8 text-monks-accent" />
+                                <ArrowUpRight className="w-8 h-8 text-monks-red-light" />
                             </div>
 
                             {service.featureImage && (
@@ -76,15 +76,15 @@ export function ServicesGrid({ services }: { services: PublicServiceItem[] }) {
                                 <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-8 group-hover:bg-monks-accent/10 transition-colors duration-500" />
                             )}
 
-                            <div className="mb-4 text-sm font-medium text-monks-accent tracking-wider uppercase">
+                            <div className="mb-4 text-sm font-medium text-monks-red-light tracking-wider uppercase">
                                 {categoryName(service)}
                             </div>
 
-                            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-monks-accent transition-colors duration-500">
+                            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-monks-red-light transition-colors duration-500">
                                 {name(service)}
                             </h3>
 
-                            <p className="text-monks-light leading-relaxed flex-grow text-justify">
+                            <p className="text-monks-light leading-relaxed flex-grow">
                                 {shortDesc(service)}
                             </p>
                         </div>

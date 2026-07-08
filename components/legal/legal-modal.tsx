@@ -91,7 +91,7 @@ export function LegalModal({ slug, locale, onClose }: Props) {
             <div className="flex items-start justify-between gap-4 px-8 pt-8 pb-6 border-b border-white/5 shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-2xl bg-monks-accent/10 border border-monks-accent/20 flex items-center justify-center shrink-0">
-                  <Icon className="w-5 h-5 text-monks-accent" />
+                  <Icon className="w-5 h-5 text-monks-red-light" />
                 </div>
                 <div>
                   {loading ? (
@@ -101,7 +101,7 @@ export function LegalModal({ slug, locale, onClose }: Props) {
                       {title}
                     </h2>
                   )}
-                  <p className="text-monks-accent text-xs font-bold mt-0.5 tracking-widest uppercase">
+                  <p className="text-monks-red-light text-xs font-bold mt-0.5 tracking-widest uppercase">
                     DGSOFT
                   </p>
                 </div>
@@ -134,10 +134,10 @@ export function LegalModal({ slug, locale, onClose }: Props) {
                     prose-headings:text-white prose-headings:font-black
                     prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
                     prose-p:text-monks-light prose-p:leading-relaxed
-                    prose-a:text-monks-accent prose-a:no-underline hover:prose-a:underline
+                    prose-a:text-monks-red-light prose-a:no-underline hover:prose-a:underline
                     prose-strong:text-white
                     prose-ul:text-monks-light prose-ol:text-monks-light
-                    prose-li:marker:text-monks-accent
+                    prose-li:marker:text-monks-red-light
                     prose-hr:border-white/10
                     prose-blockquote:border-l-monks-accent prose-blockquote:text-monks-light
                   "

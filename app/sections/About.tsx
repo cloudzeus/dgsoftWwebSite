@@ -81,15 +81,15 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                 </div>
                 <div className="mt-10 space-y-3 text-sm text-monks-light/80 max-w-[200px]">
                   <div className="flex items-baseline gap-3">
-                    <span className="text-monks-accent font-bold tabular-nums">15+</span>
+                    <span className="text-monks-red-light font-bold tabular-nums">15+</span>
                     <span>{locale === "el" ? "χρόνια εμπειρίας" : "years of experience"}</span>
                   </div>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-monks-accent font-bold tabular-nums">6</span>
+                    <span className="text-monks-red-light font-bold tabular-nums">6</span>
                     <span>{locale === "el" ? "κόμβοι σε GR & CY" : "hubs across GR & CY"}</span>
                   </div>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-monks-accent font-bold tabular-nums">1</span>
+                    <span className="text-monks-red-light font-bold tabular-nums">1</span>
                     <span>{locale === "el" ? "πιστοποιημένος SoftOne partner" : "certified SoftOne partner"}</span>
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                   >
                     {i === 0 ? (
                       <>
-                        <span className="float-left mr-3 mt-1 text-5xl md:text-6xl font-bold leading-none text-monks-accent">
+                        <span className="float-left mr-3 mt-1 text-5xl md:text-6xl font-bold leading-none text-monks-red-light">
                           {p.charAt(0)}
                         </span>
                         {p.slice(1)}
@@ -132,7 +132,7 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                 </Link>
                 <Link
                   href="/works"
-                  className="inline-flex items-center gap-2 px-6 py-4 text-white border border-white/20 rounded-full hover:border-monks-accent hover:text-monks-accent transition-all duration-300 group text-sm font-medium tracking-wide"
+                  className="inline-flex items-center gap-2 px-6 py-4 text-white border border-white/20 rounded-full hover:border-monks-accent hover:text-monks-red-light transition-all duration-300 group text-sm font-medium tracking-wide"
                 >
                   {locale === "el" ? "Δες τα έργα μας" : "See our work"}
                   <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -162,7 +162,7 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                 className="group"
               >
                 <div
-                  className="text-5xl font-bold text-white/10 group-hover:text-monks-accent/30 transition-colors mb-4"
+                  className="text-5xl font-bold text-white/10 group-hover:text-monks-red-light/30 transition-colors mb-4"
                   aria-hidden="true"
                 >
                   0{index + 1}
@@ -194,7 +194,7 @@ export default function About({ contentEL, contentEN }: AboutProps) {
                   transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                   className="group p-6 rounded-2xl bg-monks-gray/30 border border-white/5 hover:border-monks-accent/30 transition-all duration-300"
                 >
-                  <Icon className="w-8 h-8 text-monks-accent mb-4" />
+                  <Icon className="w-8 h-8 text-monks-red-light mb-4" />
                   <h4 className="text-lg font-bold text-white mb-2">{value.title}</h4>
                   <p className="text-sm text-monks-light">{value.description}</p>
                 </motion.div>

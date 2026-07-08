@@ -64,7 +64,7 @@ export function EspaPdfBanner({
             }`}
           >
             <ExternalLink
-              className={`text-monks-accent ${compact ? "h-5 w-5" : "h-7 w-7"}`}
+              className={`text-monks-red-light ${compact ? "h-5 w-5" : "h-7 w-7"}`}
               aria-hidden
             />
             <span
@@ -92,7 +92,7 @@ export function EspaPdfBanner({
           {caption}
         </span>
         <span
-          className={`inline-flex shrink-0 items-center gap-1 font-semibold text-monks-accent ${
+          className={`inline-flex shrink-0 items-center gap-1 font-semibold text-monks-red-light ${
             compact ? "text-xs" : "gap-1.5 text-sm"
           }`}
         >

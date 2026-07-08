@@ -105,7 +105,7 @@ export default function Navigation() {
                     href={link.href}
                     className={`text-sm font-bold tracking-wider transition-colors line-animation ${
                       activeVal
-                        ? "text-monks-accent"
+                        ? "text-monks-red-light"
                         : "text-monks-light hover:text-white"
                     }`}
                   >
@@ -189,7 +189,7 @@ export default function Navigation() {
                       onClick={() => setIsMenuOpen(false)}
                       className={`text-5xl font-black transition-colors ${
                         activeVal
-                          ? "text-monks-accent"
+                          ? "text-monks-red-light"
                           : "text-white hover:text-monks-light"
                       }`}
                     >

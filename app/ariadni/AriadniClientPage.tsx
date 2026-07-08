@@ -62,7 +62,7 @@ export default function AriadniClientPage({
             className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-14 lg:gap-20"
           >
             <div className="flex-1 space-y-6 md:space-y-8 min-w-0">
-              <span className="inline-flex items-center gap-2 text-monks-accent font-semibold tracking-[0.2em] text-xs uppercase">
+              <span className="inline-flex items-center gap-2 text-monks-red-light font-semibold tracking-[0.2em] text-xs uppercase">
                 <Sparkles className="w-4 h-4 shrink-0" />
                 {c.heroBadge}
               </span>
@@ -135,7 +135,7 @@ export default function AriadniClientPage({
                       />
                     ) : (
                       <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 px-4 py-8 text-center">
-                        <ExternalLink className="w-7 h-7 text-monks-accent" aria-hidden />
+                        <ExternalLink className="w-7 h-7 text-monks-red-light" aria-hidden />
                         <span className="text-sm font-medium text-monks-light">
                           {locale === "el" ? "Έγγραφο προγράμματος (PDF)" : "Programme document (PDF)"}
                         </span>
@@ -155,7 +155,7 @@ export default function AriadniClientPage({
                     <span className="text-[11px] sm:text-xs font-medium tracking-wide text-monks-light uppercase">
                       {locale === "el" ? "Έγγραφο προγράμματος ΕΣΠΑ" : "ESPA programme document"}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-monks-accent shrink-0">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-monks-red-light shrink-0">
                       PDF
                       <ExternalLink className="w-4 h-4" aria-hidden />
                     </span>
@@ -170,7 +170,7 @@ export default function AriadniClientPage({
       {/* Intro */}
       <section className="relative px-6 md:px-12 py-16 md:py-24 border-t border-white/10">
         <div className="max-w-[900px] mx-auto">
-          <motion.p {...fade} className="text-lg md:text-xl text-monks-light leading-relaxed text-justify">
+          <motion.p {...fade} className="text-lg md:text-xl text-monks-light leading-relaxed">
             {c.intro}
           </motion.p>
         </div>
@@ -180,7 +180,7 @@ export default function AriadniClientPage({
       <section className="relative px-6 md:px-12 py-16 md:py-24 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent border-y border-white/5">
         <div className="max-w-[1100px] mx-auto">
           <motion.div {...fade} className="flex items-center gap-3 mb-8">
-            <Network className="w-8 h-8 text-monks-accent" />
+            <Network className="w-8 h-8 text-monks-red-light" />
             <h2 className="text-2xl md:text-3xl font-bold text-white">
               {c.apiLeadIn}
             </h2>
@@ -203,7 +203,7 @@ export default function AriadniClientPage({
           </div>
           <motion.p
             {...fade}
-            className="mt-12 text-lg md:text-xl text-monks-light leading-relaxed text-justify"
+            className="mt-12 text-lg md:text-xl text-monks-light leading-relaxed"
           >
             {c.valueParagraph}
           </motion.p>
@@ -223,7 +223,7 @@ export default function AriadniClientPage({
                 transition={{ delay: i * 0.06, duration: 0.45 }}
                 className="flex gap-4 items-start text-monks-light"
               >
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-monks-accent/20 text-monks-accent">
+                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-monks-accent/20 text-monks-red-light">
                   <Check className="w-3.5 h-3.5" strokeWidth={3} />
                 </span>
                 <span className="text-base md:text-lg leading-relaxed pt-0.5">
@@ -240,7 +240,7 @@ export default function AriadniClientPage({
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-monks-accent/5 rounded-full blur-[160px] pointer-events-none" />
         <div className="max-w-[1000px] mx-auto relative z-10">
           <motion.div {...fade} className="mb-10">
-            <div className="inline-flex items-center gap-2 text-monks-accent mb-4">
+            <div className="inline-flex items-center gap-2 text-monks-red-light mb-4">
               <Layers className="w-6 h-6" />
               <span className="text-sm font-bold tracking-widest uppercase">
                 DGSOFT
@@ -249,7 +249,7 @@ export default function AriadniClientPage({
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-8">
               {c.strategicHeading}
             </h2>
-            <div className="text-lg md:text-xl text-monks-light leading-relaxed space-y-6 text-justify whitespace-pre-line">
+            <div className="text-lg md:text-xl text-monks-light leading-relaxed space-y-6 whitespace-pre-line">
               {c.partnerIntro}
             </div>
           </motion.div>
@@ -264,7 +264,7 @@ export default function AriadniClientPage({
                 transition={{ delay: i * 0.05 }}
                 className="flex gap-3 text-monks-light"
               >
-                <Zap className="w-5 h-5 shrink-0 text-monks-accent mt-1" />
+                <Zap className="w-5 h-5 shrink-0 text-monks-red-light mt-1" />
                 <span className="leading-relaxed">{b}</span>
               </motion.li>
             ))}
@@ -272,7 +272,7 @@ export default function AriadniClientPage({
 
           <motion.p
             {...fade}
-            className="text-lg md:text-xl text-monks-light leading-relaxed text-justify whitespace-pre-line"
+            className="text-lg md:text-xl text-monks-light leading-relaxed whitespace-pre-line"
           >
             {c.partnerClosing}
           </motion.p>
@@ -286,7 +286,7 @@ export default function AriadniClientPage({
             {...fade}
             className="text-2xl md:text-3xl font-bold text-white mb-10 flex items-center gap-3"
           >
-            <Globe className="w-8 h-8 text-monks-accent shrink-0" />
+            <Globe className="w-8 h-8 text-monks-red-light shrink-0" />
             {c.advantagesHeading}
           </motion.h2>
           <ul className="grid sm:grid-cols-2 gap-4">
@@ -299,7 +299,7 @@ export default function AriadniClientPage({
                 transition={{ delay: i * 0.05 }}
                 className="flex items-center gap-3 rounded-xl border border-white/10 bg-monks-black/60 px-5 py-4 text-monks-light"
               >
-                <Cpu className="w-5 h-5 text-monks-accent shrink-0" />
+                <Cpu className="w-5 h-5 text-monks-red-light shrink-0" />
                 <span>{adv}</span>
               </motion.li>
             ))}

@@ -31,7 +31,7 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                     >
-                        <span className="text-monks-accent font-medium tracking-widest mb-4 block text-sm">
+                        <span className="text-monks-red-light font-medium tracking-widest mb-4 block text-sm">
                             {locale === "el" ? "Ειδήσεις & Insights" : "News & Insights"}
                         </span>
                         <h1 className="text-5xl md:text-7xl lg:text-[6rem] font-bold text-white mb-6 leading-[1.1]">
@@ -41,7 +41,7 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                                 <>Tech <span className="text-transparent bg-clip-text bg-gradient-to-r from-monks-light to-white/50">News</span></>
                             )}
                         </h1>
-                        <p className="text-xl text-monks-light max-w-2xl leading-relaxed text-justify">
+                        <p className="text-xl text-monks-light max-w-2xl leading-relaxed">
                             {locale === "el"
                                 ? "Μάθετε πρώτοι για τις τεχνολογικές εξελίξεις, μελέτες επιτυχίας και τρόπους ανάπτυξης μέσα από τις τελευταίες μας δημοσιεύσεις."
                                 : "Stay first on tech trends, success stories and growth tips from our latest posts."}
@@ -90,7 +90,7 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
 
                                         <div className="p-8 flex flex-col flex-grow">
                                             <div className="flex items-center justify-between gap-4 mb-6">
-                                                <span className="px-4 py-1.5 rounded-full text-xs font-bold text-monks-accent bg-monks-accent/10">
+                                                <span className="px-4 py-1.5 rounded-full text-xs font-bold text-monks-red-light bg-monks-accent/10">
                                                     {catName}
                                                 </span>
                                                 <div className="flex items-center gap-2 text-xs text-monks-light font-medium">
@@ -99,11 +99,11 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                                                 </div>
                                             </div>
 
-                                            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-monks-accent transition-colors duration-500 line-clamp-3">
+                                            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-monks-red-light transition-colors duration-500 line-clamp-3">
                                                 {title(post)}
                                             </h3>
 
-                                            <p className="text-monks-light text-sm leading-relaxed flex-grow mb-8 line-clamp-4 text-justify">
+                                            <p className="text-monks-light text-sm leading-relaxed flex-grow mb-8 line-clamp-4">
                                                 {shortDesc(post)}
                                             </p>
 
@@ -113,7 +113,7 @@ export default function BlogClient({ initialArticles = [] }: { initialArticles: 
                                                     <span className="text-white/60 font-medium text-xs">{authorName}</span>
                                                 </div>
 
-                                                <div className="flex items-center gap-2 text-monks-accent group-hover:gap-4 transition-all">
+                                                <div className="flex items-center gap-2 text-monks-red-light group-hover:gap-4 transition-all">
                                                     {locale === "el" ? "Άρθρο" : "Article"}
                                                     <ArrowRight className="w-4 h-4" />
                                                 </div>

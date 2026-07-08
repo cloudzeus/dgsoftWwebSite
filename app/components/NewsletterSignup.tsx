@@ -133,7 +133,7 @@ export default function NewsletterSignup() {
 
                   {/* Privacy note */}
                   <div className="flex items-start gap-3 px-6 md:px-8 pt-5">
-                    <ShieldCheck className="w-4 h-4 text-monks-accent shrink-0 mt-0.5" aria-hidden="true" />
+                    <ShieldCheck className="w-4 h-4 text-monks-red-light shrink-0 mt-0.5" aria-hidden="true" />
                     <p className="text-xs text-monks-light leading-relaxed">
                       Σεβόμαστε την ιδιωτικότητά σας. Δεν μοιραζόμαστε τα στοιχεία σας με τρίτους.
                     </p>
@@ -191,7 +191,7 @@ export default function NewsletterSignup() {
                           href="/terms"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-accent transition-colors"
+                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-red-light transition-colors"
                         >
                           όρους
                           <span className="sr-only"> (ανοίγει σε νέο παράθυρο)</span>
@@ -201,7 +201,7 @@ export default function NewsletterSignup() {
                           href="/privacy-policy"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-accent transition-colors"
+                          className="text-white underline decoration-white/30 hover:decoration-monks-accent hover:text-monks-red-light transition-colors"
                         >
                           πολιτική απορρήτου
                           <span className="sr-only"> (ανοίγει σε νέο παράθυρο)</span>

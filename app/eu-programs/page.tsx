@@ -147,7 +147,7 @@ export default function EUProgramsPage() {
                         <h1 className="text-display-sm md:text-display-md font-bold text-white mb-6 leading-[1.1]">
                             {locale === "el" ? <>Ευρωπαϊκά <span className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-transparent bg-clip-text">Προγράμματα</span></> : <>European <span className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-transparent bg-clip-text">Programs</span></>}
                         </h1>
-                        <p className="text-xl text-monks-light max-w-3xl leading-relaxed mb-8 text-justify">
+                        <p className="text-xl text-monks-light max-w-3xl leading-relaxed mb-8">
                             {locale === "el"
                                 ? "Αξιοποιήστε τα τρέχοντα ευρωπαϊκά και εθνικά προγράμματα επιδότησης. Σας βοηθάμε να πετύχετε την απόλυτη ψηφιακή αναβάθμιση της επιχείρησής σας, αναλαμβάνοντας όλη τη διαδικασία υποβολής και υλοποίησης."
                                 : "Make the most of current European and national funding programs. We help you achieve full digital upgrade of your business, handling the entire submission and implementation process."}
@@ -197,7 +197,7 @@ export default function EUProgramsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="mb-4 text-sm font-medium text-white/50 tracking-wider flex items-center gap-2">
+                                            <div className="mb-4 text-sm font-medium text-white/70 tracking-wider flex items-center gap-2">
                                                 <Globe2 className="w-4 h-4 text-[#0A3D73] group-hover:text-[#FFD700] transition-colors duration-300" />
                                                 {lang.category || ""}
                                             </div>
@@ -206,7 +206,7 @@ export default function EUProgramsPage() {
                                                 {lang.title || ""}
                                             </h3>
 
-                                            <p className="text-monks-light leading-relaxed flex-grow text-justify">
+                                            <p className="text-monks-light leading-relaxed flex-grow">
                                                 {lang.desc || ""}
                                             </p>
 

@@ -17,13 +17,15 @@ body {
   overflow-x: hidden;
 }
 
-/* Main content text alignment: justified (όμοιο από όλες τις μεριές) */
+/* Main content text alignment: left-aligned for readability (WCAG — justified
+   text creates uneven word spacing / "rivers" that hurt low-vision & dyslexic
+   readers). */
 .prose p,
 .prose li,
 main .text-justify,
 article p,
 article li {
-  text-align: justify;
+  text-align: left;
 }
 
 /* Custom Scrollbar */

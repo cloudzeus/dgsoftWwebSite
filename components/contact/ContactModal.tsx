@@ -120,14 +120,14 @@ export function ContactModal({ open, onClose, locale = "el" }: Props) {
             <div className="flex flex-wrap gap-4 px-6 md:px-8 pt-5 pb-2">
               <a
                 href={`mailto:${t.email}`}
-                className="flex items-center gap-2 text-xs text-monks-light hover:text-monks-accent transition-colors"
+                className="flex items-center gap-2 text-xs text-monks-light hover:text-monks-red-light transition-colors"
               >
                 <Mail className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                 {t.email}
               </a>
               <a
                 href="tel:+302105711581"
-                className="flex items-center gap-2 text-xs text-monks-light hover:text-monks-accent transition-colors"
+                className="flex items-center gap-2 text-xs text-monks-light hover:text-monks-red-light transition-colors"
               >
                 <Phone className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                 {t.phone}

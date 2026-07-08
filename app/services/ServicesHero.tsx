@@ -27,7 +27,7 @@ export default function ServicesHero() {
               <>Our <span className="gradient-text">{highlight}</span></>
             )}
           </h1>
-          <p className="text-xl text-monks-light max-w-3xl leading-relaxed text-justify">
+          <p className="text-xl text-monks-light max-w-3xl leading-relaxed">
             {description}
           </p>
         </div>

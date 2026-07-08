@@ -47,7 +47,7 @@ const Card = ({ work, i, progress, range, targetScale }: any) => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm font-bold tracking-wider mb-4 shrink-0">
-                        <span className="text-monks-accent bg-monks-accent/10 px-4 py-2 rounded-full border border-monks-accent/20">{work.category}</span>
+                        <span className="text-monks-red-light bg-monks-accent/10 px-4 py-2 rounded-full border border-monks-accent/20">{work.category}</span>
                         <span className="text-monks-light bg-white/5 px-4 py-2 rounded-full border border-white/10">{work.year}</span>
                     </div>
 
@@ -124,11 +124,11 @@ export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                 >
-                    <span className="text-monks-accent font-medium tracking-widest mb-6 block">{locale === "el" ? "Μελέτες Περίπτωσης" : "Case Studies"}</span>
+                    <span className="text-monks-red-light font-medium tracking-widest mb-6 block">{locale === "el" ? "Μελέτες Περίπτωσης" : "Case Studies"}</span>
                     <h1 className="text-[clamp(1.75rem,3.5vw,2.75rem)] md:text-[clamp(2rem,4vw,3.25rem)] font-black text-white capitalize mb-6 leading-[1.15] max-w-4xl">
                         {locale === "el" ? <>Ιστορίες <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-monks-light to-white/30">Επιτυχίας</span> & <span className="gradient-text">Τεχνολογίας</span></> : <>Success & <span className="gradient-text">Technology</span> Stories</>}
                     </h1>
-                    <p className="text-xl md:text-2xl text-monks-light max-w-3xl leading-relaxed text-justify">
+                    <p className="text-xl md:text-2xl text-monks-light max-w-3xl leading-relaxed">
                         {locale === "el"
                             ? "Δείτε πώς βοηθήσαμε κορυφαίες επιχειρήσεις να μετασχηματίσουν την λειτουργία τους μέσω προηγμένων λύσεων λογισμικού, Cloud υποδομών και αυτοματισμών."
                             : "See how we helped leading businesses transform their operations through advanced software, cloud infrastructure and automation."}
@@ -141,7 +141,7 @@ export default function WorksPage({ initialWorks }: { initialWorks?: any[] }) {
                 {displayWorks.length === 0 ? (
                     <div className="min-h-[60vh] flex flex-col items-center justify-center py-24 text-center">
                         <p className="text-monks-light text-lg mb-4">{locale === "el" ? "Δεν υπάρχουν δημοσιευμένα έργα." : "No published projects yet."}</p>
-                        <Link href="/" className="inline-flex items-center gap-2 text-monks-accent hover:text-white transition-colors font-semibold">
+                        <Link href="/" className="inline-flex items-center gap-2 text-monks-red-light hover:text-white transition-colors font-semibold">
                             <ArrowUpRight className="w-5 h-5" />
                             {locale === "el" ? "Επιστροφή στην αρχική" : "Back to home"}
                         </Link>

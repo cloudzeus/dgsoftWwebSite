@@ -51,7 +51,7 @@ export default function ClientPage({ slug }: { slug: string }) {
                     </Link>
 
                     <div className="flex gap-4 mb-6">
-                        <span className="px-3 py-1 bg-monks-accent/20 text-monks-accent text-xs font-bold rounded-full border border-monks-accent/20">
+                        <span className="px-3 py-1 bg-monks-accent/20 text-monks-red-light text-xs font-bold rounded-full border border-monks-accent/20">
                             {post.category}
                         </span>
                         <div className="flex items-center gap-2 text-xs text-monks-light font-medium bg-white/5 px-3 py-1 rounded-full border border-white/5">

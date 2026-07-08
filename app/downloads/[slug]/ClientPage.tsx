@@ -58,10 +58,10 @@ export default function ClientPage({ slug }: { slug: string }) {
                     </Link>
 
                     <div className="flex gap-4 mb-6">
-                        <span className="px-3 py-1 bg-white/10 text-white/50 text-xs font-bold rounded-full border border-white/5">
+                        <span className="px-3 py-1 bg-white/10 text-white/80 text-xs font-bold rounded-full border border-white/5">
                             {file.fileSize}
                         </span>
-                        <div className="flex items-center gap-2 text-xs font-bold bg-monks-accent/20 text-monks-accent px-3 py-1 rounded-full border border-monks-accent/20">
+                        <div className="flex items-center gap-2 text-xs font-bold bg-monks-accent/20 text-monks-red-light px-3 py-1 rounded-full border border-monks-accent/20">
                             {file.fileType}
                         </div>
                     </div>

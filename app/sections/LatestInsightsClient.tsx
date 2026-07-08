@@ -26,7 +26,7 @@ export default function LatestInsightsClient({ articles = [] }: { articles: any[
                     className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16"
                 >
                     <div>
-                        <span className="text-monks-accent font-medium tracking-widest block mb-4">{locale === "el" ? "Ανακαλύψτε" : "Discover"}</span>
+                        <span className="text-monks-red-light font-medium tracking-widest block mb-4">{locale === "el" ? "Ανακαλύψτε" : "Discover"}</span>
                         <h2 className="text-4xl md:text-5xl font-black text-white">
                             {locale === "el" ? <>Νέα & <span className="gradient-text">Downloads</span></> : <>News & <span className="gradient-text">Downloads</span></>}
                         </h2>
@@ -43,7 +43,7 @@ export default function LatestInsightsClient({ articles = [] }: { articles: any[
                 </motion.div>
 
                 {articles.length === 0 ? (
-                    <div className="text-center text-monks-light py-16 border border-white/5 rounded-3xl text-justify">
+                    <div className="text-center text-monks-light py-16 border border-white/5 rounded-3xl">
                         {locale === "el" ? "Δεν υπάρχουν άρθρα ακόμα." : "No articles yet."}
                     </div>
                 ) : (
@@ -76,14 +76,14 @@ export default function LatestInsightsClient({ articles = [] }: { articles: any[
                                         <div className="relative z-10 p-8 flex flex-col h-full">
                                             <div className="flex items-center justify-between mb-8">
                                                 <div className="flex gap-2">
-                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-monks-light/10 text-monks-light group-hover:bg-monks-accent/20 group-hover:text-monks-accent transition-colors">
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-monks-light/10 text-monks-light group-hover:bg-monks-accent/20 group-hover:text-monks-red-light transition-colors">
                                                         {locale === "el" ? "Άρθρο" : "Article"}
                                                     </span>
                                                     <span className="px-3 py-1 rounded-full text-xs text-white/70 border border-white/5">
                                                         {catName}
                                                     </span>
                                                 </div>
-                                                <FileText className="w-6 h-6 text-monks-light group-hover:text-monks-accent group-hover:scale-110 transition-all duration-300" />
+                                                <FileText className="w-6 h-6 text-monks-light group-hover:text-monks-red-light group-hover:scale-110 transition-all duration-300" />
                                             </div>
 
                                             <div className="mt-auto">
@@ -91,7 +91,7 @@ export default function LatestInsightsClient({ articles = [] }: { articles: any[
                                                     <Calendar className="w-3 h-3" />
                                                     {new Date(item.createdAt).toLocaleDateString(locale === "el" ? "el-GR" : "en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                                                 </div>
-                                                <h3 className="text-xl font-bold text-white mb-6 group-hover:text-monks-accent transition-colors line-clamp-2">
+                                                <h3 className="text-xl font-bold text-white mb-6 group-hover:text-monks-red-light transition-colors line-clamp-2">
                                                     {title(item)}
                                                 </h3>
 

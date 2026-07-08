@@ -136,7 +136,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
           <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-monks-accent/30 blur-3xl" aria-hidden />
           <div className="absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-monks-red-dark/30 blur-3xl" aria-hidden />
           <DialogHeader className="relative">
-            <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-widest text-monks-accent">
+            <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-widest text-monks-red-light">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               Δωρεάν εκτίμηση
             </div>
@@ -152,7 +152,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
         {success ? (
           <div role="status" className="flex flex-col items-center gap-4 px-6 py-12 text-center sm:px-8">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-monks-accent/20">
-              <CheckCircle2 className="h-9 w-9 text-monks-accent" aria-hidden="true" />
+              <CheckCircle2 className="h-9 w-9 text-monks-red-light" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-semibold text-white">Το αίτημά σας καταχωρήθηκε!</h3>
             <p className="max-w-md text-sm text-monks-light">
@@ -207,7 +207,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
             {/* Company info card */}
             {company && (
               <div className="rounded-xl border border-monks-accent/30 bg-monks-accent/5 p-4">
-                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-monks-accent">
+                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-monks-red-light">
                   <Building2 className="h-4 w-4" aria-hidden="true" />
                   Στοιχεία Επιχείρησης
                 </div>
@@ -236,7 +236,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/40 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
+                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/55 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
                 />
               </div>
               <div className="space-y-2">
@@ -249,7 +249,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
-                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/40 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
+                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/55 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -262,7 +262,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/40 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
+                  className="h-11 border-white/15 bg-white/5 text-white placeholder:text-white/55 focus-visible:border-monks-accent focus-visible:ring-monks-accent/30"
                 />
               </div>
               <div className="space-y-2">
@@ -308,7 +308,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Πείτε μας λίγα λόγια για τις ανάγκες σας..."
-                  className="w-full rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-monks-accent focus:outline-none focus:ring-2 focus:ring-monks-accent/30"
+                  className="w-full rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/55 focus:border-monks-accent focus:outline-none focus:ring-2 focus:ring-monks-accent/30"
                 />
               </div>
             </div>

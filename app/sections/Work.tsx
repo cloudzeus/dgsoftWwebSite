@@ -71,7 +71,7 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
           {displayProjects.length === 0 ? (
             <div className="py-12 md:py-16 border-t border-white/10 text-center">
               <p className="text-monks-light">{locale === "el" ? "Δεν υπάρχουν δημοσιευμένα έργα προς εμφάνιση." : "No published projects to show."}</p>
-              <Link href="/works" className="inline-flex items-center gap-2 mt-4 text-monks-accent hover:text-white transition-colors text-sm font-semibold">
+              <Link href="/works" className="inline-flex items-center gap-2 mt-4 text-monks-red-light hover:text-white transition-colors text-sm font-semibold">
                 <span>{locale === "el" ? "Όλα τα Έργα" : "View All Projects"}</span>
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
@@ -91,12 +91,12 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
                   {/* Year & Category */}
                   <div className="md:col-span-2 flex md:flex-col gap-4 md:gap-2 text-sm text-monks-light">
                     <span>{project.year}</span>
-                    <span className="text-monks-accent">{project.category}</span>
+                    <span className="text-monks-red-light">{project.category}</span>
                   </div>
 
                   {/* Title & Client */}
                   <div className="md:col-span-5">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-monks-accent transition-colors">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-monks-red-light transition-colors">
                       {project.title}
                     </h3>
                     <p className="text-monks-light">{project.client}</p>
@@ -104,7 +104,7 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
 
                   {/* Description */}
                   <div className="md:col-span-4">
-                    <p className="text-monks-light leading-relaxed line-clamp-2 text-justify">
+                    <p className="text-monks-light leading-relaxed line-clamp-2">
                       {project.description}
                     </p>
                   </div>
@@ -135,11 +135,11 @@ export default function Work({ initialWorks }: { initialWorks?: any[] }) {
 
           <div className="relative z-10 p-8 md:p-16 grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <span className="text-monks-accent font-medium mb-4 block">{locale === "el" ? "Επιδοτούμενα Προγράμματα" : "EU Funded Programs"}</span>
+              <span className="text-monks-red-light font-medium mb-4 block">{locale === "el" ? "Επιδοτούμενα Προγράμματα" : "EU Funded Programs"}</span>
               <h3 className="text-3xl md:text-5xl font-bold text-white mb-6">
                 {locale === "el" ? "Κάνε την ψηφιακή αναβάθμιση με επιδότηση" : "Upgrade digitally with EU funding"}
               </h3>
-              <p className="text-monks-light mb-8 text-lg text-justify">
+              <p className="text-monks-light mb-8 text-lg">
                 {locale === "el"
                   ? "Η DGSOFT σε βοηθά να αποκτήσεις Soft1 ERP, CRM, CTI και ειδικές πλατφόρμες με σημαντική επιδότηση ή και χωρίς ίδιο κόστος επένδυσης."
                   : "DGSOFT helps you get Soft1 ERP, CRM, CTI and custom platforms with significant funding or even zero upfront investment."}

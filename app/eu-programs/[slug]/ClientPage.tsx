@@ -42,7 +42,7 @@ export default function ClientPage({ slug }: { slug: string }) {
                             <h1 className="text-5xl md:text-6xl font-bold text-white mb-8 leading-[1.1] capitalize">
                                 {title.toLowerCase()}
                             </h1>
-                            <p className="text-xl text-monks-light mb-12 leading-relaxed text-justify">
+                            <p className="text-xl text-monks-light mb-12 leading-relaxed">
                                 {lang.desc || (locale === "el" ? `Ολοκληρωμένη συμβουλευτική και υποστήριξη για την ένταξη στο πρόγραμμα ${title}. Από τον προέλεγχο επιλεξιμότητας μέχρι την τελική εκταμίευση.` : `Full consulting and support for joining the ${title} program. From eligibility pre-check to final disbursement.`)}
                             </p>
 
@@ -51,7 +51,7 @@ export default function ClientPage({ slug }: { slug: string }) {
                                     <Target className="w-6 h-6 text-[#FFD700] mt-1" />
                                     <div>
                                         <h4 className="text-white font-bold mb-1">{locale === "el" ? "Ποσοστό Επιδότησης" : "Funding Rate"}</h4>
-                                        <p className="text-monks-light text-justify">{locale === "el" ? "Έως 50% ή 70% του συνολικού εγκεκριμένου προϋπολογισμού (ανάλογα την περιοχή και το μέγεθος της επιχείρησης)." : "Up to 50% or 70% of total approved budget (depending on region and company size)."}</p>
+                                        <p className="text-monks-light">{locale === "el" ? "Έως 50% ή 70% του συνολικού εγκεκριμένου προϋπολογισμού (ανάλογα την περιοχή και το μέγεθος της επιχείρησης)." : "Up to 50% or 70% of total approved budget (depending on region and company size)."}</p>
                                     </div>
                                 </div>
                                 <div className="w-full h-px bg-white/10" />
@@ -71,7 +71,7 @@ export default function ClientPage({ slug }: { slug: string }) {
                                 ).map((benefit, i) => (
                                     <div key={i} className="flex items-center gap-3 text-white">
                                         <CheckCircle className="w-5 h-5 text-[#FFD700] flex-shrink-0" />
-                                        <span className="text-justify">{benefit}</span>
+                                        <span className="text-left">{benefit}</span>
                                     </div>
                                 ))}
                             </div>
@@ -117,7 +117,7 @@ export default function ClientPage({ slug }: { slug: string }) {
             <section className="py-24 relative">
                 <div className="max-w-[1200px] mx-auto px-6 md:px-12 relative z-10 text-monks-light text-lg leading-relaxed space-y-8">
                     <h2 className="text-3xl text-white font-bold mb-6">{locale === "el" ? "Σχετικά με το πρόγραμμα" : "About the program"}</h2>
-                    <p className="text-justify">
+                    <p className="text-left">
                         {locale === "el"
                             ? "Οι σύγχρονες χρηματοδοτήσεις ΕΣΠΑ και του Ταμείου Ανάκαμψης μοχλεύουν την ψηφιακή αναβάθμιση και βιωσιμότητα. Αναλαμβάνουμε συμβουλευτικά να χαράξουμε τη στρατηγική επιτυχίας, διασφαλίζοντας την αρτιότητα του φακέλου σας."
                             : "Modern ESF+ and Recovery Fund financing leverages digital upgrade and sustainability. We provide advisory support to shape your success strategy and ensure the quality of your application package."}
