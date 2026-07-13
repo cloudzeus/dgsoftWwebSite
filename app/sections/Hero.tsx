@@ -9,6 +9,7 @@ import { DigitalMaturityModal } from "@/components/DigitalMaturityModal";
 import {
   HOME_ESPA_BANNER_1,
   HOME_ESPA_BANNER_2,
+  HOME_ESPA_BANNER_3,
 } from "@/lib/home-espa-banners";
 import { useLocale } from "@/app/context/LocaleContext";
 import type { HomeLocaleContent } from "@/lib/home-content";
@@ -149,7 +150,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
 
           {/* ESPA banners — left-aligned, ~half content width */}
           <div className="mt-10 w-full">
-            <div className="grid w-full max-w-[min(100%,22rem)] grid-cols-1 gap-3 sm:max-w-[min(100%,36rem)] sm:grid-cols-2 md:gap-4">
+            <div className="grid w-full max-w-[min(100%,22rem)] grid-cols-1 gap-3 lg:max-w-[min(100%,54rem)] lg:grid-cols-3 md:gap-4">
               <EspaPdfBanner
                 compact
                 priority
@@ -168,6 +169,23 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
                 captionEn="ESPA programme document II"
                 ariaLabelEl="Άνοιγμα δεύτερου εγγράφου PDF σε νέο παράθυρο"
                 ariaLabelEn="Open second programme PDF in a new window"
+              />
+              <EspaPdfBanner
+                compact
+                imageUrl={
+                  locale === "en"
+                    ? HOME_ESPA_BANNER_3.imageUrlEn
+                    : HOME_ESPA_BANNER_3.imageUrlEl
+                }
+                pdfUrl={
+                  locale === "en"
+                    ? HOME_ESPA_BANNER_3.pdfUrlEn
+                    : HOME_ESPA_BANNER_3.pdfUrlEl
+                }
+                captionEl="Έγγραφο προγράμματος Αττική"
+                captionEn="Attiki programme document"
+                ariaLabelEl="Άνοιγμα εγγράφου προγράμματος Αττικής PDF σε νέο παράθυρο"
+                ariaLabelEn="Open Attiki programme PDF in a new window"
               />
             </div>
           </div>

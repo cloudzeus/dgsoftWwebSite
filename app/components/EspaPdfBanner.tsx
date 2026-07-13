@@ -38,25 +38,26 @@ export function EspaPdfBanner({
       href={pdfUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group block overflow-hidden border border-white/10 bg-monks-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent focus-visible:ring-offset-2 focus-visible:ring-offset-monks-black ${
+      className={`group flex h-full flex-col overflow-hidden border border-white/10 bg-monks-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent focus-visible:ring-offset-2 focus-visible:ring-offset-monks-black ${
         compact ? "rounded-lg" : "rounded-xl"
       }`}
       aria-label={aria}
     >
-      <div className="bg-[#0c0e12] relative">
+      <div className={`w-full p-[5px] ${failed ? "bg-[#0c0e12]" : "bg-white"}`}>
         {!failed ? (
-          <Image
-            src={imageUrl}
-            alt={caption}
-            width={1200}
-            height={628}
-            sizes={compact ? "(max-width: 640px) 90vw, 320px" : "(max-width: 768px) 100vw, 600px"}
-            priority={priority}
-            fetchPriority={priority ? "high" : "auto"}
-            loading={priority ? "eager" : "lazy"}
-            className="block h-auto w-full max-w-full transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-            onError={() => setFailed(true)}
-          />
+          <div className="relative aspect-[300/51] w-full">
+            <Image
+              src={imageUrl}
+              alt={caption}
+              fill
+              sizes={compact ? "(max-width: 640px) 90vw, 320px" : "(max-width: 768px) 100vw, 600px"}
+              priority={priority}
+              fetchPriority={priority ? "high" : "auto"}
+              loading={priority ? "eager" : "lazy"}
+              className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+              onError={() => setFailed(true)}
+            />
+          </div>
         ) : (
           <div
             className={`flex flex-col items-center justify-center gap-2 px-4 text-center ${
@@ -80,8 +81,8 @@ export function EspaPdfBanner({
       <div
         className={
           compact
-            ? "flex items-center justify-between gap-2 border-t border-white/10 bg-monks-black/70 px-3 py-2"
-            : "flex items-center justify-between gap-3 border-t border-white/10 bg-monks-black/70 px-4 py-3"
+            ? "mt-auto flex flex-1 items-center justify-between gap-2 border-t border-white/10 bg-monks-black/70 px-3 py-2"
+            : "mt-auto flex flex-1 items-center justify-between gap-3 border-t border-white/10 bg-monks-black/70 px-4 py-3"
         }
       >
         <span

@@ -13,3 +13,11 @@ export const HOME_ESPA_BANNER_2 = {
   imageUrl: "https://dgsmart.b-cdn.net/espa2Banner.jpg",
   pdfUrl: "https://dgsmart.b-cdn.net/dgsoft-espa2.pdf",
 } as const;
+
+/** Third banner — Attiki programme; image and PDF differ per locale. */
+export const HOME_ESPA_BANNER_3 = {
+  imageUrlEl: "https://dgsoft.b-cdn.net/eu%CE%92anners/Banner_attiki_gr.jpg",
+  imageUrlEn: "https://dgsoft.b-cdn.net/eu%CE%92anners/Banner_attiki_en.jpg",
+  pdfUrlEl: "https://dgsoft.b-cdn.net/eu%CE%92anners/atttiki_pdf_Gr.pdf",
+  pdfUrlEn: "https://dgsoft.b-cdn.net/eu%CE%92anners/attiki_pdf_En.pdf",
+} as const;
