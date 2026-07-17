@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { MapPin, Mail, Phone, Map, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { useLocale } from "../context/LocaleContext";
 
@@ -10,6 +10,11 @@ const geoUrl = "/greece-cyprus.json";
 
 export default function Locations({ data = [] }: { data?: any[] }) {
     const [activeId, setActiveId] = useState<string | null>(null);
+    // d3-geo projection math yields last-decimal float differences between Node
+    // and the browser, so the decorative map must be client-only to avoid
+    // hydration mismatches on Marker transforms.
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
     const locale = useLocale();
     const locName = (loc: any) => (locale === "en" && loc.nameEN) ? loc.nameEN : loc.nameEL;
     const locCity = (loc: any) => (locale === "en" && loc.cityEN) ? loc.cityEN : (loc.cityEL || loc.cityEN);
@@ -102,7 +107,7 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                         className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-[3/4] xl:aspect-square bg-[#0a0b0d] rounded-[3rem] border border-white/5 overflow-hidden flex items-center justify-center shadow-2xl"
                     >
                         {/* Outline Map of Greece & Cyprus using react-simple-maps (decorative — location list above is the accessible source) */}
-                        <ComposableMap
+                        {mounted && <ComposableMap
                             projection="geoMercator"
                             projectionConfig={{
                                 center: [27.0, 38.5],
@@ -190,7 +195,7 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                     )}
                                 </Marker>
                             ))}
-                        </ComposableMap>
+                        </ComposableMap>}
                     </motion.div>
                 </div>
             </div>

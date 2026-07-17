@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-05-28T08:45:01.944Z",
+  "timestamp": "2026-07-17T12:56:51.036Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,49 +22,9 @@
     },
     {
       "status": "M",
-      "path": "app/admin/(dashboard)/newsletter/campaigns/NewsletterCampaignsClient.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/lib/actions/newsletter-sender-profiles.ts"
-    },
-    {
-      "status": "M",
-      "path": "app/lib/actions/newsletter.ts"
-    },
-    {
-      "status": "M",
-      "path": "components/newsletter/multi-select-filter.tsx"
-    },
-    {
-      "status": "M",
-      "path": "components/newsletter/wizard/NewsletterWizardClient.tsx"
-    },
-    {
-      "status": "M",
-      "path": "package-lock.json"
-    },
-    {
-      "status": "M",
-      "path": "package.json"
-    },
-    {
-      "status": "??",
-      "path": "components/newsletter/region-tree-filter.tsx"
-    },
-    {
-      "status": "??",
-      "path": "components/newsletter/wizard/StepAudience.tsx"
-    },
-    {
-      "status": "??",
-      "path": "docs/"
-    },
-    {
-      "status": "??",
-      "path": "scripts/generate-wizard-guide.ts"
+      "path": "app/sections/Locations.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n5fefed9 changes to email logo\n15ef3c2 newsletter\n10699d6 newsletter\nd7196cd axiologisi\n49382d8 new video background"
+  "context_notes": "Recent commits:\n367daa5 feat: support form image uploads + ticket history page\nb8ffb3a feat: add Support ticket form in admin sidebar with fluent-pm proxy\nd20e8e3 feat: add Attiki EU programme banner to homepage hero\n35665a5 a11y: use a real <label> for the footer newsletter email input\ncd6b011 a11y: give every icon/image/overlay link real text (2.4.4 Link Purpose)"
 }
