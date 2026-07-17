@@ -13,6 +13,7 @@ import {
   FolderIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
+  LifeBuoyIcon,
   ListIcon,
   SearchIcon,
   SettingsIcon,
@@ -37,6 +38,7 @@ import {
 
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
+import { SupportDialog } from "@/components/support-dialog"
 import dynamic from "next/dynamic"
 
 const NavUser = dynamic(
@@ -351,6 +353,21 @@ export function AppSidebar({
         </SidebarGroup>
 
         <NavSecondary items={navData.navSecondary} className="mt-auto" />
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SupportDialog>
+                  <SidebarMenuButton>
+                    <LifeBuoyIcon />
+                    <span>Support</span>
+                  </SidebarMenuButton>
+                </SupportDialog>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={resolvedUser} />
