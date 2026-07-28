@@ -161,8 +161,8 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
                 captionEn="ESPA programme document"
                 ariaLabelEl="Άνοιγμα εγγράφου προγράμματος PDF σε νέο παράθυρο"
                 ariaLabelEn="Open programme PDF in a new window"
-                imageAriaLabelEl="Άνοιγμα του ιστότοπου Ελλάδα 2.0 σε νέο παράθυρο"
-                imageAriaLabelEn="Open the Greece 2.0 website in a new window"
+                imageAriaLabelEl="Μετάβαση στη σελίδα του έργου Αριάδνη"
+                imageAriaLabelEn="Go to the Ariadne project page"
               />
               <EspaPdfBanner
                 compact

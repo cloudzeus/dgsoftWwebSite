@@ -3,6 +3,7 @@
 import { ExternalLink } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useLocale } from "@/app/context/LocaleContext";
 
 type Props = {
@@ -12,7 +13,10 @@ type Props = {
   captionEn: string;
   ariaLabelEl: string;
   ariaLabelEn: string;
-  /** Optional target for the logo area. Falls back to the PDF when omitted. */
+  /**
+   * Optional target for the logo area. Falls back to the PDF when omitted.
+   * Internal paths (starting with "/") navigate in the same tab.
+   */
   imageHref?: string;
   imageAriaLabelEl?: string;
   imageAriaLabelEn?: string;
@@ -42,6 +46,9 @@ export function EspaPdfBanner({
   const imageAria =
     (locale === "en" ? imageAriaLabelEn : imageAriaLabelEl) ?? aria;
 
+  const imageTarget = imageHref ?? pdfUrl;
+  const imageIsInternal = imageTarget.startsWith("/");
+
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent focus-visible:ring-offset-2 focus-visible:ring-offset-monks-black";
 
@@ -51,10 +58,10 @@ export function EspaPdfBanner({
         compact ? "rounded-lg" : "rounded-xl"
       }`}
     >
-      <a
-        href={imageHref ?? pdfUrl}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href={imageTarget}
+        target={imageIsInternal ? undefined : "_blank"}
+        rel={imageIsInternal ? undefined : "noopener noreferrer"}
         aria-label={imageAria}
         className={`group block w-full p-[5px] ${focusRing} ${
           failed ? "bg-[#0c0e12]" : "bg-white"
@@ -93,7 +100,7 @@ export function EspaPdfBanner({
             </span>
           </div>
         )}
-      </a>
+      </Link>
       <a
         href={pdfUrl}
         target="_blank"

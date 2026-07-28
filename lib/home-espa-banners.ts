@@ -7,8 +7,8 @@ import {
 export const HOME_ESPA_BANNER_1 = {
   imageUrl: DEFAULT_ESPA_PDF_BANNER_URL,
   pdfUrl: DEFAULT_ESPA_PDF_URL,
-  /** Logo area links to the Greece 2.0 programme site. */
-  imageHref: "https://greece20.gov.gr/",
+  /** Logo area links to the Ariadne programme page. */
+  imageHref: "/ariadni",
 } as const;
 
 export const HOME_ESPA_BANNER_2 = {
