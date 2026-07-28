@@ -12,6 +12,10 @@ type Props = {
   captionEn: string;
   ariaLabelEl: string;
   ariaLabelEn: string;
+  /** Optional target for the logo area. Falls back to the PDF when omitted. */
+  imageHref?: string;
+  imageAriaLabelEl?: string;
+  imageAriaLabelEn?: string;
   /** Smaller chrome (e.g. homepage hero at 50% width) */
   compact?: boolean;
   /** Treat this banner as the LCP element — preload + high fetch priority */
@@ -25,6 +29,9 @@ export function EspaPdfBanner({
   captionEn,
   ariaLabelEl,
   ariaLabelEn,
+  imageHref,
+  imageAriaLabelEl,
+  imageAriaLabelEn,
   compact = false,
   priority = false,
 }: Props) {
@@ -32,18 +39,27 @@ export function EspaPdfBanner({
   const [failed, setFailed] = useState(false);
   const caption = locale === "en" ? captionEn : captionEl;
   const aria = locale === "en" ? ariaLabelEn : ariaLabelEl;
+  const imageAria =
+    (locale === "en" ? imageAriaLabelEn : imageAriaLabelEl) ?? aria;
+
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent focus-visible:ring-offset-2 focus-visible:ring-offset-monks-black";
 
   return (
-    <a
-      href={pdfUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`group flex h-full flex-col overflow-hidden border border-white/10 bg-monks-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent focus-visible:ring-offset-2 focus-visible:ring-offset-monks-black ${
+    <div
+      className={`flex h-full flex-col overflow-hidden border border-white/10 bg-monks-black/50 ${
         compact ? "rounded-lg" : "rounded-xl"
       }`}
-      aria-label={aria}
     >
-      <div className={`w-full p-[5px] ${failed ? "bg-[#0c0e12]" : "bg-white"}`}>
+      <a
+        href={imageHref ?? pdfUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={imageAria}
+        className={`group block w-full p-[5px] ${focusRing} ${
+          failed ? "bg-[#0c0e12]" : "bg-white"
+        }`}
+      >
         {!failed ? (
           <div className="relative aspect-[300/51] w-full">
             <Image
@@ -77,12 +93,16 @@ export function EspaPdfBanner({
             </span>
           </div>
         )}
-      </div>
-      <div
+      </a>
+      <a
+        href={pdfUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={aria}
         className={
           compact
-            ? "mt-auto flex flex-1 items-center justify-between gap-2 border-t border-white/10 bg-monks-black/70 px-3 py-2"
-            : "mt-auto flex flex-1 items-center justify-between gap-3 border-t border-white/10 bg-monks-black/70 px-4 py-3"
+            ? `mt-auto flex flex-1 items-center justify-between gap-2 border-t border-white/10 bg-monks-black/70 px-3 py-2 ${focusRing}`
+            : `mt-auto flex flex-1 items-center justify-between gap-3 border-t border-white/10 bg-monks-black/70 px-4 py-3 ${focusRing}`
         }
       >
         <span
@@ -100,7 +120,7 @@ export function EspaPdfBanner({
           PDF
           <ExternalLink className={compact ? "h-3 w-3" : "h-4 w-4"} aria-hidden />
         </span>
-      </div>
-    </a>
+      </a>
+    </div>
   );
 }

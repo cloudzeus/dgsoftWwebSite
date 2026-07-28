@@ -156,10 +156,13 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
                 priority
                 imageUrl={HOME_ESPA_BANNER_1.imageUrl}
                 pdfUrl={HOME_ESPA_BANNER_1.pdfUrl}
+                imageHref={HOME_ESPA_BANNER_1.imageHref}
                 captionEl="Έγγραφο προγράμματος ΕΣΠΑ"
                 captionEn="ESPA programme document"
                 ariaLabelEl="Άνοιγμα εγγράφου προγράμματος PDF σε νέο παράθυρο"
                 ariaLabelEn="Open programme PDF in a new window"
+                imageAriaLabelEl="Άνοιγμα του ιστότοπου Ελλάδα 2.0 σε νέο παράθυρο"
+                imageAriaLabelEn="Open the Greece 2.0 website in a new window"
               />
               <EspaPdfBanner
                 compact

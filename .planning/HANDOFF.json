@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-17T12:56:51.036Z",
+  "timestamp": "2026-07-28T07:53:22.202Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,17 @@
     },
     {
       "status": "M",
-      "path": "app/sections/Locations.tsx"
+      "path": "app/components/EspaPdfBanner.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/sections/Hero.tsx"
+    },
+    {
+      "status": "M",
+      "path": "lib/home-espa-banners.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n367daa5 feat: support form image uploads + ticket history page\nb8ffb3a feat: add Support ticket form in admin sidebar with fluent-pm proxy\nd20e8e3 feat: add Attiki EU programme banner to homepage hero\n35665a5 a11y: use a real <label> for the footer newsletter email input\ncd6b011 a11y: give every icon/image/overlay link real text (2.4.4 Link Purpose)"
+  "context_notes": "Recent commits:\nb7cac5d fix: render Locations map client-only to avoid hydration mismatch\n367daa5 feat: support form image uploads + ticket history page\nb8ffb3a feat: add Support ticket form in admin sidebar with fluent-pm proxy\nd20e8e3 feat: add Attiki EU programme banner to homepage hero\n35665a5 a11y: use a real <label> for the footer newsletter email input"
 }

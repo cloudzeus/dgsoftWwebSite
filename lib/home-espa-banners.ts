@@ -7,6 +7,8 @@ import {
 export const HOME_ESPA_BANNER_1 = {
   imageUrl: DEFAULT_ESPA_PDF_BANNER_URL,
   pdfUrl: DEFAULT_ESPA_PDF_URL,
+  /** Logo area links to the Greece 2.0 programme site. */
+  imageHref: "https://greece20.gov.gr/",
 } as const;
 
 export const HOME_ESPA_BANNER_2 = {
