@@ -267,7 +267,7 @@ export function AppSidebar({
 }) {
   const resolvedUser = user ?? { name: "Admin", email: "", avatar: "" }
   const { state } = useSidebar()
-  const logoExpanded = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404552985-q91g8r.webp"
+  const logoExpanded = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404630624-ndfw8a.webp"
   const logoCollapsed = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp"
   const logoSrc = state === "collapsed" ? logoCollapsed : logoExpanded
 
@@ -287,7 +287,7 @@ export function AppSidebar({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={logoSrc}
-                  alt="DGSmart"
+                  alt="DGsoft"
                   className="h-8 w-auto max-w-full object-contain object-left"
                 />
               </a>
