@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { MediaPicker } from "@/components/admin/media/media-picker"
 import { ColumnDef } from "@tanstack/react-table"
 import {
     ChevronDown,
@@ -330,6 +331,7 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
     })
 
     const [isUploading, setIsUploading] = React.useState(false)
+    const [logoPickerOpen, setLogoPickerOpen] = React.useState(false)
     const [isSaving, setIsSaving] = React.useState(false)
     const [isSearchingVat, setIsSearchingVat] = React.useState(false)
     const [isResolvingCoords, setIsResolvingCoords] = React.useState(false)
@@ -1214,10 +1216,27 @@ export function CustomersDataTable({ data: initialData, lookups = defaultLookups
                                             {formData.logo ? <img src={formData.logo} alt="" className="w-full h-full object-contain" /> : <Building2 className="w-6 h-6 text-[#C8C6C4]" />}
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="inline-flex h-8 items-center justify-center rounded bg-[#0078D4] hover:bg-[#106EBE] px-4 text-[12px] font-semibold text-white cursor-pointer active:scale-95 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
-                                                Επιλογή λογοτύπου
-                                                <input type="file" className="hidden" accept="image/*" onChange={handleUploadLogo} disabled={isUploading} />
-                                            </Label>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <Label className="inline-flex h-8 items-center justify-center rounded bg-[#0078D4] hover:bg-[#106EBE] px-4 text-[12px] font-semibold text-white cursor-pointer active:scale-95 shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                                                    Μεταφόρτωση
+                                                    <input type="file" className="hidden" accept="image/*" onChange={handleUploadLogo} disabled={isUploading} />
+                                                </Label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setLogoPickerOpen(true)}
+                                                    className="inline-flex h-8 items-center justify-center rounded border border-[#C8C6C4] px-3 text-[12px] font-semibold text-[#605E5C] hover:border-[#0078D4] hover:text-[#0078D4] transition-colors"
+                                                >
+                                                    Βιβλιοθήκη
+                                                </button>
+                                            </div>
+                                            <MediaPicker
+                                                open={logoPickerOpen}
+                                                onOpenChange={setLogoPickerOpen}
+                                                currentUrl={formData.logo}
+                                                defaultFolder="brand-logos"
+                                                uploadEndpoint="/api/admin/media/upload"
+                                                onSelect={(url) => setFormData({ ...formData, logo: url })}
+                                            />
                                             <div className="flex items-center gap-2">
                                                 <Checkbox id="rmbg" checked={formData.removeBackgroundLogo} onCheckedChange={v => setFormData({ ...formData, removeBackgroundLogo: !!v })} />
                                                 <Label htmlFor="rmbg" className="text-[11px] text-[#605E5C] cursor-pointer">Αφαίρεση φόντου</Label>

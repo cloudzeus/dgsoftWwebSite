@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { MediaPicker } from "@/components/admin/media/media-picker"
 import { ColumnDef } from "@tanstack/react-table"
 import {
     ChevronDown,
@@ -114,6 +115,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [editingProgram, setEditingProgram] = React.useState<EuProgramType | null>(null)
     const [isSaving, setIsSaving] = React.useState(false)
+    const [imagePickerOpen, setImagePickerOpen] = React.useState(false)
 
     // Master lists
     const [allPeriferies, setAllPeriferies] = React.useState<any[]>([])
@@ -994,8 +996,35 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                                     <p className="text-[11px] text-[#A19F9D]">URL εικόνας προγράμματος και αρχείου δημοσίευσης. Για περισσότερα μέσα χρησιμοποιήστε τη σελίδα λεπτομερειών.</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <div className="space-y-1">
-                                            <Label className="text-[11px] font-semibold text-[#605E5C]">URL Εικόνας</Label>
-                                            <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.image || ""} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." />
+                                            <Label className="text-[11px] font-semibold text-[#605E5C]">Εικόνα Προγράμματος</Label>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setImagePickerOpen(true)}
+                                                    title="Επιλογή από τη βιβλιοθήκη"
+                                                    className="w-9 h-9 shrink-0 rounded border border-[#EDEBE9] bg-[#F3F2F1] overflow-hidden flex items-center justify-center hover:border-[#0078D4] transition-colors"
+                                                >
+                                                    {formData.image
+                                                        ? <img src={formData.image} alt="" className="w-full h-full object-cover" />
+                                                        : <ImageIcon className="w-4 h-4 text-[#C8C6C4]" />}
+                                                </button>
+                                                <Input className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm" value={formData.image || ""} onChange={(e) => setFormData({ ...formData, image: e.target.value })} placeholder="https://..." />
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => setImagePickerOpen(true)}
+                                                    className="h-9 shrink-0 px-3 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded"
+                                                >
+                                                    Βιβλιοθήκη
+                                                </Button>
+                                            </div>
+                                            <MediaPicker
+                                                open={imagePickerOpen}
+                                                onOpenChange={setImagePickerOpen}
+                                                currentUrl={formData.image}
+                                                defaultFolder="sectors"
+                                                uploadEndpoint="/api/admin/media/upload"
+                                                onSelect={(url) => setFormData({ ...formData, image: url })}
+                                            />
                                         </div>
                                         <div className="space-y-1">
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">URL Αρχείου Δημοσίευσης</Label>

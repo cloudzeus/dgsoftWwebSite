@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T09:24:14.249Z",
+  "timestamp": "2026-08-20T09:34:55.416Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,29 +22,21 @@
     },
     {
       "status": "M",
-      "path": "app/layout.tsx"
+      "path": "components/admin/eu-programs/data-table-eu-programs.tsx"
     },
     {
       "status": "M",
-      "path": "app/page.tsx"
+      "path": "components/admin/media/media-picker.tsx"
     },
     {
       "status": "M",
-      "path": "app/sections/LatestInsightsClient.tsx"
-    },
-    {
-      "status": "M",
-      "path": "next.config.js"
+      "path": "components/admin/services/service-form.tsx"
     },
     {
       "status": "??",
-      "path": "app/manifest.ts"
-    },
-    {
-      "status": "??",
-      "path": "app/rss.xml/"
+      "path": "app/api/admin/media/upload/"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\naa3dc66 fix(seo): stop declaring 1200x630 for editor-uploaded images\n90628da feat(admin): pick or upload the article cover image from a media library\nd03a3ca feat(seo): surface the 129 SoftOne certifications as verifiable proof\n0658014 fix(seo): stop truncating articles in llms-full.txt, surface their questions\n80b6ce7 chore: handoff metadata after article publishing"
+  "context_notes": "Recent commits:\ne6102f0 fix(seo): act on the real audit findings, skip the wrong ones\naa3dc66 fix(seo): stop declaring 1200x630 for editor-uploaded images\n90628da feat(admin): pick or upload the article cover image from a media library\nd03a3ca feat(seo): surface the 129 SoftOne certifications as verifiable proof\n0658014 fix(seo): stop truncating articles in llms-full.txt, surface their questions"
 }

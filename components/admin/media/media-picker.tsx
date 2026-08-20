@@ -124,6 +124,9 @@ export function MediaPicker({
       for (const file of Array.from(fileList)) {
         const body = new FormData();
         body.append("file", file);
+        // The generic uploader needs the destination; the per-entity routes
+        // hard-code theirs and ignore this field.
+        body.append("folder", folder);
         const res = await fetch(uploadEndpoint, { method: "POST", body });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Η μεταφόρτωση απέτυχε");

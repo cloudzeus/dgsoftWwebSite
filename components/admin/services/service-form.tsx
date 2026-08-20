@@ -25,6 +25,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { CSS } from "@dnd-kit/utilities"
 
 import { Button } from "@/components/ui/button"
+import { MediaPicker } from "@/components/admin/media/media-picker"
 import {
     Form,
     FormControl,
@@ -83,6 +84,7 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
     const [isGenerating, setIsGenerating] = React.useState(false)
     const [isExpandingDescription, setIsExpandingDescription] = React.useState(false)
     const [featureImage, setFeatureImage] = React.useState<string | null>(service?.featureImage || null)
+    const [featurePickerOpen, setFeaturePickerOpen] = React.useState(false)
     const [brandLogo, setBrandLogo] = React.useState<string | null>(service?.brandLogo || null)
     const [isUploadingFeature, setIsUploadingFeature] = React.useState(false)
     const [isUploadingLogo, setIsUploadingLogo] = React.useState(false)
@@ -708,7 +710,10 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                                 <img src={featureImage} className="w-full h-full object-cover" />
                                             )}
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                                <Button type="button" variant="secondary" className="bg-white/90 hover:bg-white text-zinc-900 font-bold px-6 rounded-full" onClick={() => setFeatureImage(null)}>
+                                                <Button type="button" variant="secondary" className="bg-white/90 hover:bg-white text-zinc-900 font-bold px-5 rounded-full" onClick={() => setFeaturePickerOpen(true)}>
+                                                    Αλλαγή
+                                                </Button>
+                                                <Button type="button" variant="secondary" className="bg-white/90 hover:bg-white text-zinc-900 font-bold px-5 rounded-full" onClick={() => setFeatureImage(null)}>
                                                     <X className="w-4 h-4 mr-2 text-red-500" /> Αφαίρεση
                                                 </Button>
                                             </div>
@@ -721,6 +726,13 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                             <div className="space-y-1">
                                                 <p className="text-sm font-semibold text-[#201F1E]">Κλικ για μεταφόρτωση κύριας εικόνας</p>
                                                 <p className="text-[10px] font-medium text-[#A19F9D] uppercase tracking-widest">Υποστηρίζει MP4, JPG, PNG, WEBP</p>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); setFeaturePickerOpen(true) }}
+                                                    className="relative z-20 mt-2 text-[11px] font-semibold text-[#0078D4] underline underline-offset-2 hover:text-[#106EBE]"
+                                                >
+                                                    ή επιλογή από τη βιβλιοθήκη
+                                                </button>
                                             </div>
                                             <input
                                                 type="file"
@@ -732,6 +744,15 @@ export function ServiceForm({ service, categories, onSuccess, onCancel, onMediaC
                                         </div>
                                     )}
                                 </div>
+
+                                <MediaPicker
+                                    open={featurePickerOpen}
+                                    onOpenChange={setFeaturePickerOpen}
+                                    currentUrl={featureImage}
+                                    defaultFolder="services"
+                                    uploadEndpoint="/api/admin/media/upload"
+                                    onSelect={(url) => setFeatureImage(url)}
+                                />
 
                                 {service?.id && onMediaChange && (
                                     <MediaListSection
