@@ -3,6 +3,8 @@ import { getPublicServiceBySlug, getPublicServices } from "@/app/lib/queries/pub
 import ClientPage from "./ClientPage"
 import { PageSeo } from "@/app/components/PageSeo"
 import { buildMetadataFor } from "@/lib/seo/metadata"
+import { FaqJsonLd } from "@/app/components/FaqJsonLd"
+import { faqKeyForService } from "@/lib/faq-content"
 
 export const dynamic = "force-dynamic"
 
@@ -20,6 +22,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     return (
         <>
             <PageSeo type="service" slug={slug} />
+            <FaqJsonLd faqKey={faqKeyForService(slug)} url={`/services/${slug}`} />
             <ClientPage service={service} />
         </>
     )

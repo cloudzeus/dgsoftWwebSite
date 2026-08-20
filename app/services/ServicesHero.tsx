@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useLocale } from "@/app/context/LocaleContext";
 
@@ -30,6 +31,29 @@ export default function ServicesHero() {
           <p className="text-xl text-monks-light max-w-3xl leading-relaxed">
             {description}
           </p>
+        </div>
+
+        {/* Entry points into the two landing pages, so they are reachable by
+            crawlers and readers rather than only from the sitemap. */}
+        <div className="mt-9 flex flex-wrap gap-3">
+          <Link
+            href="/erp-paragogis"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-monks-accent/50 hover:text-monks-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent"
+          >
+            {locale === "el" ? "ERP για παραγωγή & ιχνηλασιμότητα" : "ERP for manufacturing & traceability"}
+          </Link>
+          <Link
+            href="/espa-ylopoiisi"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-monks-accent/50 hover:text-monks-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent"
+          >
+            {locale === "el" ? "ΕΣΠΑ & υλοποίηση" : "ΕΣΠΑ & delivery"}
+          </Link>
+          <Link
+            href="/locations"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-monks-accent/50 hover:text-monks-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent"
+          >
+            {locale === "el" ? "Τα γραφεία μας" : "Our offices"}
+          </Link>
         </div>
       </div>
     </section>

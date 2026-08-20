@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T08:06:46.339Z",
+  "timestamp": "2026-08-20T08:18:45.957Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,7 +22,19 @@
     },
     {
       "status": "M",
-      "path": "app/eu-programs/page.tsx"
+      "path": "app/llms.txt/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/services/[slug]/ClientPage.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/services/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "lib/faq-content.ts"
     },
     {
       "status": "M",
@@ -30,13 +42,13 @@
     },
     {
       "status": "??",
-      "path": "app/espa-ylopoiisi/"
+      "path": "app/erp-paragogis/"
     },
     {
       "status": "??",
-      "path": "lib/espa-process.ts"
+      "path": "lib/manufacturing-content.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n8de40b9 feat(seo): per-office location pages with LocalBusiness markup\n190b4a7 fix(seo): lead with Greek everywhere, drop the bilingual claims\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection"
+  "context_notes": "Recent commits:\n3eeee31 feat(seo): add the ΕΣΠΑ + implementation page with HowTo markup\n8de40b9 feat(seo): per-office location pages with LocalBusiness markup\n190b4a7 fix(seo): lead with Greek everywhere, drop the bilingual claims\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek"
 }

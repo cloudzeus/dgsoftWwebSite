@@ -3,6 +3,8 @@
 import * as React from "react"
 import Navigation from "../../components/Navigation"
 import Footer from "../../components/Footer"
+import Faq from "../../components/Faq"
+import { faqKeyForService } from "@/lib/faq-content"
 import { motion } from "framer-motion"
 import { CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -199,6 +201,8 @@ export default function ClientPage({ service }: { service: PublicServiceDetail }
                     </div>
                 </section>
             )}
+
+            <Faq faqKey={faqKeyForService(service.slug)} />
 
             <Footer />
         </main>

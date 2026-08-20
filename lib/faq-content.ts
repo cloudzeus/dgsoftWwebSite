@@ -211,6 +211,14 @@ const soft1: FaqSet = {
 export const FAQ_SETS = { espa, services, espaImplementation, locations, soft1 } as const;
 export type FaqKey = keyof typeof FAQ_SETS;
 
+/**
+ * Which FAQ set a service detail page should render.
+ * Soft1 product pages answer product questions; the rest answer delivery ones.
+ */
+export function faqKeyForService(slug: string): FaqKey {
+  return /soft1|erp|crm|impact|timol/i.test(slug) ? "soft1" : "services";
+}
+
 /** Entries for a set in the requested language, falling back to Greek. */
 export function faqEntries(key: FaqKey, locale: "el" | "en"): FaqEntry[] {
   const set = FAQ_SETS[key];
