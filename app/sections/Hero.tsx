@@ -55,7 +55,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
       {/* Background video — wrapper enforces full-bleed; video keeps aspect ratio & is cropped to cover */}
       <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <video
-          className="pointer-events-none h-full w-full object-cover object-center opacity-60"
+          className="pointer-events-none h-full w-full object-cover object-center opacity-[0.85]"
           src="https://dgsmart.b-cdn.net/newsletter/newsletter-1787202903818-02e8u5i.mp4"
           autoPlay
           loop
