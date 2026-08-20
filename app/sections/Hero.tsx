@@ -56,7 +56,7 @@ export default function Hero({ contentEL, contentEN }: HeroProps) {
       <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
         <video
           className="pointer-events-none h-full w-full object-cover object-center opacity-60"
-          src="https://dgsmart.b-cdn.net/newsletter/newsletter-1779938988529-c092xa.mp4"
+          src="https://dgsmart.b-cdn.net/newsletter/newsletter-1787202903818-02e8u5i.mp4"
           autoPlay
           loop
           muted

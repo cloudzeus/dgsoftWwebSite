@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-07-28T18:20:06.783Z",
+  "timestamp": "2026-08-20T05:51:58.032Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -15,16 +15,7 @@
   "blockers": [],
   "human_actions_pending": [],
   "decisions": [],
-  "uncommitted_files": [
-    {
-      "status": "M",
-      "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "components/app-sidebar.tsx"
-    }
-  ],
+  "uncommitted_files": [],
   "next_action": null,
-  "context_notes": "Recent commits:\n9fae980 feat: point homepage banner logo to /ariadni instead of greece20.gov.gr\n6d20cb8 feat: link Greece 2.0 banner logo to greece20.gov.gr\nb7cac5d fix: render Locations map client-only to avoid hydration mismatch\n367daa5 feat: support form image uploads + ticket history page\nb8ffb3a feat: add Support ticket form in admin sidebar with fluent-pm proxy"
+  "context_notes": "Recent commits:\n9132924 feat: use DGsoft logo in admin sidebar header\n9fae980 feat: point homepage banner logo to /ariadni instead of greece20.gov.gr\n6d20cb8 feat: link Greece 2.0 banner logo to greece20.gov.gr\nb7cac5d fix: render Locations map client-only to avoid hydration mismatch\n367daa5 feat: support form image uploads + ticket history page"
 }
