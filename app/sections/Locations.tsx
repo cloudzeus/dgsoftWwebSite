@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { MapPin, Mail, Phone, Map, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
@@ -51,6 +52,15 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                                 ? "Η παρουσία μας σε Ελλάδα και Κύπρο διασφαλίζει άμεση τηλεφωνική, απομακρυσμένη και επιτόπια εξυπηρέτηση."
                                 : "Our presence in Greece and Cyprus ensures immediate phone, remote and on-site support."}
                         </p>
+
+                        {/* Internal link into the per-office pages — they carry the
+                            LocalBusiness markup that local search reads. */}
+                        <Link
+                            href="/locations"
+                            className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-monks-accent/50 hover:text-monks-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-monks-accent"
+                        >
+                            {locale === "el" ? "Δείτε όλα τα γραφεία μας" : "See all our offices"}
+                        </Link>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                             {data.map((loc, idx) => {

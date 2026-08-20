@@ -296,3 +296,106 @@ export function faqLd(url: string, entries: FaqEntry[]) {
     })),
   };
 }
+
+export type HowToStep = { name: string; text: string };
+
+/**
+ * HowTo markup for a described process.
+ *
+ * Google renders these as step carousels and assistants read them aloud, so
+ * the steps must match the numbered steps visible on the page. Keep each step
+ * to one action with a short explanation.
+ */
+export function howToLd(input: {
+  url: string;
+  name: string;
+  description?: string | null;
+  steps: HowToStep[];
+  /** ISO 8601 duration for the whole process, e.g. "P6W" for six weeks. */
+  totalTime?: string | null;
+}) {
+  const url = absoluteUrl(input.url);
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "@id": `${url}#howto`,
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    ...(input.totalTime ? { totalTime: input.totalTime } : {}),
+    inLanguage: "el-GR",
+    publisher: { "@id": ORG_ID },
+    step: input.steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.name,
+      text: s.text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+      url: `${url}#step-${i + 1}`,
+    })),
+  };
+}
+
+/**
+ * LocalBusiness markup for a single office.
+ *
+ * Distinct from the site-wide Organization node in app/layout: each office is
+ * its own place with its own address and coordinates, and is declared a branch
+ * of the parent organisation. This is what local packs and map results read.
+ */
+export function localBusinessLd(input: {
+  url: string;
+  name: string;
+  description?: string | null;
+  streetAddress?: string | null;
+  city?: string | null;
+  zip?: string | null;
+  country?: string | null;
+  countryCode?: string;
+  phone?: string | null;
+  email?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  areaServed?: string[];
+  /** The Peristeri office is the registered seat; the rest are branches. */
+  isHeadquarters?: boolean;
+}) {
+  const url = absoluteUrl(input.url);
+  return {
+    "@context": "https://schema.org",
+    "@type": ["LocalBusiness", "ProfessionalService"],
+    // The HQ shares the organisation's @id so the two nodes merge into one
+    // entity instead of competing as duplicate businesses at one address.
+    "@id": input.isHeadquarters ? ORG_ID : `${url}#localbusiness`,
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    url,
+    // The HQ *is* the organisation's seat, so it resolves to the same entity
+    // rather than declaring itself a child of it.
+    ...(input.isHeadquarters
+      ? {}
+      : { parentOrganization: { "@id": ORG_ID }, branchOf: { "@id": ORG_ID } }),
+    ...(input.phone ? { telephone: input.phone } : {}),
+    ...(input.email ? { email: input.email } : {}),
+    priceRange: "€€",
+    inLanguage: "el-GR",
+    address: {
+      "@type": "PostalAddress",
+      ...(input.streetAddress ? { streetAddress: input.streetAddress } : {}),
+      ...(input.city ? { addressLocality: input.city } : {}),
+      ...(input.zip ? { postalCode: input.zip } : {}),
+      ...(input.country ? { addressRegion: input.country } : {}),
+      addressCountry: input.countryCode ?? "GR",
+    },
+    ...(input.latitude != null && input.longitude != null
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: input.latitude,
+            longitude: input.longitude,
+          },
+        }
+      : {}),
+    ...(input.areaServed?.length
+      ? { areaServed: input.areaServed.map((name) => ({ "@type": "Place", name })) }
+      : {}),
+  };
+}

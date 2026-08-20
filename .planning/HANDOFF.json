@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T07:48:06.763Z",
+  "timestamp": "2026-08-20T08:03:09.432Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,29 @@
     },
     {
       "status": "M",
-      "path": "app/layout.tsx"
+      "path": "app/sections/Locations.tsx"
     },
     {
       "status": "M",
-      "path": "app/page.tsx"
+      "path": "app/sitemap.ts"
     },
     {
       "status": "M",
-      "path": "lib/seo/metadata.ts"
+      "path": "lib/faq-content.ts"
     },
     {
       "status": "M",
-      "path": "lib/seo/registry.ts"
+      "path": "lib/jsonld.ts"
+    },
+    {
+      "status": "??",
+      "path": "app/locations/"
+    },
+    {
+      "status": "??",
+      "path": "lib/locations.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection\n724897f feat: raise hero background video opacity to 0.85\n6a8f380 feat: swap homepage hero background video"
+  "context_notes": "Recent commits:\n190b4a7 fix(seo): lead with Greek everywhere, drop the bilingual claims\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection\n724897f feat: raise hero background video opacity to 0.85"
 }
