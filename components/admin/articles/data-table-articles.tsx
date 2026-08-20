@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { MediaPicker } from "@/components/admin/media/media-picker"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 import { createArticle, updateArticle, deleteArticle, updateArticleOrder, createArticleCategory } from "@/app/lib/actions/article"
@@ -125,6 +126,7 @@ export function DataTableArticles({
     const [editingArticle, setEditingArticle] = React.useState<Article | null>(null)
     const [isSaving, setIsSaving] = React.useState(false)
     const [isGenerating, setIsGenerating] = React.useState(false)
+    const [mediaPickerOpen, setMediaPickerOpen] = React.useState(false)
 
     const [formData, setFormData] = React.useState({
         titleEL: "", titleEN: "", slug: "", shortDescriptionEL: "", shortDescriptionEN: "",
@@ -754,13 +756,41 @@ export function DataTableArticles({
                                 <div className="bg-white border border-[#EDEBE9] rounded-lg p-4 space-y-3">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-[#A19F9D] mb-3">Κύρια Εικόνα</p>
                                     <div className="flex items-start gap-4">
-                                        <div className="w-20 h-20 rounded-lg bg-[#F3F2F1] border border-[#EDEBE9] flex items-center justify-center shrink-0 overflow-hidden">
+                                        <button
+                                            type="button"
+                                            onClick={() => setMediaPickerOpen(true)}
+                                            title="Επιλογή από τη βιβλιοθήκη"
+                                            className="group relative w-20 h-20 rounded-lg bg-[#F3F2F1] border border-[#EDEBE9] flex items-center justify-center shrink-0 overflow-hidden hover:border-[#0078D4] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0078D4]"
+                                        >
                                             {formData.featureImage
-                                                ? <img src={formData.featureImage} className="w-full h-full object-cover" />
+                                                ? <img src={formData.featureImage} alt="" className="w-full h-full object-cover" />
                                                 : <ImageIcon className="w-6 h-6 text-[#C8C6C4]" />
                                             }
-                                        </div>
-                                        <div className="flex-1 space-y-1.5">
+                                            <span className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-black/45 text-white text-[10px] font-semibold">
+                                                Αλλαγή
+                                            </span>
+                                        </button>
+                                        <div className="flex-1 space-y-2">
+                                            <div className="flex flex-wrap gap-2">
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => setMediaPickerOpen(true)}
+                                                    className="h-8 px-3 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded"
+                                                >
+                                                    <ImageIcon className="w-3.5 h-3.5 mr-1.5" />
+                                                    Βιβλιοθήκη / Μεταφόρτωση
+                                                </Button>
+                                                {formData.featureImage && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        onClick={() => setFormData({ ...formData, featureImage: "" })}
+                                                        className="h-8 px-3 text-[12px] text-[#605E5C]"
+                                                    >
+                                                        Αφαίρεση
+                                                    </Button>
+                                                )}
+                                            </div>
                                             <Label className="text-[11px] font-semibold text-[#605E5C]">URL Εικόνας</Label>
                                             <Input
                                                 className="h-9 rounded border-[#C8C6C4] focus-visible:ring-[#0078D4] text-sm font-mono text-[#0078D4]"
@@ -770,6 +800,15 @@ export function DataTableArticles({
                                             />
                                         </div>
                                     </div>
+
+                                    <MediaPicker
+                                        open={mediaPickerOpen}
+                                        onOpenChange={setMediaPickerOpen}
+                                        currentUrl={formData.featureImage}
+                                        defaultFolder="articles"
+                                        uploadEndpoint="/api/admin/articles/upload"
+                                        onSelect={url => setFormData({ ...formData, featureImage: url })}
+                                    />
                                 </div>
 
                                 {/* Visibility */}
