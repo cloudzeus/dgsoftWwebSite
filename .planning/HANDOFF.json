@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T08:30:46.215Z",
+  "timestamp": "2026-08-20T08:42:06.760Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,8 +19,12 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
+    },
+    {
+      "status": "M",
+      "path": "app/llms-full.txt/route.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n34c2bbb feat(seo): manufacturing landing page, service FAQs, bilingual llms.txt\n3eeee31 feat(seo): add the ΕΣΠΑ + implementation page with HowTo markup\n8de40b9 feat(seo): per-office location pages with LocalBusiness markup\n190b4a7 fix(seo): lead with Greek everywhere, drop the bilingual claims\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards"
+  "context_notes": "Recent commits:\n80b6ce7 chore: handoff metadata after article publishing\n34c2bbb feat(seo): manufacturing landing page, service FAQs, bilingual llms.txt\n3eeee31 feat(seo): add the ΕΣΠΑ + implementation page with HowTo markup\n8de40b9 feat(seo): per-office location pages with LocalBusiness markup\n190b4a7 fix(seo): lead with Greek everywhere, drop the bilingual claims"
 }

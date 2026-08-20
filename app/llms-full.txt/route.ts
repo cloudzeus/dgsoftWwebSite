@@ -27,6 +27,15 @@ async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
   }
 }
 
+/** Pull h2/h3 text out of stored HTML, in document order, de-duplicated. */
+function extractHeadings(html: string | null | undefined, max = 14): string[] {
+  if (!html) return [];
+  const found = [...html.matchAll(/<h[23][^>]*>([\s\S]*?)<\/h[23]>/gi)]
+    .map((m) => m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  return [...new Set(found)].slice(0, max);
+}
+
 function renderItemBlock(siteUrl: string, type: SeoContentType, item: SeoItem): string[] {
   const lines: string[] = [];
   lines.push(`### ${item.title}`);
@@ -52,10 +61,20 @@ function renderItemBlock(siteUrl: string, type: SeoContentType, item: SeoItem): 
   );
   if (summary) lines.push(summary);
 
+  // The headings of a long-form piece are the densest signal available: they are
+  // written as the questions the piece answers, so an assistant can tell at a
+  // glance whether this page is the right citation. Emit them before the prose.
+  const headings = extractHeadings(item.longDescription);
+  if (headings.length) {
+    lines.push(`- Answers: ${headings.join(" · ")}`);
+  }
+
   if (item.longDescription && (item.longDescription !== item.description)) {
     const long = clean(item.longDescription);
     if (long && long.length > (item.description?.length ?? 0)) {
-      lines.push(`- Description: ${long.slice(0, 600)}${long.length > 600 ? "..." : ""}`);
+      // 600 chars cut most articles off inside their first paragraph, so the
+      // terminology that makes a page findable never reached the file.
+      lines.push(`- Description: ${long.slice(0, 2000)}${long.length > 2000 ? "..." : ""}`);
     }
   }
 
