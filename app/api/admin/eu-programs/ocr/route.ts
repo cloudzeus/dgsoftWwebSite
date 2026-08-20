@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { chatCompletionJson, isAiConfigured, OpenRouterError } from "@/lib/openrouter";
 
 export async function POST(req: Request) {
     try {
@@ -15,90 +16,44 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "No image provided" }, { status: 400 });
         }
 
-        // Image OCR scanner uses OpenAI Vision.
-        const apiKey = process.env.OPENAI_API_KEY?.trim();
-        if (!apiKey) {
+        if (!isAiConfigured()) {
             return NextResponse.json(
-                {
-                    error:
-                        "OPENAI_API_KEY is not configured. Use the 'Upload Program Details PDF -> Parse & Save' flow (DeepSeek) or set a valid OpenAI key for image OCR scanner.",
-                },
+                { error: "OPENROUTER_API_KEY is not configured. Add it to .env and restart the server." },
                 { status: 500 }
             );
         }
 
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: process.env.OPENAI_OCR_MODEL?.trim() || "gpt-4o",
+        let parsedKads: unknown;
+        try {
+            // The "vision" task routes only to vision-capable models.
+            parsedKads = await chatCompletionJson<unknown>({
+                task: "vision",
+                maxTokens: 2000,
                 messages: [
                     {
                         role: "system",
-                        content: `You are an expert OCR parser for Greek KAD (Code of Business Activities) documents. Your ONLY output should be a valid JSON array of objects, with NO surrounding markdown or backticks. Format: [{"code": "12.34.56.78", "desc": "Greek Description"}, ...]. If no KADs can be found, return []. Be 100% precise with the text extraction.`
+                        content: `You are an expert OCR parser for Greek KAD (Code of Business Activities) documents. Your ONLY output should be a valid JSON array of objects, with NO surrounding markdown or backticks. Format: [{"code": "12.34.56.78", "desc": "Greek Description"}, ...]. If no KADs can be found, return []. Be 100% precise with the text extraction.`,
                     },
                     {
                         role: "user",
                         content: [
-                            {
-                                type: "text",
-                                text: "Extract all KAD rows from this image snippet."
-                            },
-                            {
-                                type: "image_url",
-                                image_url: {
-                                    url: base64Image,
-                                    detail: "high"
-                                }
-                            }
-                        ]
-                    }
+                            { type: "text", text: "Extract all KAD rows from this image snippet." },
+                            { type: "image_url", image_url: { url: base64Image, detail: "high" } },
+                        ],
+                    },
                 ],
-                max_tokens: 2000,
-            }),
-        });
-
-        if (!response.ok) {
-            let providerMessage = `OpenAI request failed (${response.status})`;
-            try {
-                const errJson = await response.json();
-                providerMessage =
-                    errJson?.error?.message ||
-                    errJson?.message ||
-                    providerMessage;
-                const code = errJson?.error?.code || errJson?.code;
-                if (code === "invalid_api_key") {
-                    return NextResponse.json(
-                        {
-                            error:
-                                "Invalid OpenAI API key for OCR scanner. Update OPENAI_API_KEY, or use 'Upload Program Details PDF -> Parse & Save' (DeepSeek) which does not depend on OpenAI OCR.",
-                        },
-                        { status: 401 }
-                    );
-                }
-            } catch {
-                // ignore parse failures and keep generic provider message
-            }
-            return NextResponse.json({ error: providerMessage }, { status: 502 });
-        }
-
-        const aiData = await response.json();
-        const rawContent = aiData.choices?.[0]?.message?.content || "[]";
-
-        let cleanedContent = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
-
-        let parsedKads = [];
-        try {
-            parsedKads = JSON.parse(cleanedContent);
+                // A bare JSON array is not a JSON *object*, so json_object mode would be
+                // rejected here; the client strips fences and extracts the array instead.
+                jsonMode: false,
+            });
         } catch (err) {
-            console.error("Failed to parse AI output:", cleanedContent);
-            throw new Error("AI returned invalid JSON structure.");
+            console.error("OCR failed:", err);
+            const message = err instanceof OpenRouterError ? err.message : "OCR processing failed";
+            const status = err instanceof OpenRouterError && err.status === 401 ? 401 : 502;
+            return NextResponse.json({ error: message }, { status });
         }
 
-        return NextResponse.json({ kads: parsedKads }, { status: 200 });
+        return NextResponse.json({ kads: Array.isArray(parsedKads) ? parsedKads : [] }, { status: 200 });
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "OCR processing failed";
         console.error("OCR Route Error:", message);

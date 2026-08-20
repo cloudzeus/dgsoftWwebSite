@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { normalizeAddressKey } from "@/lib/address-region-utils";
 import { getVatCompanyInfo, getVatCorrectData } from "@/lib/vat-wwa";
+import { chatCompletion, isAiConfigured } from "@/lib/openrouter";
 
 const ADDRESS_MAPPING_PATH = "/admin/eu-programs/address-mapping";
 
@@ -24,87 +25,24 @@ function parseToDateOrNull(value: string | null): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-/** Call DeepSeek or OpenAI for address→region mapping. Tries DeepSeek first if key set, then OpenAI. */
+/** Map an address to a region via the unified OpenRouter client. */
 async function callAddressMappingAI(prompt: string): Promise<{ success: boolean; text?: string; error?: string }> {
-  const deepseekKey = process.env.DEEPSEEK_API_KEY?.trim();
-  const openaiKey = process.env.OPENAI_API_KEY?.trim();
-
-  if (!deepseekKey && !openaiKey) {
+  if (!isAiConfigured()) {
     return {
       success: false,
       error:
-        "No AI API key configured. Set DEEPSEEK_API_KEY or OPENAI_API_KEY in your deployment environment variables (e.g. Vercel → Project → Settings → Environment Variables).",
+        "No AI API key configured. Set OPENROUTER_API_KEY in your deployment environment variables (e.g. Vercel → Project → Settings → Environment Variables).",
     };
   }
-
-  const tryDeepSeek = async (): Promise<string> => {
-    if (!deepseekKey) throw new Error("DEEPSEEK_API_KEY not set");
-    const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions";
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${deepseekKey}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.1,
-      }),
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      throw new Error(`DeepSeek ${res.status}: ${t.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    return (data.choices?.[0]?.message?.content ?? "").trim();
-  };
-
-  const tryOpenAI = async (): Promise<string> => {
-    if (!openaiKey) throw new Error("OPENAI_API_KEY not set");
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${openaiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.1,
-      }),
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      throw new Error(`OpenAI ${res.status}: ${t.slice(0, 200)}`);
-    }
-    const data = await res.json();
-    return (data.choices?.[0]?.message?.content ?? "").trim();
-  };
-
   try {
-    if (deepseekKey) {
-      try {
-        const text = await tryDeepSeek();
-        return { success: true, text };
-      } catch (e) {
-        if (openaiKey) {
-          try {
-            const text = await tryOpenAI();
-            return { success: true, text };
-          } catch (openaiErr) {
-            const msg = e instanceof Error ? e.message : String(e);
-            return { success: false, error: `DeepSeek failed: ${msg}. OpenAI fallback also failed.` };
-          }
-        }
-        return { success: false, error: e instanceof Error ? e.message : String(e) };
-      }
-    }
-    const text = await tryOpenAI();
+    const text = await chatCompletion({
+      task: "extraction",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.1,
+    });
     return { success: true, text };
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return { success: false, error: msg };
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
   }
 }
 
@@ -317,7 +255,7 @@ export type BulkSuggestResult = {
   rawZip?: string | null;
 };
 
-/** Suggest mappings for a batch of addresses in one AI call (DeepSeek or OpenAI). */
+/** Suggest mappings for a batch of addresses in one AI call (single AI call). */
 export async function suggestAddressMappingBulk(
   batch: DistinctAddressRow[]
 ): Promise<{ success: boolean; results?: BulkSuggestResult[]; error?: string }> {
@@ -418,7 +356,7 @@ export async function saveAddressMappingBulk(
   return { success: true, saved };
 }
 
-/** Call DeepSeek to suggest the best matching Δήμος (level 5) for an address. */
+/** Call the AI model to suggest the best matching Δήμος (level 5) for an address. */
 export async function suggestAddressMapping(params: {
   addressKey: string;
   rawAddress: string | null;
@@ -569,7 +507,7 @@ export async function setAddressMappingConfirmed(addressKey: string, confirmed: 
   }
 }
 
-/** Suggest once for a group (same city+zip), then save the same periferia to every row in the group. One DeepSeek call per group. */
+/** Suggest once for a group (same city+zip), then save the same periferia to every row in the group. One AI call per group. */
 export async function suggestAndSaveGroup(rows: DistinctAddressRow[]): Promise<{ success: boolean; saved: number; error?: string }> {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") return { success: false, saved: 0, error: "Unauthorized" };

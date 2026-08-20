@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { parsePdfToExpenses } from "@/lib/deepseek";
+import { parsePdfToExpenses } from "@/lib/expense-parser";
 
 export type UploadProgramDetailsResult = {
   success: boolean;
@@ -43,7 +43,7 @@ export async function uploadProgramDetails(formData: FormData): Promise<UploadPr
     if (!extractedText) return { success: false, error: "No text could be extracted from this PDF" };
 
     const limits = await parsePdfToExpenses(extractedText);
-    if (limits.length === 0) return { success: false, error: "No expense limits detected by DeepSeek" };
+    if (limits.length === 0) return { success: false, error: "No expense limits detected by the AI model" };
 
     await prisma.$transaction(async (tx) => {
       for (const limit of limits) {

@@ -1,6 +1,7 @@
 "use server";
 
 import type { EuProgramRequirementType } from "@prisma/client";
+import { chatCompletion } from "@/lib/openrouter";
 
 export type ParsedGrantRequirement = {
   type: EuProgramRequirementType;
@@ -40,11 +41,9 @@ export type ParsedGrantProgramData = {
   eligibleKads: string[];
 };
 
-const DEFAULT_DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
-const DEFAULT_DEEPSEEK_MODEL = "deepseek-chat";
 const WORD_SPLIT_LIMIT = 30000;
 
-const DEEPSEEK_EXPERT_AUDITOR_PROMPT = `You are a Senior Auditor for Greek ESPA/EU Grant documents. Your ONLY task is to extract structured data from the provided text and return a single valid JSON object. Return NOTHING else: no markdown, no code fences, no explanation, no trailing text.
+const EXPERT_AUDITOR_PROMPT = `You are a Senior Auditor for Greek ESPA/EU Grant documents. Your ONLY task is to extract structured data from the provided text and return a single valid JSON object. Return NOTHING else: no markdown, no code fences, no explanation, no trailing text.
 
 OUTPUT RULE: Reply with exactly one JSON object starting with { and ending with }. Use double quotes for keys and strings. Use null for missing values. No trailing commas.
 
@@ -130,7 +129,7 @@ function repairJsonForParse(s: string): string {
     .replace(/\r\n/g, " ");
 }
 
-function safeParseDeepSeekJson(raw: string): Record<string, unknown> | null {
+function safeParseModelJson(raw: string): Record<string, unknown> | null {
   const extracted = extractJsonCandidate(raw);
   const normalized = normalizeJsonTextForParse(extracted);
 
@@ -260,81 +259,40 @@ function sectionSliceByKeywords(source: string, startKeywords: string[], fallbac
   return source.slice(0, Math.min(source.length, fallbackLength));
 }
 
-async function callDeepSeek(content: string): Promise<Record<string, unknown>> {
-  const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
-  if (!apiKey) throw new Error("DEEPSEEK_API_KEY is not configured.");
-
-  const apiUrl = process.env.DEEPSEEK_API_URL?.trim() || DEFAULT_DEEPSEEK_API_URL;
-  const model = process.env.DEEPSEEK_MODEL?.trim() || DEFAULT_DEEPSEEK_MODEL;
-
+async function callExtractionModel(content: string): Promise<Record<string, unknown>> {
   const userContent = `Extract data from the following Greek grant/Πρόσκληση document. Reply with ONLY one JSON object (keys: programMeta, requirements, expenseLimits, eligibleKads). No markdown, no code fence, no text after the closing brace.\n\n${content.slice(0, 140000)}`;
 
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0,
-      messages: [
-        { role: "system", content: DEEPSEEK_EXPERT_AUDITOR_PROMPT },
-        { role: "user", content: userContent },
-      ],
-    }),
+  // Grant PDFs run to ~140k characters, so this routes to large-context models.
+  const raw = await chatCompletion({
+    task: "documentAnalysis",
+    temperature: 0,
+    messages: [
+      { role: "system", content: EXPERT_AUDITOR_PROMPT },
+      { role: "user", content: userContent },
+    ],
   });
+  if (!raw) return {};
 
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`DeepSeek request failed (${response.status}): ${body.slice(0, 200)}`);
-  }
-
-  const payload = await response.json();
-  const raw = payload?.choices?.[0]?.message?.content;
-  if (typeof raw !== "string" || raw.trim() === "") return {};
-
-  const parsed = safeParseDeepSeekJson(raw);
+  const parsed = safeParseModelJson(raw);
   if (parsed) return parsed;
 
-  // Retry once with a JSON-repair instruction if model returned malformed JSON.
-  const repairResponse = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0,
-      messages: [
-        {
-          role: "system",
-          content:
-            "Convert the provided content to a single valid JSON object. Return ONLY JSON, no markdown, no explanations, no comments.",
-        },
-        {
-          role: "user",
-          content: raw,
-        },
-      ],
-    }),
+  // Retry once with a JSON-repair instruction if the model returned malformed JSON.
+  const repairedRaw = await chatCompletion({
+    task: "extraction",
+    temperature: 0,
+    messages: [
+      {
+        role: "system",
+        content:
+          "Convert the provided content to a single valid JSON object. Return ONLY JSON, no markdown, no explanations, no comments.",
+      },
+      { role: "user", content: raw },
+    ],
   });
 
-  if (!repairResponse.ok) {
-    const body = await repairResponse.text();
-    throw new Error(`DeepSeek JSON repair failed (${repairResponse.status}): ${body.slice(0, 200)}`);
-  }
-
-  const repairPayload = await repairResponse.json();
-  const repairedRaw = repairPayload?.choices?.[0]?.message?.content;
-  if (typeof repairedRaw !== "string" || repairedRaw.trim() === "") {
-    throw new Error("DeepSeek returned invalid JSON.");
-  }
-
-  const repairedParsed = safeParseDeepSeekJson(repairedRaw);
+  const repairedParsed = repairedRaw ? safeParseModelJson(repairedRaw) : null;
   if (!repairedParsed) {
-    throw new Error("DeepSeek returned invalid JSON.");
+    throw new Error("The AI model returned invalid JSON.");
   }
   return repairedParsed;
 }
@@ -479,7 +437,7 @@ export async function parseGrantPdf(text: string): Promise<ParsedGrantProgramDat
 
   const words = countWords(content);
   if (words <= WORD_SPLIT_LIMIT) {
-    const parsed = await callDeepSeek(content);
+    const parsed = await callExtractionModel(content);
     const normalized = normalizeParsedPayload(parsed);
     const kadsChunk = sectionSliceByKeywords(content, [
       "ΠΑΡΑΡΤΗΜΑ ΙΙΙ",
@@ -525,10 +483,10 @@ export async function parseGrantPdf(text: string): Promise<ParsedGrantProgramDat
   const overviewChunk = content.slice(0, 120000);
 
   const [overviewParsed, eligibilityParsed, expensesParsed, kadsParsed] = await Promise.all([
-    callDeepSeek(overviewChunk),
-    callDeepSeek(eligibilityChunk),
-    callDeepSeek(expensesChunk),
-    callDeepSeek(kadsChunk),
+    callExtractionModel(overviewChunk),
+    callExtractionModel(eligibilityChunk),
+    callExtractionModel(expensesChunk),
+    callExtractionModel(kadsChunk),
   ]);
 
   const merged = mergeParsedPayload([

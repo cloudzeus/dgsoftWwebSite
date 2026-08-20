@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { chatCompletionJson, isAiConfigured, OpenRouterError, GREEK_TERMINOLOGY_RULE } from "@/lib/openrouter";
 
 export async function POST(req: Request) {
     try {
@@ -12,15 +13,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing title" }, { status: 400 });
         }
 
-        const isDeepseek = !!process.env.DEEPSEEK_API_KEY;
-        const apiUrl = isDeepseek
-            ? (process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions")
-            : "https://api.openai.com/v1/chat/completions";
-        const apiKey = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
-        const model = isDeepseek ? "deepseek-chat" : "gpt-4o-mini";
-
-        if (!apiKey) {
-            return NextResponse.json({ error: "No AI API Key Available" }, { status: 500 });
+        if (!isAiConfigured()) {
+            return NextResponse.json({ error: "Set OPENROUTER_API_KEY in .env and restart the server." }, { status: 500 });
         }
 
         const context = [
@@ -29,6 +23,9 @@ export async function POST(req: Request) {
         ].filter(Boolean).join("\n");
 
         const prompt = `You are an expert B2B copywriter and digital marketing strategist. Generate compelling case study content for a Greek software/ERP company's portfolio.
+
+${GREEK_TERMINOLOGY_RULE}
+
 
 Project Title (Greek): "${titleEL}"
 ${context ? `Context:\n${context}` : ""}
@@ -57,39 +54,17 @@ Rules:
 - challengeEL/EN should be compelling business narrative, not technical jargon
 - Output ONLY raw JSON, no explanation text`;
 
-        const res = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model,
-                messages: [{ role: "user", content: prompt }],
-                temperature: 0.7,
-                response_format: { type: "json_object" }
-            })
-        });
-
-        if (!res.ok) {
-            const errorBase = await res.text();
-            throw new Error(`AI API Failed: ${res.statusText} - ${errorBase}`);
-        }
-
-        const data = await res.json();
-        const content = data.choices[0]?.message?.content?.trim();
-
         let parsedData;
         try {
-            parsedData = JSON.parse(content);
-        } catch (e) {
-            const jsonStart = content.indexOf('{');
-            const jsonEnd = content.lastIndexOf('}');
-            if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-                parsedData = JSON.parse(content.slice(jsonStart, jsonEnd + 1));
-            } else {
-                throw new Error("Failed to parse AI JSON response");
-            }
+            parsedData = await chatCompletionJson<any>({
+                task: "copywriting",
+                messages: [{ role: "user", content: prompt }],
+                maxTokens: 6000,
+            });
+        } catch (err) {
+            console.error("Work generation failed:", err);
+            const msg = err instanceof OpenRouterError ? err.message : "Work generation failed";
+            return NextResponse.json({ error: msg }, { status: 502 });
         }
 
         return NextResponse.json(parsedData);

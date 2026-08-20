@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import pdfParse from "pdf-parse/lib/pdf-parse.js";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { parseGrantPdf } from "@/lib/deepseek-parser";
+import { parseGrantPdf } from "@/lib/grant-parser";
 
 export type ProcessGrantResult = {
   success: boolean;

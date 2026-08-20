@@ -4,6 +4,7 @@ import { Prisma, EuProgramRequirementType } from "@prisma/client"
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
 import { getCoordinates } from "@/app/lib/actions/location"
+import { chatCompletion, isAiConfigured } from "@/lib/openrouter";
 
 function toIntOrNull(value: unknown): number | null {
     if (value == null || value === "") return null
@@ -737,14 +738,7 @@ export async function translateAllPeriferies() {
 
         if (untranslated.length === 0) return { success: true, count: 0, message: "No untranslated regions found." };
 
-        const isDeepseek = !!process.env.DEEPSEEK_API_KEY;
-        const apiUrl = isDeepseek
-            ? (process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions")
-            : "https://api.openai.com/v1/chat/completions";
-        const apiKey = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
-        const model = isDeepseek ? "deepseek-chat" : "gpt-4o-mini";
-
-        if (!apiKey) throw new Error("No Translation API Key Available");
+        if (!isAiConfigured()) throw new Error("No Translation API Key Available. Set OPENROUTER_API_KEY.");
 
         let translatedCount = 0;
         const batchSize = 10; // Process 10 in parallel at a time
@@ -755,29 +749,17 @@ export async function translateAllPeriferies() {
                 const prompt = `Translate the following Greek region/municipality name to English. Reply ONLY with the English translation. No quotes, no intro.\n\nText: ${region.nameEL}`;
 
                 try {
-                    const res = await fetch(apiUrl, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify({
-                            model,
-                            messages: [{ role: "user", content: prompt }],
-                            temperature: 0.1
-                        })
+                    const translatedText = await chatCompletion({
+                        task: "translate",
+                        messages: [{ role: "user", content: prompt }],
+                        temperature: 0.1,
                     });
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        const translatedText = data.choices[0]?.message?.content?.trim();
-                        if (translatedText) {
-                            await prisma.periferia.update({
-                                where: { id: region.id },
-                                data: { nameEN: translatedText }
-                            });
-                            translatedCount++;
-                        }
+                    if (translatedText) {
+                        await prisma.periferia.update({
+                            where: { id: region.id },
+                            data: { nameEN: translatedText }
+                        });
+                        translatedCount++;
                     }
                 } catch (err) {
                     console.error("Translation fail for", region.nameEL, err);

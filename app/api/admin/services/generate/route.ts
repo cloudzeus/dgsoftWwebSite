@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { chatCompletionJson, isAiConfigured, OpenRouterError, GREEK_TERMINOLOGY_RULE } from "@/lib/openrouter";
 
 function normalizeParsed(parsed: any) {
     if (Array.isArray(parsed.features)) {
@@ -16,54 +17,6 @@ function normalizeParsed(parsed: any) {
     return parsed;
 }
 
-async function callOpenAI(prompt: string): Promise<any> {
-    const apiKey = process.env.OPENAI_API_KEY?.trim();
-    if (!apiKey) throw new Error("OPENAI not configured");
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model: "gpt-4o",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.6,
-            response_format: { type: "json_object" },
-        }),
-    });
-    if (!res.ok) throw new Error(`OpenAI: ${res.statusText}`);
-    const data = await res.json();
-    const content = data.choices[0]?.message?.content?.trim();
-    return normalizeParsed(JSON.parse(content));
-}
-
-async function callDeepSeek(prompt: string): Promise<any> {
-    const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
-    const apiUrl = process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions";
-    if (!apiKey) throw new Error("DeepSeek not configured");
-    const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-            model: "deepseek-chat",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.6,
-            response_format: { type: "json_object" },
-        }),
-    });
-    if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`DeepSeek: ${res.statusText} - ${err.slice(0, 150)}`);
-    }
-    const data = await res.json();
-    const content = data.choices[0]?.message?.content?.trim();
-    return normalizeParsed(JSON.parse(content));
-}
-
 export async function POST(req: Request) {
     try {
         const session = await auth();
@@ -75,11 +28,9 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing service name (Greek)" }, { status: 400 });
         }
 
-        const openAiKey = process.env.OPENAI_API_KEY?.trim();
-        const deepseekKey = process.env.DEEPSEEK_API_KEY?.trim();
-        if (!openAiKey && !deepseekKey) {
+        if (!isAiConfigured()) {
             return NextResponse.json({
-                error: "Set OPENAI_API_KEY or DEEPSEEK_API_KEY in .env or .env.local and restart the dev server.",
+                error: "Set OPENROUTER_API_KEY in .env or .env.local and restart the dev server.",
             }, { status: 500 });
         }
 
@@ -89,6 +40,8 @@ export async function POST(req: Request) {
         ].filter(Boolean).join("\n");
 
         const prompt = `You are an expert B2B copywriter for software and cloud services. Generate complete, professional service page content for a Greek software company.
+
+${GREEK_TERMINOLOGY_RULE}
 
 Service name (Greek): "${nameEL}"
 ${context ? `Context:\n${context}` : ""}
@@ -126,22 +79,17 @@ Rules:
 
         let parsed;
         try {
-            parsed = await callOpenAI(prompt);
-        } catch (openAiError) {
-            if (deepseekKey) {
-                try {
-                    parsed = await callDeepSeek(prompt);
-                } catch (deepseekError) {
-                    console.error("Service generate: OpenAI failed", openAiError);
-                    console.error("Service generate: DeepSeek fallback failed", deepseekError);
-                    return NextResponse.json({
-                        error: "OpenAI failed and DeepSeek fallback failed. Check your API keys.",
-                    }, { status: 502 });
-                }
-            } else {
-                const msg = openAiError instanceof Error ? openAiError.message : "OpenAI failed";
-                return NextResponse.json({ error: msg }, { status: 502 });
-            }
+            parsed = normalizeParsed(
+                await chatCompletionJson<any>({
+                    task: "copywriting",
+                    messages: [{ role: "user", content: prompt }],
+                    maxTokens: 4000,
+                })
+            );
+        } catch (err) {
+            console.error("Service generate failed:", err);
+            const msg = err instanceof OpenRouterError ? err.message : "Service generation failed";
+            return NextResponse.json({ error: msg }, { status: 502 });
         }
 
         return NextResponse.json(parsed);

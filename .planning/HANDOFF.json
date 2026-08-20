@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T06:13:20.464Z",
+  "timestamp": "2026-08-20T07:01:14.692Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,9 +22,73 @@
     },
     {
       "status": "M",
-      "path": "app/sections/Hero.tsx"
+      "path": "app/actions/process-grant.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/actions/upload-program-details.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/api/admin/articles/generate/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/api/admin/eu-programs/ocr/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/api/admin/services/expand-description/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/api/admin/services/generate/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/api/admin/translate/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/api/admin/works/generate/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/lib/actions/address-region.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/lib/actions/eu-program.ts"
+    },
+    {
+      "status": "M",
+      "path": "components/admin/eu-programs/data-table-eu-programs.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/admin/eu-programs/eu-program-details-page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/admin/legal/legal-page-editor.tsx"
+    },
+    {
+      "status": "M",
+      "path": "lib/address-region-utils.ts"
+    },
+    {
+      "status": "RM",
+      "path": "lib/deepseek.ts -> lib/expense-parser.ts"
+    },
+    {
+      "status": "RM",
+      "path": "lib/deepseek-parser.ts -> lib/grant-parser.ts"
+    },
+    {
+      "status": "??",
+      "path": "lib/openrouter.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n6a8f380 feat: swap homepage hero background video\n9132924 feat: use DGsoft logo in admin sidebar header\n9fae980 feat: point homepage banner logo to /ariadni instead of greece20.gov.gr\n6d20cb8 feat: link Greece 2.0 banner logo to greece20.gov.gr\nb7cac5d fix: render Locations map client-only to avoid hydration mismatch"
+  "context_notes": "Recent commits:\n724897f feat: raise hero background video opacity to 0.85\n6a8f380 feat: swap homepage hero background video\n9132924 feat: use DGsoft logo in admin sidebar header\n9fae980 feat: point homepage banner logo to /ariadni instead of greece20.gov.gr\n6d20cb8 feat: link Greece 2.0 banner logo to greece20.gov.gr"
 }

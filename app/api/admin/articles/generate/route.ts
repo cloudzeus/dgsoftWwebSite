@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { chatCompletionJson, isAiConfigured, OpenRouterError, GREEK_TERMINOLOGY_RULE } from "@/lib/openrouter";
 
 export async function POST(req: Request) {
     try {
@@ -12,18 +13,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing title" }, { status: 400 });
         }
 
-        const isDeepseek = !!process.env.DEEPSEEK_API_KEY;
-        const apiUrl = isDeepseek
-            ? (process.env.DEEPSEEK_API_URL || "https://api.deepseek.com/v1/chat/completions")
-            : "https://api.openai.com/v1/chat/completions";
-        const apiKey = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
-        const model = isDeepseek ? "deepseek-chat" : "gpt-4o-mini";
-
-        if (!apiKey) {
-            return NextResponse.json({ error: "No AI API Key Available" }, { status: 500 });
+        if (!isAiConfigured()) {
+            return NextResponse.json({ error: "Set OPENROUTER_API_KEY in .env and restart the server." }, { status: 500 });
         }
 
         const prompt = `You are an expert SEO copywriter and journalist. Your task is to generate a comprehensive, highly engaging, and SEO-optimized article structure based ONLY on the provided title: "${title}".
+
+${GREEK_TERMINOLOGY_RULE}
+
         
 You must generate the output in strict JSON format matching the structure exactly below, with no markdown code blocks outside the pure JSON string. Wait, just output valid JSON.
 
@@ -50,48 +47,17 @@ Ensure the HTML descriptions are robust and look like a proper news/blog post. L
 Generate highly targeted keywords to maximize Google Search visibility.
 Output ONLY raw JSON. Do not include \`\`\`json wrappers.`;
 
-        const res = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model,
-                messages: [{ role: "user", content: prompt }],
-                temperature: 0.7,
-                response_format: { type: "json_object" }
-            })
-        });
-
-        if (!res.ok) {
-            const errorBase = await res.text();
-            throw new Error(`AI API Failed: ${res.statusText} - ${errorBase}`);
-        }
-
-        const data = await res.json();
-        const content = data.choices[0]?.message?.content?.trim();
-
         let parsedData;
         try {
-            parsedData = JSON.parse(content);
-        } catch (e) {
-            // fallback if it included markdown blocks or raw text
-            console.warn("Direct JSON parse failed, attempting extraction...");
-            const jsonStart = content.indexOf('{');
-            const jsonEnd = content.lastIndexOf('}');
-            if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-                const extracted = content.slice(jsonStart, jsonEnd + 1);
-                try {
-                    parsedData = JSON.parse(extracted);
-                } catch (e2) {
-                    console.error("RAW AI OUTPUT (Failed Extraction):", content);
-                    throw new Error("Failed to parse extracted JSON response from AI");
-                }
-            } else {
-                console.error("RAW AI OUTPUT (No JSON Object Found):", content);
-                throw new Error("Failed to find valid JSON object in AI response");
-            }
+            parsedData = await chatCompletionJson<any>({
+                task: "copywriting",
+                messages: [{ role: "user", content: prompt }],
+                maxTokens: 8000,
+            });
+        } catch (err) {
+            console.error("Article generation failed:", err);
+            const msg = err instanceof OpenRouterError ? err.message : "Article generation failed";
+            return NextResponse.json({ error: msg }, { status: 502 });
         }
 
         return NextResponse.json(parsedData);

@@ -10,7 +10,7 @@ export function normalizeAddressKey(
   return `${a}|${c}|${z}`;
 }
 
-/** Group key: same city (and similar zip) → one DeepSeek query. Same city = one group so we don't repeat the same query. */
+/** Group key: same city (and similar zip) → one AI query. Same city = one group so we don't repeat the same query. */
 export function getCityZipGroupKey(city: string | null, zip: string | null): string {
   const c = (city ?? "").trim().toLowerCase();
   const z = (zip ?? "").trim().toLowerCase();

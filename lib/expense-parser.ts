@@ -1,5 +1,7 @@
 "use server";
 
+import { chatCompletion } from "@/lib/openrouter";
+
 export type ParsedExpenseLimit = {
   code: string;
   description: string;
@@ -8,9 +10,6 @@ export type ParsedExpenseLimit = {
   maxAmount: number | null;
   isMandatory: boolean;
 };
-
-const DEFAULT_DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
-const DEFAULT_DEEPSEEK_MODEL = "deepseek-chat";
 
 function normalizeResponseJson(raw: string): string {
   const trimmed = raw.trim();
@@ -41,16 +40,9 @@ function normalizeCode(code: string): string {
 }
 
 export async function parsePdfToExpenses(text: string): Promise<ParsedExpenseLimit[]> {
-  const apiKey = process.env.DEEPSEEK_API_KEY?.trim();
-  if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY is not configured.");
-  }
-
   const content = text?.trim();
   if (!content) return [];
 
-  const apiUrl = process.env.DEEPSEEK_API_URL?.trim() || DEFAULT_DEEPSEEK_API_URL;
-  const model = process.env.DEEPSEEK_MODEL?.trim() || DEFAULT_DEEPSEEK_MODEL;
   const inputText = content.slice(0, 120000);
 
   const systemPrompt = `You are a Greek JSON Extraction Expert for National Grants (ESPA). Extract expense codes, descriptions, and limits from the text.
@@ -66,36 +58,22 @@ Identify "maxAmount" (e.g., "έως 50.000€" -> 50000).
 Identify if "Mandatory" (Υποχρεωτική δαπάνη).
 Return ONLY a raw JSON array: Array<{ code: string, description: string, maxPercentage: number | null, minPercentage: number | null, maxAmount: number | null, isMandatory: boolean }>.`;
 
-  const response = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: inputText },
-      ],
-    }),
+  // Long ESPA documents: "documentAnalysis" routes to large-context models.
+  const rawText = await chatCompletion({
+    task: "documentAnalysis",
+    temperature: 0,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: inputText },
+    ],
   });
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`DeepSeek request failed (${response.status}): ${body.slice(0, 200)}`);
-  }
-
-  const payload = await response.json();
-  const rawText = payload?.choices?.[0]?.message?.content;
-  if (typeof rawText !== "string" || rawText.trim() === "") return [];
+  if (!rawText) return [];
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(normalizeResponseJson(rawText));
   } catch {
-    throw new Error("DeepSeek returned invalid JSON.");
+    throw new Error("The AI model returned invalid JSON.");
   }
 
   if (!Array.isArray(parsed)) return [];

@@ -96,7 +96,7 @@ export function EuProgramDetailsPage({ program: initialProgram }: { program: Non
                 const res = await fetch("/api/admin/translate", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: raw, targetLang: "en", preferDeepSeek: true }),
+                    body: JSON.stringify({ text: raw, targetLang: "en" }),
                 })
                 const data = await res.json()
                 if (!res.ok) throw new Error(data.error || "Translation failed")
@@ -278,7 +278,7 @@ export function EuProgramDetailsPage({ program: initialProgram }: { program: Non
                                     variant="outline"
                                     size="sm"
                                     className="h-7 gap-1 border-violet-500/25 bg-violet-500/8 text-[10px] font-medium text-violet-900 hover:bg-violet-500/15 dark:text-violet-100 dark:bg-violet-500/12"
-                                    title="Calls /api/admin/translate with an English-quality prompt (OpenAI first; DeepSeek if configured and OpenAI fails)."
+                                    title="Calls /api/admin/translate with an English-quality prompt, routed through OpenRouter."
                                     disabled={translatingEN !== null || !(program.nameEL ?? "").trim()}
                                     onClick={() => translateElToEn(program.nameEL ?? "", "nameEN")}
                                 >
@@ -377,8 +377,10 @@ export function EuProgramDetailsPage({ program: initialProgram }: { program: Non
                         </div>
                     </div>
                     <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        English uses the admin translate API with a careful EU/funding English prompt. DeepSeek runs first when{" "}
-                        <code className="rounded bg-muted px-1">DEEPSEEK_API_KEY</code> is set; OpenAI is used as fallback.
+                        English uses the admin translate API with a careful EU/funding English prompt, routed through
+                        OpenRouter with{" "}
+                        <code className="rounded bg-muted px-1">OPENROUTER_API_KEY</code>. The model is chosen
+                        automatically per task, cheapest capable first.
                     </p>
                     <Button
                         onClick={() => saveScalar("general", {

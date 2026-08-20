@@ -19,7 +19,7 @@ async function translateText(text: string, targetLang: "el" | "en"): Promise<str
   const res = await fetch("/api/admin/translate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, targetLang, preferDeepSeek: true }),
+    body: JSON.stringify({ text, targetLang }),
   });
   const data = await res.json();
   if (!res.ok || data.error) throw new Error(data.error ?? "Translation failed");
@@ -123,7 +123,7 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
             onClick={() => onTranslate("el→en")}
             disabled={isTranslating || saving}
             className="gap-2 text-[#0078D4] border-[#C7E0F4] hover:bg-[#DEECF9] hover:border-[#0078D4] disabled:opacity-50"
-            title="Translate Greek content to English using DeepSeek AI"
+            title="Translate Greek content to English using AI"
           >
             {translating === "el→en" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -141,7 +141,7 @@ export function LegalPageEditor({ initial, pageLabel }: Props) {
             onClick={() => onTranslate("en→el")}
             disabled={isTranslating || saving}
             className="gap-2 text-[#0078D4] border-[#C7E0F4] hover:bg-[#DEECF9] hover:border-[#0078D4] disabled:opacity-50"
-            title="Translate English content to Greek using DeepSeek AI"
+            title="Translate English content to Greek using AI"
           >
             {translating === "en→el" ? (
               <Loader2 className="w-4 h-4 animate-spin" />

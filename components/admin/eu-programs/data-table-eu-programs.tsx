@@ -134,10 +134,10 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
     const [rowUploadProgram, setRowUploadProgram] = React.useState<EuProgramType | null>(null)
     const [rowUploadFile, setRowUploadFile] = React.useState<File | null>(null)
     const [isRowUploadModalOpen, setIsRowUploadModalOpen] = React.useState(false)
-    const [deepSeekModalOpen, setDeepSeekModalOpen] = React.useState(false)
-    const [deepSeekStatus, setDeepSeekStatus] = React.useState<"idle" | "processing" | "success" | "error">("idle")
-    const [deepSeekMessage, setDeepSeekMessage] = React.useState("")
-    const [deepSeekResult, setDeepSeekResult] = React.useState<{ requirements: number; expenseLimits: number; kads: number } | null>(null)
+    const [aiModalOpen, setAiModalOpen] = React.useState(false)
+    const [aiStatus, setAiStatus] = React.useState<"idle" | "processing" | "success" | "error">("idle")
+    const [aiMessage, setAiMessage] = React.useState("")
+    const [aiResult, setAiResult] = React.useState<{ requirements: number; expenseLimits: number; kads: number } | null>(null)
     const [parseSummaryByProgram, setParseSummaryByProgram] = React.useState<Record<string, { requirements: number; expenseLimits: number; kads: number }>>({})
     const [emailListProgram, setEmailListProgram] = React.useState<EuProgramType | null>(null)
     const [emailListModalOpen, setEmailListModalOpen] = React.useState(false)
@@ -246,16 +246,16 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
         return Array.from(new Set(matches.map((m) => m.replace(",", ".").trim())))
     }
 
-    const openDeepSeekProgress = (programName: string) => {
-        setDeepSeekStatus("processing")
-        setDeepSeekMessage(`Επεξεργασία "${programName}" με DeepSeek. Παρακαλώ περιμένετε...`)
-        setDeepSeekResult(null)
-        setDeepSeekModalOpen(true)
+    const openAiProgress = (programName: string) => {
+        setAiStatus("processing")
+        setAiMessage(`Επεξεργασία "${programName}" με AI. Παρακαλώ περιμένετε...`)
+        setAiResult(null)
+        setAiModalOpen(true)
     }
 
-    const closeDeepSeekModal = () => {
-        if (deepSeekStatus === "processing") return
-        setDeepSeekModalOpen(false)
+    const closeAiModal = () => {
+        if (aiStatus === "processing") return
+        setAiModalOpen(false)
     }
 
     const applyParseSummary = (programId: string, requirements: number, expenseLimits: number, kads: number) => {
@@ -266,15 +266,15 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
     }
 
     const parseProgramDetails = async (programId: string, file: File, programName: string) => {
-        openDeepSeekProgress(programName)
+        openAiProgress(programName)
         const formData = new FormData()
         formData.append("euProgramId", programId)
         formData.append("file", file)
         const result = await processGrantPdfAction(formData)
         if (!result.success) {
             const errMessage = result.error || "Αποτυχία ανάλυσης λεπτομερειών προγράμματος"
-            setDeepSeekStatus("error")
-            setDeepSeekMessage(errMessage)
+            setAiStatus("error")
+            setAiMessage(errMessage)
             throw new Error(errMessage)
         }
         const requirements = result.requirementsCount ?? 0
@@ -282,9 +282,9 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
         const kads = result.eligibleKadsCount ?? 0
         applyParseSummary(programId, requirements, expenseLimits, kads)
         await refreshProgramFromDb(programId)
-        setDeepSeekStatus("success")
-        setDeepSeekResult({ requirements, expenseLimits, kads })
-        setDeepSeekMessage(`Ολοκληρώθηκε η ανάλυση "${programName}".`)
+        setAiStatus("success")
+        setAiResult({ requirements, expenseLimits, kads })
+        setAiMessage(`Ολοκληρώθηκε η ανάλυση "${programName}".`)
         return { requirements, expenseLimits, kads }
     }
 
@@ -358,7 +358,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
         }
 
         setIsProcessingProgramDetails(true)
-        toast.loading("Επεξεργασία PDF με DeepSeek...", { id: "program-details" })
+        toast.loading("Επεξεργασία PDF με AI...", { id: "program-details" })
         try {
             const parsed = await parseProgramDetails(editingProgram.id, programDetailsFile, editingProgram.nameEL)
             toast.success(
@@ -1025,7 +1025,7 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
             </Dialog>
 
             {/* Row upload modal */}
-            <Dialog open={isRowUploadModalOpen} onOpenChange={(open) => { if (deepSeekStatus === "processing") return; setIsRowUploadModalOpen(open) }}>
+            <Dialog open={isRowUploadModalOpen} onOpenChange={(open) => { if (aiStatus === "processing") return; setIsRowUploadModalOpen(open) }}>
                 <DialogContent className="max-w-lg p-0 overflow-hidden rounded-lg">
                     <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
                         <div className="flex items-center gap-3">
@@ -1044,58 +1044,58 @@ export function DataTableEuPrograms({ data: initialData }: { data: EuProgramType
                         </div>
                     </div>
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" onClick={() => setIsRowUploadModalOpen(false)} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
-                        <Button onClick={handleRowUploadSubmit} disabled={!rowUploadFile || deepSeekStatus === "processing"} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                        <Button variant="ghost" onClick={() => setIsRowUploadModalOpen(false)} disabled={aiStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Ακύρωση</Button>
+                        <Button onClick={handleRowUploadSubmit} disabled={!rowUploadFile || aiStatus === "processing"} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
                             <Upload className="w-3 h-3 mr-2" /> Ανάλυση & Αποθήκευση
                         </Button>
                     </div>
                 </DialogContent>
             </Dialog>
 
-            {/* DeepSeek progress modal */}
-            <Dialog open={deepSeekModalOpen} onOpenChange={closeDeepSeekModal}>
+            {/* AI progress modal */}
+            <Dialog open={aiModalOpen} onOpenChange={closeAiModal}>
                 <DialogContent className="max-w-md p-0 overflow-hidden rounded-lg">
                     <DialogHeader className="px-5 py-4 border-b border-[#EDEBE9] bg-white">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded bg-[#EFF6FC] border border-[#C7E0F4] flex items-center justify-center shrink-0">
-                                {deepSeekStatus === "processing" ? <RefreshCcw className="w-4 h-4 text-[#0078D4] animate-spin" /> : deepSeekStatus === "success" ? <Check className="w-4 h-4 text-[#107C10]" /> : <Trash2 className="w-4 h-4 text-[#A4262C]" />}
+                                {aiStatus === "processing" ? <RefreshCcw className="w-4 h-4 text-[#0078D4] animate-spin" /> : aiStatus === "success" ? <Check className="w-4 h-4 text-[#107C10]" /> : <Trash2 className="w-4 h-4 text-[#A4262C]" />}
                             </div>
                             <div>
                                 <DialogTitle className="text-sm font-bold text-[#201F1E]">
-                                    {deepSeekStatus === "processing" ? "Επεξεργασία DeepSeek" : deepSeekStatus === "success" ? "Η Ανάλυση Ολοκληρώθηκε" : "Αποτυχία Ανάλυσης"}
+                                    {aiStatus === "processing" ? "Επεξεργασία AI" : aiStatus === "success" ? "Η Ανάλυση Ολοκληρώθηκε" : "Αποτυχία Ανάλυσης"}
                                 </DialogTitle>
-                                <p className="text-[11px] text-[#A19F9D]">{deepSeekMessage}</p>
+                                <p className="text-[11px] text-[#A19F9D]">{aiMessage}</p>
                             </div>
                         </div>
                     </DialogHeader>
                     <div className="bg-[#F3F2F1] p-4 space-y-3">
-                        {deepSeekStatus === "processing" && (
+                        {aiStatus === "processing" && (
                             <div className="bg-white rounded-lg border border-[#EDEBE9] p-4 flex items-center gap-3">
                                 <RefreshCcw className="w-4 h-4 animate-spin text-[#0078D4]" />
                                 <p className="text-[11px] text-[#605E5C]">Εξαγωγή απαιτήσεων, ορίων δαπανών και ΚΑΔ...</p>
                             </div>
                         )}
-                        {deepSeekStatus === "success" && deepSeekResult && (
+                        {aiStatus === "success" && aiResult && (
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
-                                    <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.requirements}</div>
+                                    <div className="text-sm font-bold text-[#201F1E]">{aiResult.requirements}</div>
                                     <div className="text-[11px] text-[#A19F9D]">Απαιτήσεις</div>
                                 </div>
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
-                                    <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.expenseLimits}</div>
+                                    <div className="text-sm font-bold text-[#201F1E]">{aiResult.expenseLimits}</div>
                                     <div className="text-[11px] text-[#A19F9D]">Όρια</div>
                                 </div>
                                 <div className="bg-white rounded-lg border border-[#EDEBE9] p-3 text-center">
-                                    <div className="text-sm font-bold text-[#201F1E]">{deepSeekResult.kads}</div>
+                                    <div className="text-sm font-bold text-[#201F1E]">{aiResult.kads}</div>
                                     <div className="text-[11px] text-[#A19F9D]">ΚΑΔ</div>
                                 </div>
                             </div>
                         )}
                     </div>
                     <div className="px-5 py-3 border-t border-[#EDEBE9] bg-white flex justify-end gap-2">
-                        <Button variant="ghost" onClick={closeDeepSeekModal} disabled={deepSeekStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Κλείσιμο</Button>
-                        {deepSeekStatus !== "processing" && (
-                            <Button onClick={() => { setDeepSeekModalOpen(false); setIsRowUploadModalOpen(false); window.location.reload() }} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
+                        <Button variant="ghost" onClick={closeAiModal} disabled={aiStatus === "processing"} className="h-8 px-4 text-[12px] font-semibold text-[#605E5C] hover:bg-[#EDEBE9] rounded">Κλείσιμο</Button>
+                        {aiStatus !== "processing" && (
+                            <Button onClick={() => { setAiModalOpen(false); setIsRowUploadModalOpen(false); window.location.reload() }} className="h-8 px-5 text-[12px] font-semibold bg-[#0078D4] hover:bg-[#106EBE] text-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.1),0_2px_4px_rgba(0,120,212,0.25)]">
                                 Ανανέωση Δεδομένων
                             </Button>
                         )}
