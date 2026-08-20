@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T08:03:09.432Z",
+  "timestamp": "2026-08-20T08:06:46.339Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,29 +22,21 @@
     },
     {
       "status": "M",
-      "path": "app/sections/Locations.tsx"
+      "path": "app/eu-programs/page.tsx"
     },
     {
       "status": "M",
-      "path": "app/sitemap.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/faq-content.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/jsonld.ts"
+      "path": "lib/seo/registry.ts"
     },
     {
       "status": "??",
-      "path": "app/locations/"
+      "path": "app/espa-ylopoiisi/"
     },
     {
       "status": "??",
-      "path": "lib/locations.ts"
+      "path": "lib/espa-process.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n190b4a7 fix(seo): lead with Greek everywhere, drop the bilingual claims\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection\n724897f feat: raise hero background video opacity to 0.85"
+  "context_notes": "Recent commits:\n8de40b9 feat(seo): per-office location pages with LocalBusiness markup\n190b4a7 fix(seo): lead with Greek everywhere, drop the bilingual claims\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection"
 }

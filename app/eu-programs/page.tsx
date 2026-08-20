@@ -154,12 +154,20 @@ export default function EUProgramsPage() {
                                 : "Make the most of current European and national funding programs. We help you achieve full digital upgrade of your business, handling the entire submission and implementation process."}
                         </p>
 
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-monks-black font-semibold px-8 py-4 rounded-full hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all duration-300"
-                        >
-                            {locale === "el" ? "Ελέγξτε την Επιλεξιμότητά σας" : "Check Your Eligibility"}
-                        </button>
+                        <div className="flex flex-wrap gap-3">
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="bg-gradient-to-r from-[#FFD700] to-[#E3AA00] text-monks-black font-semibold px-8 py-4 rounded-full hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all duration-300"
+                            >
+                                {locale === "el" ? "Ελέγξτε την Επιλεξιμότητά σας" : "Check Your Eligibility"}
+                            </button>
+                            <Link
+                                href="/espa-ylopoiisi"
+                                className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-4 font-semibold text-white transition-colors hover:border-white/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD700]"
+                            >
+                                {locale === "el" ? "Πώς λειτουργεί η διαδικασία" : "How the process works"}
+                            </Link>
+                        </div>
                     </motion.div>
                 </div>
             </section>

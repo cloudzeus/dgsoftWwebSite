@@ -455,6 +455,7 @@ export type StaticPage = {
 export const staticPages: StaticPage[] = [
   { path: "/", priority: 1.0, changeFrequency: "weekly" },
   { path: "/ariadni", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/espa-ylopoiisi", priority: 0.9, changeFrequency: "monthly" },
   { path: "/book-meeting", priority: 0.6, changeFrequency: "monthly" },
   { path: "/privacy-policy", priority: 0.3, changeFrequency: "yearly" },
   { path: "/terms", priority: 0.3, changeFrequency: "yearly" },
