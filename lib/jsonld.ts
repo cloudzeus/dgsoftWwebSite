@@ -269,3 +269,30 @@ export function caseStudyLd(input: {
       : {}),
   };
 }
+
+export type FaqEntry = { question: string; answer: string };
+
+/**
+ * FAQPage markup — the entry point for featured snippets, "People also ask"
+ * and voice answers. Google wants the same Q&A visible on the page, so always
+ * render this alongside the <Faq> component rather than on its own.
+ *
+ * Answers are plain text: strip any markup the CMS may carry.
+ */
+export function faqLd(url: string, entries: FaqEntry[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${absoluteUrl(url)}#faq`,
+    isPartOf: { "@id": `${getSiteUrl()}/#website` },
+    publisher: { "@id": ORG_ID },
+    mainEntity: entries.map((e) => ({
+      "@type": "Question",
+      name: e.question.trim(),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: e.answer.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+      },
+    })),
+  };
+}

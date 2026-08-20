@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { ogImageUrl } from "@/lib/og-image";
 export const dynamic = "force-dynamic";
 import Navigation from "./components/Navigation";
 import { StaticPageSeo } from "./components/PageSeo";
 
 // Open Graph fallback image — surfaced on social platforms and in audit checks.
 // Replace with a purpose-built 1200×630 social card when available.
-const OG_IMAGE = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
+
 
 export const metadata: Metadata = {
   // Keep title 50–60 chars and meta description 150–160 chars for SERP truncation rules.
@@ -27,7 +28,10 @@ export const metadata: Metadata = {
       "Soft1 ERP, custom λογισμικό και προγράμματα ΕΣΠΑ για ελληνικές επιχειρήσεις — από τον έλεγχο επιλεξιμότητας ως την υλοποίηση.",
     images: [
       {
-        url: OG_IMAGE,
+        url: ogImageUrl({
+          title: "Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ",
+          subtitle: "Πιστοποιημένος συνεργάτης SoftOne",
+        }),
         width: 1200,
         height: 630,
         alt: "DGSOFT — Digital Innovation Studio",

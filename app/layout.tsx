@@ -18,6 +18,7 @@ import { TrackingTags } from "@/components/tracking/TrackingTags";
 import { resolveTrackingTags } from "@/lib/site-settings";
 import { CookieBanner } from "@/components/cookies/CookieBanner";
 import { getSiteUrl } from "@/lib/site-url";
+import { ogImageUrl } from "@/lib/og-image";
 
 const FAVICON_URL = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
 const SITE_URL = getSiteUrl();
@@ -65,10 +66,10 @@ export const metadata: Metadata = {
     description: DEFAULT_DESCRIPTION,
     images: [
       {
-        url: FAVICON_URL,
+        url: ogImageUrl({ title: DEFAULT_TITLE, subtitle: "Πιστοποιημένος συνεργάτης SoftOne" }),
         width: 1200,
         height: 630,
-        alt: "DGSOFT — Digital Innovation Studio",
+        alt: "DGSOFT — Soft1 ERP, λογισμικό και προγράμματα ΕΣΠΑ",
       },
     ],
   },
@@ -76,7 +77,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,
-    images: [FAVICON_URL],
+    images: [ogImageUrl({ title: DEFAULT_TITLE, subtitle: "Πιστοποιημένος συνεργάτης SoftOne" })],
   },
   robots: {
     index: true,

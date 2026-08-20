@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { getContentType } from "./registry";
-
-// Fallback OG image shared across pages that don't supply their own.
-const FALLBACK_OG_IMAGE =
-  "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
+import { ogImageUrl } from "@/lib/og-image";
 
 /**
  * Returns a Next.js `generateMetadata` function for a detail page.
@@ -50,7 +47,9 @@ export function buildMetadataFor(typeKey: string) {
     );
     const ogType = config.ogType ?? "article";
 
-    const ogImage = item.image || FALLBACK_OG_IMAGE;
+    const ogImage =
+      item.image ||
+      ogImageUrl({ title: item.title, subtitle: description, kicker: config.breadcrumb.singular });
     // Titles over ~60 chars are truncated in results; the layout template adds
     // " | DGSOFT" on top, so leave room for it.
     const title = item.title.length > 52 ? `${item.title.slice(0, 51).trim()}…` : item.title;
@@ -98,7 +97,10 @@ export function buildCollectionMetadataFor(typeKey: string): Metadata {
       alternateLocale: ["en_US"],
       images: [
         {
-          url: FALLBACK_OG_IMAGE,
+          url: ogImageUrl({
+            title: config.collection.name,
+            subtitle: config.collection.description,
+          }),
           alt: config.collection.name,
           width: 1200,
           height: 630,

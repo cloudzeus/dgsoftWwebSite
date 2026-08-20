@@ -4,6 +4,8 @@ import { getPublicServices } from "@/app/lib/queries/public-services"
 import { ServicesGrid } from "./ServicesGrid"
 import ServicesHero from "./ServicesHero"
 import { CollectionPageSeo } from "@/app/components/PageSeo"
+import { FaqJsonLd } from "@/app/components/FaqJsonLd"
+import Faq from "../components/Faq"
 import { buildCollectionMetadataFor } from "@/lib/seo/metadata"
 
 export const dynamic = "force-dynamic"
@@ -15,6 +17,7 @@ export default async function ServicesPage() {
     return (
         <>
             <CollectionPageSeo type="service" />
+            <FaqJsonLd faqKey="services" url="/services" />
             <main className="min-h-screen bg-monks-black flex flex-col">
                 <Navigation />
                 <ServicesHero />
@@ -23,6 +26,7 @@ export default async function ServicesPage() {
                         <ServicesGrid services={services} />
                     </div>
                 </section>
+                <Faq faqKey="services" />
                 <Footer />
             </main>
         </>

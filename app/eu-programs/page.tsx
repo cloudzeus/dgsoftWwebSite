@@ -8,6 +8,7 @@ import { ArrowUpRight, TrendingUp, HandCoins, Building2, Globe2, Smartphone, X, 
 import Link from "next/link";
 import { useLocale } from "../context/LocaleContext";
 import db from "../../data/db.json";
+import Faq from "../components/Faq";
 
 const iconMap: Record<string, typeof Smartphone> = {
     Smartphone,
@@ -415,6 +416,8 @@ export default function EUProgramsPage() {
                     </div>
                 )}
             </AnimatePresence>
+
+            <Faq faqKey="espa" />
 
             <Footer />
         </main>
