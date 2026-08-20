@@ -8,12 +8,12 @@ export async function GET() {
 
   const body = `# DGSOFT
 
-> DGSOFT is a Greek digital innovation studio that designs and ships bespoke software, SoftOne ERP integrations, web platforms, and end-to-end deliveries of EU funding programmes (ΕΣΠΑ) for businesses across Greece and Cyprus. Also operating as DGSMART (dgsmart.gr).
+> DGSOFT is a Greek digital innovation studio that designs and ships bespoke software, SoftOne ERP integrations, web platforms, and end-to-end deliveries of EU funding programmes (ΕΣΠΑ) for businesses across Greece and Cyprus.
 
 ## About
 
 - Company: DGSOFT (also operating as DGSMART)
-- Domains: ${siteUrl} · https://dgsoft.gr · https://www.dgsmart.gr
+- Domain: ${siteUrl}
 - Languages: Greek (el), English (en)
 - Headquarters: Greece
 - Contact: connect@dgsmart.gr

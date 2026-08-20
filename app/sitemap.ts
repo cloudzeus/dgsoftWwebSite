@@ -29,6 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: type.sitemap.listingPriority,
         });
       }
+      if (type.sitemap.includeDetail === false) return;
       const items = await type.fetchAll();
       for (const item of items) {
         entries.push({

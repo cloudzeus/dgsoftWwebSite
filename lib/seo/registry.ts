@@ -317,9 +317,9 @@ const services: SeoContentType = {
   ogType: "website",
   breadcrumb: { singular: "Service", plural: "Solutions" },
   collection: {
-    name: "Solutions & Services",
+    name: "Υπηρεσίες Μηχανογράφησης & Ανάπτυξης Λογισμικού",
     description:
-      "Custom software, ERP integrations, web platforms, and managed IT solutions from DGSOFT.",
+      "Λύσεις Soft1 ERP, custom λογισμικό, web πλατφόρμες και managed IT από τη DGSOFT. Μηχανογράφηση και ψηφιακός μετασχηματισμός για επιχειρήσεις σε Ελλάδα και Κύπρο.",
   },
   sitemap: { listingPriority: 0.9, detailPriority: 0.8, changeFrequency: "weekly", includeListing: true },
   llmsHeading: "Services catalogue (live)",
@@ -335,8 +335,9 @@ const works: SeoContentType = {
   ogType: "article",
   breadcrumb: { singular: "Case Study", plural: "Work" },
   collection: {
-    name: "Work & Case Studies",
-    description: "Selected projects and case studies from DGSOFT.",
+    name: "Έργα & Case Studies",
+    description:
+      "Πραγματικά έργα υλοποίησης ERP, custom λογισμικού και ψηφιακού μετασχηματισμού από τη DGSOFT — με τα προβλήματα που λύθηκαν και τα μετρήσιμα αποτελέσματα.",
   },
   sitemap: { listingPriority: 0.8, detailPriority: 0.7, changeFrequency: "weekly", includeListing: true },
   llmsHeading: "Case studies / selected work",
@@ -352,9 +353,9 @@ const articles: SeoContentType = {
   ogType: "article",
   breadcrumb: { singular: "Article", plural: "Blog" },
   collection: {
-    name: "DGSOFT Blog",
+    name: "Νέα & Άρθρα Τεχνολογίας",
     description:
-      "Insights on ERP, CRM, AI, EU funding, and digital transformation from the DGSOFT team.",
+      "Αναλύσεις για ERP, CRM, AI, ΕΣΠΑ και ψηφιακό μετασχηματισμό από την ομάδα της DGSOFT. Πρακτικές οδηγίες για ελληνικές επιχειρήσεις που εκσυγχρονίζονται.",
   },
   sitemap: { listingPriority: 0.8, detailPriority: 0.7, changeFrequency: "daily", includeListing: true },
   llmsHeading: "Recent articles",
@@ -370,9 +371,9 @@ const positions: SeoContentType = {
   ogType: "article",
   breadcrumb: { singular: "Career", plural: "Careers" },
   collection: {
-    name: "Careers at DGSOFT",
+    name: "Θέσεις Εργασίας",
     description:
-      "Open positions at DGSOFT — join a Greek digital innovation studio.",
+      "Ανοιχτές θέσεις εργασίας στη DGSOFT: ERP consultants, developers και μηχανικοί υποστήριξης. Δείτε τις διαθέσιμες θέσεις και στείλτε το βιογραφικό σας.",
   },
   sitemap: { listingPriority: 0.7, detailPriority: 0.6, changeFrequency: "weekly", includeListing: true },
   llmsHeading: "Open positions",
@@ -388,10 +389,12 @@ const downloads: SeoContentType = {
   ogType: "article",
   breadcrumb: { singular: "Download", plural: "Downloads" },
   collection: {
-    name: "Downloads & Resources",
-    description: "Free guides, whitepapers, and resources from DGSOFT.",
+    name: "Οδηγοί & Υλικό Λήψης",
+    description:
+      "Δωρεάν οδηγοί, whitepapers και τεχνικό υλικό από τη DGSOFT — τεκμηρίωση Soft1 ERP, εργαλεία απομακρυσμένης υποστήριξης και εταιρικό προφίλ.",
   },
-  sitemap: { listingPriority: 0.6, detailPriority: 0.5, changeFrequency: "monthly", includeListing: true },
+  // Downloads are direct file links from the listing; there is no detail page.
+  sitemap: { listingPriority: 0.6, detailPriority: 0.5, changeFrequency: "monthly", includeListing: true, includeDetail: false },
   llmsHeading: "Downloads & whitepapers",
   includeInLlmsFull: true,
   fetchAll: allDownloads,
@@ -405,9 +408,9 @@ const euPrograms: SeoContentType = {
   ogType: "article",
   breadcrumb: { singular: "EU Programme", plural: "EU Programmes" },
   collection: {
-    name: "EU Funding Programmes — ΕΣΠΑ",
+    name: "Προγράμματα ΕΣΠΑ & Επιδοτήσεις",
     description:
-      "Active EU and Greek national funding programmes (ΕΣΠΑ) handled end-to-end by DGSOFT.",
+      "Ενεργά προγράμματα ΕΣΠΑ και επιδοτήσεις για επιχειρήσεις. Η DGSOFT αναλαμβάνει έλεγχο επιλεξιμότητας, υποβολή φακέλου και υλοποίηση του έργου.",
   },
   sitemap: { listingPriority: 0.8, detailPriority: 0.7, changeFrequency: "weekly", includeListing: true },
   llmsHeading: "Active EU Funding Programmes (ΕΣΠΑ)",

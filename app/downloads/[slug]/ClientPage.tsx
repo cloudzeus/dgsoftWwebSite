@@ -32,7 +32,8 @@ const downloadsData: Record<string, any> = {
 };
 
 export default function ClientPage({ slug }: { slug: string }) {
-    const file = downloadsData[slug] || downloadsData["cloud-security-guide-2024"];
+    // page.tsx already 404s unknown slugs, so this lookup is guaranteed to hit.
+    const file = downloadsData[slug];
     const [downloading, setDownloading] = useState(false);
     const [downloaded, setDownloaded] = useState(false);
 

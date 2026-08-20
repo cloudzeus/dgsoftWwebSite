@@ -22,9 +22,9 @@ import { getSiteUrl } from "@/lib/site-url";
 const FAVICON_URL = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp";
 const SITE_URL = getSiteUrl();
 const SITE_NAME = "DGSOFT";
-const DEFAULT_TITLE = "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes";
+const DEFAULT_TITLE = "DGSOFT — Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ";
 const DEFAULT_DESCRIPTION =
-  "DGSOFT designs and ships bespoke software, SoftOne ERP integrations, web platforms, and ΕΣΠΑ/EU funding deliveries for businesses across Greece and Cyprus.";
+  "Πιστοποιημένος συνεργάτης SoftOne. Υλοποίηση Soft1 ERP, custom λογισμικό και ολοκληρωμένη διαχείριση προγραμμάτων ΕΣΠΑ για επιχειρήσεις σε Ελλάδα και Κύπρο.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

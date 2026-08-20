@@ -11,6 +11,20 @@ const FALLBACK_OG_IMAGE =
  * Usage in app/services/[slug]/page.tsx:
  *   export const generateMetadata = buildMetadataFor("service");
  */
+/**
+ * Trim a description to what search engines actually render (~160 chars).
+ * Content is authored in the admin without a length limit, so some entries run
+ * to 800+ characters and get cut mid-word in the SERP. Cut on a word boundary
+ * and strip any HTML the editor left behind.
+ */
+function clampDescription(raw: string, max = 158): string {
+  const text = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[,·—–-]$/, "").trim()}…`;
+}
+
 export function buildMetadataFor(typeKey: string) {
   return async function generateMetadata({
     params,
@@ -31,18 +45,22 @@ export function buildMetadataFor(typeKey: string) {
     }
 
     const url = `${config.basePath}/${slug}`;
-    const description =
-      item.description ||
-      `${item.title} — ${config.breadcrumb.singular} by DGSOFT.`;
+    const description = clampDescription(
+      item.description || `${item.title} — ${config.breadcrumb.singular} by DGSOFT.`
+    );
     const ogType = config.ogType ?? "article";
 
     const ogImage = item.image || FALLBACK_OG_IMAGE;
+    // Titles over ~60 chars are truncated in results; the layout template adds
+    // " | DGSOFT" on top, so leave room for it.
+    const title = item.title.length > 52 ? `${item.title.slice(0, 51).trim()}…` : item.title;
+
     return {
-      title: item.title,
+      title,
       description,
       alternates: { canonical: url },
       openGraph: {
-        title: item.title,
+        title,
         description,
         url,
         type: ogType,
@@ -53,7 +71,7 @@ export function buildMetadataFor(typeKey: string) {
       },
       twitter: {
         card: "summary_large_image",
-        title: item.title,
+        title,
         description,
         images: [ogImage],
       },

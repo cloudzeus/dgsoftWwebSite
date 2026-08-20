@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T07:01:14.692Z",
+  "timestamp": "2026-08-20T07:31:52.876Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,73 +22,57 @@
     },
     {
       "status": "M",
-      "path": "app/actions/process-grant.ts"
+      "path": "app/ariadni/page.tsx"
     },
     {
       "status": "M",
-      "path": "app/actions/upload-program-details.ts"
+      "path": "app/downloads/[slug]/ClientPage.tsx"
     },
     {
       "status": "M",
-      "path": "app/api/admin/articles/generate/route.ts"
+      "path": "app/downloads/[slug]/page.tsx"
     },
     {
       "status": "M",
-      "path": "app/api/admin/eu-programs/ocr/route.ts"
+      "path": "app/layout.tsx"
     },
     {
       "status": "M",
-      "path": "app/api/admin/services/expand-description/route.ts"
+      "path": "app/llms-full.txt/route.ts"
     },
     {
       "status": "M",
-      "path": "app/api/admin/services/generate/route.ts"
+      "path": "app/llms.txt/route.ts"
     },
     {
       "status": "M",
-      "path": "app/api/admin/translate/route.ts"
+      "path": "app/page.tsx"
     },
     {
       "status": "M",
-      "path": "app/api/admin/works/generate/route.ts"
+      "path": "app/sections/Customers.tsx"
     },
     {
       "status": "M",
-      "path": "app/lib/actions/address-region.ts"
+      "path": "app/sitemap.ts"
     },
     {
       "status": "M",
-      "path": "app/lib/actions/eu-program.ts"
+      "path": "lib/seo/metadata.ts"
     },
     {
       "status": "M",
-      "path": "components/admin/eu-programs/data-table-eu-programs.tsx"
+      "path": "lib/seo/registry.ts"
     },
     {
       "status": "M",
-      "path": "components/admin/eu-programs/eu-program-details-page.tsx"
+      "path": "lib/seo/types.ts"
     },
     {
       "status": "M",
-      "path": "components/admin/legal/legal-page-editor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "lib/address-region-utils.ts"
-    },
-    {
-      "status": "RM",
-      "path": "lib/deepseek.ts -> lib/expense-parser.ts"
-    },
-    {
-      "status": "RM",
-      "path": "lib/deepseek-parser.ts -> lib/grant-parser.ts"
-    },
-    {
-      "status": "??",
-      "path": "lib/openrouter.ts"
+      "path": "lib/site-url.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n724897f feat: raise hero background video opacity to 0.85\n6a8f380 feat: swap homepage hero background video\n9132924 feat: use DGsoft logo in admin sidebar header\n9fae980 feat: point homepage banner logo to /ariadni instead of greece20.gov.gr\n6d20cb8 feat: link Greece 2.0 banner logo to greece20.gov.gr"
+  "context_notes": "Recent commits:\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection\n724897f feat: raise hero background video opacity to 0.85\n6a8f380 feat: swap homepage hero background video\n9132924 feat: use DGsoft logo in admin sidebar header\n9fae980 feat: point homepage banner logo to /ariadni instead of greece20.gov.gr"
 }

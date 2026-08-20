@@ -71,6 +71,13 @@ export type SeoContentType = {
       | "yearly"
       | "never";
     includeListing?: boolean;
+    /**
+     * Whether each item has a real detail page at `${basePath}/${slug}`.
+     * Downloads are served as direct file links from the listing and have no
+     * detail route, so emitting per-item URLs would advertise pages that 404.
+     * Defaults to true.
+     */
+    includeDetail?: boolean;
   };
   /** Heading shown in llms-full.txt for this content type's section */
   llmsHeading?: string;

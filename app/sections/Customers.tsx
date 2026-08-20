@@ -72,7 +72,10 @@ export default function Customers({ data = [] }: { data?: CarouselCustomer[] }) 
                 >
                   <Image
                     src={src}
-                    alt=""
+                    // Client logos are the strongest trust signal on the page, so the
+                    // real track names each company; the aria-hidden clone stays empty
+                    // so screen readers don't hear the list twice.
+                    alt={isClone ? "" : `Λογότυπο — ${customer.NAME ?? "Πελάτης DGSOFT"}`}
                     width={180}
                     height={100}
                     loading="lazy"

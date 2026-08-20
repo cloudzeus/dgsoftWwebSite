@@ -30,7 +30,12 @@ async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
 function renderItemBlock(siteUrl: string, type: SeoContentType, item: SeoItem): string[] {
   const lines: string[] = [];
   lines.push(`### ${item.title}`);
-  lines.push(`- URL: ${siteUrl}${type.basePath}/${item.slug}`);
+  // Types without detail pages (e.g. downloads) point at their listing.
+  lines.push(
+    type.sitemap.includeDetail === false
+      ? `- URL: ${siteUrl}${type.basePath}`
+      : `- URL: ${siteUrl}${type.basePath}/${item.slug}`
+  );
   if (item.category) lines.push(`- Category: ${item.category}`);
   if (item.brand) lines.push(`- Brand: ${item.brand}`);
   if (item.city) lines.push(`- Location: ${item.city}`);
@@ -84,7 +89,7 @@ export async function GET() {
   lines.push("- **Headquarters:** Λεωφ. Κηφισού 48, 1ος όροφος, Περιστέρι, 12133, Attica, Greece");
   lines.push("- **Phone:** +30 210 5711581");
   lines.push("- **Email:** connect@dgsmart.gr");
-  lines.push("- **Primary domains:** dgsoft.gr, www.dgsmart.gr");
+  lines.push(`- **Domain:** ${siteUrl}`);
   lines.push("- **Canonical site:** " + siteUrl);
   lines.push("- **Languages:** Greek (el), English (en)");
   lines.push("- **Areas served:** Greece, Cyprus, European Union");

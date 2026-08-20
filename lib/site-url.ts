@@ -1,4 +1,4 @@
-const FALLBACK = "https://www.dgsmart.gr";
+const FALLBACK = "https://dgsoft.gr";
 
 export function getSiteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();

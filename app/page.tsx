@@ -9,9 +9,9 @@ const OG_IMAGE = "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-
 
 export const metadata: Metadata = {
   // Keep title 50–60 chars and meta description 150–160 chars for SERP truncation rules.
-  title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
+  title: "DGSOFT — Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ",
   description:
-    "DGSOFT delivers bespoke software, SoftOne ERP integrations, web platforms, and ΕΣΠΑ/EU funding programmes for businesses in Greece and Cyprus.",
+    "Πιστοποιημένος συνεργάτης SoftOne. Υλοποίηση Soft1 ERP, custom λογισμικό και ολοκληρωμένη διαχείριση προγραμμάτων ΕΣΠΑ για επιχειρήσεις σε Ελλάδα και Κύπρο.",
   alternates: { canonical: "/" },
   // Important: Next.js does NOT merge `openGraph` from the parent layout —
   // overriding here replaces the whole object. Always include siteName + images
@@ -22,9 +22,9 @@ export const metadata: Metadata = {
     locale: "el_GR",
     alternateLocale: ["en_US"],
     url: "/",
-    title: "DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes",
+    title: "DGSOFT — Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ",
     description:
-      "Bespoke software, SoftOne ERP, web platforms & ΕΣΠΑ deliveries — built in Greece, deployed across the EU.",
+      "Soft1 ERP, custom λογισμικό και προγράμματα ΕΣΠΑ για ελληνικές επιχειρήσεις — από τον έλεγχο επιλεξιμότητας ως την υλοποίηση.",
     images: [
       {
         url: OG_IMAGE,
@@ -69,8 +69,8 @@ export default async function Home() {
     <>
       <StaticPageSeo
         url="/"
-        name="DGSOFT — Bespoke Software, SoftOne ERP & EU Programmes"
-        description="DGSOFT designs and ships bespoke software, SoftOne ERP integrations, web platforms, and ΕΣΠΑ/EU funding deliveries for businesses across Greece and Cyprus."
+        name="DGSOFT — Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ"
+        description="Πιστοποιημένος συνεργάτης SoftOne. Υλοποίηση Soft1 ERP, custom λογισμικό και ολοκληρωμένη διαχείριση προγραμμάτων ΕΣΠΑ για επιχειρήσεις σε Ελλάδα και Κύπρο."
       />
       <main className="min-h-screen bg-monks-black">
         <Navigation />

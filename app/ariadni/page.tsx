@@ -9,8 +9,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const titleEL = `${contentEL.title} | Ariadne Service Hub — DGSOFT`;
   const titleEN = `${contentEN.title} | Ariadne Service Hub — DGSOFT`;
   return {
-    title: "Ariadne | DGSOFT",
-    description: contentEN.tagline,
+    // Root layout applies the "%s | DGSOFT" template — do not repeat the brand here.
+    title: contentEL.title,
+    description: contentEL.tagline,
     openGraph: {
       title: titleEN,
       description: contentEN.tagline,
