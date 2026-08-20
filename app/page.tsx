@@ -21,7 +21,6 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "DGSOFT",
     locale: "el_GR",
-    alternateLocale: ["en_US"],
     url: "/",
     title: "DGSOFT — Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ",
     description:

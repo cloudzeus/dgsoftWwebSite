@@ -42,8 +42,11 @@ function collectVideosFromMedia(
 
 // ─── Adapters: model → SeoItem ────────────────────────────────────────────
 
+// SEO fields lead with Greek across every mapper: the market is Greek-only and
+// the locale switch is client-side, so crawlers only ever receive the Greek
+// rendering. English remains as a fallback for records that lack a Greek value.
 function serviceToSeo(s: any): SeoItem {
-  const name = s.nameEN || s.nameEL;
+  const name = s.nameEL || s.nameEN;
   const heroIsVideo = isVideoUrl(s.featureImage);
   const poster = heroIsVideo ? s.brandLogo || null : s.featureImage || null;
   const videos: VideoMeta[] = [];
@@ -58,11 +61,11 @@ function serviceToSeo(s: any): SeoItem {
   return {
     slug: s.slug,
     title: name,
-    description: s.shortDescriptionEN || s.shortDescriptionEL,
-    longDescription: s.descriptionEN || s.descriptionEL,
+    description: s.shortDescriptionEL || s.shortDescriptionEN,
+    longDescription: s.descriptionEL || s.descriptionEN,
     image: heroIsVideo ? s.brandLogo || null : s.featureImage || s.brandLogo || null,
     brand: s.brandName || null,
-    category: s.category?.nameEN || s.category?.nameEL || null,
+    category: s.category?.nameEL || s.category?.nameEN || null,
     titleEL: s.nameEL,
     titleEN: s.nameEN,
     descriptionEL: s.shortDescriptionEL,
@@ -74,7 +77,7 @@ function serviceToSeo(s: any): SeoItem {
 }
 
 function workToSeo(w: any): SeoItem {
-  const name = w.titleEN || w.titleEL;
+  const name = w.titleEL || w.titleEN;
   const imageCover =
     w.media?.find((m: any) => m.featured && !isVideoUrl(m.url) && (m.type || "IMAGE").toUpperCase() !== "VIDEO")?.url ||
     w.media?.find((m: any) => !isVideoUrl(m.url) && (m.type || "IMAGE").toUpperCase() !== "VIDEO")?.url ||
@@ -83,8 +86,8 @@ function workToSeo(w: any): SeoItem {
   return {
     slug: w.slug,
     title: name,
-    description: w.challengeEN || w.challengeEL,
-    longDescription: w.challengeEN || w.challengeEL,
+    description: w.challengeEL || w.challengeEN,
+    longDescription: w.challengeEL || w.challengeEN,
     image: imageCover,
     customerName: w.customer?.name || null,
     completionDate: w.completionDate || null,
@@ -99,17 +102,17 @@ function workToSeo(w: any): SeoItem {
 }
 
 function articleToSeo(a: any): SeoItem {
-  const name = a.metaTitleEN || a.metaTitleEL || a.titleEN || a.titleEL;
+  const name = a.metaTitleEL || a.metaTitleEN || a.titleEL || a.titleEN;
   const videos = collectVideosFromMedia(a.media, name, a.featureImage);
   return {
     slug: a.slug,
     title: name,
     description:
-      a.metaDescriptionEN ||
       a.metaDescriptionEL ||
-      a.shortDescriptionEN ||
-      a.shortDescriptionEL,
-    longDescription: a.descriptionEN || a.descriptionEL,
+      a.metaDescriptionEN ||
+      a.shortDescriptionEL ||
+      a.shortDescriptionEN,
+    longDescription: a.descriptionEL || a.descriptionEN,
     image: a.featureImage || null,
     authorName: a.author?.name || a.author?.email || null,
     titleEL: a.titleEL,
@@ -123,13 +126,13 @@ function articleToSeo(a: any): SeoItem {
 }
 
 function positionToSeo(p: any): SeoItem {
-  const city = p.cityEN || p.cityEL || null;
-  const type = p.typeEN || p.typeEL || null;
+  const city = p.cityEL || p.cityEN || null;
+  const type = p.typeEL || p.typeEN || null;
   return {
     slug: p.slug,
-    title: p.titleEN || p.titleEL,
-    description: stripFirstParagraph(p.descriptionEN || p.descriptionEL) || null,
-    longDescription: p.descriptionEN || p.descriptionEL,
+    title: p.titleEL || p.titleEN,
+    description: stripFirstParagraph(p.descriptionEL || p.descriptionEN) || null,
+    longDescription: p.descriptionEL || p.descriptionEN,
     city,
     employmentType: type,
     titleEL: p.titleEL,
@@ -144,9 +147,9 @@ function positionToSeo(p: any): SeoItem {
 function downloadToSeo(d: any): SeoItem {
   return {
     slug: d.slug ?? d.id,
-    title: d.nameEN || d.nameEL,
-    description: d.descriptionEN || d.descriptionEL,
-    longDescription: d.descriptionEN || d.descriptionEL,
+    title: d.nameEL || d.nameEN,
+    description: d.descriptionEL || d.descriptionEN,
+    longDescription: d.descriptionEL || d.descriptionEN,
     category: d.category || null,
     titleEL: d.nameEL,
     titleEN: d.nameEN,
@@ -165,11 +168,11 @@ function jsonEntryToSeo(e: any): SeoItem {
   const descEN = e.en?.desc || e.en?.shortDesc || null;
   return {
     slug: e.slug,
-    title: titleEN || titleEL || e.slug,
-    description: descEN || descEL,
-    longDescription: descEN || descEL,
-    category: e.en?.category || e.el?.category || null,
-    budget: e.en?.amount || e.el?.amount || null,
+    title: titleEL || titleEN || e.slug,
+    description: descEL || descEN,
+    longDescription: descEL || descEN,
+    category: e.el?.category || e.en?.category || null,
+    budget: e.el?.amount || e.en?.amount || null,
     titleEL,
     titleEN,
     descriptionEL: descEL,

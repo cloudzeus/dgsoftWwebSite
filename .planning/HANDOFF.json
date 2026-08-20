@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T07:43:07.437Z",
+  "timestamp": "2026-08-20T07:48:06.763Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,14 +22,6 @@
     },
     {
       "status": "M",
-      "path": "app/eu-programs/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/eu-programs/page.tsx"
-    },
-    {
-      "status": "M",
       "path": "app/layout.tsx"
     },
     {
@@ -38,41 +30,13 @@
     },
     {
       "status": "M",
-      "path": "app/services/page.tsx"
-    },
-    {
-      "status": "M",
-      "path": "lib/jsonld.ts"
-    },
-    {
-      "status": "M",
       "path": "lib/seo/metadata.ts"
     },
     {
       "status": "M",
-      "path": "next-env.d.ts"
-    },
-    {
-      "status": "??",
-      "path": "app/api/og/"
-    },
-    {
-      "status": "??",
-      "path": "app/components/Faq.tsx"
-    },
-    {
-      "status": "??",
-      "path": "app/components/FaqJsonLd.tsx"
-    },
-    {
-      "status": "??",
-      "path": "lib/faq-content.ts"
-    },
-    {
-      "status": "??",
-      "path": "lib/og-image.ts"
+      "path": "lib/seo/registry.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection\n724897f feat: raise hero background video opacity to 0.85\n6a8f380 feat: swap homepage hero background video\n9132924 feat: use DGsoft logo in admin sidebar header"
+  "context_notes": "Recent commits:\n9f59c2b feat(seo): add FAQ answers for snippets and generate real OG cards\n1ff2c79 fix(seo): stop advertising broken URLs, switch page titles to Greek\n7cc1d3b refactor: unify all AI calls behind OpenRouter with automatic model selection\n724897f feat: raise hero background video opacity to 0.85\n6a8f380 feat: swap homepage hero background video"
 }

@@ -59,7 +59,6 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "el_GR",
-    alternateLocale: ["en_US"],
     url: SITE_URL,
     siteName: SITE_NAME,
     title: DEFAULT_TITLE,
@@ -139,6 +138,8 @@ const organizationLd = {
     { "@type": "Country", name: "Cyprus" },
     { "@type": "Place", name: "European Union" },
   ],
+  // The organisation genuinely works in both languages; this is about the
+  // company, not about page versions, so it stays.
   knowsLanguage: ["el", "en"],
   contactPoint: [
     {
@@ -159,7 +160,9 @@ const websiteLd = {
   name: SITE_NAME,
   url: SITE_URL,
   publisher: { "@id": `${SITE_URL}/#organization` },
-  inLanguage: ["el-GR", "en-US"],
+  // Crawlers only ever receive the Greek rendering (the locale switch is
+  // client-side), so declare Greek alone rather than claiming a second version.
+  inLanguage: "el-GR",
   potentialAction: {
     "@type": "SearchAction",
     target: `${SITE_URL}/blog?q={search_term_string}`,

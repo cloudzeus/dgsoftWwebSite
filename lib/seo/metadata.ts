@@ -65,7 +65,6 @@ export function buildMetadataFor(typeKey: string) {
         type: ogType,
         siteName: "DGSOFT",
         locale: "el_GR",
-        alternateLocale: ["en_US"],
         images: [{ url: ogImage, alt: item.title, width: 1200, height: 630 }],
       },
       twitter: {
@@ -94,7 +93,6 @@ export function buildCollectionMetadataFor(typeKey: string): Metadata {
       type: "website",
       siteName: "DGSOFT",
       locale: "el_GR",
-      alternateLocale: ["en_US"],
       images: [
         {
           url: ogImageUrl({
