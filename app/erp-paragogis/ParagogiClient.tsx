@@ -5,6 +5,7 @@ import { ArrowUpRight, Cpu, ScanLine, BarChart3, Boxes } from "lucide-react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import Faq from "../components/Faq";
+import CertificationBadge from "../components/CertificationBadge";
 import {
   PRODUCTION_CAPABILITIES,
   SMART_FACTORY,
@@ -174,6 +175,8 @@ export default function ParagogiClient() {
           </div>
         </div>
       </section>
+
+      <CertificationBadge />
 
       <Faq faqKey="soft1" titleEL="Συχνές ερωτήσεις για το Soft1 στην παραγωγή" />
 

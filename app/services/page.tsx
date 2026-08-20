@@ -6,6 +6,7 @@ import ServicesHero from "./ServicesHero"
 import { CollectionPageSeo } from "@/app/components/PageSeo"
 import { FaqJsonLd } from "@/app/components/FaqJsonLd"
 import Faq from "../components/Faq"
+import CertificationBadge from "../components/CertificationBadge"
 import { buildCollectionMetadataFor } from "@/lib/seo/metadata"
 
 export const dynamic = "force-dynamic"
@@ -26,6 +27,7 @@ export default async function ServicesPage() {
                         <ServicesGrid services={services} />
                     </div>
                 </section>
+                <CertificationBadge />
                 <Faq faqKey="services" />
                 <Footer />
             </main>

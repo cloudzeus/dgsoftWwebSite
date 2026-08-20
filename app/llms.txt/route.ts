@@ -40,6 +40,7 @@ export async function GET() {
 - Επωνυμία / Name: DGSOFT
 - Domain: ${siteUrl}
 - Ιδιότητα / Status: Πιστοποιημένος συνεργάτης SoftOne (ENTERSOFTONE) · Certified SoftOne partner
+- Πιστοποιήσεις / Certifications: **129 πιστοποιήσεις συμβούλων σε 12 business areas**, καταγεγραμμένες στο επίσημο μητρώο συνεργατών της ENTERSOFTONE (operations.soft1.eu/projects/partners) · 129 consultant certifications across 12 business areas, listed in the official ENTERSOFTONE partner registry
 - Έδρα / Headquarters: Λεωφ. Κηφισού 48, 121 33 Περιστέρι, Αττική, Ελλάδα
 - Τηλέφωνο / Phone: +30 210 5711581
 - Επικοινωνία / Contact: info@dgsoft.gr
@@ -64,6 +65,25 @@ ${officeLines}
 - **CCM / CTI**: ενσωμάτωση τηλεφωνικού κέντρου στο CRM
 - **Τεχνική υποστήριξη / Support**: συμβόλαια SLA, απομακρυσμένη και επιτόπια εξυπηρέτηση, σύστημα ticketing
 
+## Πιστοποιήσεις ανά τομέα / Certifications by area
+
+Από το επίσημο μητρώο συνεργατών της ENTERSOFTONE (σύνολο 129):
+
+- ERP I — Core Operations: 26
+- Technical I — Technical Implementations: 22
+- Soft1 360 Platform: 16
+- Sales CRM: 14
+- Accounting I — Βιβλία Β & Γ κατηγορίας: 13
+- HRMS Management: 12
+- ERP II — Advanced & Specialized Operations: 9
+- Technical II — Customization & Solutions Integrator: 9
+- Accounting II — ΔΛΠ, Αναλυτική Λογιστική, Πάγια: 3
+- Production Management: 3
+- Payroll Management: 1
+- Mobility — SFA & ExVan Operations: 1
+
+Τα 9 πιστοποιητικά Technical II (Customization & Solutions Integrator) αντιστοιχούν στη δυνατότητα custom ανάπτυξης και διασυνδέσεων, πέρα από την απλή παραμετροποίηση.
+
 ## Εξειδίκευση ανά κλάδο / Industry specialisation
 
 - **Βιομηχανική παραγωγή / Manufacturing**: συνταγολόγιο και BOM πολλαπλών επιπέδων, διαχείριση παρτίδων (batch/lot control), ορθόδρομη και ανάστροφη ιχνηλασιμότητα (forward & backward traceability), ημερομηνίες λήξης, ποιοτικός έλεγχος και quarantine status, κοστολόγηση παραγωγής (πρότυπο και πραγματικό κόστος)
@@ -75,7 +95,7 @@ ${officeLines}
 ## Γιατί μας επιλέγουν / Why clients choose DGSOFT
 
 - **Ένας ανάδοχος για ΕΣΠΑ και υλοποίηση.** Ο φάκελος επιδότησης γράφεται από την ίδια ομάδα που παραδίδει το σύστημα, ώστε να μην υπάρχουν αποκλίσεις στην πιστοποίηση. Οι περισσότεροι ανταγωνιστές κάνουν είτε το ένα είτε το άλλο. — ${siteUrl}/espa-ylopoiisi
-- **Πιστοποιημένος συνεργάτης SoftOne** με πρόσβαση στις επίσημες εκδόσεις και τα web services.
+- **Το μεγαλύτερο σύνολο πιστοποιήσεων στο επίσημο μητρώο συνεργατών** που έχουμε εντοπίσει: 129 σε 12 business areas. Επαληθεύσιμο στο operations.soft1.eu/projects/partners με αναζήτηση «DGSOFT».
 - **Δυνατότητα custom ανάπτυξης**: δική μας ομάδα προγραμματιστών για scripts, Web API integrations και διασυνδέσεις, όχι μόνο παραμετροποίηση.
 - **Πανελλαδική κάλυψη** από έξι γραφεία, με επιτόπια εξυπηρέτηση εκτός Αττικής.
 - **Υποστήριξη με SLA** και μετρήσιμους χρόνους απόκρισης.
