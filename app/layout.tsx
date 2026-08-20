@@ -36,25 +36,14 @@ export const metadata: Metadata = {
   description: DEFAULT_DESCRIPTION,
   applicationName: SITE_NAME,
   generator: "Next.js",
-  keywords: [
-    "DGSOFT",
-    "DGSMART",
-    "digital innovation",
-    "software development Greece",
-    "EU programmes",
-    "ΕΣΠΑ",
-    "Ariadni",
-    "Αριάδνη",
-    "ERP",
-    "SoftOne",
-    "web development",
-  ],
+  // `keywords` removed: ignored by Google since 2009 and only adds noise.
   authors: [{ name: "DGSOFT", url: SITE_URL }],
   creator: "DGSOFT",
   publisher: "DGSOFT",
   formatDetection: { email: false, address: false, telephone: false },
   alternates: {
     canonical: "/",
+    types: { "application/rss+xml": [{ url: "/rss.xml", title: "DGSOFT — Νέα & Άρθρα" }] },
   },
   openGraph: {
     type: "website",

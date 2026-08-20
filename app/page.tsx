@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { JsonLd } from "./components/JsonLd";
+import { videoObjectLd } from "@/lib/jsonld";
 import { ogImageUrl } from "@/lib/og-image";
 export const dynamic = "force-dynamic";
 import Navigation from "./components/Navigation";
@@ -13,7 +15,13 @@ export const metadata: Metadata = {
   title: "DGSOFT — Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ",
   description:
     "Πιστοποιημένος συνεργάτης SoftOne. Υλοποίηση Soft1 ERP, custom λογισμικό και ολοκληρωμένη διαχείριση προγραμμάτων ΕΣΠΑ για επιχειρήσεις σε Ελλάδα και Κύπρο.",
-  alternates: { canonical: "/" },
+  // Next replaces the whole `alternates` object rather than merging it, so the
+  // feed link declared in the layout has to be repeated here or the homepage
+  // loses it.
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": [{ url: "/rss.xml", title: "DGSOFT — Νέα & Άρθρα" }] },
+  },
   // Important: Next.js does NOT merge `openGraph` from the parent layout —
   // overriding here replaces the whole object. Always include siteName + images
   // so audits (Facebook, LinkedIn previews) see them.
@@ -70,6 +78,23 @@ export default async function Home() {
 
   return (
     <>
+      {/* The hero background video had no markup, so it was invisible to video
+          search and to assistants indexing media. It is a silent decorative
+          loop, which videoObjectLd already accounts for. */}
+      <JsonLd
+        id="hero-video"
+        data={videoObjectLd({
+          url: "/",
+          name: "DGSOFT — Business Forward",
+          description:
+            "Εισαγωγικό βίντεο της DGSOFT: υλοποίηση Soft1 ERP, custom λογισμικό και προγράμματα ΕΣΠΑ για επιχειρήσεις σε Ελλάδα και Κύπρο.",
+          contentUrl:
+            "https://dgsmart.b-cdn.net/newsletter/newsletter-1787202903818-02e8u5i.mp4",
+          thumbnailUrl:
+            "https://dgsmart.b-cdn.net/newsletter/newsletter-1773404641179-7ql2ec.webp",
+          uploadDate: "2026-08-20",
+        })}
+      />
       <StaticPageSeo
         url="/"
         name="DGSOFT — Soft1 ERP, Λογισμικό & Προγράμματα ΕΣΠΑ"

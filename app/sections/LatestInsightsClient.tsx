@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { ArrowUpRight, FileText, Download, Calendar } from "lucide-react";
 import Link from "next/link";
@@ -62,10 +63,17 @@ export default function LatestInsightsClient({ articles = [] }: { articles: any[
                                         {/* Feature image — always visible */}
                                         {hasMedia && (
                                             <div className="absolute inset-0 z-0">
-                                                <img
+                                                {/* next/image so the card downloads a card-sized file.
+                                                    The covers are 1920px wide; raw <img> shipped all of
+                                                    it for a ~400px card. Same object-cover, same layout —
+                                                    the parent already reserves the space. */}
+                                                <Image
                                                     src={item.featureImage}
                                                     alt={title(item)}
-                                                    className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700"
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                                                    loading="lazy"
+                                                    className="object-cover scale-100 group-hover:scale-105 transition-transform duration-700"
                                                 />
                                                 {/* Gradient so text stays legible */}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-monks-black via-monks-black/75 to-monks-black/20" />

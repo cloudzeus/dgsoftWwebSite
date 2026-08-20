@@ -89,6 +89,33 @@ const nextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains",
           },
+          {
+            // Nothing on the site uses these, so deny them outright.
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), accelerometer=()",
+          },
+          {
+            // Report-Only on purpose. The site loads Google Analytics / Meta Pixel
+            // through the admin-managed tracking tags, plus Bunny CDN media and
+            // Google Fonts, and Next injects inline styles and scripts. Enforcing a
+            // policy without first seeing real violation reports would break
+            // analytics or rendering for visitors. Watch the browser console for a
+            // week, fold in whatever legitimately appears, then switch this key to
+            // Content-Security-Policy.
+            key: "Content-Security-Policy-Report-Only",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com data:",
+              "img-src 'self' data: blob: https:",
+              "media-src 'self' https://dgsmart.b-cdn.net https://dgsoft.b-cdn.net",
+              "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com",
+              "frame-ancestors 'self'",
+              "base-uri 'self'",
+              "form-action 'self'",
+            ].join("; "),
+          },
         ],
       },
     ]
