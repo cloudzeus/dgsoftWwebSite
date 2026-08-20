@@ -47,6 +47,11 @@ export function buildMetadataFor(typeKey: string) {
     );
     const ogType = config.ogType ?? "article";
 
+    // The generated card is always exactly 1200x630, so its dimensions can be
+    // declared. An editor-supplied image is whatever was uploaded — the article
+    // covers are 3:2 and 16:9 — so declaring 1200x630 for it would be the same
+    // false claim the favicon used to make. Let the networks measure it.
+    const usesGeneratedCard = !item.image;
     const ogImage =
       item.image ||
       ogImageUrl({ title: item.title, subtitle: description, kicker: config.breadcrumb.singular });
@@ -65,7 +70,11 @@ export function buildMetadataFor(typeKey: string) {
         type: ogType,
         siteName: "DGSOFT",
         locale: "el_GR",
-        images: [{ url: ogImage, alt: item.title, width: 1200, height: 630 }],
+        images: [
+          usesGeneratedCard
+            ? { url: ogImage, alt: item.title, width: 1200, height: 630 }
+            : { url: ogImage, alt: item.title },
+        ],
       },
       twitter: {
         card: "summary_large_image",

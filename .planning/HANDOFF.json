@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T09:02:34.069Z",
+  "timestamp": "2026-08-20T09:17:04.414Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,17 +22,9 @@
     },
     {
       "status": "M",
-      "path": "components/admin/articles/data-table-articles.tsx"
-    },
-    {
-      "status": "??",
-      "path": "app/api/admin/media/"
-    },
-    {
-      "status": "??",
-      "path": "components/admin/media/"
+      "path": "lib/seo/metadata.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nd03a3ca feat(seo): surface the 129 SoftOne certifications as verifiable proof\n0658014 fix(seo): stop truncating articles in llms-full.txt, surface their questions\n80b6ce7 chore: handoff metadata after article publishing\n34c2bbb feat(seo): manufacturing landing page, service FAQs, bilingual llms.txt\n3eeee31 feat(seo): add the ΕΣΠΑ + implementation page with HowTo markup"
+  "context_notes": "Recent commits:\n90628da feat(admin): pick or upload the article cover image from a media library\nd03a3ca feat(seo): surface the 129 SoftOne certifications as verifiable proof\n0658014 fix(seo): stop truncating articles in llms-full.txt, surface their questions\n80b6ce7 chore: handoff metadata after article publishing\n34c2bbb feat(seo): manufacturing landing page, service FAQs, bilingual llms.txt"
 }
