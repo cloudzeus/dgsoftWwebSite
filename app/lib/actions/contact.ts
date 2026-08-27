@@ -1,10 +1,27 @@
 "use server";
 
+import { headers } from "next/headers";
+import { guardSubmission } from "@/lib/form-guard";
+
+/** Escape values before they are interpolated into the notification HTML. */
+function esc(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export type ContactFormData = {
   name: string;
   email: string;
   company: string;
   message: string;
+  /** Honeypot — hidden field, empty for real people. */
+  website?: string;
+  /** How long the form was on screen, from the client. */
+  elapsedMs?: number;
 };
 
 export async function submitContactForm(
@@ -14,6 +31,30 @@ export async function submitContactForm(
 
   if (!name.trim() || !email.trim() || !message.trim()) {
     return { success: false, error: "Συμπληρώστε όλα τα υποχρεωτικά πεδία." };
+  }
+
+  // This is a Server Action, not a route handler, so there is no Request to
+  // hand the guard — rebuild one from the incoming headers for the IP.
+  const h = await headers();
+  const guard = guardSubmission({
+    req: new Request("https://dgsoft.gr/contact", {
+      headers: {
+        "x-forwarded-for": h.get("x-forwarded-for") ?? "",
+        "x-real-ip": h.get("x-real-ip") ?? "",
+      },
+    }),
+    honeypot: data.website,
+    elapsedMs: data.elapsedMs,
+    email,
+    text: [name, company, message],
+  });
+  if (!guard.ok) {
+    // Bots get a success response so they learn nothing; no mail is sent.
+    if (guard.silent) {
+      console.warn(`[contact] blocked: ${guard.reason}`);
+      return { success: true };
+    }
+    return { success: false, error: guard.reason };
   }
 
   const apiKey = process.env.MAILGUN_API_KEY;
@@ -35,12 +76,12 @@ export async function submitContactForm(
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
         <h2 style="color:#E31E2A;">Νέο μήνυμα από τη φόρμα επικοινωνίας</h2>
         <table cellpadding="8" style="width:100%;border-collapse:collapse;">
-          <tr><td style="color:#666;width:120px;">Όνομα</td><td><strong>${name}</strong></td></tr>
-          <tr><td style="color:#666;">Email</td><td><a href="mailto:${email}">${email}</a></td></tr>
-          <tr><td style="color:#666;">Εταιρεία</td><td>${company || "—"}</td></tr>
+          <tr><td style="color:#666;width:120px;">Όνομα</td><td><strong>${esc(name)}</strong></td></tr>
+          <tr><td style="color:#666;">Email</td><td><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
+          <tr><td style="color:#666;">Εταιρεία</td><td>${company ? esc(company) : "—"}</td></tr>
         </table>
         <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
-        <p style="white-space:pre-wrap;color:#333;">${message}</p>
+        <p style="white-space:pre-wrap;color:#333;">${esc(message)}</p>
       </div>`,
     "h:Reply-To": email,
   });

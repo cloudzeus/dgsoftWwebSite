@@ -100,6 +100,54 @@ export type GuardInput = {
 /** Minimum time a human needs to fill even a short form. */
 const MIN_ELAPSED_MS = 2500;
 
+
+/**
+ * Detect machine-generated gibberish, the kind of value a bot puts in a name or
+ * message field: "dWmfxQkDU9", "eygXWgicVEdTnFdGQczeqMMTfi8Zp...".
+ *
+ * These pass every other check — the address can be a real Gmail, there are no
+ * links and no spam vocabulary. What gives them away is the shape of the text.
+ *
+ * Two signals, and both must fire, because either alone has false positives:
+ *   - case flips relative to length ("WooCommerce" and "myDATA" are legitimate
+ *     camel case and stay well under the threshold)
+ *   - vowel ratio (Latin words have vowels; random strings often do not)
+ *
+ * Greek text is exempt: it uses a different alphabet and would skew both
+ * measures. A very long unbroken token is treated as gibberish on its own,
+ * since no real message word runs past 30 characters.
+ */
+function hasAbsurdToken(value: string): boolean {
+  const token = value.trim();
+  // Latin script only: Greek compounds are long and legitimate.
+  if (/[\u0370-\u03ff\u1f00-\u1fff]/.test(token)) return false;
+  const longest = token.split(/\s+/).reduce((a, b) => (b.length > a.length ? b : a), "");
+  // No word in a real message runs past 30 characters. A single token this long
+  // is decisive by itself, unlike the statistical test below.
+  return longest.length > 30;
+}
+
+function looksLikeGibberish(value: string): boolean {
+  const token = value.trim();
+  if (token.length < 8) return false;
+  // Greek content is what we expect here; judge only Latin-script values.
+  if (/[\u0370-\u03ff\u1f00-\u1fff]/.test(token)) return false;
+
+  const letters = token.replace(/[^A-Za-z]/g, "");
+  if (letters.length < 8) return false;
+
+  let flips = 0;
+  for (let i = 1; i < letters.length; i++) {
+    const prevUpper = letters[i - 1] === letters[i - 1].toUpperCase();
+    const currUpper = letters[i] === letters[i].toUpperCase();
+    if (prevUpper !== currUpper) flips++;
+  }
+  const flipRatio = flips / letters.length;
+  const vowels = (letters.match(/[aeiouAEIOU]/g) || []).length / letters.length;
+
+  return flipRatio > 0.35 && vowels < 0.32;
+}
+
 export function guardSubmission(input: GuardInput): GuardResult {
   // 1. Honeypot — cheapest and catches the majority of naive bots.
   if (typeof input.honeypot === "string" && input.honeypot.trim() !== "") {
@@ -138,6 +186,20 @@ export function guardSubmission(input: GuardInput): GuardResult {
     if (links >= 2) return { ok: false, silent: true, reason: "links" };
     if (SPAM_TERMS.some((term) => lower.includes(term))) {
       return { ok: false, silent: true, reason: "spam-terms" };
+    }
+
+    // Require two gibberish fields before rejecting. One odd value could be a
+    // product code or an unusual name; a whole form of them is a bot.
+    // One absurdly long unbroken token is enough on its own.
+    if (input.text.some((t) => typeof t === "string" && hasAbsurdToken(t))) {
+      return { ok: false, silent: true, reason: "absurd-token" };
+    }
+
+    const gibberishFields = input.text.filter(
+      (t) => typeof t === "string" && looksLikeGibberish(t)
+    ).length;
+    if (gibberishFields >= 2) {
+      return { ok: false, silent: true, reason: "gibberish" };
     }
   }
 

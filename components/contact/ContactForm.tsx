@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowUpRight, CheckCircle2, Loader2 } from "lucide-react";
 import { submitContactForm } from "@/app/lib/actions/contact";
 
@@ -44,6 +44,9 @@ type Props = { locale?: Locale; onSuccess?: () => void };
 export function ContactForm({ locale = "el", onSuccess }: Props) {
   const t = T[locale];
   const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  // Fed to the server-side guard: invisible to people, obvious for a bot.
+  const mountedAt = useRef(Date.now());
+  const [honeypot, setHoneypot] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -55,7 +58,11 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const res = await submitContactForm(form);
+    const res = await submitContactForm({
+      ...form,
+      website: honeypot,
+      elapsedMs: Date.now() - mountedAt.current,
+    });
     setLoading(false);
     if (res.success) {
       setSuccess(true);
@@ -87,6 +94,12 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Honeypot: off-screen and hidden from assistive tech; bots fill it. */}
+      <div aria-hidden="true" className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+        <label htmlFor="ct-website">Website</label>
+        <input id="ct-website" type="text" name="website" tabIndex={-1} autoComplete="off"
+          value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+      </div>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="cf-name" className="block text-sm text-monks-light mb-2">{t.name}</label>
