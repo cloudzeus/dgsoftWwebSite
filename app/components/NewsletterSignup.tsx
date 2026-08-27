@@ -11,6 +11,10 @@ const inputCls =
   "w-full bg-monks-gray border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-monks-light/50 focus:border-monks-accent focus:outline-none transition-colors text-sm";
 
 export default function NewsletterSignup() {
+  // Mount time and honeypot feed the server-side spam guard. Neither is
+  // visible to a person; both are obvious to a bot.
+  const mountedAt = React.useRef(Date.now());
+  const [honeypot, setHoneypot] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [name, setName] = React.useState("");
   const [accepted, setAccepted] = React.useState(false);
@@ -63,6 +67,8 @@ export default function NewsletterSignup() {
           email: email.trim(),
           name: name.trim() || null,
           termsAccepted: accepted,
+          website: honeypot,
+          elapsedMs: Date.now() - mountedAt.current,
         }),
       });
       const data = await res.json();
@@ -143,6 +149,19 @@ export default function NewsletterSignup() {
 
                   {/* Form */}
                   <form onSubmit={submit} className="px-6 md:px-8 pb-8 space-y-5">
+        {/* Honeypot. Hidden from people and from screen readers; bots fill it. */}
+        <div aria-hidden="true" className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+          <label htmlFor="ns-website">Website</label>
+          <input
+            id="ns-website"
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+          />
+        </div>
                     <div>
                       <label htmlFor="newsletter-email" className="block text-xs uppercase tracking-wider text-monks-light mb-2 font-semibold">
                         Email *

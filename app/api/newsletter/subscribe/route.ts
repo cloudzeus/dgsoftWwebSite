@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guardSubmission, guardResponse } from "@/lib/form-guard";
 import prisma from "@/lib/prisma";
 import { sendMailgun } from "@/lib/mailgun";
 
@@ -135,6 +136,16 @@ export async function POST(req: Request) {
     const email = String(body?.email ?? "").trim().toLowerCase();
     const name = body?.name ? String(body.name).trim().slice(0, 255) : null;
     const termsAccepted = Boolean(body?.termsAccepted);
+
+    // Newsletter sign-ups are a favourite target; a real person subscribes once.
+    const guard = guardSubmission({
+      req,
+      honeypot: body?.website,
+      elapsedMs: body?.elapsedMs,
+      email,
+      text: [name],
+    });
+    if (!guard.ok) return guardResponse(guard);
 
     if (!email || !EMAIL_RE.test(email)) {
       return NextResponse.json({ error: "Μη έγκυρο email" }, { status: 400 });

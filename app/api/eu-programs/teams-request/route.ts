@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guardSubmission, guardResponse } from "@/lib/form-guard";
 import { getMicrosoftGraphToken, getAvailability, createOnlineMeeting } from "@/lib/microsoft-graph";
 import { sendMailgun } from "@/lib/mailgun";
 import { getTeamsBookingMembers } from "@/lib/teams-booking-config";
@@ -74,6 +75,15 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const guard = guardSubmission({
+      req,
+      honeypot: (body as any).website,
+      elapsedMs: (body as any).elapsedMs,
+      email,
+      text: [companyName, address],
+    });
+    if (!guard.ok) return guardResponse(guard);
 
     const members = getTeamsBookingMembers();
     if (members.length === 0) {

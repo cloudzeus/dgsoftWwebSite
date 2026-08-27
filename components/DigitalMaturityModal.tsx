@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,9 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
-  const [company, setCompany] = useState<CompanyInfo | null>(null);
+
+  const mountedAt = useRef(Date.now());
+  const [honeypot, setHoneypot] = useState("");  const [company, setCompany] = useState<CompanyInfo | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -105,6 +107,8 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
             time,
             notes: notes.trim(),
             company,
+            website: honeypot,
+            elapsedMs: Date.now() - mountedAt.current,
           }),
         });
         const data = await res.json();
@@ -168,6 +172,13 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 px-6 py-6 sm:px-8 sm:py-7">
+        {/* Honeypot: hidden from people and assistive tech, filled by bots. */}
+        <div aria-hidden="true" className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+          <label htmlFor="dm-website">Website</label>
+          <input id="dm-website" type="text" name="website" tabIndex={-1} autoComplete="off"
+            value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+        </div>
+
             {/* AFM */}
             <div className="space-y-2">
               <Label htmlFor="dm-afm" className="text-xs font-medium uppercase tracking-wider text-monks-light">

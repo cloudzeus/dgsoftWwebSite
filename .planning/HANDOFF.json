@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-20T09:34:55.416Z",
+  "timestamp": "2026-08-27T09:23:34.239Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,21 +22,41 @@
     },
     {
       "status": "M",
-      "path": "components/admin/eu-programs/data-table-eu-programs.tsx"
+      "path": "app/api/digital-maturity/route.ts"
     },
     {
       "status": "M",
-      "path": "components/admin/media/media-picker.tsx"
+      "path": "app/api/eu-programs/teams-request/route.ts"
     },
     {
       "status": "M",
-      "path": "components/admin/services/service-form.tsx"
+      "path": "app/api/newsletter/subscribe/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/api/teams-booking/book/route.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/components/NewsletterSignup.tsx"
+    },
+    {
+      "status": "M",
+      "path": "app/eu-programs/page.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/DigitalMaturityModal.tsx"
+    },
+    {
+      "status": "M",
+      "path": "components/teams-booking/book-meeting-form.tsx"
     },
     {
       "status": "??",
-      "path": "app/api/admin/media/upload/"
+      "path": "lib/form-guard.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\ne6102f0 fix(seo): act on the real audit findings, skip the wrong ones\naa3dc66 fix(seo): stop declaring 1200x630 for editor-uploaded images\n90628da feat(admin): pick or upload the article cover image from a media library\nd03a3ca feat(seo): surface the 129 SoftOne certifications as verifiable proof\n0658014 fix(seo): stop truncating articles in llms-full.txt, surface their questions"
+  "context_notes": "Recent commits:\n61f6916 feat(admin): media picker in the services, EU programmes and customer forms\ne6102f0 fix(seo): act on the real audit findings, skip the wrong ones\naa3dc66 fix(seo): stop declaring 1200x630 for editor-uploaded images\n90628da feat(admin): pick or upload the article cover image from a media library\nd03a3ca feat(seo): surface the 129 SoftOne certifications as verifiable proof"
 }

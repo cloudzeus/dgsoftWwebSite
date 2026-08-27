@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,6 +30,8 @@ export default function EUProgramsPage() {
     const [avgTurnover, setAvgTurnover] = useState("");
     const [contactTime, setContactTime] = useState("morning");
     const [contactMethod, setContactMethod] = useState("phone");
+    const mountedAt = useRef(Date.now());
+    const [honeypot, setHoneypot] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [teamsResult, setTeamsResult] = useState<{ joinUrl: string; subject: string; start: string } | null>(null);
@@ -83,6 +85,8 @@ export default function EUProgramsPage() {
                         closedYears: closedYears.trim() || undefined,
                         avgTurnover: avgTurnover.trim() || undefined,
                         contactTime,
+                        website: honeypot,
+                        elapsedMs: Date.now() - mountedAt.current,
                     }),
                 });
                 const data = await res.json();
@@ -250,6 +254,13 @@ export default function EUProgramsPage() {
                             </button>
 
                             <h2 id="eu-modal-title" className="text-2xl font-bold text-white mb-6">{locale === "el" ? "Στοιχεία Επικοινωνίας" : "Contact Details"}</h2>
+
+                            {/* Honeypot: invisible to people, filled by bots. */}
+                            <div aria-hidden="true" className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+                                <label htmlFor="eu-website">Website</label>
+                                <input id="eu-website" type="text" name="website" tabIndex={-1} autoComplete="off"
+                                    value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+                            </div>
 
                             <div className="space-y-5">
                                 <div>

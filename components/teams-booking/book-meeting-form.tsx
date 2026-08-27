@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Loader2, Calendar, Clock, Users, Mail, CheckCircle2, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +51,8 @@ export default function BookMeetingForm() {
   const [guestEmail, setGuestEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const mountedAt = useRef(Date.now());
+  const [honeypot, setHoneypot] = useState("");
   const [selectedHost, setSelectedHost] = useState<string | null>(null);
   const [booking, setBooking] = useState(false);
   const [bookResult, setBookResult] = useState<{
@@ -104,6 +106,8 @@ export default function BookMeetingForm() {
           subject: subject.trim() || undefined,
           hostUserPrincipalName: selectedHost,
           message: message.trim() || undefined,
+          website: honeypot,
+          elapsedMs: Date.now() - mountedAt.current,
         }),
       });
       const data = await res.json();
@@ -157,6 +161,12 @@ export default function BookMeetingForm() {
 
   return (
     <div className="rounded-2xl border border-white/10 bg-monks-gray/80 p-6 md:p-8 space-y-6">
+      {/* Honeypot: invisible to people, filled by bots. */}
+      <div aria-hidden="true" className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+        <label htmlFor="bk-website">Website</label>
+        <input id="bk-website" type="text" name="website" tabIndex={-1} autoComplete="off"
+          value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+      </div>
       <div className="mb-2">
         <div className="flex items-center gap-2 text-white mb-1">
           <Calendar className="w-5 h-5 text-[#FFD700]" />

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guardSubmission, guardResponse } from "@/lib/form-guard";
 import { getMicrosoftGraphToken } from "@/lib/microsoft-graph";
 import { sendMailgun } from "@/lib/mailgun";
 
@@ -101,6 +102,15 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Body;
     const { afm, name, email, phone, date, time, notes, company } = body;
+
+    const guard = guardSubmission({
+      req,
+      honeypot: (body as any).website,
+      elapsedMs: (body as any).elapsedMs,
+      email,
+      text: [name, notes, company?.name],
+    });
+    if (!guard.ok) return guardResponse(guard);
 
     if (!afm || !name || !email || !phone || !date || !time || !company?.name) {
       return NextResponse.json({ success: false, error: "Λείπουν στοιχεία." }, { status: 400 });
