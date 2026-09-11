@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-08-27T10:58:44.572Z",
+  "timestamp": "2026-09-11T09:34:11.006Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -18,21 +18,17 @@
   "uncommitted_files": [
     {
       "status": "M",
+      "path": ".claude/launch.json"
+    },
+    {
+      "status": "M",
       "path": ".planning/HANDOFF.json"
     },
     {
       "status": "M",
-      "path": "app/lib/actions/contact.ts"
-    },
-    {
-      "status": "M",
-      "path": "components/contact/ContactForm.tsx"
-    },
-    {
-      "status": "M",
-      "path": "lib/form-guard.ts"
+      "path": "components/tracking/TrackingTags.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nb9f5287 feat(security): stop form spam before it reaches Mailgun\n61f6916 feat(admin): media picker in the services, EU programmes and customer forms\ne6102f0 fix(seo): act on the real audit findings, skip the wrong ones\naa3dc66 fix(seo): stop declaring 1200x630 for editor-uploaded images\n90628da feat(admin): pick or upload the article cover image from a media library"
+  "context_notes": "Recent commits:\n437a65e fix(security): guard the contact form and catch random-string spam\nb9f5287 feat(security): stop form spam before it reaches Mailgun\n61f6916 feat(admin): media picker in the services, EU programmes and customer forms\ne6102f0 fix(seo): act on the real audit findings, skip the wrong ones\naa3dc66 fix(seo): stop declaring 1200x630 for editor-uploaded images"
 }
