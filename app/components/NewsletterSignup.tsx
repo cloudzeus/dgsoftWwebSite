@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { trackConversion } from "@/lib/conversions";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Mail, Loader2, X, CheckCircle2, ShieldCheck } from "lucide-react";
@@ -78,6 +79,7 @@ export default function NewsletterSignup() {
         return;
       }
       setState("success");
+      trackConversion("newsletter");
       setMessage("Η εγγραφή ολοκληρώθηκε. Ελέγξτε το email σας!");
       setEmail("");
       setName("");

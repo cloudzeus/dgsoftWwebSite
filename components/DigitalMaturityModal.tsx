@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
+import { trackConversion } from "@/lib/conversions";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -117,6 +118,7 @@ export function DigitalMaturityModal({ open, onOpenChange }: Props) {
           return;
         }
         setSuccess(true);
+        trackConversion("digitalMaturity");
       } catch {
         setSubmitError("Σφάλμα δικτύου. Δοκιμάστε ξανά.");
       }

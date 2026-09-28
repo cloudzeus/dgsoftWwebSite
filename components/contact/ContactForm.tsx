@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { trackConversion } from "@/lib/conversions";
 import { ArrowUpRight, CheckCircle2, Loader2 } from "lucide-react";
 import { submitContactForm } from "@/app/lib/actions/contact";
 
@@ -66,6 +67,7 @@ export function ContactForm({ locale = "el", onSuccess }: Props) {
     setLoading(false);
     if (res.success) {
       setSuccess(true);
+      trackConversion("contact");
       onSuccess?.();
     } else {
       setError(res.error ?? "Σφάλμα αποστολής.");

@@ -58,6 +58,15 @@ function defaultCategoryFor(provider: TrackingTag["provider"]): TrackingTag["cat
 export function SettingsPageEditor({ initial }: { initial: SiteSettings }) {
   const [tags, setTags] = React.useState<TrackingTag[]>(initial.trackingTags);
   const [ga4Id, setGa4Id] = React.useState(initial.ga4MeasurementId ?? "");
+  const [adsLabels, setAdsLabels] = React.useState(
+    initial.adsConversionLabels ?? {
+      contact: "",
+      booking: "",
+      newsletter: "",
+      digitalMaturity: "",
+      euProgramRequest: "",
+    }
+  );
   const [saving, setSaving] = React.useState(false);
 
   const ga4Trimmed = ga4Id.trim();
@@ -80,6 +89,13 @@ export function SettingsPageEditor({ initial }: { initial: SiteSettings }) {
     const res = await updateSiteSettingsAction({
       trackingTags: tags,
       ga4MeasurementId: ga4Trimmed,
+      adsConversionLabels: {
+        contact: adsLabels.contact?.trim() ?? "",
+        booking: adsLabels.booking?.trim() ?? "",
+        newsletter: adsLabels.newsletter?.trim() ?? "",
+        digitalMaturity: adsLabels.digitalMaturity?.trim() ?? "",
+        euProgramRequest: adsLabels.euProgramRequest?.trim() ?? "",
+      },
     });
     setSaving(false);
     if (res.success) toast.success("Οι ρυθμίσεις αποθηκεύτηκαν");
@@ -143,6 +159,49 @@ export function SettingsPageEditor({ initial }: { initial: SiteSettings }) {
                 </p>
               )}
             </div>
+          </div>
+
+          <div className="rounded-lg border bg-card p-4 space-y-4">
+            <div>
+              <h2 className="text-base font-semibold">Google Ads — Μετατροπές</h2>
+              <p className="text-sm text-muted-foreground">
+                Το conversion label είναι το κομμάτι <strong>μετά την κάθετο</strong> στο
+                snippet που δίνει το Google Ads:{" "}
+                <code className="rounded bg-muted px-1 text-[11px]">
+                  send_to: &apos;AW-10899195968/<strong>AbC-D_efGh</strong>&apos;
+                </code>
+                . Βάλτε μόνο το label — το AW- το ξέρει ήδη το σύστημα. Όποιο πεδίο
+                μείνει κενό, απλώς δεν καταγράφει μετατροπή.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {([
+                ["contact", "Φόρμα επικοινωνίας"],
+                ["booking", "Κλείσιμο ραντεβού"],
+                ["digitalMaturity", "Αξιολόγηση ψηφιακής ωριμότητας"],
+                ["euProgramRequest", "Αίτημα ΕΣΠΑ (Teams)"],
+                ["newsletter", "Εγγραφή newsletter"],
+              ] as const).map(([key, label]) => (
+                <div key={key}>
+                  <Label htmlFor={`ads-${key}`} className="mb-1 block text-xs">
+                    {label}
+                  </Label>
+                  <Input
+                    id={`ads-${key}`}
+                    value={adsLabels[key] ?? ""}
+                    onChange={(e) =>
+                      setAdsLabels((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
+                    placeholder="AbC-D_efGh"
+                    className="font-mono text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Οι μετατροπές στέλνονται μόνο όταν ο επισκέπτης έχει αποδεχθεί τα cookies
+              marketing.
+            </p>
           </div>
         </TabsContent>
 

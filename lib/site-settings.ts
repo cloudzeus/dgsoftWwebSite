@@ -41,6 +41,31 @@ export const siteSettingsSchema = z.object({
   trackingTags: z.array(trackingTagSchema).default([]),
   /** Dedicated Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX). */
   ga4MeasurementId: z.string().max(120).optional().default(""),
+  /**
+   * Google Ads conversion labels, one per action worth counting.
+   *
+   * A label is the part after the slash in the snippet Google Ads shows:
+   *   gtag('event','conversion',{send_to:'AW-123456789/AbC-D_efGh'})
+   *                                                    ^^^^^^^^^^^^
+   * Left empty, that conversion simply is not reported — the tag still loads
+   * and page views are still counted.
+   */
+  adsConversionLabels: z
+    .object({
+      contact: z.string().max(120).optional().default(""),
+      booking: z.string().max(120).optional().default(""),
+      newsletter: z.string().max(120).optional().default(""),
+      digitalMaturity: z.string().max(120).optional().default(""),
+      euProgramRequest: z.string().max(120).optional().default(""),
+    })
+    .optional()
+    .default({
+      contact: "",
+      booking: "",
+      newsletter: "",
+      digitalMaturity: "",
+      euProgramRequest: "",
+    }),
 });
 
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
@@ -48,6 +73,13 @@ export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 export const defaultSiteSettings: SiteSettings = {
   trackingTags: [],
   ga4MeasurementId: "",
+  adsConversionLabels: {
+    contact: "",
+    booking: "",
+    newsletter: "",
+    digitalMaturity: "",
+    euProgramRequest: "",
+  },
 };
 
 /** Basic GA4 Measurement ID shape: G- followed by alphanumerics. */

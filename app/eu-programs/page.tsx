@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { trackConversion } from "@/lib/conversions";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,6 +96,7 @@ export default function EUProgramsPage() {
                     return;
                 }
                 setTeamsResult({ joinUrl: data.joinUrl, subject: data.subject, start: data.start });
+                trackConversion("euProgramRequest");
                 setIsModalOpen(false);
             } catch (err) {
                 setSubmitError(locale === "el" ? "Σφάλμα δικτύου. Δοκιμάστε ξανά." : "Network error. Please try again.");

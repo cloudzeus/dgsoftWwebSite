@@ -15,6 +15,7 @@ import { FooterProvider } from "./context/FooterContext";
 import { getPublicFooter } from "./lib/actions/footer";
 import { getPublicSiteSettings } from "./lib/actions/settings";
 import { TrackingTags } from "@/components/tracking/TrackingTags";
+import { ConversionConfig } from "@/components/tracking/ConversionConfig";
 import { resolveTrackingTags } from "@/lib/site-settings";
 import { CookieBanner } from "@/components/cookies/CookieBanner";
 import { getSiteUrl } from "@/lib/site-url";
@@ -180,6 +181,12 @@ export default async function RootLayout({
           Μετάβαση στο περιεχόμενο
         </a>
         <TrackingTags tags={resolveTrackingTags(settings)} />
+        <ConversionConfig
+          adsId={
+            resolveTrackingTags(settings).find((t) => t.provider === "google-ads")?.pixelId ?? ""
+          }
+          labels={settings.adsConversionLabels ?? {}}
+        />
         <script
           id="ld-organization"
           type="application/ld+json"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { trackConversion } from "@/lib/conversions";
 import { Loader2, Calendar, Clock, Users, Mail, CheckCircle2, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,6 +120,7 @@ export default function BookMeetingForm() {
         end: data.end,
         emailSent: data.emailSent !== false,
       });
+      trackConversion("booking");
     } catch (e) {
       setBookError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
