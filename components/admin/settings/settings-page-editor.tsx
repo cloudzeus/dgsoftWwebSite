@@ -252,6 +252,7 @@ function TagCard({
               <SelectContent>
                 <SelectItem value="facebook-pixel">Facebook Pixel</SelectItem>
                 <SelectItem value="google-analytics">Google Analytics (GA4)</SelectItem>
+                <SelectItem value="google-ads">Google Ads (AW-…)</SelectItem>
                 <SelectItem value="google-tag-manager">Google Tag Manager</SelectItem>
                 <SelectItem value="other">Άλλο</SelectItem>
               </SelectContent>

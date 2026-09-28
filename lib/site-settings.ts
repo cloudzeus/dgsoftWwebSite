@@ -21,7 +21,7 @@ export const trackingTagSchema = z.object({
   type: z.enum(TRACKING_TAG_TYPES),
   /** For type="pixel-id": which provider (used to render the right snippet). */
   provider: z
-    .enum(["facebook-pixel", "google-analytics", "google-tag-manager", "other"])
+    .enum(["facebook-pixel", "google-analytics", "google-ads", "google-tag-manager", "other"])
     .optional(),
   /** For type="pixel-id": the ID (GA-XXXX, GTM-XXXX, FB pixel id). */
   pixelId: z.string().max(120).optional().default(""),
@@ -97,6 +97,24 @@ export function extractScriptContent(input: string): string {
   return matches.map((m) => m[1]).join("\n");
 }
 
+/**
+ * Snippet for any gtag.js-based product (GA4 "G-", Google Ads "AW-").
+ *
+ * Google's copy-paste snippet loads gtag.js and redefines window.gtag every
+ * time. With two such tags on one page that means a second ~100KB download and
+ * a redefinition race. Both products share one library, so this loads it only
+ * if it is not already there and only defines gtag once — then just adds its
+ * own config. Order of tags stops mattering.
+ */
+function buildGtagSnippet(id: string): string {
+  return [
+    "window.dataLayer=window.dataLayer||[];",
+    "if(typeof window.gtag!=='function'){window.gtag=function(){window.dataLayer.push(arguments);};window.gtag('js',new Date());}",
+    `if(!document.querySelector('script[src*="googletagmanager.com/gtag/js"]')){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${id}';document.head.appendChild(s);}`,
+    `window.gtag('config','${id}');`,
+  ].join("");
+}
+
 /** Build the runtime script body for a tag (handles both custom and pixel-id). */
 export function buildTagScript(tag: TrackingTag): string {
   if (tag.type === "custom") {
@@ -108,7 +126,9 @@ export function buildTagScript(tag: TrackingTag): string {
     case "facebook-pixel":
       return `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${id}');fbq('track','PageView');`;
     case "google-analytics":
-      return `(function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${id}';document.head.appendChild(s);})();window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${id}');`;
+    case "google-ads":
+      // Same library for both; see buildGtagSnippet.
+      return buildGtagSnippet(id);
     case "google-tag-manager":
       return `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${id}');`;
     default:
