@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-30T07:05:18.584Z",
+  "timestamp": "2026-09-30T07:10:18.036Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,20 +19,8 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "app/layout.tsx"
-    },
-    {
-      "status": "M",
-      "path": "components/tracking/TrackingTags.tsx"
-    },
-    {
-      "status": "??",
-      "path": "components/tracking/GoogleConsentMode.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nd7b4f76 feat(analytics): Google Ads conversion tracking on all five public forms\n235ca06 feat(analytics): support Google Ads tags, add AW-10899195968\n57f3148 fix(analytics): record a page_view on every route change\n437a65e fix(security): guard the contact form and catch random-string spam\nb9f5287 feat(security): stop form spam before it reaches Mailgun"
+  "context_notes": "Recent commits:\nf5781dd fix(analytics): Google Consent Mode v2 so the tag is detectable\nd7b4f76 feat(analytics): Google Ads conversion tracking on all five public forms\n235ca06 feat(analytics): support Google Ads tags, add AW-10899195968\n57f3148 fix(analytics): record a page_view on every route change\n437a65e fix(security): guard the contact form and catch random-string spam"
 }
