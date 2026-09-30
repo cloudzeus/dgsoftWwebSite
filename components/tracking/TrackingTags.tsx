@@ -14,6 +14,15 @@ import {
   type CookieConsent,
 } from "@/lib/cookie-consent";
 
+/** Providers that honour Google Consent Mode signals. */
+function isGoogleProvider(provider: TrackingTag["provider"]): boolean {
+  return (
+    provider === "google-analytics" ||
+    provider === "google-ads" ||
+    provider === "google-tag-manager"
+  );
+}
+
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
@@ -50,6 +59,16 @@ export function TrackingTags({ tags }: { tags: TrackingTag[] }) {
   const active = (isAdmin ? [] : tags).filter((t) => {
     if (!t.enabled) return false;
     if (t.category === "necessary") return true;
+
+    // Google products run under Consent Mode v2: the library loads on every
+    // page but every storage signal starts denied, so no cookies are set and
+    // only cookieless pings are sent until the visitor chooses. Loading them
+    // unconditionally is what makes the tag detectable by Google's verifier —
+    // gating them entirely is why Ads reported a missing tag.
+    if (isGoogleProvider(t.provider)) return true;
+
+    // Everything else (Facebook pixel, custom scripts) has no equivalent
+    // mechanism and stays fully gated.
     if (!consent) return false;
     if (t.category === "analytics") return consent.analytics;
     if (t.category === "marketing") return consent.marketing;

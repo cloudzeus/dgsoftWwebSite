@@ -16,6 +16,7 @@ import { getPublicFooter } from "./lib/actions/footer";
 import { getPublicSiteSettings } from "./lib/actions/settings";
 import { TrackingTags } from "@/components/tracking/TrackingTags";
 import { ConversionConfig } from "@/components/tracking/ConversionConfig";
+import { GoogleConsentMode } from "@/components/tracking/GoogleConsentMode";
 import { resolveTrackingTags } from "@/lib/site-settings";
 import { CookieBanner } from "@/components/cookies/CookieBanner";
 import { getSiteUrl } from "@/lib/site-url";
@@ -180,6 +181,16 @@ export default async function RootLayout({
         >
           Μετάβαση στο περιεχόμενο
         </a>
+        {/* Must precede TrackingTags: the defaults have to be queued before any
+            gtag config runs, or storage would be allowed in the gap. */}
+        <GoogleConsentMode
+          enabled={resolveTrackingTags(settings).some(
+            (t) =>
+              t.provider === "google-analytics" ||
+              t.provider === "google-ads" ||
+              t.provider === "google-tag-manager"
+          )}
+        />
         <TrackingTags tags={resolveTrackingTags(settings)} />
         <ConversionConfig
           adsId={

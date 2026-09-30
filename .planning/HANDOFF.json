@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-09-28T09:01:35.521Z",
+  "timestamp": "2026-09-30T07:05:18.584Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -22,45 +22,17 @@
     },
     {
       "status": "M",
-      "path": "app/components/NewsletterSignup.tsx"
-    },
-    {
-      "status": "M",
-      "path": "app/eu-programs/page.tsx"
-    },
-    {
-      "status": "M",
       "path": "app/layout.tsx"
     },
     {
       "status": "M",
-      "path": "components/DigitalMaturityModal.tsx"
-    },
-    {
-      "status": "M",
-      "path": "components/admin/settings/settings-page-editor.tsx"
-    },
-    {
-      "status": "M",
-      "path": "components/contact/ContactForm.tsx"
-    },
-    {
-      "status": "M",
-      "path": "components/teams-booking/book-meeting-form.tsx"
-    },
-    {
-      "status": "M",
-      "path": "lib/site-settings.ts"
+      "path": "components/tracking/TrackingTags.tsx"
     },
     {
       "status": "??",
-      "path": "components/tracking/ConversionConfig.tsx"
-    },
-    {
-      "status": "??",
-      "path": "lib/conversions.ts"
+      "path": "components/tracking/GoogleConsentMode.tsx"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n235ca06 feat(analytics): support Google Ads tags, add AW-10899195968\n57f3148 fix(analytics): record a page_view on every route change\n437a65e fix(security): guard the contact form and catch random-string spam\nb9f5287 feat(security): stop form spam before it reaches Mailgun\n61f6916 feat(admin): media picker in the services, EU programmes and customer forms"
+  "context_notes": "Recent commits:\nd7b4f76 feat(analytics): Google Ads conversion tracking on all five public forms\n235ca06 feat(analytics): support Google Ads tags, add AW-10899195968\n57f3148 fix(analytics): record a page_view on every route change\n437a65e fix(security): guard the contact form and catch random-string spam\nb9f5287 feat(security): stop form spam before it reaches Mailgun"
 }
