@@ -333,6 +333,9 @@ model Presence {
 
   order     Int     @default(0)
   published Boolean @default(true)
+  /// Marks the registered seat. Exactly one office should carry it — the admin
+  /// enforces that by clearing the flag on the others when it is set.
+  isHeadquarters Boolean @default(false)
 
   createdAt         DateTime                  @default(now())
   updatedAt         DateTime                  @updatedAt

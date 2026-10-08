@@ -34,8 +34,11 @@ function normalizeCityLiteral(v: string): string {
   return v.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ς/g, "σ");
 }
 
-/** The registered seat. Everything else is a branch. */
-const HQ_CITY = normalizeCityLiteral("Περιστέρι");
+/**
+ * Fallback seat, used only for rows predating the isHeadquarters column.
+ * The flag on the record wins whenever any office carries it.
+ */
+const FALLBACK_HQ_CITY = normalizeCityLiteral("Περιστέρι");
 
 const CITY_SLUGS: Record<string, string> = {
   περιστερι: "peristeri",
@@ -125,7 +128,7 @@ function toOffice(row: any): OfficeLocation {
     email: row.email || null,
     latitude: row.latitude ?? null,
     longitude: row.longitude ?? null,
-    isHeadquarters: key === HQ_CITY,
+    isHeadquarters: !!row.isHeadquarters,
     serves: ctx?.serves ?? (city ? [city] : []),
   };
 }
@@ -136,9 +139,22 @@ export const getOfficeLocations = cache(async (): Promise<OfficeLocation[]> => {
       where: { published: true },
       orderBy: { order: "asc" },
     });
-    const offices = rows.map(toOffice).filter((o) => o.slug && o.city);
-    // Headquarters first, then the order configured in the admin.
-    return offices.sort((a, b) => Number(b.isHeadquarters) - Number(a.isHeadquarters));
+    let offices = rows.map(toOffice).filter((o) => o.slug && o.city);
+
+    // Before the flag existed the seat was decided by city name. If no row
+    // carries it yet, fall back to that so the public pages never lose their HQ.
+    if (!offices.some((o) => o.isHeadquarters)) {
+      offices = offices.map((o) =>
+        normalizeCity(o.city) === FALLBACK_HQ_CITY ? { ...o, isHeadquarters: true } : o
+      );
+    }
+
+    // The admin's drag order is authoritative — prisma already applied it — so
+    // only lift the seat to the top without otherwise disturbing it.
+    return [
+      ...offices.filter((o) => o.isHeadquarters),
+      ...offices.filter((o) => !o.isHeadquarters),
+    ];
   } catch (error) {
     console.error("getOfficeLocations failed:", error);
     return [];

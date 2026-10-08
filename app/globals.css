@@ -315,3 +315,21 @@ article li {
 @media (prefers-reduced-motion: reduce) {
   .hero-orb-1, .hero-orb-2, .hero-arrow-nudge, .hero-scroll-hint { animation: none; }
 }
+
+
+/* Headquarters marker on the locations map: a slow, low-contrast pulse that
+   marks the seat without competing with the hover state used for every pin.
+   Honours prefers-reduced-motion — the ring stays, it simply stops moving. */
+@keyframes hq-pulse {
+  0%   { transform: scale(1);    opacity: 0.35; }
+  70%  { transform: scale(2.1);  opacity: 0;    }
+  100% { transform: scale(2.1);  opacity: 0;    }
+}
+.hq-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hq-pulse 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hq-pulse { animation: none; opacity: 0.25; }
+}

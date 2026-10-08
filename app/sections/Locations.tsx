@@ -150,11 +150,24 @@ export default function Locations({ data = [] }: { data?: any[] }) {
                             {/* Markers for specific locations */}
                             {data.filter(l => l.longitude && l.latitude).map((loc) => (
                                 <Marker key={loc.id} coordinates={[loc.longitude, loc.latitude] as [number, number]}>
-                                    {/* Marker Dot */}
+                                    {/* Marker dot. The headquarters is drawn larger, with a
+                                        white ring and a slow continuous pulse, so the seat reads
+                                        at a glance without hovering. Branches stay quiet and only
+                                        animate on hover. */}
                                     <g>
+                                        {loc.isHeadquarters && (
+                                            <circle
+                                                r={9}
+                                                fill="#e63946"
+                                                opacity="0.35"
+                                                className="hq-pulse pointer-events-none"
+                                            />
+                                        )}
                                         <circle
-                                            r={activeId === loc.id ? 8 : 5}
-                                            fill="#e63946" // monks-accent
+                                            r={activeId === loc.id ? (loc.isHeadquarters ? 10 : 8) : (loc.isHeadquarters ? 7 : 5)}
+                                            fill="#e63946"
+                                            stroke={loc.isHeadquarters ? "#ffffff" : "none"}
+                                            strokeWidth={loc.isHeadquarters ? 1.5 : 0}
                                             className="transition-all duration-300 pointer-events-none"
                                         />
                                         <circle

@@ -18,7 +18,9 @@ import {
     Compass,
     Layers,
     Navigation,
-    Home
+    Home,
+    GripVertical,
+    Building2
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -31,7 +33,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
 
-import { createLocation, updateLocation, deleteLocation, getCoordinates } from "@/app/lib/actions/location"
+import { createLocation, updateLocation, deleteLocation, getCoordinates, reorderLocations, setHeadquarters } from "@/app/lib/actions/location"
 import { GenericDataTable } from "../shared/generic-data-table"
 
 export type Location = {
@@ -53,11 +55,37 @@ export type Location = {
     longitude: number | null;
     order: number;
     published: boolean;
+    isHeadquarters: boolean;
     createdAt: Date;
 }
 
 export function DataTableLocations({ data: initialData }: { data: Location[] }) {
     const [data, setData] = React.useState<Location[]>(initialData || [])
+
+    const handleReorder = async (newData: Location[]) => {
+        const previous = data
+        setData(newData)   // optimistic: the list should follow the cursor
+        try {
+            await reorderLocations(newData.map(l => l.id))
+            toast.success("Η σειρά ενημερώθηκε")
+        } catch {
+            setData(previous)
+            toast.error("Αποτυχία αναδιάταξης")
+        }
+    }
+
+    const handleSetHq = async (id: string) => {
+        const previous = data
+        // Only one seat: reflect that locally before the server confirms.
+        setData(data.map(l => ({ ...l, isHeadquarters: l.id === id })))
+        try {
+            await setHeadquarters(id)
+            toast.success("Ορίστηκε ως έδρα")
+        } catch {
+            setData(previous)
+            toast.error("Αποτυχία ορισμού έδρας")
+        }
+    }
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
     const [editingLocation, setEditingLocation] = React.useState<Location | null>(null)
     const [isSaving, setIsSaving] = React.useState(false)
@@ -143,6 +171,39 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
     }
 
     const columns: ColumnDef<Location>[] = [
+        {
+            id: "drag",
+            header: "",
+            cell: () => <GripVertical className="h-4 w-4 text-[#C8C6C4] opacity-0 group-hover:opacity-100 transition-opacity" />,
+            size: 40
+        },
+        {
+            id: "hq",
+            header: () => (
+                <span className="text-[11px] font-semibold text-[#605E5C] uppercase tracking-wide">Έδρα</span>
+            ),
+            cell: ({ row }) => {
+                const isHq = row.original.isHeadquarters
+                return (
+                    <button
+                        type="button"
+                        role="radio"
+                        aria-checked={isHq}
+                        aria-label={`Ορισμός ${row.original.cityEL ?? row.original.nameEL} ως έδρα`}
+                        title={isHq ? "Αυτή είναι η έδρα" : "Ορισμός ως έδρα"}
+                        onClick={(e) => { e.stopPropagation(); if (!isHq) handleSetHq(row.original.id) }}
+                        className={`flex h-6 w-6 items-center justify-center rounded-full border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0078D4] ${
+                            isHq
+                                ? "border-[#0078D4] bg-[#0078D4] text-white"
+                                : "border-[#C8C6C4] text-transparent hover:border-[#0078D4]"
+                        }`}
+                    >
+                        <Building2 className="h-3.5 w-3.5" />
+                    </button>
+                )
+            },
+            size: 64
+        },
         {
             id: "branding",
             header: "",
@@ -306,6 +367,7 @@ export function DataTableLocations({ data: initialData }: { data: Location[] }) 
                 columns={columns} data={data} searchPlaceholder="Αναζήτηση παραρτήματος..." searchColumn="nameEL"
                 onAddClick={() => openEdit()} addButtonLabel="Νέο Παράρτημα"
                 renderExpandedRow={renderExpandedRow}
+                isSortable={true} rowIdKey="id" onReorder={handleReorder}
             />
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

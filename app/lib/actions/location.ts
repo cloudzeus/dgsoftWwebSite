@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
+import { revalidatePath } from "next/cache"
 
 export async function getLocations() {
     const session = await auth()
@@ -55,6 +56,7 @@ export async function createLocation(data: any) {
                 longitude: data.longitude ? parseFloat(data.longitude) : null,
                 order: data.order ? parseInt(data.order, 10) : 0,
                 published: data.published ?? true,
+                isHeadquarters: data.isHeadquarters ?? false,
             }
         })
     } catch (error: any) {
@@ -151,5 +153,56 @@ export async function getCoordinates(query: string): Promise<{ latitude: number;
         const message = error instanceof Error ? error.message : String(error);
         console.error("GEOCODE Error:", message);
         throw new Error(message);
+    }
+}
+
+/**
+ * Persist a new display order.
+ *
+ * Written in one transaction so a failure halfway cannot leave two offices
+ * claiming the same position — the list would then render in an order nobody
+ * chose.
+ */
+export async function reorderLocations(orderedIds: string[]) {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
+
+    try {
+        await prisma.$transaction(
+            orderedIds.map((id, index) =>
+                prisma.presence.update({ where: { id }, data: { order: index } })
+            )
+        )
+        revalidatePath("/locations")
+        revalidatePath("/", "layout")
+        return { success: true as const }
+    } catch (error: any) {
+        console.error("REORDER LOCATIONS Error:", error)
+        throw new Error(error.message)
+    }
+}
+
+/**
+ * Mark one office as the registered seat.
+ *
+ * Clears the flag everywhere else in the same transaction: two headquarters
+ * would produce two competing LocalBusiness entities sharing the organisation's
+ * @id, which is exactly the duplicate the public pages were built to avoid.
+ */
+export async function setHeadquarters(id: string) {
+    const session = await auth()
+    if (!session || session.user?.role !== "ADMIN") throw new Error("Unauthorized access. Admin only.")
+
+    try {
+        await prisma.$transaction([
+            prisma.presence.updateMany({ where: { NOT: { id } }, data: { isHeadquarters: false } }),
+            prisma.presence.update({ where: { id }, data: { isHeadquarters: true } }),
+        ])
+        revalidatePath("/locations")
+        revalidatePath("/", "layout")
+        return { success: true as const }
+    } catch (error: any) {
+        console.error("SET HEADQUARTERS Error:", error)
+        throw new Error(error.message)
     }
 }
